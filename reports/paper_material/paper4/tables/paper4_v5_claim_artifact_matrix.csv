@@ -1,0 +1,14 @@
+priority,claim_status,artifact,quarto_page,caveat
+Online source-month,implemented_guard_search,paper4_v5_online_source_month_search.csv,19ah-v5-online-ifrs9-sicr.qmd,guarded search can pass coverage by using wider intervals
+IFRS9 servicing proxy,implemented_monthly_panel_proxy,paper4_v5_ifrs9_servicing_panel.parquet,19ah-v5-online-ifrs9-sicr.qmd,not a true external servicing ledger
+SICR defendible,implemented_rule_comparison,paper4_v5_sicr_rule_comparison.csv,19ah-v5-online-ifrs9-sicr.qmd,"rules are defensible proxies, not audited accounting policy"
+CVaR top-k expanded,implemented_policy_set_cvar,paper4_v5_cvar_topk_expanded_frontier.csv,19ai-v5-tail-mdcp-selector-sdam.qmd,"expanded policy-set evaluation, not full LP"
+MDCP-aware search,implemented_selector_objective,paper4_v5_mdcp_aware_search.csv,19ai-v5-tail-mdcp-selector-sdam.qmd,uses existing allocations rather than solving new MDCP-constrained LP
+Selector committee,implemented_protocol,paper4_v5_selector_committee_memo.csv,19ai-v5-tail-mdcp-selector-sdam.qmd,committee thresholds remain project governance
+SDAM/DLA v5,implemented_action_library_dla,paper4_v5_dla_endogenous_policy_trace.csv,19ai-v5-tail-mdcp-selector-sdam.qmd,"DLA over action library, not full Bellman solve"
+Causal/CATE,implemented_falsification_pack,paper4_v5_causal_falsification_tests.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,CATE remains blocked for policy value
+Fairness,implemented_protocol_decision,paper4_v5_fairness_protocol_decision.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,no protected-attribute legal claim
+Correlated sample paths,implemented_macro_correlated_paths,paper4_v5_correlated_sample_path_ci.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,simulated macro/grade/month shocks
+SPO/DFL hybrids,implemented_design_screen,paper4_v5_spo_dfl_hybrid_screen.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,training still future work
+Temporal TS/ECL,implemented_downstream_screen,paper4_v5_temporal_ecl_downstream_value.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,research-only TS intervals
+CQR decision-aware,implemented_comparator_screen,paper4_v5_cqr_decision_aware_screen.csv,19aj-v5-causal-fairness-paths-hybrids.qmd,comparator remains blocked unless coverage/width/eligibility improve

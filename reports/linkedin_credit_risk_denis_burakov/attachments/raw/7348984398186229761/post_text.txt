@@ -1,0 +1,6 @@
+When interpreting model results, people often ask: What is the recall of your model? Its F1 or precision scores? Taken in isolation from the problem, these metrics don't say much and can even mislead. Precision, recall, and F1 are often treated as universal measures of model quality but in reality they're just context-dependent tools.
+I came across such an example in a book by Tom Chivers. Imagine a rare event like COVID, affecting only 0.1% of people (the prevalence). Suppose you have a test that detects 90% of actual COVID cases and correctly identifies 99% of non-cases. It sure does sound great, until you look at precision: only 8% of those who tested positive actually had COVID, resulting in a low F1 score of 15%.
+Does that make the test useless? Not necessarily.
+The key is understanding what precision really is: 𝘁𝗵𝗲 𝗽𝗿𝗼𝗯𝗮𝗯𝗶𝗹𝗶𝘁𝘆 𝗼𝗳 𝗵𝗮𝘃𝗶𝗻𝗴 𝗖𝗢𝗩𝗜𝗗 𝗴𝗶𝘃𝗲𝗻 𝗮 𝗽𝗼𝘀𝗶𝘁𝗶𝘃𝗲 𝘁𝗲𝘀𝘁 𝗿𝗲𝘀𝘂𝗹𝘁. This is what models like logistic regression are doing. Unlike recall, precision depends on the overall prevalence of the condition, so even highly accurate models can produce low precision and F1 scores when the event you're looking for is rare.
+The accompanying slides break down this relationship and show how prevalence shapes the interpretation of model performance ⤵
+Book: https://lnkd.in/d852UZYK

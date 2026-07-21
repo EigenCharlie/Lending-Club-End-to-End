@@ -1,0 +1,6 @@
+gate,status_v25,evidence,cate_policy_value_allowed
+identification,theory_blocked,accepted-loan/reject-inference and pricing endogeneity remain,False
+overlap,review,trimmed overlap share=1.000,False
+balance,review,max |trimmed SMD|=0.365,False
+sensitivity,blocked,hidden-bias grid remains diagnostic only,False
+falsification,review,"placebos required for appendix, not promotion",False

@@ -1,0 +1,16 @@
+CRAN: Package xrf
+xrf: eXtreme RuleFit
+An implementation of the RuleFit algorithm as described in
+Friedman & Popescu (2008) < doi:10.1214/07-AOAS148 >. eXtreme Gradient
+Boosting ('XGBoost') is used to build rules, and 'glmnet' is used to
+fit a sparse linear model on the raw and rule features. The result is
+a model that learns similarly to a tree ensemble, while often offering
+improved interpretability and achieving improved scoring runtime in
+live applications. Several algorithms for reducing rule complexity are
+provided, most notably hyperrectangle de-overlapping. All algorithms
+scale to several million rows and support sparse representations to
+handle tens of thousands of dimensions.
+Version: 0.3.1 Depends: R (≥ 4.3.0) Imports: cli , dplyr , glmnet (≥ 3.0), Matrix , methods , rlang , xgboost (≥ 3.1.2.1) Suggests: covr , testthat (≥ 3.0.0) Published: 2025-12-17 DOI: 10.32614/CRAN.package.xrf Author: Karl Holub [aut, cre] Maintainer: Karl Holub <karljholub at gmail.com> BugReports: https://github.com/holub008/xrf/issues License: MIT + file LICENSE URL: https://github.com/holub008/xrf NeedsCompilation: no Materials: README CRAN checks: xrf results Documentation: Reference manual: xrf.html , xrf.pdf Downloads: Package source: xrf_0.3.1.tar.gz Windows binaries: r-devel: xrf_0.3.1.zip , r-release: xrf_0.3.1.zip , r-oldrel: xrf_0.3.1.zip macOS binaries: r-release (arm64): xrf_0.3.1.tgz , r-oldrel (arm64): xrf_0.3.1.tgz , r-release (x86_64): xrf_0.3.1.tgz , r-oldrel (x86_64): xrf_0.3.1.tgz Old sources: xrf archive Reverse dependencies: Reverse suggests: butcher , rules Linking:
+Please use the canonical form
+https://CRAN.R-project.org/package=xrf
+to link to this page.

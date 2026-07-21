@@ -27,6 +27,21 @@
       "can_promote": true
     },
     {
+      "search": "pd_hpo_local_refine",
+      "scripts": [
+        "scripts/search/run_pd_hpo_local.py",
+        "scripts/build_pd_hpo_local_config.py",
+        "scripts/train_pd_model.py"
+      ],
+      "artifacts": [
+        "models/search_pd/<run_tag>/pd_model_hpo_local.yaml",
+        "models/search_pd/<run_tag>/pd_training_record.pkl",
+        "models/search_pd/<run_tag>/pd_hpo_seed_replay_status.json"
+      ],
+      "target_pipeline": "search_pd",
+      "can_promote": true
+    },
+    {
       "search": "challenger_promotion",
       "scripts": [
         "scripts/build_pd_challenger_artifacts.py",
@@ -53,6 +68,25 @@
       "can_promote": true
     },
     {
+      "search": "conformal_reopen_exhaustive",
+      "scripts": [
+        "scripts/search/run_conformal_reopen_search.py",
+        "scripts/generate_conformal_intervals.py",
+        "scripts/benchmark_conformal_variants.py",
+        "scripts/benchmark_pd_set_prediction.py",
+        "scripts/validate_conformal_experiment.py",
+        "scripts/validate_conformal_policy.py"
+      ],
+      "artifacts": [
+        "models/conformal_gap/<run_tag>/conformal_reopen_status.json",
+        "data/processed/conformal_gap/<run_tag>/conformal_reopen_inner_aggregate.parquet",
+        "data/processed/conformal_gap/<run_tag>/conformal_reopen_phase1_final_candidates.parquet",
+        "data/processed/conformal_gap/<run_tag>/pd_set_prediction_benchmark.parquet"
+      ],
+      "target_pipeline": "search_conformal",
+      "can_promote": true
+    },
+    {
       "search": "conformal_alpha_sweep",
       "scripts": [
         "scripts/run_alpha_sweep.py"
@@ -74,6 +108,22 @@
         "models/cqr_mondrian_status.json"
       ],
       "target_pipeline": "search_conformal",
+      "can_promote": false
+    },
+    {
+      "search": "paper2_ifrs9_exhaustive",
+      "scripts": [
+        "scripts/run_survival_analysis.py",
+        "scripts/train_lgd_ead.py",
+        "scripts/run_ifrs9_sensitivity.py",
+        "scripts/run_ifrs9_diagnostics.py"
+      ],
+      "artifacts": [
+        "models/survival_summary.pkl",
+        "models/lgd_ead_status.json",
+        "models/ifrs9_diagnostics_status.json"
+      ],
+      "target_pipeline": "search_paper2_ifrs9",
       "can_promote": false
     },
     {
@@ -109,7 +159,7 @@
       "artifacts": [
         "models/survival_summary.pkl"
       ],
-      "target_pipeline": "paper2_e2e",
+      "target_pipeline": "search_paper2_ifrs9",
       "can_promote": false
     },
     {

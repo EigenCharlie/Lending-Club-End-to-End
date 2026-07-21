@@ -1,0 +1,7 @@
+source_id,mapped_cap,base_cap,worst_defended_coverage_v9,min_defended_support,support_penalty_v12,coverage_penalty_v12,empirical_cap_v12,cap_scope_v12
+original_grade,cap_grade_dplus,0.58,0.8,5,0.05,0.043999999999999984,0.48599999999999993,empirical_coverage_and_min_support_aware
+dti_band,cap_dti_high,0.58,0.8,5,0.05,0.043999999999999984,0.48599999999999993,empirical_coverage_and_min_support_aware
+score_decile,cap_score_low,0.92,0.8,5,0.05,0.043999999999999984,0.8260000000000001,empirical_coverage_and_min_support_aware
+income_band,cap_income_q5,0.66,0.8571428571428571,5,0.05,0.012571428571428601,0.5974285714285714,empirical_coverage_and_min_support_aware
+period,cap_period_2018h1,0.66,0.9,5,0.05,0.0,0.61,empirical_coverage_and_min_support_aware
+state_top20,cap_state_top20,1.0,0.8,5,0.0,0.0,1.0,empirical_coverage_and_min_support_aware

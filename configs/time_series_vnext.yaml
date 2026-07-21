@@ -1,0 +1,110 @@
+schema_version: "2026-04-02.1"
+horizon: 12
+freq: "MS"
+season_length: 12
+
+rolling_origin:
+  min_train_periods: 72
+  step_months: 1
+  embargo_periods: 12
+  max_windows: 36
+
+point_champion:
+  primary_metric: "mase"
+  tiebreakers:
+    - "rmsse"
+    - "abs_bias"
+  must_beat_seasonal_naive: true
+  max_rmsse_vs_seasonal_naive: 1.0
+
+interval_policy:
+  target_level: 90
+  max_coverage_gap: 0.03
+  max_winkler_90: null
+  tiebreakers:
+    - "coverage_gap_90"
+    - "wis_90"
+    - "winkler_90"
+    - "avg_interval_width_90"
+  official_family: "statistical"
+  eligible_interval_families:
+    - "statistical"
+    - "adaptive"
+  ml_intervals_diagnostic_only_if_unpromoted: true
+  include_conformal_statistical: false
+  conformal_n_windows: 3
+  mapie_estimator: "linear"
+  mapie_evaluation_size: 24
+
+exogenous:
+  enabled: false
+  future_covariates_path: "data/processed/ts_future_covariates.parquet"
+  required_columns:
+    - "ds"
+
+targets:
+  candidates:
+    - name: "raw_rate"
+      column: "y"
+      transform: "identity"
+    - name: "logit_rate"
+      column: "y_logit"
+      transform: "logit"
+      lower_bound: 0.000001
+      upper_bound: 0.999999
+
+models:
+  statistical:
+    - "SeasonalNaive"
+    - "AutoARIMA"
+    - "AutoETS"
+    - "AutoTheta"
+  challengers:
+    - "SARIMAX"
+    - "STL_CatBoost"
+  panel_global: "GlobalCatBoostPanel"
+
+panel:
+  bottom_level: "grade_term"
+
+diagnostics:
+  enable_kpss: true
+  enable_entropy: true
+  enable_variance_ratio: true
+  enable_residual_drift: true
+
+joint_paths:
+  enabled: true
+  methods:
+    - "gaussian_copula"
+    - "schaake_shuffle"
+  n_samples: 512
+  recent_threshold_multiplier: 1.10
+  random_seed: 42
+
+policy_review:
+  point_material_improvement_pct: 0.01
+  interval_gap_material_improvement: 0.01
+
+inputs:
+  canonical_status_path: "models/time_series_status.json"
+  canonical_interval_eval_path: "data/processed/ts_interval_eval.parquet"
+  canonical_ifrs9_summary_path: "data/processed/ifrs9_scenario_summary.parquet"
+  canonical_ts_ecl_path: "data/processed/ts_ecl_intervals.parquet"
+  grade_ecl_path: "data/processed/ifrs9_ecl_comparison.parquet"
+
+outputs:
+  time_series_path: "data/processed/time_series_vnext.parquet"
+  time_series_panel_path: "data/processed/time_series_panel_vnext.parquet"
+  backtest_predictions_path: "data/processed/ts_backtest_predictions_vnext.parquet"
+  backtest_metrics_path: "data/processed/ts_backtest_metrics_vnext.parquet"
+  interval_eval_path: "data/processed/ts_interval_eval_vnext.parquet"
+  forecasts_path: "data/processed/ts_forecasts_vnext.parquet"
+  scenarios_path: "data/processed/ts_ifrs9_scenarios_vnext.parquet"
+  panel_forecasts_path: "data/processed/ts_panel_forecasts_vnext.parquet"
+  joint_path_eval_path: "data/processed/ts_joint_path_eval_vnext.parquet"
+  joint_path_samples_path: "data/processed/ts_joint_path_samples_vnext.parquet"
+  ecl_intervals_path: "data/processed/ts_ecl_intervals_vnext.parquet"
+  policy_review_matrix_path: "data/processed/time_series_policy_review_matrix.parquet"
+  status_path: "models/time_series_vnext_status.json"
+  policy_review_path: "models/time_series_policy_review.json"

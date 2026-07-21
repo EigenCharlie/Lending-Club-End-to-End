@@ -1,0 +1,121 @@
+Gradient Boosting | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Gradient Boosting ✨
+This post continues the series covering common tools and instruments to build risk models. Gradient boosting, and most notably gradient boosted decision tree (GBDT), is a powerful instrument in a modeller's toolkit for problems like default prediction 💳
+The deck builds upon blogs by one of scikit-learn's core developers and offers a #Python 🐍 implementation of gradient boosting from scratch. Crafted for clarity, this post introduces gradient boosting from the ground up, offering a hands-on approach to this powerful modeling technique 🔮
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the Log Loss function utilized by #GBDT models for classification: https://lnkd.in/dGSxaKAS 💡
+▷ Discover a related post on the loss functions for #GBDT models: https://lnkd.in/dzg3g6Z9 💡
+▷ Discover a related post on the class imbalance with #GBDT models: https://lnkd.in/dRnzMSnc 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+89
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

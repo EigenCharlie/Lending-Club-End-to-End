@@ -1,0 +1,11 @@
+Another Look at Model Calibration 🪛
+In classification problems, metrics like the Gini score (Accuracy Ratio) are often used to evaluate model performance, particularly on imbalanced datasets. While these metrics are quite robust to imbalance, they don't assess how accurate the predicted probabilities are — known as calibration. A high Gini score can be deceptive and doesn't always reflect true accuracy 📐
+So, how do we assess if predictions are truly accurate? 💭 Measures like the Brier score or log loss offer a broad perspective, while visual tools like calibration plots can provide more detailed insight. However, a common issue with calibration plots is that the choice of bins and variations in the predicted probability ranges between models can invalidate fair comparisons ❎
+For visualizing a model's ranking performance, Cumulative Accuracy Profile (CAP) curves are widely used in risk modeling to show how well a model captures events like loan defaults when predictions are sorted. But what if we could use a similar continuous approach to refine the way we assess calibration quality? 📈
+By reordering the data underlying CAP curves, we can derive an extended measure of calibration: the Cumulative Calibration Profile (CCP). By comparing sorted probabilities and cumulative event rates with CCP curves, we can evaluate how well a model aligns with reality, avoiding the pitfalls of binning and accounting for different probability ranges between models 🎯
+Check out the visuals below to see how combining CAP and CCP curves can give a more comprehensive view of your model’s predictive performance ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore my first post on the platform about the calibration of modern PD models using expected calibration error (ECE): https://lnkd.in/dyn72Fmg 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

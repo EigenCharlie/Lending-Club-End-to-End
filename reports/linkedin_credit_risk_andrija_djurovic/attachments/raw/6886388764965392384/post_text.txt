@@ -1,0 +1,15 @@
+I am happy to announce that my new package PDtoolkit is now available on CRAN.
+The goal of this package is to cover the most common steps in PD rating model development and validation.
+The main procedures available are those that refer to univariate, bivariate, multivariate analysis, calibration and validation.
+Along with accompanied monobin and monobinShiny packages, PDtoolkit provides functions which are suitable for different
+data transformation and modeling tasks such as: imputations, monotonic binning of numeric risk factors,
+binning of categorical risk factors, weights of evidence and information value calculations,
+WoE coding, risk factor clustering (including implementation of x2y metric for mixed type risk factors),
+AUC calculation, stepwise regression based on marginal information value and others.
+Additionally, package provides set of validation functions for testing homogeneity, heterogeneity,
+discriminatory and predictive ability of the model.
+Worth mentioning is also a procedure that identifies segments where logistic regression model significantly overestimates or
+underestimates the observed default rates and Monte Carlo based power calculation of statistical tests used for predictive ability testing.
+For details and examples check out the github page https://lnkd.in/deVTA595 or
+README file from CRAN page https://lnkd.in/dMmMfEJB
+I will extend the package functionalities with the new versions.

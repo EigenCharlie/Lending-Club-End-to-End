@@ -1,15 +1,13 @@
-"""Generate publication-quality matplotlib figures for all 3 papers.
+"""Generate publication-quality matplotlib figures for active paper surfaces.
 
 Outputs PDF + PNG (300 DPI) under reports/paper_material/figures_publication/.
 
-Papers:
-  - Paper 3: Mondrian Conformal Prediction (COPA 2026)
-  - Paper 2: IFRS9 E2E with CP (JBF/JORS)
-  - Paper Estrella: Predict-then-Optimize (MS/OR/EJOR)
+Surfaces:
+  - Paper 2: IFRS9 E2E with CP
+  - CRPTO frozen reference figures used by Paper 4
 
 Usage:
     uv run python scripts/generate_paper_figures.py
-    uv run python scripts/generate_paper_figures.py --paper 3
     uv run python scripts/generate_paper_figures.py --paper 2
     uv run python scripts/generate_paper_figures.py --paper estrella
 """
@@ -105,204 +103,6 @@ def _save(fig: plt.Figure, name: str) -> None:
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-# ── Paper 3: Mondrian CP ──────────────────────────────────────────────────────
-
-METHOD_LABELS = {
-    "global_split": "Global Split-CP",
-    "mondrian_scaled": "Mondrian (scaled)",
-    "mondrian_unscaled": "Mondrian (unscaled)",
-    "score_decile_mondrian": "Score-Decile Mondrian",
-    "grade_x_scoreband_mondrian": "Grade×Scoreband",
-    "cross_conformal_score_space": "Cross-Conformal",
-}
-
-
-def _paper3_fig1_variant_scatter() -> None:
-    """Fig 1 — Efficiency–coverage Pareto scatter for 6 CP variants."""
-    df = pd.read_parquet(DATA_DIR / "conformal_variant_benchmark.parquet")
-
-    # Column is "variant", not "method"
-    var_col = "variant" if "variant" in df.columns else "method"
-
-    agg = (
-        df.groupby(var_col)
-        .agg(coverage=("coverage", "mean"), width=("avg_width", "mean"))
-        .reset_index()
-        .rename(columns={var_col: "method"})
-    )
-
-    fig, ax = plt.subplots(figsize=(COL2, HEIGHT_M))
-
-    target_cov = 0.90
-    ax.axvline(target_cov, color=PALETTE["red"], lw=1.0, ls="--", label="Target 90%")
-    ax.axhline(agg["width"].min(), color=PALETTE["lgray"], lw=0.7, ls=":")
-
-    offset_map = {
-        "mondrian_selected_cfg": (6, 2),
-        "grade_x_scoreband_mondrian": (6, 0),
-        "score_decile_mondrian": (6, -8),
-        "cross_conformal_score_space": (6, 4),
-        "global_split": (6, -8),
-        "mondrian_scaled": (6, -2),
-        "mondrian_unscaled": (6, 8),
-    }
-
-    for _i, row in agg.iterrows():
-        color = PALETTE["blue"] if row["coverage"] >= target_cov else PALETTE["gray"]
-        ax.scatter(
-            row["coverage"],
-            row["width"],
-            color=color,
-            s=70,
-            zorder=5,
-            edgecolors="white",
-            linewidths=0.5,
-        )
-        label = METHOD_LABELS.get(row["method"], row["method"])
-        xoff, yoff = offset_map.get(row["method"], (6, 0))
-        ax.annotate(
-            label,
-            (row["coverage"], row["width"]),
-            textcoords="offset points",
-            xytext=(xoff, yoff),
-            fontsize=7.3,
-            ha="left",
-            va="center",
-            bbox={
-                "boxstyle": "round,pad=0.15",
-                "facecolor": "white",
-                "edgecolor": "none",
-                "alpha": 0.8,
-            },
-        )
-
-    ax.set_xlabel("Empirical Coverage")
-    ax.set_ylabel("Mean Interval Width")
-    ax.set_title("Conformal Variants: Coverage–Efficiency Trade-off (OOT, $n=276{,}869$)")
-    ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
-    ax.set_xlim(0.893, 0.937)
-    ax.set_ylim(max(0.71, agg["width"].min() - 0.01), agg["width"].max() + 0.02)
-    from matplotlib.patches import Patch
-
-    ax.legend(
-        handles=[
-            Patch(color=PALETTE["blue"], label="Coverage ≥ 90% (valid)"),
-            Patch(color=PALETTE["gray"], label="Coverage < 90% (invalid)"),
-            plt.Line2D([0], [0], color=PALETTE["red"], ls="--", label="Target 90%"),
-        ],
-        loc="upper left",
-    )
-    fig.tight_layout()
-    _save(fig, "p3_fig1_variant_scatter")
-
-
-def _paper3_fig2_grade_coverage_heatmap() -> None:
-    """Fig 2 — Per-grade coverage heatmap across 6 CP variants."""
-    df = pd.read_parquet(DATA_DIR / "conformal_variant_benchmark_by_group.parquet")
-
-    # Columns: group, variant (not method/grade)
-    var_col = "variant" if "variant" in df.columns else "method"
-    grp_col = "group" if "group" in df.columns else "grade"
-
-    df = df[df[grp_col].astype(str).str.fullmatch(r"[A-G]")]
-    pivot = df.pivot_table(index=var_col, columns=grp_col, values="coverage", aggfunc="mean")
-    pivot.index = [METHOD_LABELS.get(m, m) for m in pivot.index]
-    desired_order = [
-        "mondrian_selected_cfg",
-        "score_decile_mondrian",
-        "grade_x_scoreband_mondrian",
-        "cross_conformal_score_space",
-        "mondrian_scaled",
-        "mondrian_unscaled",
-        "global_split",
-    ]
-    ordered_labels = [METHOD_LABELS.get(m, m) for m in desired_order if m in df[var_col].unique()]
-    pivot = pivot.reindex(ordered_labels)
-    pivot = pivot.reindex(sorted(pivot.columns), axis=1)
-
-    fig, ax = plt.subplots(figsize=(COL2, HEIGHT_M))
-    cmap = plt.cm.RdYlGn
-    im = ax.imshow(pivot.values, cmap=cmap, vmin=0.70, vmax=1.00, aspect="auto")
-
-    ax.set_xticks(range(len(pivot.columns)))
-    ax.set_xticklabels(pivot.columns, fontsize=8)
-    ax.set_yticks(range(len(pivot.index)))
-    ax.set_yticklabels(pivot.index, fontsize=8)
-    ax.set_xlabel("Grade")
-    ax.set_ylabel("Conformal Method")
-    ax.set_title("Per-Grade Coverage (nominal = 90%, OOT)")
-
-    for i in range(len(pivot.index)):
-        for j in range(len(pivot.columns)):
-            val = pivot.values[i, j]
-            if pd.isna(val):
-                continue
-            color = "white" if val < 0.80 or val > 0.97 else "black"
-            ax.text(j, i, f"{val:.0%}", ha="center", va="center", fontsize=7.2, color=color)
-
-    cbar = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
-    cbar.set_label("Empirical Coverage", fontsize=8)
-    cbar.ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
-    ax.grid(False)
-    fig.tight_layout()
-    _save(fig, "p3_fig2_grade_coverage_heatmap")
-
-
-def _paper3_fig3_temporal_stability() -> None:
-    """Fig 3 — Temporal coverage stability for top 3 variants."""
-    df = pd.read_parquet(DATA_DIR / "conformal_temporal_diagnostics.parquet")
-
-    if df.empty:
-        logger.warning("conformal_temporal_diagnostics empty — skipping fig3")
-        return
-
-    # Pick top methods (by availability)
-    method_col = "method" if "method" in df.columns else "variant"
-    methods_available = df[method_col].dropna().unique().tolist()
-    preferred = ["mondrian_selected_cfg", "score_decile_mondrian", "cross_conformal_score_space"]
-    methods = [m for m in preferred if m in methods_available][:3]
-    if not methods:
-        methods = methods_available[:3]
-
-    time_col = (
-        "temporal_segment"
-        if "temporal_segment" in df.columns
-        else ("period" if "period" in df.columns else "month")
-    )
-    cov_col = (
-        "coverage"
-        if "coverage" in df.columns
-        else ("coverage_90" if "coverage_90" in df.columns else df.columns[-1])
-    )
-
-    fig, ax = plt.subplots(figsize=(COL2, HEIGHT_M))
-    ax.axhline(0.90, color=PALETTE["red"], lw=1.0, ls="--", label="Target 90%", zorder=1)
-
-    color_cycle = [PALETTE["blue"], PALETTE["orange"], PALETTE["green"]]
-    for i, method in enumerate(methods):
-        sub = df[df[method_col] == method].sort_values(time_col)
-        label = METHOD_LABELS.get(method, method)
-        ax.plot(
-            pd.to_datetime(sub[time_col]),
-            sub[cov_col].values,
-            marker="o",
-            ms=4,
-            color=color_cycle[i],
-            label=label,
-            zorder=3,
-        )
-
-    ax.set_xlabel("Mes OOT")
-    ax.set_ylabel("Empirical Coverage")
-    ax.set_title("Temporal Coverage Stability — Top Conformal Variants")
-    ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
-    ax.set_ylim(0.70, 1.01)
-    ax.xaxis.set_major_locator(mticker.MaxNLocator(8))
-    ax.legend(loc="lower right")
-    fig.tight_layout()
-    _save(fig, "p3_fig3_temporal_stability")
 
 
 # ── Paper 2: IFRS9 E2E ────────────────────────────────────────────────────────
@@ -816,139 +616,8 @@ def _estrella_fig11_crpto_stability() -> None:
     _generate_stability_figure(detail_df, OUT_DIR)
 
 
-def _paper3_fig_nonconformity_scores_by_grade() -> None:
-    """Fig — Nonconformity score distribution by grade with quantile thresholds.
-
-    Illustrates WHY Mondrian is necessary: residual distributions differ
-    substantially across grades, so a single global quantile leads to systematic
-    under-coverage in high-risk grades and over-coverage in low-risk grades.
-    """
-    df = pd.read_parquet(DATA_DIR / "conformal_intervals_mondrian.parquet")
-    required = {"y_true", "y_pred", "grade"}
-    if not required.issubset(df.columns):
-        logger.warning(
-            "nonconformity_scores figure skipped — missing columns in intervals parquet."
-        )
-        return
-
-    grades = [g for g in ["A", "B", "C", "D", "E", "F", "G"] if g in df["grade"].unique()]
-    n_grades = len(grades)
-    if n_grades == 0:
-        return
-
-    grade_colors = {
-        "A": PALETTE["green"],
-        "B": PALETTE["sky"],
-        "C": PALETTE["blue"],
-        "D": PALETTE["orange"],
-        "E": PALETTE["yellow"],
-        "F": PALETTE["red"],
-        "G": PALETTE["purple"],
-    }
-
-    fig, axes = plt.subplots(1, n_grades, figsize=(COL2, HEIGHT_M), sharey=False)
-    if n_grades == 1:
-        axes = [axes]
-
-    global_scores = np.abs(df["y_true"].to_numpy(float) - df["y_pred"].to_numpy(float))
-    global_q90 = float(np.quantile(global_scores, 0.90))
-
-    for ax, grade in zip(axes, grades, strict=False):
-        sub = df[df["grade"] == grade]
-        scores = np.abs(sub["y_true"].to_numpy(float) - sub["y_pred"].to_numpy(float))
-        group_q90 = float(np.quantile(scores, 0.90))
-        color = grade_colors.get(grade, PALETTE["blue"])
-
-        ax.hist(scores, bins=30, color=color, alpha=0.75, density=True, edgecolor="none")
-        ax.axvline(group_q90, color=color, lw=1.4, ls="-", label=f"q̂ᵍ={group_q90:.3f}")
-        ax.axvline(global_q90, color=PALETTE["gray"], lw=1.0, ls="--", label=f"q̂={global_q90:.3f}")
-        ax.set_title(f"Grade {grade}\n(n={len(sub):,})", fontsize=8)
-        ax.set_xlabel("Score", fontsize=7)
-        ax.tick_params(labelsize=6)
-        if grade == grades[0]:
-            ax.set_ylabel("Density", fontsize=7)
-        ax.legend(fontsize=5.5, loc="upper right")
-
-    fig.suptitle(
-        "Nonconformity Score Distributions by Grade — Motivation for Mondrian CP",
-        fontsize=9,
-    )
-    fig.tight_layout()
-    _save(fig, "p3_fig_nonconformity_scores_by_grade")
-
-
-def _paper3_fig_calibration_stat_tests() -> None:
-    """Fig — Cumulative differences plot (MAPIE calibration hypothesis test).
-
-    Reproduces the MAPIE tutorial figure with our Lending Club OOT data.
-    Curve within ±2σ bands supports H₀: calibrated. Used in Paper 3 / Cap 06c.
-    """
-    path = DATA_DIR / "calibration_cumulative_diffs.parquet"
-    if not path.exists():
-        logger.warning(
-            "calibration_cumulative_diffs.parquet not found — run train_pd_model.py first."
-        )
-        return
-
-    df = pd.read_parquet(path)
-    stat_path = DATA_DIR / "statistical_calibration_tests.json"
-    stat_tests: dict = {}
-    if stat_path.exists():
-        import json as _json
-
-        stat_tests = _json.loads(stat_path.read_text(encoding="utf-8"))
-
-    fig, ax = plt.subplots(figsize=(COL2, HEIGHT_M))
-
-    if "cum_diff_uncalibrated" in df.columns:
-        ks_raw = stat_tests.get("uncalibrated", {}).get("ks_pvalue", float("nan"))
-        ax.plot(
-            df["k"],
-            df["cum_diff_uncalibrated"],
-            color=PALETTE["orange"],
-            lw=1.4,
-            alpha=0.85,
-            label=f"Uncalibrated (KS p={ks_raw:.3f})",
-        )
-    if "cum_diff_calibrated" in df.columns:
-        ks_cal = stat_tests.get("calibrated", {}).get("ks_pvalue", float("nan"))
-        ax.plot(
-            df["k"],
-            df["cum_diff_calibrated"],
-            color=PALETTE["blue"],
-            lw=1.6,
-            label=f"Venn-Abers calibrated (KS p={ks_cal:.3f})",
-        )
-    if "sigma_upper" in df.columns:
-        ax.fill_between(
-            df["k"],
-            df["sigma_lower"],
-            df["sigma_upper"],
-            color=PALETTE["gray"],
-            alpha=0.12,
-            label="±2σ band (H₀: calibrated)",
-        )
-        ax.plot(df["k"], df["sigma_upper"], color=PALETTE["gray"], lw=0.8, ls="--")
-        ax.plot(df["k"], df["sigma_lower"], color=PALETTE["gray"], lw=0.8, ls="--")
-    ax.axhline(0, color=PALETTE["gray"], lw=0.7, alpha=0.5)
-
-    ax.set_xlabel("Proportion of Sorted Scores")
-    ax.set_ylabel("Cumulative Differences")
-    ax.set_title("Calibration Hypothesis Test: Cumulative Differences (OOT, $n=276{,}869$)")
-    ax.legend(fontsize=8)
-    fig.tight_layout()
-    _save(fig, "p3_fig_calibration_stat_tests")
-
-
 # ── Dispatch ──────────────────────────────────────────────────────────────────
 
-PAPER3_FIGS = [
-    _paper3_fig1_variant_scatter,
-    _paper3_fig2_grade_coverage_heatmap,
-    _paper3_fig3_temporal_stability,
-    _paper3_fig_nonconformity_scores_by_grade,
-    _paper3_fig_calibration_stat_tests,
-]
 PAPER2_FIGS = [
     _paper2_fig4_sicr_grid,
     _paper2_fig5_ecl_alpha_sensitivity,
@@ -965,12 +634,10 @@ ESTRELLA_FIGS = [
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate publication-quality figures.")
-    parser.add_argument("--paper", choices=["2", "3", "estrella", "all"], default="all")
+    parser.add_argument("--paper", choices=["2", "estrella", "all"], default="all")
     args = parser.parse_args()
 
     figs_to_run: list = []
-    if args.paper in ("3", "all"):
-        figs_to_run.extend(PAPER3_FIGS)
     if args.paper in ("2", "all"):
         figs_to_run.extend(PAPER2_FIGS)
     if args.paper in ("estrella", "all"):

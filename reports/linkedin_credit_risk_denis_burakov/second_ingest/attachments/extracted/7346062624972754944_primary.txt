@@ -1,0 +1,335 @@
+WOE, Log Odds, and Standard Errors
+      Quantifying uncertainty with WOE
+
+
+
+
+                    Contents:
+
+           • WOE as centered log odds
+       • Logistic regression standard errors
+       • Uncertainty quantification with WOE
+            • FastWoe Python package
+  Weight of Evidence (WOE), Log Odds, and Standard
+                       Errors
+                                    Denis Burakov
+                                        June 2025
+
+This document explains:
+  • How WOE is a centered version of log odds
+  • Why WOE and log odds have the same standard error
+  • That subtracting the prior log odds (a constant) does not affect variance
+  • Includes a Python simulation to demonstrate this as well as comparison with logistic
+    regression
+
+
+
+1. Definitions
+Log odds for a binary feature group:
+Let n_11 = positives in group 1
+Let n_10 = negatives in group 1
+
+                                                𝑛
+                                      𝜃1 = log ( 11 )
+                                                𝑛10
+
+Global (prior) log odds:
+Let n_pos = total positives, n_neg = total negatives:
+
+                                                     𝑛pos
+                                    𝜃prior = log (        )
+                                                     𝑛neg
+
+Weight of Evidence (WOE):
+                                    WOE1 = 𝜃1 − 𝜃prior
+
+
+
+2. Variance and Standard Error
+
+
+                                             1
+   Basic Property of Variance: The variance of a random variable remains unchanged
+   when a constant is subtracted from it.
+
+                                   Var(𝑋 − 𝑐) = Var(𝑋)
+
+   This property is the cornerstone of our analysis. For more details on variance proper-
+   ties, see this discussion.
+
+
+
+SE of log odds:
+
+                                   1   1                 1   1
+                     Var(𝜃1 ) =      +    ⇒ SE(𝜃1 ) = √    +
+                                  𝑛11 𝑛10               𝑛11 𝑛10
+
+SE of WOE:
+                      WOE1 = 𝜃1 − 𝜃prior ⇒ Var(WOE1 ) = Var(𝜃1 )
+
+
+
+   Why Standard Errors Are Identical
+   Because subtracting a constant does not change variance:
+
+                                   Var(𝑋 − 𝑐) = Var(𝑋)
+
+   The prior log odds 𝜃prior is a fixed constant calculated from the entire dataset. When
+   we subtract this constant from the log odds to obtain WOE, the variability (and hence
+   standard error) remains exactly the same.
+
+
+
+
+3. Difference of WOE = Coeﬀicient in Logistic Regression
+For two groups:
+
+                              𝛽 = 𝜃1 − 𝜃0 = WOE1 − WOE0
+
+
+                           Var(𝛽) = Var(WOE1 ) + Var(WOE0 )
+
+
+
+
+                                             2
+4. Python Simulation Example
+
+  Empirical Verification
+  Below we provide a simulation for the effect of constant in the variance calculation.
+  We create 10,000 iterations by sampling from a binomial distribution and calculate
+  the variance of log-odds and WOE.
+
+
+import numpy as np
+import pandas as pd
+
+
+np.random.seed(42)
+
+
+# True probabilities
+p1 = 30 / (30 + 20)     # x=1 group
+p0 = 10 / (10 + 40)     # x=0 group
+prior_p = (30 + 10) / (30 + 10 + 20 + 40)
+
+
+# Sample sizes
+n1_total = 50     # x=1 group total
+n0_total = 50     # x=0 group total
+
+
+# Number of simulations
+n_sim = 10_000
+
+
+# Store results
+log_odds_1_samples = []
+woe_1_samples = []
+
+
+for _ in range(n_sim):
+    # Simulate binary outcomes for x=1 group
+    y1 = np.random.binomial(1, p1, size=n1_total)
+    n11 = y1.sum()     # y=1, x=1
+    n10 = n1_total - n11     # y=0, x=1
+
+
+    # Compute log odds
+    if n11 > 0 and n10 > 0:
+        log_odds_1 = np.log(n11 / n10)
+        log_odds_prior = np.log(prior_p / (1 - prior_p))
+        woe_1 = log_odds_1 - log_odds_prior
+
+
+        log_odds_1_samples.append(log_odds_1)
+        woe_1_samples.append(woe_1)
+
+
+
+
+                                           3
+# Convert to arrays
+log_odds_1_samples = np.array(log_odds_1_samples)
+woe_1_samples = np.array(woe_1_samples)
+
+
+# Compare empirical variances
+variance_log_odds = np.var(log_odds_1_samples, ddof=1)
+variance_woe = np.var(woe_1_samples, ddof=1)
+
+
+print(f"Empirical Variance (Log Odds): {variance_log_odds:.4f}")
+print(f"Empirical Variance (WOE): {variance_woe:.4f}")
+print(f"Difference: {abs(variance_log_odds - variance_woe):.4f}")
+
+The results confirm that adding or subtracting a constant does not change the variance:
+   • Empirical Variance (Log Odds): 0.0890
+   • Empirical Variance (WOE): 0.0890
+   • Difference: 0.0000
+This means that the centering of log-odds through WOE transformation does not affect the
+standard error.
+
+5. Logistic Regression Example
+
+   Connecting WOE to Logistic Regression
+   In this section, we provide examples from logistic regression to demonstrate that the
+   standard error (SE) of the Weight of Evidence (WOE) is linked to the variability of
+   log odds per row and is not influenced by the centering effect.
+
+
+
+Data
+We will use the following table:
+
+                                         y0    y1 Row Sum
+                                    x0 10      30    40
+                                    x1 20      10    30
+                                   Total 30    40    70
+
+From the Table above, we can derive the log odds for 𝑃 (𝑦 = 1|𝑥 = 0) and 𝑃 (𝑦 = 1|𝑥 = 1).
+The log odds are defined as:
+
+                                             𝑃 (𝑦 = 1|𝑥)
+                                     log (               )
+                                             𝑃 (𝑦 = 0|𝑥)
+
+These are:
+
+                                                4
+                   𝑃 (𝑦 = 1|𝑥 = 0)           30/40          30
+           log (                   ) = log (       ) = log ( ) = log(3) ≈ 1.099
+                   𝑃 (𝑦 = 0|𝑥 = 0)           10/40          10
+
+                 𝑃 (𝑦 = 1|𝑥 = 1)           10/30          10
+         log (                   ) = log (       ) = log ( ) = log(0.5) ≈ −0.693
+                 𝑃 (𝑦 = 0|𝑥 = 1)           20/30          20
+
+Logistic Regression
+We can convert this table to a Bernoulli format to use this data with a logistic regression
+model. In the Bernoulli format, each observation is represented as a pair (𝑥𝑖 , 𝑦𝑖 ), where 𝑥𝑖
+is the predictor variable and 𝑦𝑖 is the binary response variable taking values {0, 1}.
+This transformation allows us to apply logistic regression, which models the log odds of the
+response variable 𝑦 being 1 given the predictor 𝑥.
+The Maximum Likelihood Estimation (MLE) solution if we assume 𝑥 = 0 to be the intercept
+in a logistic regression model is:
+
+
+  Parameter       Estimate Std. Error Wald Statistic P-value Lower CI Upper CI
+  intercept (x=0) 1.0986     0.3651      3.0087      0.0026   0.3829   1.8143
+  beta (x=1)      −1.7918    0.5323     −3.3661      0.0008 −2.8350 −0.7485
+
+Notice that the sign of beta (x=1) flips depending on what we consider to be the intercept
+in our model. The coeﬀicient represents the difference in the final log-odds between the two
+conditions and thus changes sign when we switch the reference base from 𝑥 = 0 to 𝑥 = 1.
+Looking at the Std. Error column, we can see that the SE for the intercept is 0.3651, while
+for the coeﬀicient it is 0.5323.
+If we switch the intercept to represent a condition 𝑥 = 1 then the model becomes:
+
+
+  Parameter       Estimate Std. Error Wald Statistic P-value Lower CI Upper CI
+  intercept (x=1) −0.6931    0.3873     −1.7897      0.0735 −1.4522    0.0659
+  beta (x=0)       1.7918    0.5323      3.3661      0.0008   0.7485   2.8350
+
+Here we see that the standard error for the intercept is 0.3873.
+We can get the standard errors reported for the intercepts from our 2 × 2 table:
+
+                                               1   1
+                              SE(𝑥 = 0) = √      +   = 0.3651
+                                              10 30
+
+                                               1   1
+                              SE(𝑥 = 1) = √      +   = 0.3873
+                                              20 10
+
+                                              5
+The beta standard error is then the square root of the pooled variance of the two rows in
+our contingency table:
+
+          SE(𝛽) = √SE(𝑥 = 0)2 + SE(𝑥 = 1)2 = √0.36512 + 0.38732 = 0.5323
+
+Weight of Evidence (WOE)
+To calculate WOE, we will use a conditional probability table. It should be noted that WOE
+can also be calculated through the odds form of the Bayes theorem, which would require
+knowing only the odds of y = 1 in a bin and the overall odds, an interested reader can find
+more details in [1].
+
+                              𝑝(𝑥|𝑦)       𝑦=0     𝑦 = 1 WOE
+                              𝑥=0          0.333   0.750 0.811
+                              𝑥=1          0.667   0.250 −0.981
+                           Column total    1.000   1.000   −
+
+The Weight of Evidence (WOE) values for 𝑥 = 0 and 𝑥 = 1 are:
+
+                                           0.750
+                      WOE(𝑥 = 0) = ln (          ) = ln(2.25) ≈ 0.811
+                                           0.333
+
+                                          0.250
+                     WOE(𝑥 = 1) = ln (          ) = ln(0.375) ≈ −0.981
+                                          0.667
+Base log odds are defined as follows:
+
+                                               40         4
+                        Base log odds = ln (      ) = ln ( ) ≈ 0.288
+                                               30         3
+
+WOE Confidence Intervals
+If we want to get an upper logit confidence interval using WOE:
+
+          95% CIWOE(𝑥=0) = Base log odds + (WOE(𝑥 = 0) × 1.96 × SE(𝑥 = 0))
+                           = 0.288 + (0.811 × 1.96 × 0.3651)
+                           ≈ 0.288 + 0.576 = 1.8143
+
+          95% CIWOE(𝑥=1) = Base log odds + (WOE(𝑥 = 1) × 1.96 × SE(𝑥 = 1))
+                           = 0.288 + (−0.981 × 1.96 × 0.3873)
+                           ≈ 0.288 − 0.731 = 0.0659
+
+Notice that the resulting values correspond to the intercept CIs from the logistic regression
+fit summaries.
+
+                                               6
+6. Implications
+By understanding the properties of standard errors for WOE-transformed variables, we can
+derive valuable insights about the log of the likelihood ratios in predictive modeling. Apply-
+ing standard errors to WOE allows us to identify bins containing the most uncertainty due
+to sampling variability. This, in turn, can indicate potential limitations in our inferences
+and highlight areas where additional data might be needed to improve model reliability.
+Additionally, standard errors can help in assessing the true effect of the WOE values (since
+large absolute WOEs can be misleading due to low sample sizes) as well as in constructing
+confidence intervals, which are crucial for interpreting the model’s predictions and making
+informed decisions.
+
+
+    Key Takeaway: The centering operation in WOE transformation does not affect the
+    uncertainty (standard error) of the estimates, making WOE a reliable transformation
+    for feature engineering in machine learning and statistical modeling.
+
+
+
+7. Python Implementation
+You can find the Python implementation in the FastWoe package, which provides a fast and
+eﬀicient Python implementation of WOE encoding and inference.
+
+
+
+
+                                     Figure 1: FastWoe
+
+
+7. References
+[1] Good, I.J. Probability and the Weighing of Evidence. London: Griﬀin, 1950.
+
+                                              7
+Appendix
+
+
+
+
+      Figure 2: A Notebook Sketch of WOE and Log Odds Standard Errors
+
+
+
+
+                                    8

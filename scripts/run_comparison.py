@@ -173,7 +173,6 @@ def _collect_metrics() -> dict[str, Any]:
     cate_status = _read_json(MODELS / "cate_portfolio_status.json")
     lgd_ead_conformal_status = _read_json(MODELS / "conformal_lgd_ead_status.json")
     threshold_semantics = _read_json(MODELS / "threshold_semantics.json")
-    paper_grade_protocol_status = _read_json(MODELS / "paper_grade_protocol_status.json")
     time_series_status = _read_json(MODELS / "time_series_status.json")
     storytelling_snapshot = _read_json(REPORTS / "storytelling_snapshot.json")
 
@@ -225,7 +224,6 @@ def _collect_metrics() -> dict[str, Any]:
         "cate_portfolio_status": cate_status,
         "conformal_lgd_ead_status": lgd_ead_conformal_status,
         "threshold_semantics": threshold_semantics,
-        "paper_grade_protocol_status": paper_grade_protocol_status,
         "time_series_status": time_series_status,
         "storytelling_snapshot": storytelling_snapshot,
     }
@@ -486,7 +484,6 @@ def _gate_semantic_coherence(cur_metrics: dict[str, Any]) -> GateResult:
     fairness_status = cur_metrics.get("fairness_status", {}) or {}
     fairness_policy = cur_metrics.get("fairness_decision_policy", {}) or {}
     time_series = cur_metrics.get("time_series_status", {}) or {}
-    paper_grade = cur_metrics.get("paper_grade_protocol_status", {}) or {}
     storytelling = cur_metrics.get("storytelling_snapshot", {}) or {}
     conformal = cur_metrics.get("conformal_status", {}) or {}
 
@@ -526,39 +523,14 @@ def _gate_semantic_coherence(cur_metrics: dict[str, Any]) -> GateResult:
     time_series_final_decision = str(
         (time_series.get("final_interval_decision", {}) or {}).get("status", "") or ""
     ).strip()
-    paper_time_series = paper_grade.get("time_series", {}) or {}
-    paper_time_series_decision = str(paper_time_series.get("decision", "") or "").strip()
-    paper_time_series_promotable = paper_time_series.get("interval_promotable")
     storytelling_ts_promotable = storytelling.get("time_series_interval_promotable")
     storytelling_ts_decision = storytelling.get("time_series_final_interval_decision")
 
-    time_series_protocol_ok = not paper_time_series or (
-        (not paper_time_series_decision or paper_time_series_decision == time_series_final_decision)
-        and (
-            paper_time_series_promotable is None
-            or bool(paper_time_series_promotable) == time_series_interval_promotable
-        )
-    )
     time_series_storytelling_ok = (
         storytelling_ts_promotable is None
         or bool(storytelling_ts_promotable) == time_series_interval_promotable
     ) and (storytelling_ts_decision in (None, "", time_series_final_decision))
 
-    paper_pd = paper_grade.get("pd_conformal", {}) or {}
-    # Accept paper-grade closure as authoritative: if the paper-grade protocol explicitly
-    # closed conformal with sensitivity-based justification, it overrides the strict gate
-    # in conformal_policy_status (which uses raw Winkler 1.20, not compensated 1.22).
-    paper_grade_closure_authoritative = bool(
-        paper_pd.get("closed_for_paper_grade", False)
-        and paper_pd.get("sensitivity_methodological_closure_available", False)
-        and paper_pd.get("canonical_methodological_justification_pass", False)
-    )
-    paper_pd_conformal_ok = (
-        not paper_pd
-        or bool(paper_pd.get("canonical_methodological_justification_pass", False))
-        == bool(conformal.get("methodological_justification_pass", False))
-        or paper_grade_closure_authoritative
-    )
     storytelling_conformal_ok = storytelling.get("conformal_strict_policy_pass") in (
         None,
         bool(conformal.get("strict_overall_pass", False)),
@@ -570,9 +542,7 @@ def _gate_semantic_coherence(cur_metrics: dict[str, Any]) -> GateResult:
     checks = {
         "operational_thresholds_ok": bool(operational_thresholds_ok),
         "threshold_role_separation_ok": bool(threshold_role_separation_ok),
-        "time_series_protocol_ok": bool(time_series_protocol_ok),
         "time_series_storytelling_ok": bool(time_series_storytelling_ok),
-        "paper_pd_conformal_ok": bool(paper_pd_conformal_ok),
         "storytelling_conformal_ok": bool(storytelling_conformal_ok),
     }
     return GateResult(
@@ -584,8 +554,6 @@ def _gate_semantic_coherence(cur_metrics: dict[str, Any]) -> GateResult:
             "time_series": {
                 "status_interval_promotable": time_series_interval_promotable,
                 "status_final_decision": time_series_final_decision,
-                "paper_grade_decision": paper_time_series_decision,
-                "paper_grade_interval_promotable": paper_time_series_promotable,
                 "storytelling_interval_promotable": storytelling_ts_promotable,
                 "storytelling_final_decision": storytelling_ts_decision,
             },
@@ -594,10 +562,6 @@ def _gate_semantic_coherence(cur_metrics: dict[str, Any]) -> GateResult:
                 "status_methodological_justification_pass": bool(
                     conformal.get("methodological_justification_pass", False)
                 ),
-                "paper_grade_methodological_justification_pass": paper_pd.get(
-                    "canonical_methodological_justification_pass"
-                ),
-                "paper_grade_closure_authoritative": paper_grade_closure_authoritative,
                 "storytelling_strict_policy_pass": storytelling.get("conformal_strict_policy_pass"),
                 "storytelling_methodological_justification_pass": storytelling.get(
                     "conformal_methodological_justification_pass"

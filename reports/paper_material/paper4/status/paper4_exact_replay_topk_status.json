@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-12.3",
+  "generated_at_utc": "2026-05-13T03:37:56.019613+00:00",
+  "mode": "exact_limited_topk_no_promotion",
+  "topk_n": 5,
+  "candidate_pool_n_target": 3000,
+  "policy_ids": [
+    "paper1_economic_champion",
+    "crpto_rt0p160_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p170_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p165_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p155_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p175_g0p55_u0p10_alpha0p01_conservative_proxy_rs42"
+  ],
+  "paper1_champion_protected": true,
+  "promotion_json_created": false,
+  "caveat": "HiGHS solves each top-k policy exactly inside a policy-specific candidate subset. This is not a full 276k-loan exact rerun."
+}

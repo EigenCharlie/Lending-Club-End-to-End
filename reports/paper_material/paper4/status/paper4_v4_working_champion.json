@@ -1,0 +1,11 @@
+{
+  "schema_version": "2026-05-13.2",
+  "generated_at_utc": "2026-05-13T17:36:35.867677+00:00",
+  "scope": "paper4_working_champion_only",
+  "paper1_frozen_reference_policy": "paper1_economic_champion",
+  "does_not_modify_paper1": true,
+  "policy_id": "paper4_v4_local_rt0p1725_g0p475_u0p075",
+  "decision": "review_candidate",
+  "selector_v4_score": 0.8517693137764496,
+  "rationale": "Paper 4 internal working champion for continued experiments; not a thesis/journal champion."
+}

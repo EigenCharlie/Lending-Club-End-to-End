@@ -1,0 +1,12 @@
+Boosting Beyond Trees 🌳
+Gradient boosting has long been regarded as the "secret sauce" for tabular datasets. Traditionally, the algorithm relies on decision trees, which are both flexible and robust. In theory, decision trees act as "weak learners" that, when combined, create a strong model. However, with the rise in computing power, we are increasingly seeing "strong learners" (e.g., deeper trees) being used 👩💻.
+But what happens if we swap decision trees for something else—say, linear models or neural networks? Neural networks, in particular, are often considered too powerful for boosting and not suitable for tabular data. In this post, I'd like to share some basic examples that test these assumptions 🧪.
+What the visuals show is that, unlike the "boxy" decision boundaries trees produce, simple neural networks can learn smooth, curved boundaries that adapt more flexibly to the data. And bootstrapped linear models, while more constrained, can also benefit from boosting in some scenarios 📏.
+I’m curious: what if we could boost even more flexible models, like KANs? Explore the visualizations and share your thoughts below ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore Gradient Boosted Decision Trees (GBDT) from scratch: https://lnkd.in/edwQq2Rq 💡
+▷ Explore Additive Logistic Regression (LogitBoost) from scratch: https://lnkd.in/dDgmPkhT 💡
+▷ Explore the visualization of Gradient Boosting decision-making: https://lnkd.in/eHgqXZPJ 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

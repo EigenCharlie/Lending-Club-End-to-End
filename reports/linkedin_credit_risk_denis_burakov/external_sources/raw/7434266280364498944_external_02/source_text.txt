@@ -1,0 +1,1039 @@
+Agus Sudjianto - H2O.ai | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Sign in to view Agus’ full profile
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Agus Sudjianto
+Sign in to view Agus’ full profile
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Charlotte, North Carolina, United States
+Contact Info
+Sign in to view Agus’ full profile
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+28K followers
+500+ connections
+See your mutual connections
+View mutual connections with Agus
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Join to view profile
+Message
+Sign in to view Agus’ full profile
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+H2O.ai
+Massachusetts Institute of Technology
+Report this profile
+About
+Specialties: Quantitative Risk Management, Machine Learning and AI, Applied Statistics…
+see more
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+Activity
+28K followers
+Posts
+Comments
+Reactions
+No more previous content
+Agus Sudjianto
+Agus Sudjianto
+5d
+Report this post
+Agus Sudjianto shared this
+SHAP tells you which features drove a prediction. It does not tell you what the prediction is actually made of.
+For retrieval-based models — nearest-neighbor, kernel smoothing and tabular in-context learning — the prediction is a weighted average of training examples. The direct explanation is not a feature-attribution vector. It is a weighted neighborhood: which training rows were consulted, how much weight they received and whether their labels agreed.
+The tenth post in my Learning as Geometry Discovery series uses soft k-nearest neighbors as a teaching model to make this distinction precise. Because soft kNN’s weights are mathematically exact and fully visible, we can compare SHAP directly against the true explanation object without estimation ambiguity.
+Four demonstrations show where the gap opens. Two queries with nearly identical predictions and nearly identical SHAP values can have completely different local evidence — one supported by a tight coherent neighborhood, the other an accidental average over conflicting labels. A feature SHAP identifies as important may be driving the prediction not through a structural effect but through neighbor switching — changing which training examples are retrieved. A feature with no structural role in the response can still generate large SHAP values by controlling which part of the data manifold the query falls into.
+This post is a stepping stone. The next one applies the same framework to TabICL, where neighbor weights are implicit rather than explicit.
+Link to substack article: https://lnkd.in/eB6-HBdy
+#MachineLearning #MLInterpretability #DataScience #TabularData #InContextLearning #AIGovernance #ModelRisk
+What Is the Prediction Actually Made Of?
+What Is the Prediction Actually Made Of?
+229
+8 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+1w
+Report this post
+Agus Sudjianto shared this
+Join me in person in Charlotte!
+Global Association of Risk Professionals (GARP)
+Global Association of Risk Professionals (GARP)
+2w
+Agus Sudjianto shared this
+Join us for the next GARP Charlotte Chapter meeting on May 13 for a conversation on the past, present, and future of model risk management.
+Agus Sudjianto, CJ Peng, and moderator Ruiz will discuss how traditional frameworks are being challenged by rapid technological advancements, the regulatory developments shaping today’s environment, and the emerging risks that will define the future of model oversight.
+Register now and reserve your seat: https://lnkd.in/ekejheSK
+#financialrisk #finance #riskmanagement #modelrisk #risk
+public_profile__posts
+23
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+I keep hearing people say:
+“Manage your agentic AI the way you manage a junior associate.”
+I get the appeal. It makes the whole thing feel familiar.
+But I think it is the wrong approach.
+A junior associate can be coached.
+An intern can be supervised.
+A new analyst can be pulled aside and told, “Please don’t do that again.”
+They usually do not respond by calling seventeen APIs, misreading an outdated policy, creating a customer exception, updating a workflow and confidently emailing Legal.
+Agentic AI is not a junior employee.
+It moves faster than you.
+It has access to more information than you.
+It can operate across tools, data, memory and workflows at machine speed.
+And when it is wrong, it does not get embarrassed.
+It does not pause and think, “Maybe I overstepped.”
+It does not develop professional judgment after a tough conversation.
+It does not learn humility from a partner’s redline comments.
+It just keeps going.
+Confidently.
+So no, I would not manage agentic AI like an intern.
+I would govern it like a very powerful, very fast and occasionally unhinged system with tool access.
+That means contracts, authorization, evidence checks, audit trails, runtime controls, fail-closed behavior and continuous monitoring.
+The better analogy is not a junior associate.
+It is closer to a very smart beast with a Bloomberg terminal, a Python environment, enterprise data access and absolutely no remorse.
+You do not give that thing weekly feedback.
+You build a harness.
+public_profile__posts
+140
+10 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Agentic AI in finance has left the demo room.
+Now comes the hard question:
+How do we validate a system that can reason, plan, call tools and take actions?
+“Prompt and pray” will not survive contact with production, audit or regulators.
+In this QuantUniversity session, Sri Krishnamurthy, CFA I will discuss practical validation for agentic AI: typed verifiers, execution controls, risk-tiered release gates and deployment confidence.
+This is where agentic AI becomes an engineering and governance problem, not just a model problem.
+Looking forward to it.
+Sri Krishnamurthy, CFA
+Sri Krishnamurthy, CFA
+2w
+Agus Sudjianto shared this
+🚀 Session 3 — QuantUniversity AI Spring School 2026
+💡 Agentic AI in Finance
+Agentic AI is moving quickly from experimentation to enterprise deployment.
+But before these systems can be trusted in finance, we need a serious answer to one question:
+How do we validate them?
+Join us for a focused session on:
+Validating Agentic AI: Evaluation, Controls, and Deployment Confidence
+We will discuss:
+✅ Why LLM-as-judge evaluates in semantic space while risk lives in logical, numerical and procedural exactness — and what a typed verifier looks like
+✅ Validating both execution (does the agent run correctly?) and reasoning (are outputs provably correct?)
+✅ Gating release by risk tier (Advisory / Recommendation / Action-Taking) with explicit accuracy, confidence and hallucination thresholds
+📅
+Validating Agentic AI: Evaluation, Controls, and Deployment Confidence
+🗓️ May 7, 2026
+⏰ 12:00 PM – 1:00 PM EST
+🌐 Virtual
+🎤 Speakers
+Sri Krishnamurthy, CFA , QuantUniversity; CFA Institute Charterholder
+Agus Sudjianto, PhD — Former Head of Model Risk, Wells Fargo
+🔗 Register here:
+https://lnkd.in/emDcmiyU
+#AgenticAI #AIinFinance #ModelRiskManagement #AIGovernance #ResponsibleAI #FinancialServices #QuantUniversity
+public_profile__posts
+60
+2 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Tabular Foundational Models (e.g., TabPFN and TabICL) are k-nearest neighbors with two upgrades.
+Upgrade one: the notion of "similar" is learned, not hand-picked.
+Upgrade two: it was learned from thousands of synthetic datasets, not from yours — so deployment is a single forward pass with no fitting.
+The ninth post in my Learning as Geometry Discovery series applies the geometric vocabulary built over the previous eight posts to a concrete question: what is a tabular in-context learning model actually doing?
+The answer connects three frameworks from the series. From the kernels post: attention is exactly Nadaraya-Watson with a learned affinity, and the scoring matrix M is a geometric object you can inspect directly. From the directional geometry post: decomposing M into its symmetric and antisymmetric parts separates mutual similarity from directional structure — and reveals whether the model's geometry matches the deployment task. From the algebra post: the eigenstructure of the symmetric part is a fingerprint of the pretraining prior, not the data.
+The post includes figures and code from the companion notebook, including the noise-dimension experiment (fixed kernels collapse, learned attention adapts), the Bayes posterior predictive comparison (the trained model closely approximates the Bayesian optimum) and the M = S + A decomposition heatmaps.
+Substack article: https://lnkd.in/edTFH2BH
+#MachineLearning #DataScience #TabularData #InContextLearning
+Learning From Examples Is Geometry Discovery Too
+Learning From Examples Is Geometry Discovery Too
+71
+8 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Most agent test failures aren't failures of the model. They're failures of coverage.
+A team writes fifty test prompts. The agent passes forty-seven. They ship. Three days later, production failures start because real users phrase questions in ways no expert imagined.
+My latest essay makes a single reframe that changes everything:
+If a document is the source of truth, the same document can generate the questions and grade the answers automatically, deterministically, without a human in the loop: No hand-written prompts. No LLM-as-judge.
+The key is a DocumentGraph, a knowledge graph automatically constructed from the source document's structure. Tables become typed triples. Bullet lists become key-value facts. Every numeric value is stored exactly with integrity hashing. The graph is the ground truth, by construction.
+From there:
+→ 13 question categories are generated by walking the graph from simple fact completion to multi-hop reasoning, contradiction detection and policy compliance
+→ Presentation becomes a structured factor space (clarity, entity aliasing, adversarial framing, role, tool availability and more) sampled with Design of Experiments and not random calls
+→ Every answer is graded by the same graph that generated the question deterministically with a full audit trail back to the source document
+The result: continuous regression testing, audit-grade traceability and corpus-level scaling without writing a single test prompt.
+Full essay on Substack 👇
+https://lnkd.in/e-22eau5
+#AgenticAI #AIValidation #AITesting #ModelRisk #AIGovernance #DocumentAI
+How to Test an AI Agent Without Writing a Single Test
+How to Test an AI Agent Without Writing a Single Test
+55
+7 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Correlation is symmetric. Causality is not.
+Distance, kernel similarity, co-membership in a partition cell — all the geometric frameworks covered so far in this series share one property: they are symmetric. If x is close to z, then z is close to x. That symmetry is a source of mathematical power. It is also a constraint.
+Many of the structures that matter most in machine learning are not symmetric. A cause precedes its effect. Token i attending to token j is not the same as token j attending to token i. In a directed graph, a path from x to z does not imply a path from z to x. In a supply chain, reversing the flow produces a different system.
+The eighth post in my Learning as Geometry Discovery series introduces directional geometry — the tools for structures where order, flow and asymmetry carry essential information. It covers directed graphs as geometry of reachability and influence, the R = S + A decomposition that separates mutual from directional structure, trajectories and flow fields as directed dynamics through state space, asymmetric distances and quasimetrics, causality as directed acyclic structure, self-attention as a learned directional relation and noncommutativity as a geometric fact rather than an algebraic technicality.
+Symmetric tools see what is mutual. Directional tools see what goes which way. Both are needed.
+Linkfor substack: https://lnkd.in/eP28zmhD
+Which Way Does It Go?
+Which Way Does It Go?
+96
+6 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Prompt and Pray
+Reposting this because the topic is becoming painfully relevant.
+A surprising amount of “agentic AI control” still looks like this:
+prompt the model, give it tools, attach a memory file, add an LLM judge… and pray.
+That is not control, it is optimism with better branding.
+In this session, I’ll talk about why prompts, flat memory and after-the-fact review create the appearance of control, not the substance of control.
+We’ll discuss a different approach:
+* let the LLM think
+* let a deterministic governance layer decide
+* enforce policy with math, structure and runtime checks
+* produce a tamper-evident audit trail
+* build agentic systems that are actually ready for regulated environments
+If your current control framework is “the model was told not to do that,” this session may be for you.
+I’m looking forward to joining Sri Krishnamurthy, CFA AI Spring School 2026, Session 2.
+Sri Krishnamurthy, CFA
+Sri Krishnamurthy, CFA
+2w
+Agus Sudjianto shared this
+🚀 Join us for Session 2 — QuantUniversity AI Spring School 2026
+💡 Designing a Harness for Runtime Governed Agentic AI
+Join us for Session 2 where we focus on what truly matters:
+✔️ Why prompts, memory files and LLM judges create the appearance of governance — not the substance
+✔️ Separating thinking from deciding: LLM reasons, a deterministic governance layer enforces policy with math, not text
+✔️ Six independent layers of defense with governed execution and verified reasoning, producing a tamper-evident audit trail
+🌐 Virtual
+🎤 Agus Sudjianto, PhD (Former Head of Model Risk, Wells Fargo)
+🎤 Sri Krishnamurthy, CFA (QuantUniversity)
+📅
+Session Details
+🗓️ May 1 | ⏰ 12:00–1:00 PM EST
+🔗 Register: https://lnkd.in/emDcmiyU
+🔥 From building AI → to governing AI with confidence.
+public_profile__posts
+9
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+Agus Sudjianto
+2w
+Report this post
+Agus Sudjianto shared this
+Governed agentic AI is not just a policy question.
+It is a runtime question.
+I’m looking forward to joining Sri Krishnamurthy, CFA for Session 2 of QuantUniversity AI Spring School 2026, where we will discuss risk, controls and operating readiness for agentic AI in financial services.
+My focus will be on runtime governance: how to build a harness around agentic AI systems so governance is not an after-the-fact review, but part of how the system actually operates.
+For agentic AI, the control problem changes.
+We are no longer validating a single model output. We are governing a system that can reason, retrieve, call tools, update memory, follow policies, take actions and change behavior across turns.
+That means governance must move closer to execution.
+A runtime harness should help answer questions such as:
+Can the agent do this?
+Is the user authorized?
+Is the tool allowed?
+Is the retrieved evidence sufficient?
+Did the agent follow policy?
+Was the decision trace captured?
+Can we replay what happened?
+Can we stop, escalate or constrain the action before harm occurs?
+In banking and financial services, this is the difference between experimenting with agentic AI and deploying it responsibly.
+The future of governed agentic AI will not be built with prompts alone.
+It will require architecture, controls, telemetry, verification, testing and evidence.
+Looking forward to the discussion.
+#AgenticAI #AIGovernance #ModelRiskManagement #FinancialServices #ResponsibleAI #RuntimeGovernance #AIControls
+Sri Krishnamurthy, CFA
+Sri Krishnamurthy, CFA
+2w
+Agus Sudjianto shared this
+🚀 Join us for Session 2 — QuantUniversity AI Spring School 2026
+💡 Designing a Harness for Runtime Governed Agentic AI
+Join us for Session 2 where we focus on what truly matters:
+✔️ Why prompts, memory files and LLM judges create the appearance of governance — not the substance
+✔️ Separating thinking from deciding: LLM reasons, a deterministic governance layer enforces policy with math, not text
+✔️ Six independent layers of defense with governed execution and verified reasoning, producing a tamper-evident audit trail
+🌐 Virtual
+🎤 Agus Sudjianto, PhD (Former Head of Model Risk, Wells Fargo)
+🎤 Sri Krishnamurthy, CFA (QuantUniversity)
+📅
+Session Details
+🗓️ May 1 | ⏰ 12:00–1:00 PM EST
+🔗 Register: https://lnkd.in/emDcmiyU
+🔥 From building AI → to governing AI with confidence.
+public_profile__posts
+61
+4 Comments
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+Slide to item 4
+Slide to item 5
+Slide to item 6
+Slide to item 7
+Slide to item 8
+Slide to item 9
+Agus Sudjianto commented on a post
+4d
+How about the trolling posts of mine?
+Agus Sudjianto replied to a comment
+4d
+Igor Shuryak, MD, PhD we can do for GBM also using proximity matrix
+Agus Sudjianto replied to a comment
+4d
+Igor Shuryak, MD, PhD yes you can do it easily. Use random forest proximity matrix from trained RF. RF proximity is positive semi definite kernel, perfect for this.
+No more previous content
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Indemnify AI
+Indemnify AI
+2d
+Agus Sudjianto liked this
+𝐂𝐚𝐫𝐭 𝐁𝐞𝐟𝐨𝐫𝐞 𝐓𝐡𝐞 𝐇𝐨𝐫𝐬𝐞 (𝐏𝐨𝐬𝐭 𝟐/𝟑 – 𝐄𝐧𝐭𝐞𝐫𝐩𝐫𝐢𝐬𝐞 𝐀𝐈 𝐈𝐧𝐬𝐢𝐠𝐡𝐭)
+The core issue is not that enterprises lack AI governance. The issue is that governance is not the same as financial risk pricing.
+Traditional model risk management helps organizations document, validate, test, approve, monitor, and govern models. Those disciplines matter. But validation does not automatically tell a CFO, Treasurer, Chief Risk Officer, Audit Committee, or Board what the enterprise stands to lose when an AI system fails.
+Model risk management asks: 𝐈𝐬 𝐭𝐡𝐞 𝐦𝐨𝐝𝐞𝐥 𝐟𝐢𝐭 𝐟𝐨𝐫 𝐮𝐬𝐞?
+AI risk pricing asks: 𝐖𝐡𝐚𝐭 𝐝𝐨𝐞𝐬 𝐭𝐡𝐞 𝐞𝐧𝐭𝐞𝐫𝐩𝐫𝐢𝐬𝐞 𝐬𝐭𝐚𝐧𝐝 𝐭𝐨 𝐥𝐨𝐬𝐞 𝐰𝐡𝐞𝐧 𝐭𝐡𝐞 𝐦𝐨𝐝𝐞𝐥 𝐢𝐬 𝐰𝐫𝐨𝐧𝐠, 𝐦𝐢𝐬𝐮𝐬𝐞𝐝, 𝐨𝐯𝐞𝐫-𝐭𝐫𝐮𝐬𝐭𝐞𝐝, 𝐥𝐞𝐠𝐚𝐥𝐥𝐲 𝐜𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞𝐝, 𝐨𝐫 𝐞𝐦𝐛𝐞𝐝𝐝𝐞𝐝 𝐢𝐧𝐭𝐨 𝐚 𝐜𝐫𝐢𝐭𝐢𝐜𝐚𝐥 𝐛𝐮𝐬𝐢𝐧𝐞𝐬𝐬 𝐩𝐫𝐨𝐜𝐞𝐬𝐬?
+That distinction matters.
+NIST’s AI Risk Management Framework[1] is an important step because it helps organizations govern, map, measure, and manage AI risk. But it is not a pricing system. It does not provide enterprises with a path to a market-cleared premium, reserve factor, loss curve, deductible, coverage limit, or benchmarked financial exposure for a specific AI use case.
+This is where enterprise AI adoption is out of sequence. A CFO would not approve a major acquisition, credit exposure, hedging strategy, plant expansion, or cyber program simply because a governance checklist exists. The business case must connect expected return to downside exposure.
+AI should be no different. Yet many AI business cases are still built around productivity, automation, speed, and competitive necessity while the downside risk remains financially absent.
+Meaning, many enterprises are not truly pricing AI investment risk. They are funding upside assumptions and hoping governance catches the downside.
+That is not mature capital allocation. That is confidence without a price.
+References:
+1. https://lnkd.in/e9EpdVfw
+public_profile__reactions
+8
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Lee Medoff
+Lee Medoff
+15h
+Agus Sudjianto liked this
+Last week I had the good fortune to present on the increasingly relevant topic of AI Governance at the 28th #GFMI Model Risk Conference in Boston. My discussion focused on model inventories, model transparency and observability (as it relates specifically to AI), and the evolving #MRM regulatory landscape, with a focus on the implications of the EU AI Act, the challenge of defining and implementing “responsible AI,” and the growing need for all firms (not just financial institutions) to identify where AI actually resides — whether embedded in vendor software, internally developed tools, or agentic systems. With the advent of AI, a robust model inventory has become all the more indispensable.
+I also highlighted the rapid growth of tooling that supports AI observability, traceability, and monitoring. As AI become more ubiquitous (and more autonomous), governance will increasingly depend on monitoring performance outcomes and ensuring that adequate controls are in place, in a way that is a well-established MRM discipline.
+My talk followed that of David Palmer from the Federal Reserve, whose presentation parsed updates to supervisory guidance introduced last month through SR 26-2. Later, Rama Subramanian gave an thoughtful presentation on “industrializing” the Model Risk Management function — an area of growing importance as governance demands continue to scale that is of interest to me and my work. Amit Srivastav followed with a discussion of how Internal Audit is evolving to the age of agentic AI. Finally, Carlos Rodriguez 🇵🇷 closed the event with his insights on how best to incorporate the oversight of AI within existing MRM frameworks.
+After the event, I was also fortunate enough to participate in a roundtable on the topic of agentic led by Sri Krishnamurthy, CFA and Agus Sudjianto, alongside many other distinguished colleagues across the industry, including Rodanthy Tzani, Simone Flory, Chris Smigielski, Ritu Sharma, and Joseph St Charles. Thanks to MassChallenge and John Valentine for being such great hosts.
+A special thanks to Stephen Boras for coordinating such a well-run and timely event, as well as to Giovanna Lollo for including me again this year - and for putting together the event. Look forward to the next installment in NYC later this year!
+#AIGovernance #ModelRisk Fifth Third Bank
+https://lnkd.in/gP2P2b-X
+public_profile__reactions
+42
+7 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Jayesh Srivastava
+Jayesh Srivastava
+17h
+Agus Sudjianto liked this
+We’re hiring for Lead Data Scientist and Senior Data Scientist roles to help drive AI, Machine Learning, and GenAI innovation within the bank at USAA. Looking for passionate problem solvers who can turn data into measurable business impact.
+Feel free to apply or share within your network. #DataScience #AI #MachineLearning #GenAI #Hiring
+Nicole Page
+Nicole Page
+2d
+Agus Sudjianto liked this
+#USAA is expanding its talented team and looking for exceptional individuals to join us in shaping the future of AI/ML. We have exciting opportunities for:
+Lead Data Scientists (AI/ML)
+🔗 https://lnkd.in/e5MVSwQ8
+Senior Data Scientists (AI/ML)
+🔗 https://lnkd.in/eNMzVNWn
+**These roles are remote eligible in the continental U.S. with occasional business travel. However, individuals residing within a 60-mile radius of a USAA office will be expected to work on-site four days per week.
+At #USAA, our mission is to empower our members to achieve financial security through highly competitive products, exceptional service, and trusted advice. As a member of our data science team, you will play a pivotal role in developing and implementing innovative AI/ML solutions that drive business insights and deliver significant value.
+What we're looking for:
+▪️ Strong background in predictive analytics and machine learning methodologies.
+▪️Proficiency in programming languages such as Python and SQL.
+▪️Ability to translate complex technical information to non-technical stakeholders.
+If you are a Data Scientist passionate about AI/ML and want to make a real impact while serving the military community and their families, we encourage you to apply!
+#Hiring #DataScience #AI #MachineLearning #USAA #Careers
+Celena | Jayesh | Ceciliana | Dustin
+Data Scientist Lead - Model Development at USAA
+Data Scientist Lead - Model Development at USAA
+34
+2 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Indemnify AI
+Indemnify AI
+2d
+Agus Sudjianto liked this
+𝐂𝐚𝐫𝐭 𝐁𝐞𝐟𝐨𝐫𝐞 𝐓𝐡𝐞 𝐇𝐨𝐫𝐬𝐞 (𝐏𝐨𝐬𝐭 𝟏/𝟑 – 𝐄𝐧𝐭𝐞𝐫𝐩𝐫𝐢𝐬𝐞 𝐀𝐈 𝐏𝐫𝐨𝐛𝐥𝐞𝐦)
+Most major enterprise technologies mature alongside financial methods for pricing, transferring, benchmarking, and accruing/reserving against risk. 𝐀𝐈 𝐢𝐬 𝐩𝐫𝐨𝐠𝐫𝐞𝐬𝐬𝐢𝐧𝐠 𝐝𝐢𝐟𝐟𝐞𝐫𝐞𝐧𝐭𝐥𝐲.
+𝐂𝐲𝐛𝐞𝐫 𝐫𝐢𝐬𝐤 did not remain a purely technical concern. It became an insurance market, with premiums, limits, exclusions, loss histories, and underwriting benchmarks. Munich Re[1] expects the global cyber insurance market to reach $16.3 billion in 2025, while NAIC[2] reported nearly $15 billion in global cyber premium written in 2024.
+𝐂𝐫𝐞𝐝𝐢𝐭 𝐫𝐢𝐬𝐤 matured through scoring and pricing infrastructure. FICO[3] states that its scores are used by the top 90 U.S. lenders, making credit scoring a core layer of consumer finance risk assessment.
+𝐓𝐫𝐞𝐚𝐬𝐮𝐫𝐲 𝐑𝐢𝐬𝐤 matured through Value-at-Risk, stress testing, counterparty limits, and liquidity frameworks. 𝐎𝐩𝐞𝐫𝐚𝐭𝐢𝐨𝐧𝐚𝐥 𝐫𝐢𝐬𝐤 became capitalized and benchmarked through Basel[4] frameworks designed to improve comparability and risk sensitivity.
+𝐄𝐧𝐭𝐞𝐫𝐩𝐫𝐢𝐬𝐞 𝐀𝐈 adoption 𝐢𝐬 𝐬𝐜𝐚𝐥𝐢𝐧𝐠 𝐛𝐞𝐟𝐨𝐫𝐞 equivalent 𝐟𝐢𝐧𝐚𝐧𝐜𝐢𝐚𝐥 𝐪𝐮𝐚𝐧𝐭𝐢𝐟𝐢𝐜𝐚𝐭𝐢𝐨𝐧. McKinsey[5] reported that 78% of organizations were using AI in at least one business function in its 2025 survey, up from 55% two years earlier; its later 2025 survey[6] also found that 23% of respondents were already scaling agentic AI systems somewhere in the enterprise, with another 39% experimenting.
+That is the cart before the horse problem. AI is being deployed, embedded, automated, and funded before many enterprises can answer one basic financial question:
+𝐖𝐡𝐚𝐭 𝐢𝐬 𝐭𝐡𝐞 𝐩𝐫𝐢𝐜𝐞𝐝 𝐝𝐨𝐰𝐧𝐬𝐢𝐝𝐞 𝐨𝐟 𝐭𝐡𝐢𝐬 𝐀𝐈-𝐞𝐧𝐚𝐛𝐥𝐞𝐝 𝐝𝐞𝐜𝐢𝐬𝐢𝐨𝐧, 𝐰𝐨𝐫𝐤𝐟𝐥𝐨𝐰, 𝐦𝐨𝐝𝐞𝐥, 𝐨𝐫 𝐯𝐞𝐧𝐝𝐨𝐫 𝐝𝐞𝐩𝐞𝐧𝐝𝐞𝐧𝐜𝐲?
+Deployment is moving first. AI risk exposure is MIA.
+References:
+1. https://lnkd.in/g-KJGGyF
+2. https://lnkd.in/gzWFSHKk
+3. https://lnkd.in/gdhF-dwU
+4. https://lnkd.in/gP9Tb6sG
+5. https://lnkd.in/gqRAd-m3
+6. https://lnkd.in/eVhaKx-C
+public_profile__reactions
+3
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Javier Marin
+Javier Marin
+1d
+Agus Sudjianto liked this
+Building a multi-agent pipeline that reads a 144-page regulation and answers compliance questions is no longer hard.
+- RAG handles retrieval.
+- Context windows keep growing — 128K tokens is standard, 1M is available.
+- Guardrails catch toxic outputs and prompt injections.
+- LangGraph, CrewAI, AutoGen — the orchestration frameworks are mature.
+The part that's still unsolved: how do you know the answer is actually grounded in the document?
+I ran an experiment. Three agents powered by GPT-5.4-mini over the EU AI Act (https://lnkd.in/eGY-N2y7):
+→ 🤖 Retriever searches the full regulation text
+→ 🤖 Compliance analyst answers from the retrieved passages
+→ 🤖 Risk assessor translates findings into business impact
+Five real questions. The agents produced fluent, confident, well-structured answers to all five.
+🔴 Two of them were wrong.
+On "what fines apply to prohibited AI practices," the retriever pulled passages about technical standards instead of Article 99. The analyst honestly said the text didn't cover fines. But a less conservative model would have filled the gap from training data — and you'd never know.
+Then I ran a sabotage test: deliberately fed the wrong regulation section to the analyst. Both metrics flagged it independently — retrieval relevance caught the topic mismatch, SGI caught the model's inability to ground its response in irrelevant text. Two signals, same conclusion.
+This is what we built groundlens to detect. No second LLM call, no probabilistic judge — geometric distance between the response and the source material. Deterministic. The score tells you: trust this, review this, or flag this.
+The notebook runs end-to-end in Colab. You can find it here, together with other examples: https://lnkd.in/eXxJXhFz
+public_profile__reactions
+17
+2 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Center for Financial Professionals (CeFPro)
+Center for Financial Professionals (CeFPro)
+1d
+Agus Sudjianto liked this
+Risk Americas is in full swing and the energy has been incredible!
+Today’s sessions have sparked insightful discussions across the 4 streams exploring AI, geopolitics, liquidity, governance, treasury, operational resilience and more, with speakers sharing practical strategies for navigating the complex risk environment the industry is facing.
+These discussions carried into the luncheon roundtables, which gave opportunities for closer peer-to-peer discussion on perspectives and practical problem-solving solutions in a more informal setting. The room was buzzing🐝
+So far we’ve heard from Deniz K. Tudor, PhD, MSL, Carla Boustany, FRM, Charles A. Richard III, Milagros Lopez Daglio, Gus Ortega, Diana Tawfik, Jennifer Marshall-Robertson (Chartered Banker/Risk Leader), Alexey Smurov, Seyhun H., Jorge Segura, Anshu B., Soojin Lee, CFA, Fanny Schumacher, Shravya Yarlagadda, Sandeep Singh, Hakan Danış, Ronald Ratcliffe, Maria Paula Carvajal, Chris Smigielski, Maya Goethals, Pete Savin, Sara Ricci, Ariadna (Ari) Font Llitjós, PhD, Ash Majid, Ph.D., Agus Sudjianto, Kannan Venkataramanan, Jonathan L., Mitchell Chad, Bob MacKnight, Stephen Woitsky, MBA, Mariana Almeida, David Buck, NACD.DC, Nikolai Kukharkin, Anindya Basu, Alison Li, Yakov Shenkman CFA FRM CAIA, Greg Prisby, FRM and George G. with more to come!
+Up next… the afternoon networking break for plenty more insight sharing!
+PS. Don’t forget to stop by our Connect stand if you’re onsite, our team would love to hear from you
+#RA26 #CeFProEvents #RiskAmericas
+public_profile__reactions
+78
+4 Comments
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Cecilia Hoyt
+Cecilia Hoyt
+1d
+Agus Sudjianto liked this
+Opportunity to join a great team!!
+Steve Stone
+Steve Stone
+2w
+Agus Sudjianto liked this
+Join our team!
+Legal and Regulatory Compliance - VP
+Legal and Regulatory Compliance - VP
+Fannie Mae, Washington, DC
+13
+Copy
+LinkedIn
+Facebook
+X
+Agus Sudjianto
+liked this
+Report this post
+Agus Sudjianto liked this
+Minesh Parekh
+Minesh Parekh
+2d
+Agus Sudjianto liked this
+Generative AI Governance Gap - Pre-US AI Supervisory Guidance
+Generative AI Governance Gap - Pre-US AI Supervisory Guidance
+Minesh Parekh
+42
+5 Comments
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+See all activities
+Experience & Education
+H2O.ai
+****** **** ********* **** * **********
+******** * *******
+****** *******
+********** ** ***** ******** ** *********
+********* ** ********** ****** *** *********** ** ******* ***** **** **********
+************* ********* ** **********
+-
+1998 - 2001
+***** ***** **********
+***********
+View Agus’s full experience
+See their title, tenure and more.
+Sign in
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Publications
+arXiv
+-
+See publication
+Google Scholar
+-
+See publication
+Patents
+25+ US Patents (issued and pending) in Engineering and Quantitative Finance Methodologies
+- 9 issued 1 pending
+View Agus’ full profile
+See who you know in common
+Get introduced
+Contact Agus directly
+Join to view full profile
+Other similar profiles
+Rajeev Lakra
+Rajeev Lakra
+RBC Capital Markets, LLC
+3K followers
+New York City Metropolitan Area
+View Profile
+Ponmile Oloyede, PhD
+Ponmile Oloyede, PhD
+Citi
+6K followers
+Dallas-Fort Worth Metroplex
+View Profile
+Scott P. Carr, MBA, CRCM
+Scott P. Carr, MBA, CRCM
+Federal Deposit Insurance Corporation (FDIC)
+2K followers
+Louisville Metropolitan Area
+View Profile
+Darlene Swain
+Darlene Swain
+Consolidated Analytics
+7K followers
+Greater Tampa Bay Area
+View Profile
+Ather Williams III
+Ather Williams III
+Wells Fargo
+22K followers
+New York, NY
+View Profile
+Douglas Gordon
+Douglas Gordon
+BASEPOINT CAPITAL, LLC
+4K followers
+New York, NY
+View Profile
+Sankar Krishnan
+Sankar Krishnan
+Hexaware Technologies
+11K followers
+New York City Metropolitan Area
+View Profile
+Ujjwal Kumar
+Ujjwal Kumar
+Element Capital Management
+4K followers
+New York, NY
+View Profile
+Mo Ramani
+Mo Ramani
+KeyBank
+5K followers
+Cleveland, OH
+View Profile
+Benjamin F.
+Benjamin F.
+Eldridge
+7K followers
+Irvine, CA
+View Profile
+Explore more posts
+Simon Villani, PhD
+ANZ
+• 26K followers
+Ever feel like today’s AI models are getting smarter but somehow less useful?
+You’re not imagining it.
+LLM benchmarks have become the obsession. Model makers are locked in a cycle of chasing leaderboard points on MMLU, GSM8K, and other tests no one actually cares about outside of research labs.
+The result? Models that ace exams but fall apart in real-world use. They misinterpret vague instructions. They forget what you said three messages ago. They can’t think beyond a single step. But sure, the score went up by 0.3 percent.
+Benchmarks were supposed to be a guide. Instead, they’ve become a crutch. A way to show “progress” without improving anything that matters.
+The questions we should be asking are simple:
+Can the model follow messy, human instructions?
+Can it reason through problems, not just regurgitate answers?
+Can it actually help people get real work done?
+If you’ve worked with these models, you’ve felt the gap. You’ve seen the hype, and then you’ve seen it fall short when it counts.
+Are we building for people, or are we building for points?
+I’d love to hear what others are seeing in the wild.
+#AI #LLMs #Benchmarks #MachineLearning #RealWorldAI
+27
+3 Comments
+Maksims Volkovs
+TD
+• 6K followers
+One of the most transformative innovations powering today’s GenAI revolution is the advancement of foundation models (FMs) — large models pre-trained on Internet-scale data that demonstrate remarkable generalization across a wide range of tasks. FMs have redefined performance benchmarks in many fields including, natural language processing, computer vision, and computational biology, becoming the cornerstone of modern GenAI.
+Yet, progress on structured enterprise data such as tabular time series has lagged behind, where task-specific models optimized on manually extracted signals still dominate. Inspired by the success of FMs in other domains, we set out to explore whether FMs can also be built for finance and banking.
+After over three years of R&D, I’m excited to share that we’ve deployed our first structured-data FM into production at TD: TD AI Prism https://lnkd.in/gEAb7Scm. Trained on billions of customer events, Prism generalizes to many downstream predictive tasks, delivering higher accuracy and significantly faster time to market.
+Through this work, we're beginning to observe early signs of scaling laws, similar to those seen in LLMs, where more data and larger models lead to stronger generalization. As part of this effort, we also released a public FM trained on Internet tabular data, capable of making predictions on new datasets without any fine-tuning. Check it out here: https://lnkd.in/gmbWdAf7
+As enterprises evolve with AI, we believe that foundation models for structured data will be a major force in redefining how predictive AI is deployed at scale, driving the next wave of innovation in enterprise applications. Layer 6 AI has multiple exciting initiatives in this space, so stay tuned for more updates!
+361
+15 Comments
+Shashin Pandya, MBA, CSSBB, CAP
+Lifemark Health Group
+• 2K followers
+AI is shifting from single models to ecosystems of specialized agents.
+This research on Reinforced Agent Merging (RAM) highlights a critical reality:
+If you merge RL-trained agents the same way we merged fine-tuned models, you destroy value.
+Why it matters:
+• RL agents learn sparse, task-specific intelligence
+• Naive averaging dilutes the very behaviors you trained them for
+• “One model to rule them all” is no longer viable
+What RAM shows instead:
+• Share common intelligence
+• Preserve and amplify unique capabilities
+• Combined systems can outperform individual specialists
+Impact for leaders and builders:
+• AI platforms will be agent-based, not model-centric
+• Competitive advantage shifts to orchestration and integration
+• The hardest problem is no longer training models, but merging intelligence without loss
+This is where AI strategy meets product leadership.
+If you are still designing around a single assistant, you are already behind.
+#AI #ArtificialIntelligence #AgenticAI #ReinforcementLearning #GenAI #AIArchitecture #AIProductManagement #AILeadership #EnterpriseAI
+https://lnkd.in/ed7pTrsD
+7
+Singri Goutham
+HSBC
+• 842 followers
+Single-method retrieval often fails in #financial and #regulatory domains, exact-term search misses semantic relationships, while dense models overlook structured identifiers. A multi-path approach resolves this gap.
+The Multi-Path Retrieval (#MPR) pipeline implements four complementary retrieval strategies with a domain-specialized re-ranking mechanism to balance lexical precision and semantic understanding:
+#BM25 Sparse Retriever – captures exact matches for regulatory codes, ticker symbols, and key phrases.
+#Dense Semantic Retriever – identifies paraphrases and conceptually similar expressions through high-dimensional embeddings.
+#Metadata-Aware Retriever – filters at section-level granularity, narrowing retrieval to relevant document parts before detailed chunk search.
+#HyDE Retriever – generates a hypothetical answer, embeds it, and retrieves real text segments with similar structure and terminology, bridging the question–answer linguistic gap.
+Final results can be aggregated through weighted rank fusion (like semantic > BM25 > metadata > HyDE ), producing top-ranked chunks enriched through context bundling when adjacent similarities exceed 0.85. This ensures coherent, context-complete passages are provided to downstream models.
+Such architecture is especially effective in financial compliance and regulatory analysis, where both formal precision and contextual interpretation are essential. The hybrid fusion enhances #recall, #contextualaccuracy, and #interpretability in retrieval-augmented systems(#RAG).
+#GenAI #Banking #AIEngineer #LLM #Fraud
+4
+David Solis
+GNP Seguros
+• 4K followers
+Runtime authorization is the unsolved problem in AI governance.
+Wrapping probabilistic models in policies, review boards, and dashboards guarantees failure between validation checkpoints, as shown in every major LLM agent incident to date. Governance built around a system cannot answer the critical operational question: What mechanism authorizes the engine to execute at the exact moment of execution?
+The answer cannot be a policy document. It must be the execution substrate itself.
+The substrate requires a valid execution envelope for every representable action—a time-bounded mathematical contract established at load-time:
+(authority_id · stop_right_holder · liability_binding · t_issue · t_expiry)
+The stop_right_holder names the agent with unilateral termination authority. The liability_binding attaches a verifiable legal instrument to the execution itself, rather than to a log entry produced afterward.
+When the current timestamp exceeds t_expiry, the architecture blocks the action and triggers an alert. It renders execution structurally unrepresentable. That distinction separates a fragile guardrail from an invariant substrate.
+Three mechanisms make this boundary non-bypassable:
+1. Reset integrity. After a REFUSE state, the runtime snapshot compares the current operational scope against the last verified state. Any scope increase demands a new envelope and explicit steward re-authorization. Systems cannot reset into elevated privileges.
+2. Diagnostic boundaries. The architecture restricts BORDERLINE states to diagnostic functions only. Probabilistic optimizers cannot target the safety boundary as a performance strategy because the architecture makes that state non-targetable by design.
+3. Cryptographic evidence. The infrastructure hash-chains every commitment into an append-only ledger at the exact moment of execution, eliminating post-hoc reconstruction. The unalterable record is the boundary, not a trail leading back to it.
+Most enterprise stacks combine policy files with logging and label the result as governance.
+That architecture has a structural vulnerability: unauthorized execution remains mathematically representable at runtime. The system could act outside its authorized scope. It relies on hope and auditors catching what matters after execution completes.
+A genuinely governed runtime eliminates that reliance. Unauthorized execution becomes impossible by construction, not by convention.
+The boundary does not surround the system. It is the system.
+#AIGovernance #SystemsArchitecture #EnterpriseArchitecture #EnterpriseAI #AIStrategy #MachineLearning #RiskManagement #MLOps
+5
+1 Comment
+Dr. Tejasvi Addagada
+HDFC Bank Limited
+• 8K followers
+Just read this fantastic newsletter, "Data Decisions Pathways," from Data Principles! Pete Stiglich, CDMP, CBIP, CCP has published key insights on data architecture, AI, and analytics. It's a pleasure to pen my views as well along with other thought-leaders.
+1. A great discussion on whether data warehouses must be centralized, and why data believability/trust is the most critical factor. Bill Inmon
+2. An interesting take on "Normalization of Knowledge" and how it helps identify true business operations. Donavon Gooldy
+3. A thought-provoking article on the importance of ethical data use continuously in an org, and its impact on trust and compliance. Dr. Anne-Marie Smith Marie Smith
+4. An insightful look at the "Unfinished Business of Generative AI Governance" and the need for adaptive frameworks. Dr. Tejasvi Addagada
+This is a valuable resource for anyone in the data field. Check it out: https://lnkd.in/dS4mHVRz
+#Data #Analytics #GenerativeAI #AI #DataGovernance #DataArchitecture #AIGovernance
+25
+5 Comments
+Satyajeet Singh
+JPMorgan Chase & Co.
+• 634 followers
+Credit risk models like #FICO #Cibil have repeatedly faltered during major downturns over decades, exposing blind spots that misled lenders and amplified losses. The industry has since evolved through regulatory reforms and ML innovations, yet gaps persist—creating a clear path for advanced AI, ML, and LLMs to build future-ready systems.
+Year 2000- #DotComBust: Scores lagged behind mass tech layoffs, failing to catch early distress signals as the Nasdaq crashed 78%.
+Year 2008- #GFC: Loans with 700+ FICO scores saw delinquency surges of up to 300%. The models missed the underlying systemic rot.
+Year 2020 - #COVID: Stimulus checks pushed average FICOs to record highs (717), masking subprime realities and eventually leading to $320B+ in bank write-offs.
+Year 2027 - #ThenextDownturn ?
+The Evolution:
+Post-2008, we saw a massive shift. Basel III and IFRS 9, CCAR mandated rigorous stress testing, while XGBoost and Random Forest models boosted AUC by 10-20% by pulling in alternative data like mobile usage and real-time transaction flows. But even with ML integration, many systems remain reactive.
+The Next Frontier: From Reactive Scores to Prescient Stories 🚀
+The "Holy Grail" of risk management isn't just a better number—it’s Contextual Intelligence. We are required to move toward a world where Native #LLMs, trained on Credit Bureau with payment trajectories, Cash flows, macro-economic and alternate data. The Advancement will not just "score" a borrower— but generate financial narratives and enable managing the Credit Risk through the cycle effectively.
+#CreditRisk #FinTech #AI #MachineLearning #BankingInnovation #RiskManagement #LLM
+#FICO #TransUnion #Experian #Equifax
+36
+3 Comments
+Ram Sangasani
+Mastercard
+• 1K followers
+𝐅𝐫𝐨𝐦 𝐌𝐚𝐧𝐮𝐚𝐥 𝐒𝐀𝐒 𝐒𝐜𝐫𝐢𝐩𝐭𝐬 𝐭𝐨 𝐒𝐜𝐚𝐥𝐚𝐛𝐥𝐞 𝐌𝐋 𝐏𝐢𝐩𝐞𝐥𝐢𝐧𝐞𝐬 — 𝐇𝐨𝐰 𝐀𝐖𝐒 𝐒𝐚𝐠𝐞𝐌𝐚𝐤𝐞𝐫 𝐜𝐚𝐧 𝐂𝐡𝐚𝐧𝐠𝐞 𝐭𝐡𝐞 𝐆𝐚𝐦𝐞
+Over the years, I’ve worked across various stages of the data and machine learning lifecycle — from coding in SAS with data on Netezza, or using Python on Hadoop, to deploying models in batch pipelines. Each step required careful orchestration, custom workflows, and, let’s be honest, a lot of patience.
+🔁 Version control was often painful.
+📦 Feature engineering was a feat (until we implemented our custom variable layer)
+🚚 Model deployment? Always a custom template or pipeline created manually.
+Fast forward to today:
+🚀 𝐒𝐚𝐠𝐞𝐌𝐚𝐤𝐞𝐫 𝐌𝐚𝐤𝐞𝐬 𝐌𝐋 𝐄𝐧𝐠𝐢𝐧𝐞𝐞𝐫𝐢𝐧𝐠 𝐒𝐜𝐚𝐥𝐚𝐛𝐥𝐞 𝐚𝐧𝐝 𝐒𝐭𝐫𝐞𝐚𝐦𝐥𝐢𝐧𝐞𝐝 - 𝐞𝐟𝐟𝐨𝐫𝐭𝐥𝐞𝐬𝐬
+SageMaker takes away much of the heavy lifting by providing a fully managed environment for the end-to-end ML lifecycle. Whether you're preparing data, training models, or monitoring performance, it’s all in one place — and integrated into the broader AWS ecosystem.
+Here’s what stood out to me:
+✅ Feature Store: No more duplicating logic across training and inference/scoring. SageMaker’s Feature Store handles it elegantly — consistent, versioned, and accessible.
+✅ Model Versioning: Integrated model registry makes tracking, comparing, and deploying models across environments easy and auditable.
+✅ Scalable Infrastructure: Whether training on large datasets or deploying low-latency endpoints, SageMaker manages compute behind the scenes.
+✅ MLOps-Ready: With CI/CD support, SageMaker Pipelines, and integrations with Git, the platform truly embraces production-grade ML workflows.
+🌟 SageMaker not only simplifies development and deployment — it enables experimentation at scale without sacrificing control, governance, or performance. Whether you're running large-scale ML pipelines or experimenting with prototypes, AWS SageMaker provides a robust foundation to turn your data into actionable intelligence.
+When you've invested years into building and maintaining legacy tools and infrastructure, adopting a new tech stack can seem unnecessary, especially when the current setup just works. But if you're already in the AWS ecosystem and building machine learning models at scale, SageMaker is absolutely worth exploring. It may just streamline everything you didn’t realize could be easier.
+#AWS #SageMaker #MachineLearning #MLOps #DataEngineering #AI #CloudComputing #FeatureStore
+7
+1 Comment
+Dr. Zeynep Hizir
+Oxford AI for Business Alumni
+• 4K followers
+AI adoption in financial services fails far more often due to operating-model gaps than technology choices.
+Without clean data, redesigned workflows, and embedded governance, AI doesn’t scale — it stalls.
+A few practical observations from the field here. Let me know what you think...
+16
+3 Comments
+MILIND Kumar
+Wells Fargo
+• 2K followers
+After 10 years in data science, it’s rare to come across a shift this significant—AI agents are no longer just an idea, they’re being deployed.
+Unlike traditional models that predict, these agents act. They interpret context, connect across systems, and execute tasks—autonomously. From underwriting and reporting to customer support and operations, businesses are using them to drive real outcomes.
+This isn’t about replacing humans—it’s about freeing us from the repetitive, so we can focus on strategy, insight, and impact.
+As someone who’s spent a decade building data solutions, I see this as the next chapter: moving from dashboards to decision-making, from insight to intelligent action.
+We’re not just building models anymore. We’re building systems that think.
+#AI #DataScience #AIagents #Automation #Innovation #FutureOfWork
+18
+6 Comments
+Pranov Shobhan Mishra
+JPMorgan Chase & Co.
+• 2K followers
+🚀 Just wrapped up a hands-on project applying Retrieval-Augmented Generation (RAG) to a real-world use case: interpreting LIC’s New Jeevan Shanti policy document using LLMs.
+The core idea? Combine vector search over regulatory PDFs with GPT-4 to generate grounded, faithful answers to complex policy questions.
+Key capabilities we built:
+✅ LCEL-based RAG architecture using LangChain
+✅ Contextual compression retriever for focused document lookup
+✅ Modular LLM & embedding selection (OpenAI, HuggingFace, Mistral)
+✅ Evaluation using LLM-powered metrics: faithfulness, relevance, correctness
+📄 The document used is publicly available here:
+LIC New Jeevan Shanti Policy PDF
+💻 Full code available on GitHub:
+https://lnkd.in/gS9mEzWA
+💡 This architecture brings the best of both worlds — retrieval accuracy and generative flexibility — especially in regulated domains like insurance and financial services.
+🔜 Next step: Incorporate Agents that can reason across multiple steps — not just answer a question, but decide which tools to use, when to search, how to validate, and when to stop. That’s where the future of enterprise GenAI lies.
+Would love to hear how others are pushing RAG, agents, and LLMs in production!
+#GenAI #LangChain #LLM #RAG #AIForOps #InsuranceTech #LLMEvaluation #LangChainAgents
+61
+1 Comment
+Dario Morelli
+NETSOL Technologies Inc.
+• 5K followers
+Brilliant post by Jessica Talisman on the difference between semantic layers and ontologies. The frame couldn't be clearer:
+- Semantic layers solved for metric governance in a world where users interacted with dashboards
+- Ontologies provide a structured representation of knowledge where AI systems can access context and make inferences
+Full article here: https://lnkd.in/eBDyMUfa
+14
+Dimitrios Nikolaidis
+ACCIS
+• 866 followers
+𝗘𝘅𝗽𝗹𝗮𝗶𝗻𝗮𝗯𝗶𝗹𝗶𝘁𝘆 𝘄𝗼𝗿𝗸𝘀 — 𝘄𝗶𝘁𝗵𝗶𝗻 𝗹𝗶𝗺𝗶𝘁𝘀
+Over the past decade, post-hoc explainability has become a widely adopted practice:
+Feature importance scores
+SHAP values
+Local surrogate models
+They provide insight into how predictions are generated. Yet they can:
+• Shift under small model perturbations
+• Appear stable even when models change materially
+• Be manipulated without altering predictive performance
+• Capture statistical associations rather than causal structure
+This does not invalidate interpretability tools.
+It clarifies what they are and what they are not.
+Most explanation tooling operates downstream of inference.
+Governance challenges emerge upstream, in how systems are deployed, updated, and assigned clear ownership
+If accountability depends primarily on dashboards, it becomes difficult to sustain over time.
+Part 3 will outline the architectural design choices that make AI systems defensible, not just explainable.
+15
+Changez Mian
+Berkshire Bank
+• 1K followers
+New Blog Post: Evaluating Language Model Outputs – Metrics, Models, and Benchmarks
+A model scores 92% accuracy but fails on sarcasm. An AI-generated summary reads fluently yet misses key facts. As generative AI becomes mainstream, evaluation is quickly becoming the critical bottleneck for safe and effective deployment.
+The problem: Traditional metrics like BLEU and ROUGE were built for simpler tasks—and often fail to capture what we truly care about in modern language model outputs.
+In this comprehensive guide, I walk through:
+- Why word-matching metrics give misleading results (and where they still help).
+- How semantic metrics like BERTScore and BLEURT actually work—with formulas
+- When to use LLM-as-Judge methods that correlate better with human preferences
+- The hidden costs of benchmark contamination and metric gaming
+- A visual decision framework for choosing evaluation methods by task and constraint
+This isn't just theory—it's a practical guide for anyone building, deploying, or working with AI systems who needs reliable ways to measure what actually matters.
+🔗 Full blog here: https://lnkd.in/eb2eTY_B
+#NLP #GenerativeAI #LLM #AIEvaluation #ResponsibleAI
+15
+Poornakala S.
+Northwestern University -…
+• 3K followers
+Many people ask me about GenAi and how it will look like in their Production cycle.
+Gartner has come up with a Framwoek or workflow pipeline. Having said that each organization has their own need and can start building their AI stack vertically in Silos and after achieving successful deployment, identifying, and building dashboards for KPIs , can expand to other businesses or Teams and can go horizontal.
+I look at it as 1,3, 5 years plan for crawl, walk, rin and fly phase to scale.
+Please share which phase your organization is in?
+#GenAIFramework #ScalingAI
+2
+Anvesh Reddy Minukuri
+OSU MS in Business Analytics…
+• 2K followers
+🛡️ As AI workflows shift from deterministic code to agentic systems, observability isn’t just nice to have — it’s the safety net that keeps reasoning on track.
+In my latest Medium article, I explore why traditional monitoring falls short, what “quiet failures” look like in agentic flows, and how tools like Arize AI are reshaping how we manage traceability, cost, and semantic drift.
+Dive in medium link for setup and observability view for Web Scraping and summarization agent 👉
+#AIAgents #LLMOps #Observability #ArizeAI #GenerativeAI
+7
+Sebastian Link, DataProf
+DataViadotto
+• 3K followers
+Identifying meaningful keys and foreign keys is crucial for ensuring data integrity and effective data management. Key constraints maintain entity integrity and facilitate quick access to database tables, while foreign key constraints uphold referential integrity and enhance table combination efficiency.
+Existing data profiling tools have limitations in distinguishing between accidental constraints and meaningful rules when mining database tables. Precision assesses how many mined constraints represent meaningful rules, while recall measures how many meaningful rules are among the constraints identified through mining.
+Excitingly, we introduce a cutting-edge profiling tool capable of efficiently mining meaningful keys and foreign keys with exceptional precision and recall. Our innovative approach introduces new possibilities for optimising the mining process, enhancing efficiency, and scalability.
+If you are unable to attend VLDB in London, don't worry! Reach out to us, and we'll gladly arrange an online demo session for you. Mine with purpose and accuracy!
+DataViadotto
+21
+1 Comment
+Kshitija Joshi, Ph.D
+Nomura
+• 4K followers
+AI has been consistently challenging the conventionally held macroeconomics paradigms and theories of economic growth.
+The economist in me often wonders on how would the fiscal and monetary policies even function if the conventional transmission mechanisms fail!
+If these questions bother you too, please read on my son Mihir Joshi 's blog.
+Mihir has completed his undergrad in Economics from Durham University, UK and is currently pursuing his Masters in Economics from Royal Holloway University.
+https://lnkd.in/ebndBQ_2
+32
+5 Comments
+Show more posts
+Show fewer posts
+Explore top content on LinkedIn
+Find curated posts and insights for relevant topics all in one place.
+View top content
+Add new skills with these courses
+5h
+Introduction to Probabilistic Knowledge Graphs: AI-Driven Inference and Real-World Applications
+2h 22m
+Tableau and R for Analytics Projects
+4h
+Complete Guide to Analytics Engineering
+See all courses
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to message Agus
+Agus can introduce you to 10+ people at H2O.ai
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

@@ -1,0 +1,219 @@
+---
+title: "v10 IFRS9, Causal, Fairness and Dashboard"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v10_resolution_status.json")
+readiness = _csv("paper4_v10_ifrs9_proxy_readiness.csv")
+gaps = _csv("paper4_v10_ifrs9_data_gap_register.csv")
+sicr = _csv("paper4_v10_sicr_candidate_grid.csv")
+causal = _csv("paper4_v10_causal_dossier.csv")
+causal_tests = _csv("paper4_v10_causal_stress_tests.csv")
+fairness = _csv("paper4_v10_fairness_proxy_protocol.csv")
+dashboard = _csv("paper4_v10_blocker_dashboard.csv")
+claims = _csv("paper4_v10_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V10 cierra la parte ejecutable de la ola, pero no fuerza claims que los datos
+no sostienen. El objetivo aquí es separar tres tipos de evidencia:
+
+- IFRS9 proxy mejorado con SICR calibrable, sin claim contractual;
+- causal/CATE como dossier útil, sin policy value causal;
+- fairness como proxy governance, sin fair-lending legal claim.
+
+Esa separación es tan importante como cualquier mejora de solver, porque evita
+que Paper 4 confunda un laboratorio vivo con una certificación regulatoria.
+
+## Status v10
+
+```{python}
+#| label: tbl-paper4-v10-final-status
+#| tbl-cap: "Paper 4 v10 final status and guardrails"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "selector_promote_count": status.get("selector_promote_count"),
+    "primary_remaining_blocker": status.get("primary_remaining_blocker"),
+    "ifrs9_proxy_readiness_score": status.get("ifrs9_proxy_readiness_score"),
+    "contractual_ifrs9_claim_allowed": status.get("contractual_ifrs9_claim_allowed"),
+    "causal_policy_value_allowed": status.get("causal_policy_value_allowed"),
+    "fair_lending_legal_claim": status.get("fair_lending_legal_claim"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## IFRS9 proxy readiness
+
+```{python}
+#| label: tbl-paper4-v10-ifrs9-readiness
+#| tbl-cap: "V10 IFRS9 proxy readiness"
+
+readiness
+```
+
+```{python}
+#| label: tbl-paper4-v10-ifrs9-gap-register
+#| tbl-cap: "V10 IFRS9 data gap register"
+
+gaps
+```
+
+La readiness sube como proxy operativo porque v10 usa status, installment,
+term, issue month, default proxy y LGD proxy. Pero sigue en `0.5833`, muy por
+debajo de lo necesario para claim contractual. Faltan panel mensual de
+servicing, DPD, forbearance, timing de recoveries, timing de prepago y macro
+paths externos/coherentes.
+
+La regla de gobernanza queda fija:
+
+```text
+Paper 4 may report enhanced proxy ECL; it must not claim contractual IFRS9
+without a monthly servicing/performance panel and defensible macro scenarios.
+```
+
+## SICR calibration
+
+```{python}
+#| label: tbl-paper4-v10-sicr-grid
+#| tbl-cap: "V10 SICR candidate grid"
+
+_cols(
+    sicr,
+    [
+        "scenario",
+        "sicr_rule_v10",
+        "mean_ecl_proxy_v10",
+        "stage1_share_v10",
+        "stage2_share_v10",
+        "stage3_share_v10",
+        "stage2_dominates",
+        "stage2_too_low",
+        "sicr_recommendation_v10",
+    ],
+)
+```
+
+V10 mejora SICR porque ya no acepta una regla donde Stage 2 domina todo sin
+discusión. Algunas reglas quedan como `candidate_for_mrm_review`; otras se
+rechazan por Stage 2 extremo. Eso no resuelve IFRS9 contractual, pero sí
+convierte SICR en una grilla auditable.
+
+## Causal / CATE dossier
+
+```{python}
+#| label: tbl-paper4-v10-causal-dossier
+#| tbl-cap: "V10 causal dossier"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v10-causal-stress
+#| tbl-cap: "V10 causal stress tests"
+
+causal_tests
+```
+
+El carril causal sigue bloqueado para policy value. Balance y falsification
+eran útiles desde v8, pero overlap y sensibilidad a sesgo oculto no sostienen
+una decisión. V10 documenta el bloqueo como resultado válido: hasta tener un
+outcome causal limpio, overlap estable, sensibilidad fuerte e intervalos CATE
+útiles, `cate_policy_value_allowed = False`.
+
+## Fairness proxy-only
+
+```{python}
+#| label: tbl-paper4-v10-fairness-protocol
+#| tbl-cap: "V10 fairness proxy-only protocol"
+
+fairness
+```
+
+Paper 4 puede estresar grade, DTI, income, state, period y score decile como
+sources de gobernanza. Eso no equivale a race/ethnicity/sex/age ni a un claim
+legal. V10 mantiene el protocolo permanente:
+
+```text
+No fair-lending legal claim without protected attributes or an approved
+external proxy protocol.
+```
+
+## Dashboard vivo
+
+```{python}
+#| label: tbl-paper4-v10-blocker-dashboard
+#| tbl-cap: "V10 blocker dashboard"
+
+dashboard
+```
+
+La historia real después de v10 es:
+
+- online efficiency: resuelto y robustecido;
+- selector governance: resuelto, ahora bloquea por lo correcto;
+- MDCP/CVaR/DLA/DFL/sample paths: near-resolved como arquitectura ejecutable;
+- IFRS9 contractual, causal policy value y fairness legal: bloqueados por datos
+  o identificación, no por falta de código.
+
+## Claims y guardrails
+
+```{python}
+#| label: tbl-paper4-v10-claim-matrix
+#| tbl-cap: "V10 claim-artifact matrix"
+
+claims
+```
+
+El claim matrix es la defensa contra claims huérfanos. Cada afirmación tiene
+artifact, página y caveat. La matriz también deja explícitos los dos guardrails
+que no se deben romper:
+
+- no modificar `models/final_project_promotion.json`;
+- no crear `reports/paper_material/paper4/status/paper4_final_promotion.json`.
+
+## Interpretación final de v10
+
+V10 cambia el estado del Paper 4. Ya no es solo una lista de ideas: es un
+laboratorio con gates, status JSON, solvers, sample paths, selector, claim
+matrix y dashboard. Pero todavía no tiene candidato promocionable, y eso está
+bien. La razón principal ya no es online; es que IFRS9 contractual, CATE policy
+value y fairness legal necesitan datos o identificación que no se pueden
+inventar con optimización.
+
+El siguiente trabajo con mayor valor no es cambiar el CRPTO/Paper_CRPTO externo. Es traer
+servicing/performance mensual, calibrar macro/default/LGD con datos externos y
+convertir DFL/SPO+ en entrenamiento decision-loss real contra targets LP.

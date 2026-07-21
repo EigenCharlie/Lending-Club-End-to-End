@@ -51,7 +51,7 @@ pipelines:
       - models/conformal_variant_selection_status.json
       - models/conformal_policy_status.json
       - data/processed/conformal_variant_benchmark.parquet
-    papers_served: [paper1, paper3]
+    papers_served: [paper1, paper4, conformal_core]
     allowed_lanes: [preflight, core_conformal, diagnostics_governance]
     forbidden_lanes:
       - core_data_pd
@@ -59,6 +59,29 @@ pipelines:
       - paper2_survival
       - core_portfolio
       - core_ifrs9
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: search_paper2_ifrs9
+    objective: survival/LGD-EAD/PoC e IFRS9 exhaustivo sobre upstream canónico
+    upstream: core_canonical
+    outputs:
+      - models/survival_summary.pkl
+      - models/lgd_ead_model.pkl
+      - models/ifrs9_diagnostics_status.json
+    papers_served: [paper2]
+    allowed_lanes:
+      - preflight
+      - core_ts
+      - paper2_survival
+      - core_ifrs9
+      - diagnostics_governance
+    forbidden_lanes:
+      - core_data_pd
+      - core_conformal
+      - core_portfolio
       - publication_exports
       - research_causal
       - research_cate_portfolio
@@ -136,7 +159,7 @@ pipelines:
       - models/governance_status.json
       - models/mrm_report_status.json
       - models/pd_backtesting_status.json
-    papers_served: [paper3]
+    papers_served: [paper4, governance_core]
     allowed_lanes: [preflight, diagnostics_governance]
     forbidden_lanes:
       - core_data_pd
@@ -151,18 +174,16 @@ pipelines:
       - research_rapids
       - research_notebooks
   - pipeline: research_labs
-    objective: causal, gpu, notebooks y side projects research only
+    objective: causal, notebooks y side projects research only
     upstream: core_canonical
     outputs:
       - models/causal_effect_status.json
       - reports/notebook_exec
-      - reports/gpu_benchmark
-    papers_served: [paper3]
+    papers_served: [paper4]
     allowed_lanes:
       - preflight
       - research_causal
       - research_cate_portfolio
-      - research_rapids
       - research_notebooks
     forbidden_lanes:
       - core_data_pd

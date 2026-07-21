@@ -1,13 +1,9 @@
-\begin{tabular}{lrrrrrrrrrrrrrrrrllrrrlrrrlrr}
+\begin{tabular}{lllrlrrlrrrr}
 \toprule
-variant & alpha & target_coverage & coverage & coverage_gap & avg_width & median_width & winkler_90 & p90_width & p95_width & min_group_coverage & max_group_coverage & std_group_coverage & min_monthly_coverage & last_monthly_coverage & max_monthly_gap & stability_over_time & partition & scaled_scores & min_group_size & selected_alpha_used & fallback_groups_n & implementation_note & evaluation_sample_n_cal & evaluation_sample_n_test & selected_min_group_size & selected_scaled_scores & promotion_pass & selection_rank \\
+variant & namespace & partition & coverage\_90 & coverage\_95 & avg\_width\_90 & min\_group\_coverage\_90 & winkler\_90 & policy\_overall\_pass & strict\_overall\_pass & methodological\_justification\_pass & promotion\_pass \\
 \midrule
-score_decile_mondrian & 0.100000 & 0.900000 & 0.913930 & 0.013930 & 0.795734 & 0.996324 & 1.097975 & 1.000000 & 1.000000 & 0.897491 & 0.950992 & 0.016148 & 0.899255 & 1.000000 & 0.100000 & 0.039804 & score_decile_mondrian & True & 100.000000 & 0.100000 & 0.000000 & NaN & NaN & NaN & NaN & NaN & True & 1 \\
-cross_conformal_score_space & 0.100000 & 0.900000 & 0.902000 & 0.002000 & 0.909561 & 0.933804 & 1.089396 & 1.000000 & 1.000000 & 0.857746 & 1.000000 & 0.047653 & 0.860656 & 1.000000 & 0.100000 & 0.044753 & NaN & NaN & NaN & NaN & NaN & Cross conformal executed on raw-score space with a lightweight linear regressor to avoid retraining the frozen upstream CatBoost classifier. & 5000.000000 & 5000.000000 & NaN & NaN & False & 2 \\
-global_split & 0.100000 & 0.900000 & 0.896308 & 0.003692 & 0.946551 & 1.000000 & 1.108787 & 1.000000 & 1.000000 & 0.595032 & 0.950525 & 0.131814 & 0.887733 & 1.000000 & 0.100000 & 0.016599 & NaN & NaN & NaN & NaN & NaN & NaN & NaN & NaN & NaN & NaN & False & 3 \\
-mondrian_unscaled & 0.100000 & 0.900000 & 0.892664 & 0.007336 & 0.774919 & 0.957161 & 1.201061 & 1.000000 & 1.000000 & 0.845914 & 0.915883 & 0.024572 & 0.878417 & 0.916667 & 0.080769 & 0.021846 & grade & False & 100.000000 & 0.100000 & 0.000000 & NaN & NaN & NaN & NaN & NaN & False & 4 \\
-mondrian_scaled & 0.100000 & 0.900000 & 0.892664 & 0.007336 & 0.730014 & 0.911776 & 1.261028 & 1.000000 & 1.000000 & 0.845914 & 0.915883 & 0.024572 & 0.878417 & 0.916667 & 0.080769 & 0.021846 & grade & True & 100.000000 & 0.100000 & 0.000000 & NaN & NaN & NaN & NaN & NaN & False & 5 \\
-grade_x_scoreband_mondrian & 0.100000 & 0.900000 & 0.915036 & 0.015036 & 0.796808 & 0.997783 & 1.096273 & 1.000000 & 1.000000 & 0.756098 & 0.989362 & 0.035982 & 0.899847 & 1.000000 & 0.100000 & 0.040598 & grade_x_scoreband_mondrian & True & 100.000000 & 0.100000 & 23.000000 & NaN & NaN & NaN & NaN & NaN & False & 6 \\
-mondrian_selected_cfg & 0.100000 & 0.900000 & 0.934521 & 0.034521 & 0.956151 & 0.985945 & 1.039637 & 1.000000 & 1.000000 & 0.908755 & 0.995074 & 0.031151 & 0.924774 & 1.000000 & 0.100000 & 0.055113 & NaN & NaN & NaN & 0.070000 & NaN & NaN & NaN & NaN & 4000.000000 & False & False & 7 \\
+score\_decile\_mondrian & conformal-reopen-2026-04-03-2149\_\_resume\_\_2026-04-05-1612\_\_phase1\_\_final\_\_rank-1 & score\_decile\_mondrian & 0.929714 & 0.966388 & 0.784230 & 0.918983 & 1.110742 & True & False & True & True \\
+grade & conformal-reopen-2026-04-03-2149\_\_resume\_\_2026-04-05-1612\_\_phase1\_\_final\_\_rank-2 & grade & 0.922433 & NaN & 0.753274 & 0.877724 & NaN & False & False & False & False \\
+grade & conformal-reopen-2026-04-03-2149\_\_resume\_\_2026-04-05-1612\_\_phase1\_\_final\_\_rank-3 & grade & 0.922433 & NaN & 0.753274 & 0.877724 & NaN & False & False & False & False \\
 \bottomrule
 \end{tabular}

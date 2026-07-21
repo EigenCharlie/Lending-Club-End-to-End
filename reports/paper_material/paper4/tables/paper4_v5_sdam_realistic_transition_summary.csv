@@ -1,0 +1,10 @@
+horizon_months,strategy,net_cash_result_v5,cumulative_interest_v5,cumulative_principal_v5,cumulative_losses_v5,cumulative_expected_loss_v5,cumulative_recovery_v5,loss_audit
+3,dynamic_return,64499.93107685773,20401.21150522688,44098.719571630776,0.0,7501.566742168601,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+3,dynamic_online_guarded,63784.22050373326,19705.18722575141,44079.03327798178,0.0,6627.000987849748,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+3,dynamic_ifrs9,53436.61494619469,7053.64271050787,46382.97223568677,0.0,978.6665378238181,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+6,dynamic_return,172061.21444458142,53344.884018552104,118716.33042602945,0.0,19517.818828345877,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+6,dynamic_online_guarded,170194.80906412867,51497.55015052355,118697.25891360489,0.0,17282.83985170858,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+6,dynamic_ifrs9,141804.39361083694,18439.645583795136,123364.74802704173,0.0,2596.141316467659,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+12,dynamic_return,443357.1683155466,133089.79650246006,310267.37181308656,0.0,46991.19327270907,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+12,dynamic_online_guarded,438508.23761693644,128533.04985678337,309975.1877601531,0.0,41532.62039818196,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible
+12,dynamic_ifrs9,362823.59534132364,47740.139540860255,315083.45580046345,0.0,7537.419094326418,0.0,observed/proxy default timing can be zero in short horizons; expected loss proxy keeps risk visible

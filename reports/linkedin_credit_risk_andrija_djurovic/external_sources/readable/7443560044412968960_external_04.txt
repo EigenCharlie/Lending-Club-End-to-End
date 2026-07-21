@@ -1,0 +1,242 @@
+source_asset_id: 7443560044412968960_external_04
+parent_activity_id: 7443560044412968960
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/mrm/lgd_ccf_dp_somersd_dxy_dyx.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/mrm/lgd_ccf_dp_somersd_dxy_dyx.pdf
+source_type: github
+
+ Somers’ D for Discriminatory Power in LGD and EAD
+                Models: Dyx or Dxy ?
+
+ECB Instructions for Reporting the Validation Results of Internal Models
+
+
+                                 Andrija Djurovic
+
+
+
+
+                       www.linkedin.com/in/andrija-djurovic
+
+    Andrija Djurovic           ECB Instructions and Somers’ D              1/9
+Discriminatory Power in IRB Modeling
+   Testing discriminatory power is one of the key aspects of the model structure investigated by credit risk practitioners.
+
+   In simple terms, within the context of IRB modeling, discriminatory power testing aims to assess whether the analyzed
+   model provides meaningful differentiation between facilities or obligors, based on the levels of risk parameters assigned and
+   observed for the validation sample subject to testing.
+
+   Considering that the three main risk parameters - Probability of Default (PD), Loss Given Default (LGD), and Exposure
+   At Default (EAD) - can be modeled using different types of target variables (e.g., binary or continuous), the approach to
+   testing discriminatory power can vary.
+
+   However, as a common practice, Area Under the Receiver Operating Curve (AUROC), Gini, and Somers’ D coefficient are
+   widely adopted as standard metrics.
+
+   Practitioners are generally aware of the relationships between these metrics: Gini can be derived from AUROC using the
+   formula (2 · AUROC − 1)/2, and for a binary target, Gini and Somers’ D are equivalent.
+
+   Furthermore, Somers’ D is commonly used to assess discriminatory power in LGD and EAD models because the final
+   outputs of these risk parameters are often ordinal, with a limited number of unique values. In practice, this typically
+   corresponds to rating grades or pools.
+
+   For regulatory reporting but also for internal validation purposes, practitioners frequently adopt the ECB approach
+   presented in the Instructions for Reporting the Validation Results of Internal Models.
+
+   Given that Somers’ D is an asymmetric metric, it is worth questioning whether this approach effectively reflects the
+   intended purpose of measuring discriminatory power.
+
+   This presentation aims to challenge the most commonly used approach for measuring discriminatory power, as presented
+   in the ECB Instructions for Reporting the Validation Results of Internal Models, by providing a clear, evidence-based
+   assessment of specific methodological choices. It is not intended as a criticism of any institution’s or practitioner’s work;
+   rather, it seeks to promote constructive dialogue and support the continued development of robust, transparent validation
+   practices.
+     Andrija Djurovic                       ECB Instructions and Somers’ D                                                    2/9
+Pair of Asymmetric Somers’ D Coefficients
+In his paper, A New Asymmetric Measure of Association for Ordinal Variables, Robert H. Somers (1962) proposed a pair of
+asymmetric coefficients suitable for measuring association in ordered contingency tables.
+Somers differentiates between situations in which one variable is considered independent and the other dependent. For a
+contingency table (X , Y ), the coefficient Dyx reflects the situation where X is the independent variable and Y is the dependent
+variable. Conversely, for the same table, the coefficient Dxy treats Y as independent and X as dependent.
+
+The formula for calculating Somers’ Dyx coefficient for a contingency table (X , Y ) is:
+
+
+                                                                   P−Q
+                                                      Dyx =          P
+                                                              n2 −       (ni )2
+
+
+where:
+
+         P is twice the number of concordant pairs;
+         Q is twice the number of discordant pairs;
+         n is the total number of observations in the contingency table;
+         ni denotes the row marginal totals.
+
+To calculate Somers’ Dxy , it is sufficient to replace ni with the column marginal totals, typically denoted as nj .
+
+Note
+
+With the progress and development of IRB modeling, Somers’ D has become a standard measure of discriminatory power in LGD
+and EAD models. Specifically, the coefficient Dyx is presented in the ECB Instructions for Reporting the Validation Results of
+Internal Models and is often considered by practitioners as the standard metric for this purpose.
+
+However, it remains questionable whether this version of Somers’ D truly reflects rank-order discrimination as intended.
+
+
+           Andrija Djurovic                      ECB Instructions and Somers’ D                                               3/9
+Interpretations of Somers’ D
+
+
+Newson, R. (2006), in his paper Confidence Intervals for Rank Statistics: Somers’ D and Extensions, interprets
+the Somers’ D pair of coefficients as follows:
+
+   1   Dyx as an effect size, measuring the effect of X on Y ;
+   2   Dxy as a predictor performance indicator, measuring the performance of X as a predictor of Y .
+
+Given the different approaches observed in practice, starting with the construction of contingency tables for
+Somers’ D calculation, it is often unclear to practitioners whether Dyx or Dxy should be used to measure
+discriminatory power in LGD and EAD models, and which of these two coefficients should be used for
+calculating the generalized Area Under the Receiver Operating Curve (gAUROC ).
+
+The following slides present a simulation study based on the approach and terminology used in the ECB
+Instructions for Reporting the Validation Results of Internal Models, comparing results from the ECB template
+with other references on using Somers’ D for rank discrimination, as well as its equivalence with Gini in binary
+target models.
+
+
+
+
+         Andrija Djurovic                ECB Instructions and Somers’ D                                         4/9
+Simulation Study
+Assume that the following contingency table provides an overview of the estimated (rows) and realized (columns) pools of the
+LGD model, for which discriminatory power is to be assessed using the Somers’ D coefficient.
+
+##              Realised
+## Estimated     [0%,5%) [5%,10%) [10%,20%) [20%,30%) [30%,40%) [40%,50%) [50%,60%) [60%,70%) [70%,80%) [80%,90%) [90%,100%) >=100%
+##   [0%,5%)        1406      130        14         2        20         1         1         0         3        57          0      0
+##   [5%,10%)        584      300       320        43         8         0         0         0         0         0        240      0
+##   [10%,20%)       448      500        10         6        65         0         1         0         1        56        354      0
+##   [20%,30%)      1530       50       140        70        45         0         5         9        20         0          9      0
+##   [30%,40%)       200      100        10        10        80         7         3        15        34         5        604      0
+##   [40%,50%)       584      120       104        50        40         1         7         2        87        67        364      0
+##   [50%,60%)        25       30        20        19        55         7        15        20        35        15        699      8
+##   [60%,70%)       200        0        30         8        37         3         7         5        80        77       1250     32
+##   [70%,80%)        54       32         0        42        10         1         1        15       600       548       2008    564
+##   [80%,90%)        30        0         2         0         0         0         3         0       100       854       2564    566
+##   [90%,100%)       39        0        18         0         0         0         2         9       284       798       1286     56
+##   >=100%          400      338         2         0         0         0         0         0        36      1223        122    774
+
+For further clarification, assume that the table above represents the results of the LGD model segmentation as proposed in the
+ECB Instructions:
+                                                                                   E /R
+                                   Segment 1:          facilities i with 0% ≤ LGDi      < 5%;
+                                                                                 E /R
+                                 Segment 2:           facilities i with 5% ≤ LGDi       < 10%;
+                                                                                    E /R
+                                 Segment 3:           facilities i with 10% ≤ LGDi         < 20%;
+                                                      ...
+                                 Segments 4–11:       10% LGD steps
+                                                      ...
+                                                                                     E /R
+                                 Segment 12:          facilities i with 100% ≤ LGDi
+
+
+
+
+          Andrija Djurovic                      ECB Instructions and Somers’ D                                                 5/9
+Simulation Study cont.
+
+
+
+Based on the contingency table from the previous slide, the first part of the simulation will calculate and compare the
+version of Somers’ D from the ECB MS Excel template, as outlined in the ECB Instructions, with the approach used in
+Kazianka, H. et al. (2021), Assessing the Discriminatory Power of Loss Given Default Models.
+
+In the second part, the simulation will compare the ECB approach to Somers’ D with the Gini coefficient from the binary
+target model, based on the contingency table below.
+
+##                       Realised
+## Estimated                0   1
+##   01 (-Inf,-2.3124)    181   7
+##   02 [-2.3124,-1.2111) 237 47
+##   03 [-1.2111,-0.2923) 160 72
+##   04 [-0.2923,0.4614)   98 94
+##   05 [0.4614,Inf)       24 80
+
+
+
+
+         Andrija Djurovic                   ECB Instructions and Somers’ D                                          6/9
+Simulation Results
+ECB Approach for Somers’ D Calculation
+
+Along with the Instructions for Reporting the Validation Results of Internal Models, the ECB provides an MS Excel
+template where certain calculations of reported values can be verified. Among other checks, practitioners can also review
+the Somers’ D calculation performed within this template.
+For the contingency table based on 12 pools, reported in the template, tab 2.0 and cell range I10:T21,
+the Somers’ D result is reported in cell AS11 of the same tab. For full replicability, the ECB MS Excel template with the
+populated contingency table is available for download here.
+
+As shown by the reported result of 0.3485, the ECB version of Somers’ D corresponds to Dyx , and the generalized
+AUROC is accordingly reported as 0.6743.
+
+
+Kazianka, H. et al. (2021) Approach for Somers’ D Calculation
+
+Kazianka, H. et al. (2021) paper is supported by the R package VUROCS, which provides, among other functions, the
+function SomersD. This function computes Somers’ D and its asymptotic standard errors, given inputs y, a vector of
+realized categories, and fx, the predicted values from the ranking function f. Transforming the contingency table into a
+set of realized and predicted vectors and supplying them as arguments to the SomersD function yields a value of 0.4056,
+corresponding to Dxy and a generalized AUROC of 0.7028.
+
+Given Newson’s (2006) interpretation of the Somers’ D pair of coefficients, this value of Somers’ Dxy appears to be the
+appropriate coefficient for measuring rank discriminatory power in LGD and EAD models.
+
+To perform a final check, we compare the ECB Somers’ Dyx and Somers’ Dxy with the Gini from the binary target model.
+
+
+
+         Andrija Djurovic                    ECB Instructions and Somers’ D                                           7/9
+Simulation Results cont.
+
+
+
+Gini vs Somers’ D for the Binary Target Models
+
+Gini: 0.5671.
+Dyx : 0.3044.
+Dxy : 0.5671.
+
+
+Conclusion
+
+As the approach in Kazianka, H. et al. (2021) matches the Gini from the binary target model, aligns with the
+interpretation of Somers’ D in Newson (2006), and is consistent with Harrell, F. E. (2015), Regression Modeling
+Strategies, practitioners can conclude that Somers’ Dxy is the appropriate coefficient for measuring rank discriminatory
+power in LGD and EAD models.
+
+
+
+
+         Andrija Djurovic                   ECB Instructions and Somers’ D                                           8/9
+Selected References
+
+
+
+
+European Central Bank (2019). Instructions for Reporting the Validation Results of Internal Models: IRB Pillar i Models
+for Credit Risk
+
+Newson, R. (2006). Confidence Intervals for Rank Statistics: Somers’ D and Extensions. The Stata Journal, 6(3),
+309-334.
+
+Kazianka, H., Morgenbesser, A., & Nowak, T. (2021). Assessing the discriminatory power of loss given default models.
+Journal of Applied Statistics, 49(10), 2700–2716.
+
+Harrell, F.E. (2015) Regression Modeling Strategies. 2nd Edition, Springer, Berlin.
+
+
+
+
+         Andrija Djurovic                   ECB Instructions and Somers’ D                                          9/9

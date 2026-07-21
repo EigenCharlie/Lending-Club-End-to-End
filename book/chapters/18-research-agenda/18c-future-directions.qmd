@@ -1,104 +1,69 @@
-## Direcciones Futuras {#sec-future-directions}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-La agenda futura del proyecto no consiste en abrir veinte frentes nuevos, sino en profundizar las lineas que ya tienen evidencia y potencial de publicacion. Las direcciones se organizan por horizonte temporal, con una evaluacion explicita de viabilidad y prioridad basada en los resultados actuales del proyecto.
+## Agenda de Investigación por Gating {#sec-future-directions}
 
-### Prioridad inmediata
+La agenda ya no parte de “promover” el siguiente método. Parte del estimando y
+pregunta qué evidencia falta para cambiar un status. Las prioridades son datos,
+separación de selección/evaluación y unidades inferenciales válidas.
 
-| Horizonte | Objetivo |
+### Corto plazo: cerrar contratos {#sec-future-short}
+
+1. mantener sincronizados claim ledgers, evidence registries y hashes;
+2. auditar madurez/resolución por vintage y la definición del outcome;
+3. retirar nombres `pd_low/high` de nuevas APIs, conservando aliases legacy;
+4. hacer que Quarto falle ante `diagnostic_only` presentado como resultado;
+5. reportar todas las familias CRPTO sin winner post hoc.
+
+### Mediano plazo: datos y estimandos {#sec-future-medium}
+
+- Para Paper 2, construir un panel préstamo--fecha de reporte con DPD as-of,
+  PD original/actual del mismo horizonte, censoring, cash flows, EIR, EAD, LGD,
+  recoveries, prepayment y escenarios gobernados.
+- Para incertidumbre de PD, usar un método que apunte a $E[Y\mid X]$ o a una
+  pérdida decisional explícita, no reutilizar cobertura de $Y$.
+- Para selección conformal, separar tuning, validación y final OOT o usar un
+  procedimiento estable a selección.
+- Para PyEPO, comparar arquitecturas equivalentes, outcomes realizados y menús
+  cronológicos disjuntos.
+
+### Largo plazo: validación externa y decisiones {#sec-future-long}
+
+- réplica externa con definitions/horizons equivalentes;
+- evaluación prospectiva antes de deployment;
+- policy learning con soporte causal o randomización adecuada;
+- optimización multi-periodo con estado, carry-over de capital y transiciones
+  estimadas;
+- control de multiplicidad e incertidumbre conjunta para decisiones.
+
+### SDAM como checklist, no como resultado {#sec-future-sdam-production}
+
+| Elemento SDAM | Pregunta antes de implementar |
 |---|---|
-| 0-3 meses | cerrar version publicable de los tres papers |
-| 3-6 meses | endurecer benchmarks, backtesting y pruebas de estabilidad |
-| 6-12 meses | explorar extensiones causales, temporales y de fairness conformal |
+| estado | ¿qué información existe en la fecha de decisión? |
+| acción | ¿qué cambia realmente el decisor? |
+| transición | ¿está estimada o solo simulada? |
+| exogenous information | ¿qué se observa después y cuándo? |
+| objective | ¿qué pérdida/utility y horizonte se predeclaran? |
+| policy class | ¿cómo se separa selección de evaluación? |
 
-: Agenda temporal sugerida {#tbl-future-roadmap}
+: Checklist para una lane secuencial futura. {#tbl-sdam-production-policies}
 
-### Corto plazo: 0--6 meses {#sec-future-short}
-
-Las extensiones de corto plazo se focalizan en endurecer los claims existentes y cerrar las brechas identificadas en los tres papers.
-
-**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension es computacionalmente trivial (solo requiere actualizar un cuantil running) y tendria impacto directo en los tres papers: estabilidad de intervalos para el Paper Estrella, cobertura temporal para el Paper 3, y robustez ante crisis para el Paper 2.
-
-**Interpretacion analitica por cohortes en PD.** Una conclusion importante del cierre mas reciente es que no todo warning temporal en PD debe traducirse automaticamente en “probar otro calibrador”. El proyecto ya ejecuto una lane `shadow` de recalibracion ligera y la cerro con `keep_current_calibrator`, porque los sidecars simples empeoraron la combinacion de gap, persistencia temporal y ECE. Eso cambia la naturaleza del trabajo futuro: la prioridad inmediata ya no es otra busqueda de remapeo post-hoc, sino una lectura mas fina de cohortes, quarters y slices para explicar mejor de donde proviene la persistencia residual y si esta responde a drift de mix, tails o segmentos temporalmente inestables.
-
-#### Portafolio multi-periodo y extensión secuencial bajo el marco SDAM {#sec-future-sdam-production}
-
-La formulacion actual del portafolio robusto (@sec-robust-portfolio) es uniperiodo ($T = 1$ en la notación de @powell2026sdam): asigna capital una única vez y observa un solo vector de defaults. En la práctica bancaria, sin embargo, la gestión de carteras de crédito es genuinamente secuencial: originación, provisiones IFRS9, rebalanceo y recalibración ocurren en ciclos mensuales o trimestrales. Bajo el *Universal Modeling Framework* de Powell, este entorno productivo se modela como la secuencia completa $S_0, x_0, W_1, S_1, x_1, W_2, \dots, S_T$, donde cada elemento adquiere contenido operativo real:
-
-- **Estado** $S_t = (R_t, I_t, B_t)$: el estado físico $R_t$ captura la composición actual del portafolio (saldos por grado, exposición por sector, préstamos en Stage 1/2/3); el estado informacional $I_t$ incluye el modelo CatBoost vigente, el calibrador activo y los parámetros de política $(\alpha, \gamma, \tau)$; el estado de creencias $B_t$ contiene las PD calibradas actuales, los intervalos conformales vigentes y los forecasts macroeconómicos.
-- **Decisión** $x_t$: en cada período, el gestor toma múltiples decisiones simultáneas --- aprobar o rechazar nuevas solicitudes, reclasificar staging IFRS9, y ajustar parámetros de la política CFA.
-- **Información exógena** $W_{t+1}$: defaults realizados en el mes, nuevas solicitudes de crédito, prepagos, shocks macroeconómicos (desempleo, tasas de interés), y cambios regulatorios. Cada uno de estos flujos corresponde a un tipo distinto de incertidumbre en la taxonomía de Powell [-@powell2026sdam, §1.7].
-- **Función de transición** $S^M(S_t, x_t, W_{t+1})$: las ecuaciones de transición capturan cómo el portafolio evoluciona --- préstamos aprobados entran como activos, defaults salen o migran a Stage 3, prepagos liberan capital --- y cómo el estado de creencias se actualiza mediante *Adaptive Conformal Inference* [@gibbs2021aci] con cada nueva observación.
-- **Objetivo acumulativo**: $\max_\pi \mathbb{E}\!\left[\sum_{t=0}^{T} C(S_t, X^\pi(S_t|\theta))\right]$, donde $C$ incluye retorno por intereses menos pérdidas, provisiones ECL y costos de capital regulatorio.
-
-En este contexto secuencial, la política CFA demostrada en esta tesis se ejecutaría como un LP re-resuelto en cada período con intervalos conformales actualizados. Pero la riqueza del framework permite además comparar formalmente la CFA contra alternativas:
-
-| Clase de política | Implementación en producción | Fortaleza | Debilidad |
-|---|---|---|---|
-| **CFA** (actual) | LP con restricción conformal, re-resuelto cada mes | Determinista, auditable, garantías conformales | No optimiza a largo plazo; miope por período |
-| **VFA** | Aprender $\bar{V}(S_t)$ = valor de largo plazo de un estado de portafolio | Captura consecuencias futuras de decisiones actuales | Difícil de entrenar; opaco para reguladores |
-| **DLA** | Programación estocástica multi-escenario | Teóricamente óptimo | Intratable computacionalmente; difícilmente auditable |
-| **CFA + ACI** | CFA con recalibración conformal adaptativa | Mantiene garantías bajo drift; operativamente simple | Requiere validación de convergencia del cuantil adaptativo |
-
-: Comparación de políticas bajo el marco SDAM para gestión de portafolio crediticio en producción {#tbl-sdam-production-policies}
-
-La hipótesis de trabajo para esta extensión es que la CFA con recalibración conformal online (*CFA + ACI*) ofrece el mejor equilibrio entre optimalidad, auditabilidad y factibilidad computacional para el contexto regulado de crédito. Verificar esta hipótesis requiere datos en streaming o una simulación fidedigna del ciclo de originación --- un paso que trasciende el alcance de esta tesis pero que constituye la continuación natural del pipeline aquí demostrado.
-
-**Promocion de intervalos conformales para LGD y EAD.** El pipeline actual genera intervalos conformales solo para PD. La extension a LGD (Loss Given Default) y EAD (Exposure at Default) produciria una cuantificacion de incertidumbre completa sobre los tres componentes de ECL. Los resultados preliminares (vease @sec-lgd-ead-conformal) sugieren que los intervalos de LGD son significativamente mas anchos que los de PD, reflejando la mayor dificultad de prediccion de la severidad de perdida. Esta extension es tecnica mas que conceptualmente novedosa --- MAPIE puede aplicarse directamente sobre cualquier regresor --- pero su impacto regulatorio seria sustancial, dado que el ECL con incertidumbre triple proporcionaria el rango de provisiones mas informativo posible.
-
-### Mediano plazo: 1--2 anios {#sec-future-medium}
-
-Las extensiones de mediano plazo abren lineas de investigacion que requieren trabajo conceptual adicional y posiblemente nuevos datos.
-
-**Intervalos conformales sobre estimaciones CATE.** La inferencia causal en credito (vease @sec-causal-inference) produce estimaciones de efectos heterogeneos de tratamiento (CATE) que informan donde intervenir es mas eficiente. Sin embargo, las estimaciones CATE puntuales ignoran la incertidumbre inherente a la estimacion causal, que es generalmente mayor que la incertidumbre predictiva pura. La construccion de intervalos conformales sobre las estimaciones CATE --- combinando las tecnicas de [@athey2019] con prediccion conformal --- produciria conjuntos de incertidumbre sobre el efecto esperado de la intervencion, lo cual permitiria formular portafolios CATE-adjusted robustos. Esta linea conecta con el trabajo emergente sobre *conformal causal inference* y tiene potencial para una publicacion independiente.
-
-**Redes neuronales graficas para riesgo de credito.** Las Graph Neural Networks (GNN) han mostrado promesa en la deteccion de fraude y en la modelizacion de contagio crediticio, donde las relaciones entre prestatarios (co-deudores, redes empresariales, proximidad geografica) aportan informacion que los modelos tabulares no capturan. La combinacion de GNN con prediccion conformal es un area emergente que podria mejorar tanto la discriminacion como la calibracion de los intervalos, especialmente en segmentos donde la informacion relacional es densa. Esta direccion requiere datasets con estructura de grafo que Lending Club no proporciona directamente, lo cual implica la necesidad de datos adicionales o sinteticos.
-
-**Aprendizaje federado para modelos de riesgo.** La regulacion de proteccion de datos (GDPR, CCPA) dificulta la agregacion centralizada de datos de credito de multiples instituciones. El aprendizaje federado permitiria entrenar modelos de PD sobre datos distribuidos sin compartir informacion individual, y la prediccion conformal federada es un area de investigacion activa. La combinacion de ambas tecnicas produciria intervalos conformales construidos sobre una base de datos efectivamente mayor, con mejores garantias de cobertura por subgrupo, sin comprometer la privacidad.
-
-### Largo plazo: 3+ anios {#sec-future-long}
-
-Las extensiones de largo plazo son mas especulativas pero potencialmente transformadoras.
-
-**Modelos de fundacion para riesgo crediticio.** Los modelos de lenguaje de gran escala (LLM) y los modelos tabulares pre-entrenados (TabPFN, XTab) estan comenzando a aplicarse a datos financieros. Un modelo de fundacion pre-entrenado sobre multiples carteras de credito podria proporcionar representaciones transferibles que mejoren la discriminacion en carteras pequenas o en segmentos con pocos datos historicos. La prediccion conformal sobre las salidas de un modelo de fundacion seria particularmente valiosa, ya que cuantificaria no solo la incertidumbre aletoria sino tambien la incertidumbre epistemica asociada a la transferencia de dominio.
-
-**Sandboxes regulatorios para modelos conformales.** Varios reguladores (FCA en Reino Unido, MAS en Singapur, CNBV en Mexico) han establecido sandboxes regulatorios donde las instituciones pueden probar metodologias novedosas bajo supervision. Un sandbox diseado para evaluar prediccion conformal en el pipeline IFRS 9 permitiria validar el enfoque propuesto en esta tesis bajo condiciones regulatorias reales, con datos de carteras activas y supervision directa. Esta direccion depende de la evolucion del apetito regulatorio por innovacion metodologica, pero la creciente demanda de transparencia en modelos de ML sugiere que el momento sera favorable en los proximos anios.
-
-**Monitoreo conformal en tiempo real.** La vision a largo plazo del pipeline propuesto es un sistema de monitoreo continuo que recalibra los intervalos conformales en tiempo real, detecta violaciones de cobertura por subgrupo en el momento en que ocurren, y ajusta automaticamente las politicas de asignacion y provision. Este sistema requeriria integracion con infraestructura de streaming (Kafka, Flink), almacenamiento de features en tiempo real (Feast online store), y un motor de decision que traduzca los intervalos actualizados en acciones operativas. La prediccion conformal online [@liu2026portfolio] y el control de riesgo conformal [@angelopoulos2024risk] proporcionan los fundamentos teoricos; la ingenieria de sistemas para implementarlos a escala bancaria es el desafio principal.
-
-### Direcciones metodologicas adicionales
-
-1. formalizacion completa del vinculo `alpha <-> robustez` en el Paper Estrella;
-2. extension de Mondrian hacia garantias mas cercanas a validez condicional, utilizando tecnicas como [@gibbs2024] y [@plassier2024];
-3. integracion de forecasting temporal y riesgos competitivos dentro de una policy IFRS9 mas fuerte;
-4. comparadores adicionales con decision-focused learning y CRO contextual [@patel2024; @chenreddy2024].
-
-| Item editorial / research | Paper natural | Capitulo Quarto mas cercano hoy |
+| Horizonte | Entregable | Gate |
 |---|---|---|
-| benchmark de variantes conformales | Paper 3 | @sec-mondrian |
-| uncertainty sets y trade-off alpha-robustez | Paper Estrella | @sec-robust-portfolio |
-| TS intervals y banda ECL | Paper 2 | @sec-ecl-calculation y @sec-ts-ecl |
-| A/B y regret economico | Paper Estrella | @sec-ab-testing |
-| gobernanza y warnings metodologicos | transversal | @sec-mrm |
+| corto | contratos y tests semánticos | ninguna superficie activa contradice el estimando |
+| medio | datasets/benchmarks target-specific | validación separada y hashes inmutables |
+| largo | estudio externo/prospectivo | protocolo preregistrado y outcomes independientes |
 
-: Tabla estable de continuidad entre backlog editorial, papers y libro {#tbl-paper-chapter-bridge}
+: Roadmap gobernado. {#tbl-future-roadmap}
 
-### Direcciones de producto y plataforma
+| Material actual | Destino válido |
+|---|---|
+| geometría binaria y transporte | CRPTO |
+| failure modes PD→ECL/SICR | Paper 2 parked / nota metodológica |
+| CVaR, online, SDAM, PyEPO | Paper 4 living lab |
+| freeze ML/OR | libro y reproducibilidad histórica |
 
-- automatizar aun mas los reportes MRM y de companion editorial;
-- consolidar exportables selectivos a `.docx` para asesoria y revision;
-- convertir algunos anexos en catalogos generados automaticamente desde manifests.
+: Puente entre capítulos y papers. {#tbl-paper-chapter-bridge}
 
-::: {.callout-note}
-## Cuales direcciones son mas prometedoras
-Basandose en los resultados actuales del proyecto, las tres direcciones con mayor relacion esfuerzo/impacto son: (1) la recalibracion conformal online, que resuelve la limitacion mas critica del pipeline actual con un costo de implementacion minimo; (2) la interpretacion analitica por cohortes en PD, que aprovecha la nueva evidencia diagnostica sin reabrir innecesariamente el champion search; y (3) la promocion de intervalos conformales para LGD y EAD, que completa la cuantificacion de incertidumbre del ECL con herramientas ya disponibles. Los intervalos conformales sobre estimaciones CATE siguen siendo muy prometedores, pero ya pertenecen a una agenda algo mas exploratoria. Las tres prioridades inmediatas se benefician directamente de la infraestructura ya construida en el proyecto y mantienen foco sobre claims que ya son defendibles.
-:::
-
-### Regla de priorizacion
-
-La agenda debe seguir una disciplina simple:
-
-1. primero fortalecer claims ya casi defendibles;
-2. despues ampliar comparadores y teoria;
-3. solo al final abrir lineas totalmente nuevas.
-
-Con esa secuencia, el proyecto mantiene foco y evita diluir una contribucion que ya es cientificamente interesante.
+Una idea entra a CRPTO solo si cambia una tabla o claim del ledger activo bajo
+un protocolo propio. Cercanía temática no es evidencia de transferencia.

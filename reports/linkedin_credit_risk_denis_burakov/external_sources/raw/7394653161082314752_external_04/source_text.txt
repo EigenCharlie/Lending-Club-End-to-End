@@ -1,0 +1,471 @@
+Develop AWS ML Workloads Locally with LocalStack and SAM | by Denis Burakov | AWS in Plain English
+Sitemap
+Open in app
+Sign up
+Sign in
+Medium Logo
+Get app
+Write
+Search
+Sign up
+Sign in
+AWS in Plain English
+·
+New AWS, Cloud, and DevOps content every day. Follow to join our 3.5M+ monthly readers.
+Develop AWS ML Workloads Locally with LocalStack and SAM
+Build, deploy, and test serverless ML services without cloud costs 💸
+Denis Burakov
+8 min read
+·
+Nov 13, 2025
+--
+Listen
+Share
+Press enter or click to view image in full size
+In this article, I’ll walk you through building a production-ready Machine Learning (ML) prediction service using LocalStack (a local AWS cloud emulator) and AWS SAM (Serverless Application Model).
+This setup provides a completely local development environment that closely mimics AWS services without any cloud costs. We’ll create a service that:
+Uses scikit-learn for serving ML predictions
+Uses AWS SAM for infrastructure definition
+Deploys as a Python Lambda function
+Exposes an API endpoint through API Gateway
+The best part? Everything runs locally, making development and testing lightning fast without a cloud bill.
+For anyone building serverless machine learning pipelines, this approach saves hours of testing time and avoids costly mistakes before deployment to real AWS.
+Project Structure
+localstack-project/
+├── Makefile # Build automation
+├── template.yaml # SAM template
+├── src/
+│ ├── Dockerfile # Lambda container definition (NEW)
+│ ├── train.py # ML training script
+│ └── inference.py # ML inference Lambda function
+├── docker-compose.yml # LocalStack configuration
+└── requirements.txt # Python dependencies
+Prerequisites:
+Docker Desktop
+Python 3.9+
+AWS SAM CLI
+Basic understanding of AWS Lambda and API Gateway
+In our src/ directory, we’ll create the following Dockerfile:
+FROM public.ecr.aws/lambda/python:3.9-arm64
+# Copy requirements.txt
+COPY requirements.txt ${LAMBDA_TASK_ROOT}
+# Install dependencies
+RUN pip install -r requirements.txt
+# Copy function code
+COPY inference.py ${LAMBDA_TASK_ROOT}
+# Copy pre-trained models
+# Note: These files must exist or Docker build will fail
+# Run 'cd src && python train.py' before building
+COPY model.pkl scaler.pkl ${LAMBDA_TASK_ROOT}/
+# Set the CMD to your handler
+CMD [ "inference.handler" ]
+And specify the requirements.txt:
+numpy==1.24.3
+scikit-learn==1.3.0
+joblib==1.3.2
+Training the ML Models
+Our src/train.py script trains and saves the models that will be loaded by the Lambda function:
+"""
+Train and save ML models for the prediction service.
+Run this script to generate model.pkl and scaler.pkl files.
+"""
+import joblib
+import numpy as np
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+def train_and_save_models():
+"""Train models on sample data and save them."""
+print("🎓 Training ML models...")
+# Generate sample training data
+# In production, this would be your actual training dataset
+np.random.seed(42)
+n_samples = 1000
+n_features = 4
+# Generate normal data
+X_train = np.random.randn(n_samples, n_features) * 2 + 5
+# Add some outliers
+n_outliers = int(n_samples * 0.1)
+X_outliers = np.random.uniform(-10, 20, size=(n_outliers, n_features))
+X_train = np.vstack([X_train, X_outliers])
+print(f"Training data shape: {X_train.shape}")
+# Train scaler
+print("Training StandardScaler...")
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+# Train outlier detector on scaled data
+print("Training IsolationForest...")
+outlier_detector = IsolationForest(
+contamination=0.1, random_state=42, n_estimators=100
+)
+outlier_detector.fit(X_train_scaled)
+# Save models
+print("💾 Saving models...")
+joblib.dump(scaler, "scaler.pkl")
+joblib.dump(outlier_detector, "model.pkl")
+print("✅ Models saved successfully!")
+# Test the saved models
+print("\n🧪 Testing saved models...")
+loaded_scaler = joblib.load("scaler.pkl")
+loaded_model = joblib.load("model.pkl")
+# Test with sample data (should be normal)
+test_data = np.array([[1.0, 2.0, 3.0, 4.0]])
+test_data_scaled = loaded_scaler.transform(test_data)
+prediction = loaded_model.predict(test_data_scaled)
+print(f"Test prediction: {'Normal' if prediction[0] == 1 else 'Anomaly'}")
+print(" ✅ Models loaded and working correctly!")
+if __name__ == "__main__":
+train_and_save_models()
+Run this script before building the Docker image:
+cd src && python train.py
+This creates model.pkl and scaler.pkl files that will be copied into the Lambda container.
+Step 1: Setting Up LocalStack
+LocalStack is a cloud service emulator that runs in a single container on your laptop or in your CI environment and serves as a drop-in replacement for AWS. In the base version, LocalStack supports many AWS services including Lambda, API Gateway, S3, DynamoDB, and more.
+Press enter or click to view image in full size
+LocalStack CLI.
+LocalStack can be started using the LocalStack CLI (localstack start), which is the quickest way to get started. Alternatively, we can use Docker Compose for more control and reproducibility by creating a docker-compose.yml:
+services:
+localstack:
+image: localstack/localstack:latest
+container_name: localstack
+ports:
+- "4566:4566" # main edge port
+environment:
+- AWS_DEFAULT_REGION=us-east-1
+- DATA_DIR=/var/lib/localstack
+- LAMBDA_EXECUTOR=docker
+- DOCKER_HOST=unix:///var/run/docker.sock
+volumes:
+- ./localstack_data:/var/lib/localstack
+- /var/run/docker.sock:/var/run/docker.sock
+This configuration sets up a local environment that mimics AWS services. The Docker socket mount (/var/run/docker.sock) allows LocalStack to spawn Lambda containers for realistic function execution.
+SAM Template
+AWS SAM templates are an extension of AWS CloudFormation templates. Under the hood, a SAM template gets transformed into a an equivalent of a CloudFormation template.
+Get Denis Burakov’s stories in your inbox
+Join Medium for free to get updates from this writer.
+Subscribe
+Subscribe
+Remember me for faster sign in
+Our template.yaml defines the Lambda function and API Gateway:
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ML Prediction Service with LocalStack
+Parameters:
+Stage:
+Type: String
+Default: test
+Description: Stage name for the API deployment
+Globals:
+Function:
+Timeout: 30
+Environment:
+Variables:
+AWS_ENDPOINT_URL: http://localhost:4566
+Resources:
+# Lambda Function
+PredictFunction:
+Type: AWS::Serverless::Function
+Properties:
+PackageType: Image
+MemorySize: 512
+Architectures:
+- arm64
+Events:
+PredictAPI:
+Type: Api
+Properties:
+Path: /predict
+Method: post
+RestApiId: !Ref PredictApi
+Metadata:
+Dockerfile: Dockerfile
+DockerContext: ./src
+DockerTag: python3.9-v1
+# API Gateway
+PredictApi:
+Type: AWS::Serverless::Api
+Properties:
+StageName: !Ref Stage
+EndpointConfiguration: EDGE
+Auth:
+DefaultAuthorizer: NONE
+Outputs:
+PredictEndpoint:
+Description: API Gateway endpoint URL for Predict function
+Value: !Sub "http://localhost:4566/restapis/${PredictApi}/${Stage}/_user_request_/predict"
+TestCommand:
+Description: Curl command to test the endpoint
+Value: !Sub |
+# Test prediction endpoint
+curl -X POST ${PredictEndpoint} \
+-H 'Content-Type: application/json' \
+-d '{"features": [1.0, 2.0, 3.0, 4.0]}'
+Key points in our SAM template:
+Uses container packaging for Lambda
+Configures API Gateway endpoint
+Optimized for ARM64 architecture (M1/M2 Macs)
+Includes proper memory and timeout settings
+The AWS::Serverless::Function resource will create a AWS Lambda function that will run model inference, while AWS::Serverless::Api will serve requests via Amazon API Gateway.
+ML Model Service
+Our Lambda function (src/inference.py) implements several ML features:
+import json
+import joblib
+import numpy as np
+# Load pre-trained models (loaded once when Lambda initializes)
+scaler = joblib.load("scaler.pkl")
+outlier_detector = joblib.load("model.pkl")
+def handler(event, context): # pylint: disable=unused-argument
+"""
+Lambda handler that makes predictions using a simple function
+Input event should contain 'features' key with list of 4 numbers
+"""
+try:
+# Parse input data
+body = json.loads(event["body"])
+features = body.get("features", [])
+# Data validation
+if not features or not isinstance(features, list):
+return {
+"statusCode": 400,
+"body": json.dumps(
+{"error": "Invalid input: features must be a non-empty array"}
+),
+}
+# ML processing
+features_array = np.array(features).reshape(1, -1)
+features_scaled = scaler.transform(
+features_array
+) # Use transform (not fit_transform)
+is_outlier = (
+outlier_detector.predict(features_scaled)[0] == -1
+) # Use predict on scaled data (not fit_predict)
+# Calculate feature importance
+abs_features = np.abs(features_array[0])
+feature_importance = abs_features / (np.sum(abs_features) + 1e-10)
+# Generate prediction response
+prediction = {
+"base_prediction": float(np.mean(features_scaled) * 10),
+"confidence": float(1.0 / (1.0 + np.std(features_scaled))),
+"feature_importance": [float(x) for x in feature_importance],
+"is_anomaly": bool(is_outlier),
+"stats": {
+"mean": float(np.mean(features)),
+"std": float(np.std(features)),
+"min": float(np.min(features)),
+"max": float(np.max(features)),
+},
+}
+return {
+"statusCode": 200,
+"body": json.dumps(
+{
+"prediction": prediction,
+"features": features,
+"features_scaled": features_scaled.tolist()[0],
+}
+),
+}
+except json.JSONDecodeError as e:
+return {
+"statusCode": 400,
+"body": json.dumps({"error": f"Invalid JSON: {str(e)}"}),
+}
+except (KeyError, ValueError, TypeError) as e:
+return {
+"statusCode": 400,
+"body": json.dumps({"error": f"Invalid input: {str(e)}"}),
+}
+except Exception as e:
+return {
+"statusCode": 500,
+"body": json.dumps({"error": f"Internal server error: {str(e)}"}),
+}
+Key ML features:
+StandardScaler for feature normalization
+IsolationForest for anomaly detection
+Feature importance based on magnitude
+Statistical summaries of input data
+Confidence scoring based on feature variance
+Running the Service
+We now define our Makefile, which contains all the steps:
+# LocalStack ML Prediction Service Makefile
+# Note: checkmake reports maxbodylength warnings for help/start/clean targets
+# These are intentional - complex deployment tasks require multiple steps
+.PHONY: all help start stop restart build clean train-models install setup-hooks test test-endpoint check-localstack start-api
+# Default target
+all: help
+help:
+@echo "🚀 LocalStack ML Prediction Service - Available Commands:"
+@echo ""
+@echo " make install - Install Python dependencies"
+@echo " make train-models - Train and save ML models"
+@echo " make start - Start LocalStack and deploy the service"
+@echo " make stop - Stop LocalStack and SAM API"
+@echo " make restart - Restart LocalStack and redeploy"
+@echo " make build - Build SAM application"
+@echo " make test-endpoint - Quick test of the prediction endpoint"
+@echo " make clean - Clean up everything"
+@echo ""
+# Install dependencies
+install:
+@echo "📦 Installing dependencies..."
+uv pip install -r requirements.txt
+@echo "✅ Dependencies installed!"
+# Setup pre-commit hooks
+setup-hooks:
+@echo "🪝 Setting up pre-commit hooks..."
+@uv tool install pre-commit
+@uv tool run pre-commit install
+@echo "✅ Pre-commit hooks installed!"
+# Train ML models
+train-models:
+@echo "🎓 Training ML models..."
+@cd src && python train.py
+@echo "✅ Models trained and saved!"
+# Check LocalStack health
+check-localstack:
+@echo "🔍 Checking LocalStack status..."
+@curl -s http://localhost:4566/_localstack/health | grep -q "running" || \
+(echo "🚀 Starting LocalStack..." && docker-compose up -d && sleep 10)
+@echo "✅ LocalStack is running"
+# Build SAM application
+build: train-models
+@echo "🔨 Building SAM application..."
+@sam build --use-container
+@echo "✅ Build complete!"
+# Start SAM local API
+start-api:
+@echo "🚀 Starting SAM local API..."
+@pkill -f "sam local start-api" 2>/dev/null || true
+@export AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1 && \
+sam local start-api --warm-containers EAGER > sam_api.log 2>&1 &
+@echo "⏳ Waiting for API to be ready..."
+@for i in {1..30}; do \
+curl -s http://127.0.0.1:3000/predict > /dev/null 2>&1 && break || sleep 1; \
+done
+@echo "✅ API is ready at http://127.0.0.1:3000"
+# Full deployment
+start: check-localstack build start-api test-endpoint
+@echo ""
+@echo "🚀 Service is running!"
+@PID=$$(ps aux | grep '[s]am local start-api' | awk '{print $$2}' | head -1); \
+if [ -n "$$PID" ]; then \
+echo " PID: $$PID"; \
+echo ""; \
+echo "📡 Endpoint: http://127.0.0.1:3000/predict"; \
+echo ""; \
+echo "To stop: make stop (or kill $$PID)"; \
+fi
+# Stop services
+stop:
+@echo "🛑 Stopping services..."
+@pkill -f "sam local start-api" || true
+@docker-compose down
+@echo "✅ Services stopped!"
+# Restart everything
+restart: stop start
+# Run tests
+test: test-endpoint
+# Quick test endpoint
+test-endpoint:
+@echo "🧪 Testing prediction endpoint..."
+@curl -s -X POST "http://127.0.0.1:3000/predict" \
+-H "Content-Type: application/json" \
+-d '{"features": [1.0, 2.0, 3.0, 4.0]}' | jq . 2>/dev/null || \
+curl -s -X POST "http://127.0.0.1:3000/predict" \
+-H "Content-Type: application/json" \
+-d '{"features": [1.0, 2.0, 3.0, 4.0]}'
+@echo ""
+@echo "✅ Test complete!"
+# Clean up
+clean:
+@echo "🧹 Cleaning up..."
+@pkill -f "sam local start-api" || true
+@docker-compose down -v
+@rm -rf .aws-sam sam_api.log
+@rm -f src/*.pkl
+@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+@find . -type f -name "*.pyc" -delete 2>/dev/null || true
+@echo "✅ Cleanup complete!"
+Run the Make command:
+make start
+This will:
+Start LocalStack (if not running)
+Train ML models (if not already trained)
+Build the SAM application with Docker
+Start the API on http://127.0.0.1:3000
+Run a test prediction
+After we deployed the endpoint, we can make predictions by sending a payload request:
+curl -X POST "http://127.0.0.1:3000/predict" \
+-H "Content-Type: application/json" \
+-d '{"features": [1.0, 2.0, 3.0, 4.0]}'
+We will receive the following output:
+{
+"prediction":{
+"base_prediction":-7.846485258771873,
+"confidence":0.7292884072848042,
+"feature_importance":[
+0.099999999999,
+0.199999999998,
+0.299999999997,
+0.399999999996
+],
+"is_anomaly":false,
+"stats":{
+"mean":2.5,
+"std":1.118033988749895,
+"min":1.0,
+"max":4.0
+}
+},
+"features":[
+1.0,
+2.0,
+3.0,
+4.0
+],
+"features_scaled":[
+-1.3051872133935079,
+-0.9086410233196137,
+-0.6313678379293637,
+-0.2933980288662639
+]
+}
+Conclusion
+This project demonstrates how to:
+Build ML services with AWS Lambda
+Use LocalStack for local development
+Implement scikit-learn in serverless functions
+Automate deployment and testing
+Create production-ready ML endpoints
+The combination of LocalStack and AWS SAM provides a powerful, cost-effective way to develop and test ML services locally while maintaining production compatibility.
+View full project on 🧩 GitHub.
+A message from our Founder
+Hey, Sunil here. I wanted to take a moment to thank you for reading until the end and for being a part of this community.
+Did you know that our team run these publications as a volunteer effort to over 3.5m monthly readers? We don’t receive any funding, we do this to support the community. ❤️
+If you want to show some love, please take a moment to follow me on LinkedIn, TikTok, Instagram. You can also subscribe to our weekly newsletter.
+And before you go, don’t forget to clap and follow the writer️!
+AWS
+Serverless
+Python
+Cloud Computing
+Machine Learning
+--
+--
+Published in AWS in Plain English
+61K followers
+·Last published 2 days ago
+New AWS, Cloud, and DevOps content every day. Follow to join our 3.5M+ monthly readers.
+Written by Denis Burakov
+153 followers
+·25 following
+I write about Python, Data Science, and AI
+Help
+Status
+About
+Careers
+Press
+Blog
+Privacy
+Rules
+Terms
+Text to speech

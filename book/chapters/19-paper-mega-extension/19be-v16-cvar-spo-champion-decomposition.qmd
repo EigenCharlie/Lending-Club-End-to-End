@@ -1,0 +1,96 @@
+---
+title: "v16 CVaR, SPO and Champion Decomposition"
+page-layout: article
+---
+
+## Pregunta
+
+V16 pregunta tres cosas: por qué CVaR strict sigue siendo difícil, qué tan cerca
+está SPO/DFL de una implementación formal, y por qué el nuevo working champion
+de Paper 4 gana o pierde contra los challengers.
+
+## Qué intentamos
+
+En CVaR/OCE, v16 separa explícitamente tres regímenes: strict, committee y
+relaxed. La regla editorial es no esconder la infeasibilidad. Si strict falla,
+ese fallo se vuelve un resultado académico: indica que el conjunto de caps,
+return floor y control de cola puede ser demasiado exigente para el universo
+disponible.
+
+En SPO/DFL, v16 evita hacer un claim falso de diferenciabilidad. `cvxpy`,
+`cvxpylayers` y `torch` no están disponibles de forma fiable en este entorno, de
+modo que la ruta implementada es un oracle de regret con Pyomo/HiGHS y splits
+temporales. Es más honesto decir "decision-oracle regret path" que decir
+"formal SPO+".
+
+Finalmente, v16 descompone el working champion contra challengers: préstamos
+seleccionados, evitados, overlap, grade, PD, width, weak-source proxy, retorno y
+default realizado.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v16_cvar_full_or_colgen_frontier.csv` | frontera CVaR/OCE heredada y etiquetada por régimen |
+| `paper4_v16_cvar_strict_infeasibility_certificate.csv` | certificado práctico de infeasibilidad strict |
+| `paper4_v16_cvar_active_constraints.csv` | caps activos y caveat de restricted master |
+| `paper4_v16_cvar_allocations.parquet` | allocations CVaR reutilizadas para análisis dinámico |
+| `paper4_v16_spo_method_search_registry.csv` | fuentes primarias y decisión metodológica |
+| `paper4_v16_spo_dependency_blockers.csv` | blockers de `cvxpy`, `cvxpylayers`, `torch` |
+| `paper4_v16_spo_oracle_targets.parquet` | targets/regret por policy-month |
+| `paper4_v16_spo_training_report.csv` | regret temporal train/validation/test |
+| `paper4_v16_champion_decomposition_summary.csv` | explicación agregada selected vs avoided |
+| `paper4_v16_champion_overlap_matrix.csv` | overlap/Jaccard entre policies |
+| `paper4_v16_champion_selected_vs_avoided_loans.parquet` | casos loan-level |
+| `paper4_v16_champion_case_studies.csv` | préstamos representativos para narrativa |
+
+## Resultado
+
+CVaR produce 15 puntos de frontera y 12 filas de infeasibilidad strict. Esto no
+es fracaso: es evidencia de que los caps estrictos y floors de retorno no son
+gratis. El paper puede usarlo como hallazgo de gobernanza: una frontera
+relajada o de comité debe etiquetarse como tal.
+
+SPO/DFL queda formalizado hasta donde el entorno permite: hay oracle de decisión
+y regret temporal, pero no capa diferenciable. La implementación produce un
+reporte de regret en train, validation y test, y deja el bloqueo de dependencias
+como blocker explícito, no como deuda escondida.
+
+La descomposición del champion muestra qué cartera toma y qué evita respecto a
+challengers. Esa tabla es especialmente útil para escritura académica: ya no
+decimos "gana por score", sino "gana/pierde por composición de riesgo, retorno,
+default y exposición".
+
+## Interpretación
+
+La gran mejora es editorial y metodológica: v16 separa evidencia de claim. CVaR
+restricted-master no se vende como full-universe exacto; SPO oracle no se vende
+como differentiable SPO+; y el champion no se vende como magia de ranking.
+
+## Qué mejoró
+
+- CVaR strict infeasible ahora tiene artifact propio.
+- SPO/DFL ahora tiene fuentes, blockers y regret temporal.
+- El champion tiene una explicación loan-level auditable.
+
+## Qué falló
+
+- No hay certificado dual/Farkas matemático para CVaR strict.
+- No hay diferenciable optimization layer por bloqueo de dependencias.
+- La descomposición depende de adapters sobre books existentes, no de policy
+  learning completamente endógeno.
+
+## Claim permitido
+
+Paper 4 puede decir que CVaR strict es difícil bajo los caps actuales y que SPO
+fue formalizado como oracle/regret no diferenciable.
+
+## Claim no permitido
+
+No se puede decir que ya hay full-universe CVaR exacto ni SPO+ diferenciable.
+
+## Qué queda pendiente
+
+La ruta fuerte es doble: intentar un solver full-universe más eficiente o un
+column generation con pricing más explícito, y resolver dependencias si se quiere
+probar una capa diferenciable real.

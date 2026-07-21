@@ -65,12 +65,28 @@ def _load_candidates() -> pd.DataFrame:
     return pd.read_parquet(fe_path if fe_path.exists() else raw_path)
 
 
-def _load_intervals() -> pd.DataFrame:
-    intervals, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
+def _load_intervals(conformal_intervals_path: str | None = None) -> pd.DataFrame:
+    intervals, path, is_legacy = load_conformal_intervals(
+        allow_legacy_fallback=False,
+        override_path=conformal_intervals_path,
+    )
     logger.info(
         f"Loaded conformal intervals from {path} (legacy={is_legacy}, rows={len(intervals):,})"
     )
     return intervals
+
+
+def _resolve_output_dirs(artifact_namespace: str | None = None) -> tuple[Path, Path]:
+    if artifact_namespace:
+        ns = str(artifact_namespace).strip().replace("/", "_")
+        data_dir = _artifact_path(Path("data/processed/portfolio_tradeoff") / ns)
+        model_dir = _artifact_path(Path("models/portfolio_tradeoff") / ns)
+    else:
+        data_dir = _artifact_path("data/processed")
+        model_dir = _artifact_path("models")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    model_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir, model_dir
 
 
 def _resolve_interval_columns(intervals: pd.DataFrame) -> tuple[str, str, str]:
@@ -217,6 +233,14 @@ def _solve_single(
     gamma: float = 1.0,
     delta_cap_quantile: float = 1.0,
     tail_focus_quantile: float = 1.0,
+    random_seed: int | None = None,
+    cuopt_presolve: int | None = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
 ) -> tuple[dict[str, float | int | str], np.ndarray]:
     segment_labels: np.ndarray | None = None
     if policy_mode in {
@@ -266,8 +290,49 @@ def _solve_single(
         time_limit=time_limit,
         threads=threads,
         solver_backend=solver_backend,
+        random_seed=random_seed,
+        cuopt_presolve=cuopt_presolve,
+        cuopt_method=cuopt_method,
+        cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+        cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+        cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+        cuopt_dual_postsolve=cuopt_dual_postsolve,
+        cuopt_optimality_tolerance=cuopt_optimality_tolerance,
     )
 
+    return _summarize_solution(
+        solution=solution,
+        loans=loans,
+        pd_point=pd_point,
+        pd_high=pd_high,
+        lgd=lgd,
+        int_rates=int_rates,
+        default_flag=default_flag,
+        solver_backend=solver_backend,
+        policy_mode=policy_mode,
+        gamma=gamma,
+        delta_cap_quantile=delta_cap_quantile,
+        tail_focus_quantile=tail_focus_quantile,
+        uncertainty_aversion=uncertainty_aversion,
+    )
+
+
+def _summarize_solution(
+    *,
+    solution: dict[str, float | int | str],
+    loans: pd.DataFrame,
+    pd_point: np.ndarray,
+    pd_high: np.ndarray,
+    lgd: np.ndarray,
+    int_rates: np.ndarray,
+    default_flag: np.ndarray | None,
+    solver_backend: str,
+    policy_mode: str,
+    gamma: float,
+    delta_cap_quantile: float,
+    tail_focus_quantile: float,
+    uncertainty_aversion: float,
+) -> tuple[dict[str, float | int | str], np.ndarray]:
     n = len(loans)
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
     loan_amounts = (
@@ -315,6 +380,162 @@ def _solve_single(
         "worst_case_pd": worst_pd,
         "point_pd": point_pd,
     }, allocation
+
+
+def _segment_labels_for_policy(loans: pd.DataFrame, policy_mode: str) -> np.ndarray | None:
+    if policy_mode not in {
+        "segment_tail_blended_uncertainty",
+        "segment_relative_tail_blended_uncertainty",
+    }:
+        return None
+    grade = (
+        loans["grade"].fillna("unknown").astype(str)
+        if "grade" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    term = (
+        loans["term"].fillna("unknown").astype(str)
+        if "term" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    verification = (
+        loans["verification_status"].fillna("unknown").astype(str)
+        if "verification_status" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    return (grade + "|" + term + "|" + verification).to_numpy(dtype=object)
+
+
+def _solve_single_batch(
+    *,
+    loans: pd.DataFrame,
+    pd_point: np.ndarray,
+    pd_low: np.ndarray,
+    pd_high: np.ndarray,
+    lgd: np.ndarray,
+    int_rates: np.ndarray,
+    default_flag: np.ndarray | None,
+    total_budget: float,
+    max_concentration: float,
+    solve_specs: list[dict[str, float | int | str | bool]],
+    time_limit: int,
+    threads: int,
+    solver_backend: str = "highs",
+    random_seed: int | None = None,
+    cuopt_presolve: int | None = 1,
+    cuopt_batch_size: int = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
+) -> list[tuple[dict[str, float | int | str], np.ndarray]]:
+    """Solve a list of portfolio policies, using cuOpt BatchSolve when requested."""
+    if not solve_specs:
+        return []
+    if solver_backend.strip().lower() != "cuopt" or int(cuopt_batch_size) <= 1:
+        return [
+            _solve_single(
+                loans=loans,
+                pd_point=pd_point,
+                pd_low=pd_low,
+                pd_high=pd_high,
+                lgd=lgd,
+                int_rates=int_rates,
+                default_flag=default_flag,
+                total_budget=total_budget,
+                max_concentration=max_concentration,
+                risk_tolerance=float(spec["risk_tolerance"]),
+                robust=bool(spec["robust"]),
+                uncertainty_aversion=float(spec["uncertainty_aversion"]),
+                min_budget_utilization=float(spec["min_budget_utilization"]),
+                pd_cap_slack_penalty=float(spec["pd_cap_slack_penalty"]),
+                time_limit=time_limit,
+                threads=threads,
+                solver_backend=solver_backend,
+                policy_mode=str(spec.get("policy_mode", "hard_worst_case")),
+                gamma=float(spec.get("gamma", 1.0)),
+                delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                random_seed=random_seed,
+                cuopt_presolve=cuopt_presolve,
+                cuopt_method=cuopt_method,
+                cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+                cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+                cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+                cuopt_dual_postsolve=cuopt_dual_postsolve,
+                cuopt_optimality_tolerance=cuopt_optimality_tolerance,
+            )
+            for spec in solve_specs
+        ]
+
+    from src.optimization.cuopt_adapter import solve_portfolio_cuopt_native_batch
+
+    output: list[tuple[dict[str, float | int | str], np.ndarray]] = []
+    batch_size = max(1, int(cuopt_batch_size))
+    for start in range(0, len(solve_specs), batch_size):
+        chunk = solve_specs[start : start + batch_size]
+        problems = []
+        for spec in chunk:
+            policy_mode = str(spec.get("policy_mode", "hard_worst_case"))
+            pd_constraint = compute_effective_pd(
+                pd_point=pd_point,
+                pd_high=pd_high,
+                policy_mode=policy_mode,
+                gamma=float(spec.get("gamma", 1.0)),
+                delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                segment_labels=_segment_labels_for_policy(loans, policy_mode),
+            )
+            problems.append(
+                {
+                    "loans": loans,
+                    "pd_point": pd_point,
+                    "pd_high": pd_high,
+                    "lgd": lgd,
+                    "int_rates": int_rates,
+                    "total_budget": total_budget,
+                    "max_concentration": max_concentration,
+                    "max_portfolio_pd": float(spec["risk_tolerance"]),
+                    "robust": bool(spec["robust"]),
+                    "uncertainty_aversion": float(spec["uncertainty_aversion"]),
+                    "min_budget_utilization": float(spec["min_budget_utilization"]),
+                    "pd_cap_slack_penalty": float(spec["pd_cap_slack_penalty"]),
+                    "pd_constraint_override": pd_constraint,
+                }
+            )
+        solutions = solve_portfolio_cuopt_native_batch(
+            problems,
+            time_limit=time_limit,
+            random_seed=random_seed,
+            presolve=cuopt_presolve,
+            method=cuopt_method,
+            pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            num_cpu_threads=cuopt_num_cpu_threads,
+            infeasibility_detection=cuopt_infeasibility_detection,
+            dual_postsolve=cuopt_dual_postsolve,
+            optimality_tolerance=cuopt_optimality_tolerance,
+        )
+        for spec, solution in zip(chunk, solutions, strict=True):
+            output.append(
+                _summarize_solution(
+                    solution=solution,
+                    loans=loans,
+                    pd_point=pd_point,
+                    pd_high=pd_high,
+                    lgd=lgd,
+                    int_rates=int_rates,
+                    default_flag=default_flag,
+                    solver_backend=solver_backend,
+                    policy_mode=str(spec.get("policy_mode", "hard_worst_case")),
+                    gamma=float(spec.get("gamma", 1.0)),
+                    delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                    tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                    uncertainty_aversion=float(spec["uncertainty_aversion"]),
+                )
+            )
+    return output
 
 
 def _compute_realized_total_return(
@@ -487,6 +708,9 @@ def main(
     grid_profile: str = "custom",
     solver_backend: str = "highs",
     candidate_universe_path: str = "data/processed/champion_candidate_universe.parquet",
+    conformal_intervals_path: str | None = None,
+    artifact_namespace: str | None = None,
+    run_tag: str | None = None,
 ):
     stage_name = "portfolio_tradeoff"
     write_runtime_status(stage_name, phase="loading_inputs", state="running")
@@ -496,7 +720,9 @@ def main(
     risk_values, aversion_values = _resolve_grid_profile(grid_profile, risk_grid, aversion_grid)
 
     candidates = _load_candidates().reset_index(drop=True)
-    intervals = _load_intervals().reset_index(drop=True)
+    intervals = _load_intervals(conformal_intervals_path=conformal_intervals_path).reset_index(
+        drop=True
+    )
     loans, ints = _align_loans_and_intervals(
         candidates=candidates,
         intervals=intervals,
@@ -504,7 +730,9 @@ def main(
         random_state=random_state,
     )
     n = len(loans)
-    resolved_run_tag = resolve_run_tag(require_explicit=True)
+    resolved_run_tag = (
+        str(run_tag).strip() if run_tag is not None else resolve_run_tag(require_explicit=True)
+    )
     _write_candidate_universe(loans, path=candidate_universe_path, run_tag=resolved_run_tag)
     candidate_universe_resolved = _artifact_path(candidate_universe_path)
     write_runtime_checkpoint(
@@ -769,10 +997,7 @@ def main(
         float(champion_row["risk_tolerance"])
     )
 
-    data_dir = _artifact_path("data/processed")
-    model_dir = _artifact_path("models")
-    data_dir.mkdir(parents=True, exist_ok=True)
-    model_dir.mkdir(parents=True, exist_ok=True)
+    data_dir, model_dir = _resolve_output_dirs(artifact_namespace)
 
     frontier_path = data_dir / "portfolio_robustness_frontier.parquet"
     summary_path = data_dir / "portfolio_robustness_summary.parquet"
@@ -955,6 +1180,8 @@ def main(
         "summary_path": str(summary_path),
         "research_policy_path": str(research_policy_path),
         "candidate_universe_path": str(candidate_universe_resolved),
+        "conformal_intervals_path": str(conformal_intervals_path or ""),
+        "artifact_namespace": str(artifact_namespace or ""),
         "selected_policy": research_payload["selected_policy"],
         "summary_rows": summary.to_dict(orient="records"),
     }
@@ -968,6 +1195,7 @@ def main(
             "frontier_rows": int(len(frontier)),
             "summary_rows": int(len(summary)),
             "selected_policy_mode": str(champion_row["policy_mode"]),
+            "artifact_namespace": str(artifact_namespace or ""),
         },
     )
     write_runtime_status(
@@ -980,6 +1208,7 @@ def main(
             "summary_path": str(summary_path),
             "research_policy_path": str(research_policy_path),
             "n_candidates_used": int(n),
+            "artifact_namespace": str(artifact_namespace or ""),
         },
     )
 
@@ -1006,6 +1235,9 @@ if __name__ == "__main__":
         "--candidate_universe_path",
         default="data/processed/champion_candidate_universe.parquet",
     )
+    parser.add_argument("--conformal-intervals-path", default=None)
+    parser.add_argument("--artifact-namespace", default=None)
+    parser.add_argument("--run-tag", default=None)
     args = parser.parse_args()
     main(
         config_path=args.config,
@@ -1019,4 +1251,7 @@ if __name__ == "__main__":
         grid_profile=args.grid_profile,
         solver_backend=args.solver_backend,
         candidate_universe_path=args.candidate_universe_path,
+        conformal_intervals_path=args.conformal_intervals_path,
+        artifact_namespace=args.artifact_namespace,
+        run_tag=args.run_tag,
     )

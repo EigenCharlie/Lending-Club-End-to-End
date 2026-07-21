@@ -1,0 +1,37 @@
+From Weight of Evidence to Logistic Regression
+
+--- PAGE BREAK ---
+
+Did you know that there is a direct way to convert Weight of Evidence (WOE) scores to logistic regression estimates for univariate categorical data?
+
+--- PAGE BREAK ---
+
+Univariate logistic regression (one category)* *See Appendix for a complete decomposition. Dataset is from https://academic.oup.com/aje/article-abstract/179/2/252/123902. https://academic.oup.com/aje/article-abstract/179/2/252/123902
+
+--- PAGE BREAK ---
+
+Univariate logistic regression (several categories)* * Dataset used is ResumeNames from Applied Econometrics with R (AER). Target is ‘computer’.
+
+--- PAGE BREAK ---
+
+From univarite target encoding to logistic regression 0.87 0.81 Average rate (y) Manufacturing 0.85 Health/education/social services 0.92 1.43 1.77 2.48 -0.45 -0.11 0.61 Log odds Weight of Evidence* Business/personal services Encoded probabilities of class 1 Convert to log odds and WOE Below average Above average Δ=0.34 Δ=0.34 Δ=1.05 Δ=1.05 * WOE can be derived from two probabilities as log(0.81/(1-0.81)) – log(0.87/(1-0.87)) = -0.45 Logistic regression (MLE) coefficients: b0 (intercept) = 1.43, b1 = 0.34, b2 = 1.05 ✅
+
+--- PAGE BREAK ---
+
+WOE is effectively another way to frame the evidence captured by logistic regression coefficients in the single feature case
+
+--- PAGE BREAK ---
+
+Appendix Notebook: https://nbviewer.org/github/deburky/calibration/blob/main/logistic-regression- inference/from_woe_to_logistic_regression.ipynb https://nbviewer.org/github/deburky/calibration/blob/main/logistic-regression-inference/from_woe_to_logistic_regression.ipynb https://nbviewer.org/github/deburky/calibration/blob/main/logistic-regression-inference/from_woe_to_logistic_regression.ipynb
+
+--- PAGE BREAK ---
+
+𝑃(𝑌|𝑋) 𝑃(𝑋|𝑌) Conditional probabilities (on x) Conditional probabilities (on y) Has delinquency Univariate logistic regression (one category)
+
+--- PAGE BREAK ---
+
+𝑃(𝑌|𝑋) 𝑃(𝑋|𝑌) Conditional probabilities (on x) Conditional probabilities (on y) Has delinquency Univariate logistic regression (one category)
+
+--- PAGE BREAK ---
+
+𝑃(𝑌|𝑋) 𝑃(𝑋|𝑌) Conditional probabilities (on x) 1.25 -0.80 1.79 -0.25 log( )/ Conditional probabilities (on y) log( )/ log( )/ log( )/ WOE Log odds Difference b/w log odds or WOE for x=1 and x=0∆ ∆ ∆ Univariate logistic regression (one category) Has delinquency

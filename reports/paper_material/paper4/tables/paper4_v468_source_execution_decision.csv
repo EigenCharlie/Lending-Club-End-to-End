@@ -1,0 +1,5 @@
+decision_id_v468,recommended_v468,evidence_v468,next_artifact_v468,claim_boundary_v468
+keep_grade_a_as_primary_blocker,True,grade=A has zero pass rows in v371 and zero return-improving relief in v372,paper4_v469_dynamic_replay_reproducibility_probe.md,"use as claim caveat, not cap relaxation"
+do_not_restart_blind_chunking,True,v373 sampled eight chunks with zero source-exact rows,paper4_v469_dynamic_replay_reproducibility_probe.md,stop-rule remains diagnostic
+do_not_relax_source_caps,True,v383 audit plan explicitly lacks cap approval,future_source_cap_approval_or_counterfactual,no governance approval or policy change
+route_to_dynamic_replay_lane,True,source blockers are now documented enough for bounded claims,paper4_v469_dynamic_replay_reproducibility_probe.md,routing decision only

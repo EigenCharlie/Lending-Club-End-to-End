@@ -1,0 +1,13 @@
+readiness_item,status_v10,claim_scope,available_for_proxy
+loan_status,available,"status outcome available, but not full servicing history",True
+installment,available,scheduled installment available,True
+term,available,contractual term available,True
+lgd,available,LGD proxy available,True
+issue_month,available,origination month available,True
+default_flag,available,default outcome proxy available,True
+days_past_due_panel,missing,no monthly DPD panel,False
+forbearance_flag,missing,no forbearance/hardship protocol field in Paper 4 pool,False
+recoveries_timing,missing,no recovery cashflow timing,False
+macro_paths_external,missing,"macro scenarios are simulated, not externally validated",False
+prepayment_timing,proxy_only,prepayment can be inferred only approximately from status/term,True
+servicing_panel_monthly,missing,no monthly outstanding/principal/interest panel,False

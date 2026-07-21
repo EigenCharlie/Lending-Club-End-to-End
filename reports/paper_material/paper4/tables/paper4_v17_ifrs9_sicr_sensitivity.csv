@@ -1,0 +1,15 @@
+policy_id,ecl_proxy_total,stage2_share_proxy_mean,max_month_grade_default_proxy,max_month_grade_width,claim_scope_v17,contractual_ifrs9_claim_allowed
+paper1_economic_champion,121768.82094654278,0.5638297872340425,1.0,0.55,IFRS9-inspired ECL proxy only,False
+v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,87366.71095708957,0.8041237113402062,0.5,0.9430607783121994,IFRS9-inspired ECL proxy only,False
+v13_cvar_mdcp_colgen_relaxed_k32000_floor125000_cap360000,87366.71095708957,0.8041237113402062,0.5,0.9430607783121994,IFRS9-inspired ECL proxy only,False
+v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,84714.31213010222,0.7019230769230769,1.0,0.9430607783121994,IFRS9-inspired ECL proxy only,False
+v13_fvi_bellman_rollout,43929.580680172214,1.0,0.3333333333333333,0.9463941116455327,IFRS9-inspired ECL proxy only,False
+v13_fvi_capital_guarded,43765.46502982261,1.0,0.3333333333333333,0.9463941116455327,IFRS9-inspired ECL proxy only,False
+v13_fvi_return_recovery,45672.86007101236,1.0,0.5,0.9463941116455327,IFRS9-inspired ECL proxy only,False
+v13_mdcp_empirical_base,74349.70029393758,0.7283950617283951,1.0,0.9463941116455327,IFRS9-inspired ECL proxy only,False
+v13_mdcp_empirical_return_recovery,79904.16739064461,0.696969696969697,1.0,0.9430607783121994,IFRS9-inspired ECL proxy only,False
+v13_mdcp_empirical_tight,66189.55629532822,0.9814814814814815,0.5,0.9330607783121994,IFRS9-inspired ECL proxy only,False
+v13_spo_regret_audit_guarded,75704.56622603175,0.9333333333333333,0.3333333333333333,0.9032677452266432,IFRS9-inspired ECL proxy only,False
+v13_spo_regret_balanced,77185.78630953525,0.9310344827586207,1.0,0.8536126900840499,IFRS9-inspired ECL proxy only,False
+v13_spo_regret_return_recovery,81942.07788458616,0.9333333333333333,1.0,0.8693091386095322,IFRS9-inspired ECL proxy only,False
+v13_static_reference,367522.6362770812,1.0,1.0,0.8436816790555313,IFRS9-inspired ECL proxy only,False

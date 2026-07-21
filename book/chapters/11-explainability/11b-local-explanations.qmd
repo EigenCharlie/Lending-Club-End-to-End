@@ -1,83 +1,68 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Explicaciones Locales {#sec-local-explanations}
 
-Las explicaciones locales convierten una predicción en una decisión discutible y trazable. Para originación, challenger review y atención a auditoría, la pregunta no es solo cuánto riesgo tiene un préstamo, sino **qué razones concretas empujaron esa evaluación**.
+Las explicaciones locales describen cómo el **freeze predictivo histórico**
+produjo un score para una fila. No reconstruyen una decisión real, no prueban
+causalidad y no autorizan aprobación, rechazo, pricing o revisión manual.
 
-### Casos representativos disponibles
+### Qué contiene el artefacto
 
-El artefacto `shap_local_cases.parquet` contiene 60 filas que describen préstamos representativos en distintos segmentos. Cada registro incluye:
+`shap_local_cases.parquet` conserva 60 casos del snapshot con:
 
-- `grade` e `issue_quarter` para contexto temporal;
-- PD puntual y bandas conformales al 90% y 95%;
-- razones positivas y negativas a nivel de feature;
+- `grade` e `issue_quarter` como contexto descriptivo;
+- score PD calibrado del modelo local;
+- columnas legacy de endpoints al 90% y 95%;
+- contribuciones SHAP positivas y negativas;
 - familia de feature y marca de controlabilidad.
 
-Un caso de bajo riesgo del cuarto trimestre de 2019 ilustra bien el enfoque:
+Las columnas denominadas `pd_low` y `pd_high` son endpoints de intervalos
+predictivos para el resultado binario $Y$, centrados en el score. No son límites
+de confianza de la PD individual y su ancho no mide por sí solo ambigüedad,
+riesgo de modelo o necesidad de intervención.
 
-| Campo | Valor |
+| Campo | Lectura permitida |
 |---|---|
-| Segmento | `bajo_riesgo` |
-| Grade | `A` |
-| PD calibrada | 5.64% |
-| Intervalo 90% | [0.00%, 18.14%] |
-| Principales razones a favor | FICO alto, tasa baja, plazo 36 meses |
+| score PD | salida puntual del freeze local |
+| endpoints 90/95% | geometría predictiva de $Y$ bajo el diseño histórico |
+| SHAP local | descomposición asociativa de la salida del modelo |
+| `grade`/quarter | contexto del caso; no causa ni regla de policy |
 
-: Ejemplo de explicación local defendible {#tbl-local-example}
+: Contrato de lectura de un caso local. {#tbl-local-example}
 
-En este préstamo, el FICO de 767 y la tasa de 8.19% empujan fuertemente el score hacia abajo. El resultado es intuitivo para negocio y consistente con la lectura global del capítulo anterior.
+### Minicasos como procedencia, no decisiones
 
-| Caso | Contexto | PD calibrada | Intervalo 90% | Drivers dominantes | Lectura operativa |
-|---|---|---:|---|---|---|
-| Aprobable con confianza | Grade A, plazo 36m, tasa baja | 5.64% | [0.00%, 18.14%] | FICO alto, tasa baja, menor presión financiera | decisión relativamente estable; el intervalo es amplio pero sigue lejos de zona crítica |
-| Zona gris | Grade C, plazo 60m, DTI alto | ≈ 18% | banda moderada-alta | tasa, plazo y capacidad se contrapesan | conviene revisión manual o política más prudente |
-| Riesgo alto con explicación consistente | Grade F/G, precio alto y estrés financiero | > 35% | banda alta y desplazada | precio, plazo largo, historial débil | rechazo o pricing muy defensivo; no hace falta “explicar de más” para ver el problema |
-
-: Tres minicasos que resumen cómo leer SHAP + PD + intervalo conformal {#tbl-local-mini-cases}
-
-### Del SHAP a reason codes operativos
-
-Una explicación local útil debe poder traducirse a reason codes. En este proyecto, la lógica narrativa se apoya en cuatro familias recurrentes:
-
-| Familia | Cómo se comunica |
-|---|---|
-| `credit_quality` | historial y calidad crediticia del solicitante |
-| `capacity` | presión financiera o capacidad de pago |
-| `pricing` | condiciones del contrato ofrecido |
-| `household_profile` | estabilidad del hogar y contexto del solicitante |
-
-: Familias de reason codes {#tbl-reason-families}
-
-La ventaja de esta capa es doble. Primero, evita exponer al usuario final una lista cruda de variables. Segundo, mantiene consistencia entre la narrativa de comité y la evidencia técnica subyacente.
-
-### Qué hace que una explicación local sea utilizable
-
-En el contexto de riesgo crediticio, una explicación local útil debe cumplir al menos tres criterios:
-
-1. ser coherente con la explicación global;
-2. distinguir señales controlables de señales meramente descriptivas;
-3. convivir con la banda de incertidumbre, no solo con la predicción puntual.
-
-Ese tercer punto es central. Dos préstamos con la misma PD puntual pueden requerir tratamientos distintos si uno tiene un intervalo mucho más ancho que el otro. La explicación local no debe ocultar esa diferencia.
-
-### Uso en revisión de casos
-
-Las explicaciones locales sirven para tres momentos operativos:
-
-| Momento | Pregunta de negocio | Uso de la explicación |
+| Caso histórico | Qué puede describirse | Qué no puede concluirse |
 |---|---|---|
-| Originación | ¿por qué este préstamo quedó en zona gris? | identificar palancas de precio, plazo o documentación |
-| Validación | ¿la razón local coincide con la teoría del modelo? | detectar atajos o señales no plausibles |
-| Auditoría | ¿puedo reconstruir la decisión? | asociar score, intervalo y drivers a un caso concreto |
+| score bajo, grade A | drivers que redujeron el score | “aprobable con confianza” |
+| score intermedio | señales que se contrapesan en el modelo | revisión obligatoria por ancho |
+| score alto | drivers asociados con mayor score | rechazo, pricing o efecto causal |
 
-: Usos operativos de explicaciones locales {#tbl-local-uses}
+: Lectura segura de los casos locales. {#tbl-local-mini-cases}
 
-### Limitaciones
+### Reason codes
 
-Las explicaciones locales no prueban causalidad. Describen cómo el modelo usó la información disponible, no qué cambiaría realmente el outcome del prestatario en el mundo real. Por eso este libro mantiene separadas las capas de interpretabilidad y la capa de inferencia causal.
+Agrupar SHAP en `credit_quality`, `capacity`, `pricing` y
+`household_profile` puede facilitar una explicación interna del artefacto. Para
+convertir ese ejercicio en *adverse-action reasons* o comunicación al cliente
+se necesitarían contrato legal, fidelidad local probada, estabilidad, revisión
+de proxies, lenguaje aprobado y trazabilidad de la decisión realmente tomada.
 
-También hay que evitar una falsa sensación de precisión: un *reason code* es más convincente cuando aparece junto a su contexto de incertidumbre. En este proyecto, la práctica recomendada es presentar siempre el trío:
+Una marca de “controlabilidad” tampoco vuelve causal a una feature. Cambiar una
+variable como tasa o plazo puede alterar composición, aceptación y outcome; la
+contribución SHAP solo informa cómo respondió el predictor en los datos
+observados.
 
-1. PD calibrada,
-2. intervalo conformal,
-3. top drivers locales.
+### Usos válidos hoy
 
-Con esa convención, la explicación deja de ser una nota anecdótica y se convierte en un artefacto formal de decisión.
+| Momento de investigación | Pregunta permitida | Salida |
+|---|---|---|
+| debugging | ¿qué features empujaron este score? | diagnóstico del modelo |
+| validación futura | ¿la explicación es estable y fiel? | hipótesis para challenge independiente |
+| auditoría de procedencia | ¿puede reconstruirse la fila y el artefacto? | lineage del freeze |
+
+: Usos diagnósticos de explicaciones locales. {#tbl-local-uses}
+
+El paquete defendible actual es, por tanto, `score + endpoints de Y + drivers +
+provenance`, acompañado de límites explícitos. No es un artefacto formal de
+decisión y no cambia los contratos de CRPTO, Paper 2 o Paper 4.

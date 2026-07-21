@@ -1,0 +1,156 @@
+Logistic Regression: The Two Cultures
+
+        ML practitioner:
+        “Logistic regression
+        is a classification
+        algorithm!”
+
+
+
+        Statistician:
+        “…”
+Logistic Regression: The Two Cultures
+
+Is it correct to call a logistic regression       ● On the one hand, ML practitioners
+classifier?                                         emphasize its conceptual similarity to
+The answer to this question seems to go beyond      other ML methods which help in
+a simple yes or no.                                 dichotomous target variable prediction
+                                                    (e.g., SVM and other techniques which
+The classification vs. regression debate            may not even produce probabilities)
+surrounding logistic regression is a topic of
+discussion among ML practitioners and             ● Statistics practitioners, on the other
+Statistics practitioners. While logistic            hand, highlight the uniqueness of this
+regression is commonly used for binary              method and its entirely distinct
+classification tasks, its underlying mechanics      characteristics that relegate the
+and interpretation do raise questions about its     classification aspect to a secondary
+classification status.                              nature, if not rendering it entirely moot
+Probabilistic vs Algorithmic Modeling Culture
+
+
+                                                                              ●    In his seminal paper1, Leo Breiman, a
+                                                                                   renowned statistician and the creator of
+                                                                                   the Random Forest algorithm, highlighted
+                                                                                   the divergent approaches between
+                                                                                   traditional statistical modeling and
+                                                                                   machine learning, which is key to the
+                                                                                   Logistic Regression debate
+
+
+                                                                              ●    He notes that statisticians typically focus
+                                                                                   on developing parametric models that
+                                                                                   represent the data generation process (data
+                                                                                   model), while machine learning
+                                                                                   practitioners prioritize predictive accuracy
+
+
+1.   https://users.csc.calpoly.edu/~dsun09/data401/readings/Breiman-Two-Cultures.pdf
+Statistical View on Logistic Regression
+                                “The logistic model is a direct probability model”
+
+
+      ● Logistic regression is a method most often used to study and identify explaining factors rather
+        than to do individual prediction (the Two Cultures)
+      ● Logistic regression is not a classification algorithm on its own. It is only a classification
+        algorithm in combination with a decision rule (threshold) that makes the predicted
+        probabilities of the outcome dichotomous (0 or 1)
+      ● Whether engaging in credit risk scoring, weather forecasting, climate forecasting, marketing,
+        diagnosis a patient’s disease, or estimating a patient’s prognosis, we do not want to use a
+        classification method. Instead we want risk estimates with credible intervals or confidence
+        intervals (Harrell 20171)
+      ● Using classification tables for assessing goodness of fit is most appropriate when classification
+        is a stated goal of the analysis (Hosmer and Lemeshow 20132)
+
+1.   https://www.fharrell.com/post/classification/
+2.   https://onlinelibrary.wiley.com/doi/book/10.1002/9781118548387
+Statistical View on Logistic Regression
+
+
+                             ●   Logistic regression is an “old” statistical
+                                 technique that has gained widespread
+                                 adoption, particularly within the
+                                 traditional statistical community. Its roots
+                                 can be traced back to the work of Walker,
+                                 Duncan, and Cox in the late 1950s.
+
+
+                             ●   Unlike modern ML methods, which often
+                                 prioritize predictive accuracy, Logistic
+                                 Regression is primarily used for studying
+                                 and identifying explanatory factors rather
+                                 than individual predictions (The Data
+                                 Modeling Culture).
+Evidence in Favor of Statistical View
+
+Logistic Regression model use: Logistic regression      XGBoost Logistic Regression: Even within the
+is frequently utilized within risk models to            gradient boosting framework, there is no
+estimate probabilities for events such as default or    classification. The modeling is handled as a
+delinquency, rather than solely focusing on direct      regression problem. This is achieved by fitting
+class predictions. This probabilistic interpretation    residuals and producing output in the form of log-
+aligns more closely with a regression-oriented          odds (margins)
+approach
+
+Log-odds modeling with regression: The logistic
+regression model estimates the log odds of the
+binary target variable. This suggests that it's more
+about capturing the relationship between
+independent variables and the likelihood of the
+target class rather than assigning a definitive class
+label
+ML View on Logistic Regression
+                         “Logistic regression is a probabilistic classifier”
+
+      ● The chief value of logistic regression is that it provides an important theoretical window
+        on the behavior of more complex classification methodologies (Friedman et al., 20001)
+
+      ● The “classic” application of logistic regression model is binary classification (Raschka 20162)
+
+
+
+
+1. https://hastie.su.domains/Papers/AdditiveLogisticRegression/alr.pdf
+2. https://www.kdnuggets.com/2016/07/softmax-regression-related-logistic-regression.html
+ML View on Logistic Regression
+Logistic Regression can be viewed as a model of a posterior class distribution for classification and can be
+interpreted as a probabilistic linear classifier. It is a fully probabilistic model, not only a “post-processing” of a
+linear classifier.
+
+With Logistic Regression, we model the posterior distribution for classification in a two-class-setting by applying
+the logistic function to the linear classifier.
+Evidence in Favor of ML View
+Maximum Likelihood Estimation (MLE), advanced by Ronald A. Fisher, is applicable to both classification
+(Linear Discriminant Analysis) and Logistic Regression. In case of Logistic Regression, we are finding the best
+weights (coefficients) that bring our predictions to observed labels as close as possible.
+
+
+
+
+Log Loss is the objective function in Logistic Regression. It measures the difference between predicted
+probabilities and actual class labels. By minimizing Log Loss, we can improve the model's ability to accurately
+model probabilities of class membership.
+Evidence in Favor of ML View
+In the context of Weight-of-Evidence (WOE) in credit scoring, we do in fact try to “classify” instances into
+groups, and Information Value (IV) measures the class separability. This is similar to the Gini index in
+decision trees where based on the prevalence of class instances we classify observations within leaf nodes
+Bottom line
+●   While Logistic Regression is commonly employed for
+    classification tasks, its operational mechanisms and real-world
+    applications may challenge its classification status, triggering
+    debates reminiscent of the 'Two Cultures' discourse introduced
+    by L. Breiman
+
+
+●   A more balanced perspective could be to view Logistic
+    Regression as a hybrid model that combines both classification
+    and regression aspects: it models a binary event like other
+    classifiers, but achieves it through different means (modelling
+    of the posterior distribution vs. classification label)
+
+
+●   At its core, Logistic Regression operates as a direct probabilistic
+    model. Rather than merely assigning class labels, it undertakes
+    classification based on probability distributions, underlining its
+    distinction from direct class label assignment in traditional
+    classifiers.
+Readings
+
+     Statistical View   ML View

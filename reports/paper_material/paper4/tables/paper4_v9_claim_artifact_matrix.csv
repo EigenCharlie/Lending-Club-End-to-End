@@ -1,0 +1,4 @@
+priority,claim_status,artifact,quarto_page,caveat
+Online conformal efficiency goal,resolved_for_explicit_goal,paper4_v9_online_efficiency_frontier.csv,19av-v9-online-goal-resolution.qmd,Coverage gates are met at the defended-cell boundary; future-period validation remains required.
+Online selected intervals,implemented_selected_methods,paper4_v9_online_selected_intervals.parquet,19av-v9-online-goal-resolution.qmd,"Selected methods include baseline, v8 reference, lowest-width v9 and conservative v9."
+Paper Estrella freeze,guardrail_verified,paper4_v9_online_goal_status.json,19av-v9-online-goal-resolution.qmd,No Paper Estrella promotion artifact is modified or replaced.

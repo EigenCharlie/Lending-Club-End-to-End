@@ -1,0 +1,6 @@
+probe,realized_return,oracle_return,oracle_gap,mae_return_rate,pyepo_version,cvxpylayers_version,torch_version,policy_id,objective_return,mean_spo_target_score_v11,mean_decision_loss_proxy_v11,training_scope_v11
+ridge_predict_then_optimize_top350,281510.15515491774,4611019.882173913,4329509.727018995,0.1902464099821327,1.1.1,1.1.0,2.12.0,,,,,
+retained_v11_surrogate,,,,,,,,v11_spo_ridge_ecl_guarded,110803.63551585223,0.486958797514278,29011.523982410792,ridge_trained_against_v10_solver_targets_not_neural_spo_plus
+retained_v11_surrogate,,,,,,,,v11_spo_ridge_balanced,111195.34204140506,0.4874872549109515,29105.860701639187,ridge_trained_against_v10_solver_targets_not_neural_spo_plus
+retained_v11_surrogate,,,,,,,,v11_spo_ridge_audit_guarded,114487.64609190114,0.4891994573666531,29855.50553737645,ridge_trained_against_v10_solver_targets_not_neural_spo_plus
+retained_v11_surrogate,,,,,,,,v11_spo_ridge_return_recovery,121261.12716248268,0.4990371349467642,30512.56443853057,ridge_trained_against_v10_solver_targets_not_neural_spo_plus

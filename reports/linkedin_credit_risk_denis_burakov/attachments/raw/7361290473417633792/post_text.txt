@@ -1,0 +1,1 @@
+From statistical tables in 1938 to powering modern computing — Fisher and Yates created this for statistical research, but their shuffle found wider applications in randomizing datasets, playlists, and more. Check it out ⤵

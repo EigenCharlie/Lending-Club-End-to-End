@@ -1,24 +1,29 @@
 ---
 title: "Dataset 360°"
 page-layout: article
-close_takeaway: "Dataset 360° no es un apéndice de EDA, sino la idea de que todo el libro mira el mismo Lending Club desde lentes complementarios: riesgo, tiempo, interpretación, causalidad, provisión y robustez."
-close_connects: "Este capítulo hace de bisagra entre el pipeline operativo y los bloques de insights factory, mostrando que ambos son lecturas del mismo sistema."
-close_reuse: "Sus figuras y síntesis sirven para defensa, benchmark externo y para explicar por qué el proyecto no separa operación e investigación como mundos distintos."
 ---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-¿Qué significa realmente “Dataset 360°” en este proyecto? No significa “más gráficos exploratorios”. Significa que el mismo Lending Club puede leerse como problema de segmentación, serie temporal, laboratorio de interpretabilidad, objeto causal, plataforma de provisión IFRS9 y benchmark frente a literatura.
+¿Qué significa realmente “Dataset 360°” en este proyecto? No significa “más
+gráficos exploratorios”. Significa que el mismo archivo Lending Club alimentó
+segmentación, diagnósticos temporales, interpretabilidad, un carril
+observacional y prototipos IFRS9-inspired; no identifica causalidad ni una
+plataforma de provisión.
 
-Ejemplo concreto: una misma cohorte de préstamos aparece como estructura de `grade × term` en EDA, como trayectoria de default en forecasting, como driver SHAP en interpretabilidad y como exposición a stage en IFRS9. Esta landing existe para unir esas caras en una historia única.
+Ejemplo concreto: una misma cohorte aparece como estructura de `grade × term`
+en EDA, como tasa terminal por vintage, como driver SHAP y como input de una
+heurística retrospectiva etiquetada stage; no es exposición IFRS9 identificada.
 :::
 
 | Lente sobre el dataset | Pregunta que responde | Dónde se profundiza |
 |---|---|---|
 | estructura básica | qué tan grande, heterogéneo y desbalanceado es el problema | 51 |
 | geografía y tiempo | cómo cambia el riesgo por estado, cohorte y régimen | 52 |
-| benchmark externo | qué tan competitivos son nuestros resultados frente a Lending Club en la literatura | 53 |
+| benchmark externo | cómo difieren cifras publicadas que no son directamente comparables | 53 |
 | modelado / incertidumbre / causalidad | qué otras caras del mismo dataset aparecen en el resto del libro | capítulos 5 al 13 |
 
 : Dataset 360° como puente entre pipeline e insights factory {#tbl-dataset360-bridge}
@@ -39,4 +44,19 @@ Ejemplo concreto: una misma cohorte de préstamos aparece como estructura de `gr
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+Dataset 360° reúne lecturas complementarias del mismo snapshot sin asumir que
+EDA, causalidad, provisión y decisión comparten estimando.
+
+## Esto conecta con…
+
+El capítulo hace de bisagra entre infraestructura e insights, conservando la
+procedencia de cada lectura.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Sus figuras sirven para defensa y benchmark descriptivo, no como evidencia de
+operación, causalidad o robustez fuera del snapshot.
+:::

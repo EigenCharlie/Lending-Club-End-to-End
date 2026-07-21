@@ -1,0 +1,176 @@
+---
+title: "v6 Efficient Online, SICR and IFRS9 Readiness"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v6_priority_resolution_status.json")
+online = _csv("paper4_v6_online_source_month_efficiency_search.csv")
+sicr = _csv("paper4_v6_sicr_calibration_grid.csv")
+ifrs9_readiness = _csv("paper4_v6_contractual_ifrs9_readiness.csv")
+data_audit = _csv("paper4_v6_contractual_data_audit.csv")
+servicing_gaps = _csv("paper4_v6_servicing_gap_register.csv")
+```
+
+## Pregunta {#sec-paper4-v6-online-ifrs9-question}
+
+Esta página cubre los tres primeros pendientes v6: online source-month eficiente,
+SICR recalibrado e IFRS9 contractual realista. La regla de interpretación es
+estricta: si un método usa outcomes para rescatar celdas, sirve como lower bound
+diagnóstico, no como método promocionable.
+
+## Estado v6
+
+```{python}
+#| label: tbl-paper4-v6-status-online-ifrs9
+#| tbl-cap: "Status v6 para online/IFRS9"
+
+pd.DataFrame([{
+    "online_best_deployable_method": status.get("online_best_deployable_method"),
+    "online_best_deployable_source_min": status.get("online_best_deployable_source_min"),
+    "online_best_deployable_width": status.get("online_best_deployable_width"),
+    "online_best_any_method": status.get("online_best_any_method"),
+    "online_best_any_deployable": status.get("online_best_any_deployable"),
+    "online_best_any_source_min": status.get("online_best_any_source_min"),
+    "online_best_any_width": status.get("online_best_any_width"),
+    "online_promotion_eligible": status.get("online_promotion_eligible"),
+    "contractual_ifrs9_readiness_score": status.get("contractual_ifrs9_readiness_score"),
+}])
+```
+
+## Online source-month eficiente
+
+```{python}
+#| label: tbl-paper4-v6-online-efficiency
+#| tbl-cap: "Online source-month v6: cobertura, ancho y elegibilidad"
+
+_cols(
+    online,
+    [
+        "online_method_v6",
+        "deployable_without_outcomes",
+        "method_interpretation",
+        "coverage_policy_month_min",
+        "coverage_source_month_min",
+        "avg_width_loan",
+        "share_rows_widened",
+        "gate_pass_80",
+        "efficiency_gate_width_95",
+        "promotion_eligible",
+    ],
+)
+```
+
+El resultado más importante es el contraste:
+
+- el mejor método deployable mantiene ancho bajo (`0.9285`) pero falla peor
+  source-month (`0.50`) y policy-month (`0.6667`);
+- el `audit_targeted_weak_cell_rescue_v6` pasa gate 0.80 con ancho `0.9303`,
+  ensanchando solo cerca de 2.5% de filas, pero usa información ex post;
+- `predecision_risk_pooling_v6` mejora source-month hasta `0.75`, pero ensancha
+  todas las filas y aún falla policy-month.
+
+Esto no resuelve promoción. Sí resuelve la pregunta arquitectónica: no hace
+falta ancho 0.995 para cubrir si se sabe qué celdas rescatar. El próximo método
+debe aproximar ese rescate sin mirar outcomes.
+
+## SICR recalibrado
+
+```{python}
+#| label: tbl-paper4-v6-sicr-grid
+#| tbl-cap: "SICR v6 calibration grid"
+
+_cols(
+    sicr.sort_values(["scenario", "sicr_rule_v6"]),
+    [
+        "scenario",
+        "sicr_rule_v6",
+        "mean_contractual_ecl_v6",
+        "mean_stage1_share_v6",
+        "mean_stage2_share_v6",
+        "mean_stage3_share_v6",
+        "policies_stage2_dominates",
+        "policies_stage2_too_low",
+        "sicr_recommendation_v6",
+    ],
+)
+```
+
+La v6 muestra que Stage 2 no es un problema único, sino una regla de sensibilidad.
+Bajo baseline, `relative_2x` y `conservative_rel2_abs25_pd15` dominan Stage 2
+para todas las policies. En cambio, `absolute_pd25`,
+`balanced_rel3_abs35_pd20` y `mrm_rel2p5_abs30_pd18` quedan en rango de revisión
+MRM. Bajo severe, casi cualquier regla se vuelve conservadora, lo cual es
+esperable.
+
+## IFRS9 readiness
+
+```{python}
+#| label: tbl-paper4-v6-ifrs9-readiness
+#| tbl-cap: "IFRS9 contractual readiness v6"
+
+ifrs9_readiness
+```
+
+```{python}
+#| label: tbl-paper4-v6-servicing-gaps
+#| tbl-cap: "Servicing gap register v6"
+
+servicing_gaps
+```
+
+```{python}
+#| label: tbl-paper4-v6-data-audit
+#| tbl-cap: "Data audit v6"
+
+data_audit
+```
+
+La readiness queda en `0.50`: hay status, issue date, installment y algunos
+proxies de timing, pero no hay un panel mensual completo de pagos, EAD observado,
+recoveries con timing ni macro path contractual. Por eso IFRS9 v6 mejora el
+proxy, pero no puede llamarse contractual completo.
+
+## Interpretación
+
+V6 transforma el bloqueo online en una meta concreta: aprender a detectar celdas
+débiles antes de observar outcomes. También transforma SICR en un grid de reglas,
+no en una decisión escondida. IFRS9 queda con una auditoría honesta de datos:
+hay suficiente para seguir experimentando, no para cerrar un claim contable.
+
+## Next Step
+
+El siguiente experimento debe entrenar un predictor pre-decision de celdas
+débiles usando historia previa, tamaño efectivo, grade, DTI, score, mes y drift.
+La meta es acercarse al `audit_targeted_weak_cell_rescue_v6` sin usar outcomes
+del mismo mes.

@@ -1,0 +1,6 @@
+gate_variant_v19,loss_cap,exposure_floor_budget_share,winning_policy_id,winning_score,gate_pass_count,interpretation
+base_committee,225000.0,0.95,v13_spo_regret_audit_guarded,0.5767857142857142,12,committee score sensitivity; not final promotion
+strict_tail,175000.0,0.98,v13_spo_regret_audit_guarded,0.6035714285714285,12,committee score sensitivity; not final promotion
+wealth_first,260000.0,0.95,v13_fvi_capital_guarded,0.6499999999999999,12,committee score sensitivity; not final promotion
+tail_first,210000.0,0.97,paper1_economic_champion,0.6142857142857142,12,committee score sensitivity; not final promotion
+review_relaxed,300000.0,0.9,v13_fvi_capital_guarded,0.5410714285714285,12,committee score sensitivity; not final promotion

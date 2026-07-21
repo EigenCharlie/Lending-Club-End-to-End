@@ -1,0 +1,165 @@
+---
+title: "v3 Online CP, CVaR and Governance"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+online = _csv("paper4_v3_online_conformal_method_summary.csv")
+cvar = _csv("paper4_v3_formal_cvar_lp_results.csv")
+thresholds = _csv("paper4_v3_selector_governance_thresholds.csv")
+selector = _csv("paper4_v3_selector_results.csv")
+claims = _csv("paper4_v3_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v3-online-cvar-question}
+
+Después de tener 45 allocations exactas, el siguiente problema no es escoger
+por retorno bruto. Es preguntar:
+
+> ¿Qué policies sobreviven cuando exigimos cobertura online, CVaR formal,
+> thresholds de gobernanza y trazabilidad de caveats?
+
+La respuesta v3 es conservadora: ninguna policy debe promoverse todavía. El
+selector encuentra candidates claros para revisión, pero el gate online sigue
+fallando por peor policy-month.
+
+## Online Conformal v3
+
+```{python}
+#| label: tbl-paper4-v3-online-summary
+#| tbl-cap: "Online conformal v3 method search"
+
+online
+```
+
+La cobertura media por policy-month se mantiene cerca de `0.95`, pero el mínimo
+sigue alrededor de `0.667`. Esto repite, con más policies exactas, la lección
+del next-wave: no basta con cobertura marginal. Paper 4 necesita cobertura por
+mes, policy y source.
+
+El mejor tradeoff práctico sigue siendo una familia Mondrian/grade o ACI por
+grade, pero ninguna variante alcanza el estándar de promoción. `UP-OCP proxy`
+queda documentado como búsqueda, no como claim teórico final.
+
+## CVaR Formal
+
+```{python}
+#| label: tbl-paper4-v3-formal-cvar
+#| tbl-cap: "Formal CVaR LP candidate-pool results"
+
+_cols(
+    cvar.sort_values(["risk_tolerance", "cvar_penalty"]),
+    [
+        "cvar_policy_id",
+        "risk_tolerance",
+        "cvar_penalty",
+        "candidate_pool_n",
+        "solver_status",
+        "n_funded",
+        "funded_exposure",
+        "realized_return_proxy_lgd45",
+        "formal_cvar_loss",
+        "mean_scenario_loss",
+        "max_scenario_loss",
+    ],
+)
+```
+
+Esta ya no es una penalización simple de cola. El LP incluye una variable
+`eta`, excesos `u_s`, escenarios comunes de pérdida y objetivo
+retorno menos penalización CVaR. El caveat sigue siendo importante: se resuelve
+en un candidate pool de 20k préstamos, no en el universo completo.
+
+El comportamiento es el esperado: al subir la penalización CVaR, el portafolio
+reduce fuertemente `formal_cvar_loss`, pero sacrifica retorno realizado. Con
+penalty `0.50` o `1.00`, el solver compra mucha seguridad de cola a costa de
+retorno. Esto es exactamente el tradeoff que Paper 4 debe aprender a gobernar,
+no a esconder.
+
+## Thresholds de Gobernanza
+
+```{python}
+#| label: tbl-paper4-v3-governance-thresholds
+#| tbl-cap: "Selector governance thresholds v3"
+
+thresholds
+```
+
+La mejora v3 es que los thresholds ya no quedan como tuning invisible. Cada
+threshold tiene un rol: target de cobertura, peor mes, MDCP, fairness proxy o
+scope caveat. Aun así, todavía requieren validación de comité/MRM antes de
+convertirse en reglas publicables.
+
+## Selector v3
+
+```{python}
+#| label: tbl-paper4-v3-selector-top
+#| tbl-cap: "Selector v3 top policies"
+
+_cols(
+    selector.sort_values("v3_rank"),
+    [
+        "policy_id",
+        "v3_rank",
+        "v3_selector_score",
+        "v3_decision",
+        "net_return_after_cashflow_ecl_v3",
+        "full_realized_return",
+        "online_coverage_mean_v3",
+        "online_coverage_min_v3",
+        "worst_defended_source_coverage_v3",
+        "max_defended_proxy_gap_v3",
+        "v3_gate_online",
+        "v3_gate_mdcp",
+        "v3_gate_fairness_proxy",
+        "v3_gate_ifrs9_positive",
+    ],
+).head(20)
+```
+
+El selector v3 ordena bien los candidates, pero no promueve ninguno. El primer
+candidato es el mismo que aparece fuerte en IFRS9 baseline:
+`crpto_rt0p175_g0p55_u0p10_alpha0p01_conservative_proxy_rs42`. Pasa IFRS9,
+MDCP defendido y fairness proxy, pero falla online por peor policy-month.
+
+Esta es una buena señal de arquitectura: el score encuentra candidates; los
+gates impiden sobreclaim.
+
+## Claim Matrix
+
+```{python}
+#| label: tbl-paper4-v3-claim-matrix
+#| tbl-cap: "v3 claim-artifact matrix"
+
+claims
+```
+
+## Next Step
+
+El próximo experimento serio no es otro selector. Es mejorar online CP hasta que
+el peor policy-month supere el gate, o decidir formalmente que ese gate debe
+medirse por source/month con pooling jerárquico. Mientras eso no pase, Paper 4
+puede rankear candidates, pero no promoverlos.

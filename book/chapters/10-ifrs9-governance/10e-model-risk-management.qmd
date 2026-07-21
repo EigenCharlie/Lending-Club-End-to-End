@@ -1,255 +1,113 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Gestión de Riesgo de Modelo {#sec-mrm}
 
-El cierre prudencial del pipeline ya no ocurre cuando el score PD “se ve bien” en AUC. Hoy el sistema se defiende porque puede mostrar, con artefactos vivos, qué parte del stack está en `PASS`, qué parte está en `warning`, y qué parte sigue como `diagnostic_only`. Esa es la diferencia entre un pipeline clásico de scoring y un pipeline moderno de riesgo crediticio bajo gobernanza.
+Este capítulo registra los checks automatizados del freeze local y, sobre
+todo, su límite. Un archivo con `PASS`, una etiqueta `champion` o un reporte
+generado por el mismo equipo no equivalen a validación independiente,
+aprobación institucional, conformidad regulatoria ni autorización de uso.
+El desarrollo profundo de esa separación está en @sec-mrm-report-detail.
 
-La lógica sigue el espíritu de SR 11-7 [@sr117]: distinguir desarrollo, validación, monitoreo y uso, sin fingir que todo resultado verde significa ausencia de riesgo metodológico. En el estado vigente del proyecto, la conversación correcta es esta:
+### Cuatro autoridades que no deben mezclarse
 
-- el champion monotónico sí quedó promovido y congelado en registro;
-- fairness y conformal ya cierran operativamente;
-- la capa MRM es más rica porque ahora incorpora C2ST, monotonicity audit, PD backtesting, bootstrap gap diagnostics, interpretación por cohortes, calibration mapping sidecars, model-shift semantics, IFRS9 diagnostics y encoding stability;
-- algunos diagnósticos siguen abiertos, pero ya están formulados en lenguaje de materialidad y no solo en p-values.
+| Capa | Qué existe | Lectura permitida | Lectura prohibida |
+|---|---|---|---|
+| runtime local | registries, thresholds y estados `PASS/FAIL` | reproducibilidad y triage del freeze | modelo o policy vigentes |
+| screening técnico | drift, calibración, cobertura de $Y$, SHAP y monotonía | localizar señales para revisión | validación independiente |
+| comité/validación | no ejecutado en este repositorio | requisito institucional futuro | aprobación inferida del software |
+| papers | contratos separados de CRPTO, Paper 2 y Paper 4 | claims dentro de cada contrato | promoción cruzada por compartir código |
 
-### Marco de control actual
+: Autoridades y fronteras de la capa MRM. {#tbl-mrm-authorities}
 
-```{python}
-#| label: tbl-mrm-current-controls
-#| tbl-cap: "Controles vigentes del stack de gobernanza y riesgo de modelo"
+Los nombres `champion_registry.json`, `fairness_audit_status.json`,
+`conformal_policy_status.json`, `governance_status.json` y
+`threshold_semantics.json` se conservan por compatibilidad. Describen la
+semántica del runtime histórico, no un estado científico actual.
 
-import sys
-from pathlib import Path
+### Qué sí demuestran los checks locales
 
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-from book._helpers.load_artifacts import try_load_json
+| Familia | Objeto auditado | Conclusión máxima |
+|---|---|---|
+| PD/backtesting | discriminación, calibración y gaps en el snapshot | comportamiento retrospectivo del score |
+| conformal | cobertura y ancho del resultado binario $Y$ | diagnóstico del target declarado |
+| drift/C2ST | separabilidad entre particiones históricas | alerta de transporte; no intercambio restaurado |
+| monotonicidad | forma del predictor en perturbaciones declaradas | coherencia del freeze; no corrección causal |
+| encoding | bins, WOE y estabilidad observada | reproducibilidad y señal de revisión |
+| IFRS9-inspired | consistencia mecánica de escenarios simulados | sensibilidad de software; no ECL o staging válidos |
 
-import pandas as pd
+: Alcance máximo de los checks automatizados. {#tbl-mrm-local-checks}
 
-registry = try_load_json("champion_registry", directory="models", default={})
-fairness = try_load_json("fairness_audit_status", directory="models", default={})
-conformal = try_load_json("conformal_policy_status", directory="models", default={})
-governance = try_load_json("governance_status", directory="models", default={})
-monotonicity = try_load_json("monotonicity_audit_status", directory="models", default={})
-pd_backtesting = try_load_json("pd_backtesting_status", directory="models", default={})
-bootstrap_validation = try_load_json("bootstrap_validation_status", directory="models", default={})
-pd_validation = try_load_json("pd_validation_interpretation_status", directory="models", default={})
-calibration_mapping = try_load_json("calibration_mapping_status", directory="models", default={})
-ifrs9_diag = try_load_json("ifrs9_diagnostics_status", directory="models", default={})
-encoding = try_load_json("encoding_stability_status", directory="models", default={})
-model_shift = try_load_json("model_shift_status", directory="models", default={})
+Los diagnósticos slice-aware, bootstrap, calibration mapping y model-shift son
+útiles precisamente cuando se leen como negativos o warnings. Un `diagnostic
+fail` no invalida automáticamente todo el repositorio; tampoco un `PASS` borra
+shift, selección adaptativa, error de estimando o falta de datos.
 
-rows = [
-    {"Componente": "Champion registry", "Estado": registry.get("run_tag", "N/D"), "Lectura": "El champion monotónico vigente quedó congelado con lineage y thresholds."},
-    {"Componente": "Fairness oficial", "Estado": "PASS" if fairness.get("overall_pass") else "FAIL", "Lectura": "La auditoría ya se lee sobre decisiones de aprobación."},
-    {"Componente": "Conformal policy", "Estado": "PASS" if conformal.get("overall_pass") else "FAIL", "Lectura": "La cobertura operativa cierra; los tests estadísticos siguen diagnósticos."},
-    {"Componente": "Governance / drift", "Estado": "PASS" if governance.get("overall_pass") else "FAIL", "Lectura": "El stack de drift y explicabilidad sigue operativo."},
-    {"Componente": "Monotonicity audit", "Estado": "PASS" if monotonicity.get("overall_pass") else "FAIL", "Lectura": "La promoción monotónica está respaldada por auditoría estructural."},
-    {"Componente": "PD backtesting suite", "Estado": "PASS" if pd_backtesting.get("overall_pass") else "DIAGNOSTIC FAIL", "Lectura": "La suite estadística es exigente; no reabre la promoción pero sí informa trabajo futuro."},
-    {"Componente": "Bootstrap validation", "Estado": str(bootstrap_validation.get("severity", "N/D")).upper(), "Lectura": "Añade una capa bootstrap para distinguir materialidad de slice frente a p-values demasiado sensibles."},
-    {"Componente": "PD validation interpretation", "Estado": str(pd_validation.get("severity", "N/D")).upper(), "Lectura": "El promedio global no alarma; la persistencia por cohortes sí merece atención."},
-    {"Componente": "Calibration mapping", "Estado": str(calibration_mapping.get("severity", "N/D")).upper(), "Lectura": "Prueba sidecars de remapeo sin reemplazar el calibrador canónico; el cierre actual es keep-current-calibrator."},
-    {"Componente": "IFRS9 diagnostics", "Estado": "PASS" if ifrs9_diag.get("overall_pass") else "DIAGNOSTIC FAIL", "Lectura": "La escalera de estrés es coherente, pero la estabilidad temporal sigue abierta."},
-    {"Componente": "Encoding stability", "Estado": "PASS" if encoding.get("overall_pass") else "FAIL", "Lectura": "No hay evidencia de fragilidad estructural que fuerce reabrir el contrato."},
-    {"Componente": "Model shift semantics", "Estado": str(model_shift.get("summary", {}).get("shift_type", "N/D")), "Lectura": "Distingue shift estructural de degradación predictiva en el lenguaje de gobernanza."},
-]
+### Fairness: screening proxy, no conclusión de equidad
 
-pd.DataFrame(rows)
-```
+El artefacto histórico evalúa diferencias sobre una regla de aprobación
+simulada y atributos disponibles en Lending Club. No contiene un protocolo
+aprobado de atributos protegidos o proxies, revisión legal, decisión real,
+rechazos no observados ni validación externa. Por tanto, no permite afirmar que
+el modelo o la policy sean justos ni que no existan disparidades materiales.
 
-### Fairness como guardrail de uso real
+| Salida legacy | Lectura segura |
+|---|---|
+| `overall_pass` | ningún threshold interno se activó en el snapshot |
+| demographic-parity/equalized-odds gaps | estadísticas descriptivas de los grupos codificados |
+| disparate-impact ratio | screening interno, no evaluación legal |
+| threshold global | parámetro de una simulación, no policy aprobatoria vigente |
 
-La capa de fairness cambió de forma importante. El proyecto ya no cuenta la equidad sobre una semántica técnica de “PD por encima de threshold”, sino sobre **decisiones de aprobación**. Esa corrección importa porque alinea búsqueda, auditoría y política de negocio en el mismo espacio. En lenguaje de fairness de decisiones [@hardt2016], el objeto auditado ahora está más cerca de la acción real.
+: Frontera del screening de fairness. {#tbl-mrm-fairness-boundary}
 
-```{python}
-#| label: tbl-mrm-fairness-current
-#| tbl-cap: "Snapshot vigente de fairness operativo"
+### Thresholds: procedencia, no policy
 
-thresholds = fairness.get("thresholds", {})
-decision_policy = fairness.get("decision_policy", {})
+`threshold_semantics.json` distingue el **threshold interno** del score, el
+**threshold operativo** que usó el replay y los cortes de fairness. Mantener
+esa distinción evita confundir parámetros, pero no selecciona ninguno para
+producción. Cada threshold necesitaría población, objetivo, costo, autoridad,
+fecha de vigencia, monitoreo y vía de excepción predeclarados.
 
-rows = [
-    {"Indicador": "overall_pass", "Valor": fairness.get("overall_pass"), "Lectura": "La política oficial no activa alertas materiales."},
-    {"Indicador": "outcome_mode", "Valor": fairness.get("outcome_mode"), "Lectura": "La equidad se audita sobre aprobación."},
-    {"Indicador": "atributos auditados", "Valor": fairness.get("n_attributes"), "Lectura": "Incluye atributos base e interseccionales."},
-    {"Indicador": "threshold operativo", "Valor": fairness.get("prediction_threshold"), "Lectura": "Threshold oficial de fairness y decisión."},
-    {"Indicador": "threshold source", "Valor": fairness.get("prediction_threshold_source"), "Lectura": "Se resuelve desde la policy oficial, no desde un corte interno PD."},
-    {"Indicador": "global threshold", "Valor": decision_policy.get("global_threshold"), "Lectura": "No hay overrides por grupo en la policy actual."},
-    {"Indicador": "dpd limit", "Valor": thresholds.get("dpd"), "Lectura": "Límite de demographic parity difference."},
-    {"Indicador": "eo gap limit", "Valor": thresholds.get("eo_gap"), "Lectura": "Límite de equalized odds gap."},
-    {"Indicador": "dir floor", "Valor": thresholds.get("dir"), "Lectura": "Piso de disparate impact ratio."},
-]
+La regla sobre **umbral heredado** es deliberadamente conservadora: si su
+semántica, población o acción no están documentadas, queda como alerta
+diagnóstica y no como gate automático.
 
-pd.DataFrame(rows)
-```
+### ADSFCR y sidecars diagnósticos
 
-La lectura prudente no es “el modelo es justo” en sentido absoluto. La lectura correcta es más concreta: **la política vigente no muestra disparidades materiales bajo los atributos y umbrales auditados hoy**.
+Las capas inspiradas en ADSFCR —C2ST, bootstrap por slices, monotonicity audit,
+PD backtesting, calibration mapping, encoding stability y model-shift— aumentan
+la trazabilidad. No transforman al equipo desarrollador en segunda línea de
+validación y no reabren por sí solas el freeze etiquetado `champion`.
 
-### C2ST y representatividad: qué agrega realmente
+El inventario histórico de artefactos usa además estos nombres:
 
-El proyecto añadió una capa de representatividad basada en **Classifier Two-Sample Test** (C2ST), un enfoque útil cuando PSI por sí solo se queda corto [@lopezpaz2018c2st]. El punto no es sustituir PSI, sino enriquecer la lectura de drift con una pregunta más exigente: ¿qué tan fácil es distinguir train y test con un clasificador, y qué señales explican esa separación?
+- **bootstrap validation**;
+- **PD validation interpretation**;
+- **IFRS9 diagnostics**;
+- **model shift**.
 
-```{python}
-#| label: tbl-mrm-c2st
-#| tbl-cap: "C2ST y drift de representatividad en el estado vigente"
+Son etiquetas de sidecars y reportes internos; enumerarlas aquí no convierte
+ninguno en validación independiente ni en evidencia prudencial.
 
-g_summary = governance.get("summary", {})
-g_checks = governance.get("checks", {})
+`segment.vld` se conserva como idea de diagnóstico sobre residuos: podría
+localizar subpoblaciones con sobre- o subestimación. Un árbol de segmentos no
+prueba causalidad, no reemplaza el score y no crea una policy de aprobación.
 
-rows = [
-    {"Chequeo": "overall governance", "Valor": governance.get("overall_pass"), "Lectura": "El veredicto global de gobernanza sigue en PASS."},
-    {"Chequeo": "PSI máximo", "Valor": f"{g_summary.get('max_psi', 0):.4f}", "Lectura": "Las distribuciones marginales no activan trigger duro de retraining."},
-    {"Chequeo": "score PSI", "Valor": f"{g_summary.get('score_psi', 0):.4f}", "Lectura": "El shift de score agregado sigue controlado."},
-    {"Chequeo": "C2ST AUC", "Valor": f"{g_summary.get('c2st_auc', 0):.4f}", "Lectura": "El clasificador distingue train/test con mucha facilidad."},
-    {"Chequeo": "pass_c2st", "Valor": g_checks.get("pass_c2st"), "Lectura": "C2ST se interpreta como warning severo, no como rollback automático."},
-    {"Chequeo": "shift_type", "Valor": model_shift.get("summary", {}).get("shift_type"), "Lectura": "Resume si la señal dominante es estructural, predictiva o mixta."},
-    {"Chequeo": "governance_posture", "Valor": model_shift.get("summary", {}).get("governance_posture"), "Lectura": "Hace explícito cuándo la postura es monitoreo, warning o candidata a gate."},
-    {"Chequeo": "delta AUC train-test", "Valor": f"{g_summary.get('auc_delta_train_to_test', 0):.4f}", "Lectura": "La separabilidad temporal no se traduce en degradación crítica del champion."},
-    {"Chequeo": "incremento Brier", "Valor": f"{g_summary.get('brier_increase_train_to_test', 0):.4f}", "Lectura": "La pérdida probabilística adicional sigue dentro de política."},
-]
+### Separación final entre runtime y claims
 
-pd.DataFrame(rows)
-```
+| Superficie | Estado vigente | Autoridad |
+|---|---|---|
+| freeze raíz | histórico y reproducible | este repositorio, solo para procedencia |
+| CRPTO IJDS | auditoría retrospectiva de identificación; sin selección | repositorio CRPTO externo |
+| Paper 2 | `parked_ifrs9` | contrato local de Paper 2 |
+| Paper 4 | living lab; evidencia diagnóstica y stop rules | contrato local de Paper 4 |
 
-La interpretación importante es que C2ST **no** está diciendo “el modelo ya no sirve”. Está diciendo algo más matizado y más útil: el split temporal es claramente distinguible, y por eso la representatividad no debe describirse ingenuamente como si train y test fueran intercambiables. Esa señal refuerza la honestidad metodológica del libro.
-
-La capa `model_shift_status.json` vuelve esa lectura todavía más útil. Ya no basta con ver `C2ST AUC = 0.985` y declarar “drift”. El proyecto ahora distingue **shift estructural**, **degradación predictiva** y **casos mixtos**. En el snapshot vigente la lectura es `mixed_shift`: hay separabilidad temporal severa y degradación predictiva moderada, pero el champion sigue cerrando dentro de política operativa. Ese lenguaje es mucho mejor para comité y tesis que la dicotomía cruda `pass/fail`.
-
-### La nueva capa ADSFCR ya integrada al MRM
-
-El mayor cambio metodológico reciente es que varias ideas inspiradas en el repositorio `adsfcr` dejaron de ser notas de research y pasaron a ser artefactos ejecutados. En otras palabras: el proyecto ahora monitoriza más cosas, con lenguaje más fino.
-
-```{python}
-#| label: tbl-mrm-adsfcr-layers
-#| tbl-cap: "Capas ADSFCR-inspired que ya viven dentro del stack de gobernanza"
-
-rows = [
-    {
-        "Capa": "Monotonicity audit",
-        "Problema que resuelve": "Confirmar que el champion monotónico no degrada coherencia estructural tras la promoción",
-        "Estado actual": "PASS" if monotonicity.get("overall_pass") else "FAIL",
-        "Artefacto": "monotonicity_audit_status.json",
-    },
-    {
-        "Capa": "PD backtesting suite",
-        "Problema que resuelve": "No depender de una sola métrica global para validar calibración",
-        "Estado actual": "PASS" if pd_backtesting.get("overall_pass") else "DIAGNOSTIC FAIL",
-        "Artefacto": "pd_backtesting_status.json",
-    },
-    {
-        "Capa": "Bootstrap validation",
-        "Problema que resuelve": "Separar materialidad de slice de efectos asintóticos en muestras muy grandes",
-        "Estado actual": str(bootstrap_validation.get("severity", "N/D")).upper(),
-        "Artefacto": "bootstrap_validation_status.json",
-    },
-    {
-        "Capa": "PD validation interpretation",
-        "Problema que resuelve": "Separar significancia estadística de materialidad por cohortes",
-        "Estado actual": str(pd_validation.get("severity", "N/D")).upper(),
-        "Artefacto": "pd_validation_interpretation_status.json",
-    },
-    {
-        "Capa": "Calibration mapping",
-        "Problema que resuelve": "Ver si un remapeo ligero puede reducir persistencia sin cambiar el calibrador oficial",
-        "Estado actual": str(calibration_mapping.get("severity", "N/D")).upper(),
-        "Artefacto": "calibration_mapping_status.json",
-    },
-    {
-        "Capa": "IFRS9 diagnostics",
-        "Problema que resuelve": "Hacer explícitas estabilidad temporal, potencia ADF y anchura de incertidumbre macro",
-        "Estado actual": "PASS" if ifrs9_diag.get("overall_pass") else "DIAGNOSTIC FAIL",
-        "Artefacto": "ifrs9_diagnostics_status.json",
-    },
-    {
-        "Capa": "Encoding stability",
-        "Problema que resuelve": "Detectar fragilidad de bins/WOE antes de culpar al modelo final",
-        "Estado actual": "PASS" if encoding.get("overall_pass") else "FAIL",
-        "Artefacto": "encoding_stability_status.json",
-    },
-]
-
-pd.DataFrame(rows)
-```
-
-Estas capas no deben leerse como adornos. Son exactamente el tipo de evidencia que convierte una historia de “modelo de scoring” en una historia de **plataforma de riesgo defendible**.
-
-La secuencia importa. `PD backtesting` dice que la capa estadística es exigente; `bootstrap_validation` muestra que la materialidad por slices sigue viva incluso cuando el gap agregado es pequeño [@efron1994]; `pd_validation_interpretation` traduce esa señal a lenguaje de cohortes; y `calibration_mapping`, ya ejecutado también en su wrapper shadow, cerró con `keep_current_calibrator` después de mostrar que los sidecars ligeros empeoraban el balance entre gap, persistencia temporal y ECE. Esa cadena de evidencia es más fuerte que reportar un único `p≈0`, porque convierte una hipótesis abierta en un control efectivamente ejecutado y documentado.
-
-### Qué dicen hoy los diagnósticos más exigentes
-
-```{python}
-#| label: tbl-mrm-open-diagnostics
-#| tbl-cap: "Diagnósticos abiertos que el libro debe contar con honestidad"
-
-pdv = pd_validation.get("summary", {})
-boot = bootstrap_validation.get("summary", {})
-ifrs9_summary = ifrs9_diag.get("summary", {})
-enc_summary = encoding.get("summary", {})
-
-rows = [
-    {"Tema": "PD validation", "Señal": pd_validation.get("signal_type"), "Lectura": "El problema actual es persistencia por cohortes, no un colapso global de calibración."},
-    {"Tema": "PD gap global", "Señal": f"{pdv.get('gap_bp', 0):.1f} bp", "Lectura": "La desviación agregada es baja frente a la escala del portafolio."},
-    {"Tema": "Bootstrap slice CI exclusions", "Señal": boot.get("slice_ci_exclusions"), "Lectura": "Varios slices quedan persistentemente lejos de cero bajo remuestreo explícito."},
-    {"Tema": "Calibration mapping winner", "Señal": calibration_mapping.get("best_candidate", {}).get("candidate_id"), "Lectura": "El calibrador vigente sigue siendo el mejor observable en la lane sidecar."},
-    {"Tema": "Calibration mapping decision", "Señal": calibration_mapping.get("recommendation"), "Lectura": "La lane shadow cerró con `keep_current_calibrator`; el valor restante es interpretativo, no un remapeo fácil."},
-    {"Tema": "Peor grade gap", "Señal": f"{pdv.get('max_grade_gap_bp', 0):.1f} bp", "Lectura": "Los slices siguen importando más que la media global."},
-    {"Tema": "IFRS9 dominant driver", "Señal": ifrs9_summary.get("dominant_ifrs9_driver"), "Lectura": "La sensibilidad actual del ECL parece más dominada por LGD que por PD."},
-    {"Tema": "ADF near-unit-root power", "Señal": f"{ifrs9_summary.get('near_unit_root_power', 0):.3f}", "Lectura": "La potencia cerca de raíz unitaria sigue siendo baja."},
-    {"Tema": "Recursive sign stability", "Señal": f"{ifrs9_summary.get('recursive_min_sign_match_share', 0):.3f}", "Lectura": "Las relaciones macro no son estables de forma plena en el tiempo."},
-    {"Tema": "Encoding max WOE PSI", "Señal": f"{enc_summary.get('max_woe_psi', 0):.4f}", "Lectura": "No hay una crisis estructural de encoding que explique por sí sola los warnings aguas abajo."},
-]
-
-pd.DataFrame(rows)
-```
-
-Aquí conviene hacer una distinción que el libro debe conservar:
-
-- `PASS` operativo significa que la arquitectura actual puede sostenerse y defenderse.
-- `warning` significa que el sistema merece atención focalizada, pero no rollback.
-- `diagnostic fail` significa que la capa diagnóstica encontró una debilidad real y valiosa, aunque todavía no sea un gate de promoción.
-
-Esa taxonomía es parte del valor del proyecto. Evita dos errores simétricos:
-
-1. vender como “todo verde” algo que todavía tiene trabajo pendiente;
-2. convertir cualquier test exigente en un bloqueo ficticio de toda la plataforma.
-
-### Registro, thresholds y separación entre champion y research lanes
-
-El registro `models/champion_registry.json` y el artefacto `models/threshold_semantics.json` cierran otra confusión frecuente: el threshold interno de screening PD no es el mismo threshold que gobierna fairness y aprobación. Esa separación es una decisión de gobernanza, no un detalle técnico menor.
-
-```{python}
-#| label: tbl-mrm-threshold-semantics-current
-#| tbl-cap: "Semántica vigente de thresholds en el stack promovido"
-
-semantics = try_load_json("threshold_semantics", directory="models", default={})
-meaning = semantics.get("business_meaning", {})
-
-rows = [
-    {"Threshold": "pd_internal_selected_threshold", "Valor": semantics.get("pd_internal_selected_threshold"), "Rol": meaning.get("pd_internal_selected_threshold", "")},
-    {"Threshold": "pd_internal_fallback_threshold", "Valor": semantics.get("pd_internal_fallback_threshold"), "Rol": meaning.get("pd_internal_fallback_threshold", "")},
-    {"Threshold": "fairness_primary_threshold", "Valor": semantics.get("fairness_primary_threshold"), "Rol": meaning.get("fairness_primary_threshold", "")},
-    {"Threshold": "decision_policy_global_threshold", "Valor": semantics.get("decision_policy_global_threshold"), "Rol": meaning.get("decision_policy_global_threshold", "")},
-    {"Threshold": "outcome_mode", "Valor": semantics.get("outcome_mode"), "Rol": "Define el objeto de decisión que se audita en fairness."},
-]
-
-pd.DataFrame(rows)
-```
-
-Esta semántica importa porque evita dos errores narrativos muy comunes:
-
-- confundir un threshold técnico de búsqueda con una política de negocio;
-- leer fairness y decisión como si dependieran del mismo parámetro interno que usa el modelado.
+: Separación de artefactos runtime y claims. {#tbl-mrm-final-overlay}
 
 ### Cierre prudencial honesto
 
-El sistema actual puede presentarse como defendible porque:
-
-- el champion monotónico está promovido y auditado;
-- fairness, conformal y governance cierran operativamente;
-- el libro ya no necesita esconder warnings o diagnosticar todo como “verde”;
-- las capas nuevas inspiradas en ADSFCR mejoran el lenguaje de monitoreo y validación.
-
-Las oportunidades de mejora siguen siendo concretas:
-
-1. afinar la interpretación y lectura por cohortes en PD usando la nueva evidencia slice-aware, no perseguir otro remapeo ligero del calibrador;
-2. fortalecer la lane IFRS9 en estabilidad temporal y tratamiento de incertidumbre;
-3. mantener C2ST, conformal y backtesting como señales vivas de vigilancia, no como anexos decorativos.
-
-Con esto, MRM deja de ser un apéndice regulatorio y pasa a ser parte central del valor metodológico del proyecto.
+La capa MRM actual es defendible como **infraestructura de auditoría y triage**:
+preserva lineage, hace visibles warnings y separa objetos. No es defendible como
+certificación de una PD, policy, fairness, SICR, ECL o adopción regulatoria. Un
+cierre institucional futuro exige independencia, mandato, datos pertinentes,
+challenge efectivo, documentación de limitaciones, decisión formal y monitoreo
+posterior.

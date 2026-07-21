@@ -8,7 +8,16 @@
     "status_path": "models/pd_training_status.json",
     "checkpoint_dir": "models/pd_training_checkpoints",
     "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
-    "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png"
+    "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png",
+    "canonical_model_path": "models/pd_canonical.cbm",
+    "canonical_calibrator_path": "models/pd_canonical_calibrator.pkl",
+    "contract_path": "models/pd_model_contract.json",
+    "logreg_model_path": "models/pd_logreg_baseline.pkl",
+    "training_record_path": "models/pd_training_record.pkl",
+    "seed_replay_status_path": "models/pd_hpo_seed_replay_status.json",
+    "test_predictions_path": "data/processed/test_predictions.parquet",
+    "shap_dir": "reports/figures/shap",
+    "threshold_semantics_path": "models/threshold_semantics.json"
   },
   "feature_source": {
     "mode": "feature_config",

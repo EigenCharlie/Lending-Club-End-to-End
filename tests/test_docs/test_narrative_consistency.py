@@ -33,7 +33,11 @@ STALE_UI_PATTERNS = [
 
 def test_session_state_points_to_current_official_baseline() -> None:
     text = Path("SESSION_STATE.md").read_text(encoding="utf-8")
-    assert "champion-2026-03-12-mega-definitive" in text
+    # Operational PD baseline (regulatory/operational upstream)
+    assert "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129" in text
+    # Paper Estrella final closure (bound-aware economic champion)
+    assert "paper-thesis-final-economic-2026-04-06" in text
+    # Source of truth for baseline resolution
     assert "configs/baselines/canonical_operational_baseline.json" in text
 
 

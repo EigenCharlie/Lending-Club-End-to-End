@@ -1,0 +1,9 @@
+candidate_rank,risk_tolerance,policy_mode,gamma,uncertainty_aversion,realized_total_return,n_funded,gamma_cp,weighted_miscoverage_V,violation,empirical_coverage_funded,all_bounds_hold,shortlist_bucket,parent_decision
+1,0.175,blended_uncertainty,0.425,0.1,59767.35736960121,137,0.216429,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+2,0.175,capped_blended_uncertainty,0.425,0.1,59767.35736960121,137,0.216429,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+7,0.175,blended_uncertainty,0.45,0.1,57161.81648024773,137,0.21051,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+8,0.175,capped_blended_uncertainty,0.45,0.1,57161.81648024773,137,0.21051,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+5,0.165,blended_uncertainty,0.425,0.1,55356.00834368819,137,0.204686,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+6,0.165,capped_blended_uncertainty,0.425,0.1,55356.00834368819,137,0.204686,0.092925,0.0,0.8978,True,forced_incumbent_neighbors,parent_smoke_pass
+3,0.165,blended_uncertainty,0.45,0.1,53121.59380820346,134,0.198397,0.092925,0.0,0.8955,True,forced_incumbent_neighbors,parent_smoke_pass
+4,0.165,capped_blended_uncertainty,0.45,0.1,53121.59380820346,134,0.198397,0.092925,0.0,0.8955,True,forced_incumbent_neighbors,parent_smoke_pass

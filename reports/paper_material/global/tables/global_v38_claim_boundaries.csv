@@ -1,0 +1,10 @@
+claim,allowed_v38,supporting_artifact,claim_boundary_v38
+Paper Estrella official champion,True,models/final_project_promotion.json,canonical; can be thesis/journal champion
+Paper Estrella promotion changed by Paper 4,False,global_v38_promotion_decisions.csv,no promotion unless gates pass
+Paper 4 working champion,True,paper4_v30_working_champion.json,lab/working-only
+Paper 4 final promotion,False,paper4_final_promotion.json absent,do not create without final protocol
+Contractual IFRS9 lifetime ECL,False,paper4_v36_ifrs9_contractual_data_audit.csv,data blocked
+CATE policy value,False,paper4_v37_cate_gate_report.csv,theory/identification blocked
+Fair-lending legal claim,False,paper4_v37_no_legal_claim_flags.csv,prohibited without protected attributes/protocol
+Formal differentiable SPO+,False,paper4_v32_spo_dependency_blockers.csv,dependency blocked unless isolated env validates
+Exact full-universe CVaR optimality,False,paper4_v33_cvar_full_universe_feasibility_attempt.csv,not proven

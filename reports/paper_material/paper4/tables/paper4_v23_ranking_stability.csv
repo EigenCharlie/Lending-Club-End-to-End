@@ -1,0 +1,2 @@
+comparison,n_common_policies,spearman_rank_correlation,baseline_top_policy,scaled_top_policy,interpretation
+v19_64_score_vs_v23_scaled_proxy,14,-0.07717755517698231,v13_spo_regret_audit_guarded,paper1_economic_champion,"ranking stability diagnostic, not promotion rule"

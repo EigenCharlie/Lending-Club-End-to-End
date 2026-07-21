@@ -1,31 +1,28 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Hallazgos Clave del EDA {#sec-eda-highlights}
 
-El EDA del proyecto no es una introducción decorativa; fija el contrato de realidad sobre el que descansan todos los capítulos posteriores. Antes de modelar, conviene dejar congelados tres hechos: el tamaño del universo, la tasa de default y el gradiente económico del riesgo.
+El EDA fija la composición del **split histórico de entrenamiento**. Motiva
+hipótesis y controles; no selecciona taxonomías conformales, variables de
+policy, grupos de fairness, modelos IFRS9 ni diseños causales.
 
-### Universo analítico
-
-En el split de entrenamiento usado para construcción de features y modelado principal, el artefacto `eda_summary.json` reporta:
+### Universo analítico local
 
 | Indicador | Valor |
 |---|---:|
-| Préstamos analizados | 1,346,311 |
-| Tasa global de default | 18.52% |
-| Registros con plazo 36m | 1,005,656 |
-| Registros con plazo 60m | 340,655 |
+| préstamos en train | 1,346,311 |
+| default terminal | 18.52% |
+| plazo 36 meses | 1,005,656 |
+| plazo 60 meses | 340,655 |
 
-: Radiografía del dataset de entrenamiento {#tbl-eda-core}
+: Snapshot del train resuelto. {#tbl-eda-core}
 
-La mezcla de plazos confirma que el problema no es homogéneo: una porción material del portafolio está expuesta a horizontes contractuales largos, lo que justifica el uso posterior de supervivencia, IFRS9 lifetime y escenarios temporales.
+La mezcla de plazos documenta heterogeneidad. No identifica PD lifetime,
+censoring, ECL o comportamiento a reporting date.
 
-::: {.column-page}
-![Distribución global de la variable objetivo en el universo de entrenamiento, con mayoría de préstamos pagados y una tasa de default material.](../../assets/figures/notebooks/target_distribution.png){#fig-target-distribution fig-alt="Distribución de fully paid vs default en el dataset Lending Club."}
-:::
+![Distribución del outcome terminal en el train histórico.](../../assets/figures/notebooks/target_distribution.png){#fig-target-distribution fig-alt="Distribución de fully paid y default en el split histórico de entrenamiento."}
 
-La figura @fig-target-distribution cumple una función de onboarding: antes de discutir modelos sofisticados, deja claro que estamos frente a un problema desbalanceado pero no extremo, donde el default es lo bastante frecuente como para exigir calibración y lo bastante costoso como para no tratarlo como ruido.
-
-### Gradiente de riesgo por grade
-
-La señal más importante del EDA es el orden económico del default por grade:
+### Gradiente descriptivo por `grade`
 
 | Grade | Default rate |
 |---|---:|
@@ -37,64 +34,54 @@ La señal más importante del EDA es el orden económico del default por grade:
 | F | 43.44% |
 | G | 47.71% |
 
-: Gradiente de riesgo por grade {#tbl-eda-grade}
+: Asociación entre `grade` y default terminal en train. {#tbl-eda-grade}
 
-Este patrón valida dos decisiones estructurales del libro:
+El orden muestra que `grade` contiene información de riesgo y selección previa.
+No demuestra que los residuos conformales sean intercambiables dentro de cada
+grade ni que esa partición sea mejor que taxonomías alternativas. El CRPTO
+vigente reporta las familias declaradas y no selecciona una taxonomía.
 
-1. usar `grade` como partición natural para análisis conformales y lectura prudencial;
-2. tratar la tasa de interés y el precio de originación como variables centrales de interpretación.
+![Tasa histórica de default por grade.](../../assets/figures/notebooks/default_rate_by_grade.png){#fig-default-rate-grade fig-alt="Tasa descriptiva de default terminal por grade en train."}
 
-La diferencia de 42pp entre Grade A (5.63%) y Grade G (47.71%) es la razón empírica directa por la que el sistema conformal usa **partición Mondrian por grade** en lugar de un cuantil global (@sec-mondrian): los scores de no-conformidad tienen distribuciones estructuralmente distintas por grade, y un cuantil global inevitablemente sub-cubre en los grades de alto riesgo o sobre-cubre en los de bajo riesgo.
+![Default terminal por combinación de grade y plazo.](../../assets/figures/notebooks/default_rate_grade_x_term.png){#fig-grade-term-default fig-alt="Mapa descriptivo de default por grade y term."}
 
-::: {.column-page}
-![Tasa de default por grade en Lending Club, usada como evidencia base del gradiente económico de riesgo.](../../assets/figures/notebooks/default_rate_by_grade.png){#fig-default-rate-grade fig-alt="Gráfico de tasa de default por grade desde A hasta G en el dataset Lending Club."}
-:::
+```{=latex}
+\clearpage
+```
 
-::: {.column-page}
-![Mapa de calor del default rate por combinación de grade y plazo contractual.](../../assets/figures/notebooks/default_rate_grade_x_term.png){#fig-grade-term-default fig-alt="Mapa de calor del default rate por grade y term en Lending Club."}
-:::
+### Qué sí habilita el EDA
 
-Las figuras @fig-default-rate-grade y @fig-grade-term-default hacen visible el orden económico que luego reaparece en conformal, IFRS9 y optimización: el dataset sí tiene una estructura de riesgo interpretable y consistente. También muestran algo importante para negocio: el plazo de 60 meses no es solo “más largo”, sino un régimen claramente más exigente para varios grades.
+- declarar prevalencia y composición del snapshot;
+- proponer slices de evaluación antes de mirar outcomes futuros;
+- identificar celdas con soporte pequeño;
+- formular tests de drift, madurez y estabilidad;
+- detectar variables que pueden codificar pricing, selección o leakage.
 
-### Lecturas que sí importan
-
-El EDA deja tres mensajes prácticos:
-
-- el riesgo no está uniformemente distribuido;
-- existe una mezcla fuerte de segmentos, no un “prestatario promedio” representativo;
-- cualquier validación aleatoria sería demasiado optimista frente a la dinámica temporal real.
-
-Por eso el pipeline se apoya en *out-of-time validation* y no en validación IID ingenua.
-
-### Variables con contenido económico
-
-Aunque el dataset es amplio, el proyecto organiza la historia en torno a unas pocas familias con interpretación clara:
-
-| Familia | Variables emblemáticas | Papel en la narrativa |
+| Señal | Hipótesis que motiva | Claim que no valida |
 |---|---|---|
-| Precio / contrato | `int_rate`, `term` | resumen del riesgo percibido en originación |
-| Calidad crediticia | `fico_score`, historial | solvencia previa del cliente |
-| Capacidad | `dti`, ingreso | presión financiera |
-| Perfil del hogar | `home_ownership`, verificación | estabilidad y contexto |
+| gradiente por `grade` | auditar cobertura y residuals por grupo | garantía Mondrian o taxonomía ganadora |
+| diferencia por `term` | modelar madurez/censoring | PD lifetime o ECL |
+| heterogeneidad de producto | evaluar transporte y composición | efecto causal de propósito/precio |
+| prevalencia 18.5% | elegir métricas adecuadas | threshold óptimo o policy |
 
-: Familias con valor narrativo y operativo {#tbl-eda-families}
+: De EDA a preguntas, no a decisiones. {#tbl-eda-to-method}
 
-| Señal observada en el EDA | Ejemplo en Lending Club | Qué capítulo la retoma |
+### Orden temporal
+
+Un split temporal reduce la mezcla de períodos frente a uno aleatorio, pero el
+`test OOT` del proyecto fue inspeccionado y reutilizado por varias búsquedas.
+Además, el universo resolved-only induce sesgo de madurez. Por eso el EDA no
+convierte ese corte en holdout prospectivo o final intacto.
+
+| Familia | Variables de contexto | Riesgo de interpretación |
 |---|---|---|
-| Riesgo creciente por `grade` | `A` ≈ 5.6% vs `G` ≈ 47.7% de default | conformal, IFRS9, fairness |
-| Riesgo creciente por `term` | 60m empeora el perfil dentro de varios grades | survival, pricing, portafolio |
-| Mezcla de producto heterogénea | no todos los propósitos tienen el mismo riesgo ni el mismo monto | dataset 360, causalidad, optimización |
-| Desbalance moderado | 18.5% de default, no un evento ultra-raro | calibración, métricas, A/B |
+| precio/contrato | `int_rate`, `term` | selección y condiciones originadas |
+| calidad crediticia | FICO e historial | proxies y cambios de población |
+| capacidad | DTI e ingreso | medición a originación, no trayectoria futura |
+| perfil | vivienda/verificación | composición y posibles proxies sensibles |
 
-: Cómo el EDA se convierte en decisiones metodológicas posteriores {#tbl-eda-to-method}
+: Familias descriptivas para auditoría. {#tbl-eda-families}
 
-### Qué habilita este capítulo
-
-Con este diagnóstico, el resto del libro deja de depender de intuiciones blandas. El EDA justifica:
-
-- la ingeniería de variables posterior;
-- la partición temporal train/cal/test;
-- la elección de métricas y grupos para fairness, drift y cobertura;
-- la lectura prudencial de los resultados IFRS9.
-
-El objetivo no es “mostrar gráficos bonitos”, sino fijar el terreno sobre el cual una decisión de riesgo puede ser defendida.
+La conclusión es deliberadamente limitada: el dataset tiene estructura y
+heterogeneidad suficientes para un laboratorio reproducible. Qué estimando,
+grupo o decisión puede sostener exige protocolos posteriores.

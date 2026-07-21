@@ -1,0 +1,7 @@
+triage_bucket,lane,current_publishability,decision
+core_candidate,dynamic CRPTO/CVaR/DLA governance,paper-worthy after robustness,focus future journal version here
+appendix_candidate,strict CVaR infeasibility and relaxed committee frontier,useful negative result,keep as governance appendix
+method_candidate,SPO oracle regret under constraints,needs stronger formalization,publish only if regret improves materially
+data_blocked,contractual IFRS9,not publishable as contractual IFRS9,proxy-only until servicing panel exists
+theory_blocked,CATE policy value,not publishable as causal policy,needs identification/reject-inference design
+prohibited_claim,fair-lending legal claim,not allowed,proxy governance only

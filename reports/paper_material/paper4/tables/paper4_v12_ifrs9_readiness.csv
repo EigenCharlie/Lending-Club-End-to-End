@@ -1,0 +1,13 @@
+readiness_item,status_v10,claim_scope,available_for_proxy,status_v12,claim_scope_v12,contractual_ifrs9_claim_allowed
+loan_status,available,"status outcome available, but not full servicing history",True,available,"status outcome available, but not full servicing history",False
+installment,available,scheduled installment available,True,available,scheduled installment available,False
+term,available,contractual term available,True,available,contractual term available,False
+lgd,available,LGD proxy available,True,available,LGD proxy available,False
+issue_month,available,origination month available,True,available,origination month available,False
+default_flag,available,default outcome proxy available,True,available,default outcome proxy available,False
+days_past_due_panel,missing,no monthly DPD panel,False,missing,no monthly DPD panel,False
+forbearance_flag,missing,no forbearance/hardship protocol field in Paper 4 pool,False,missing,no forbearance/hardship protocol field in Paper 4 pool,False
+recoveries_timing,missing,no recovery cashflow timing,False,missing,no recovery cashflow timing,False
+macro_paths_external,missing,"macro scenarios are simulated, not externally validated",False,missing,"macro scenarios are simulated, not externally validated",False
+prepayment_timing,proxy_only,prepayment can be inferred only approximately from status/term,True,proxy_only,prepayment can be inferred only approximately from status/term,False
+servicing_panel_monthly,missing,no monthly outstanding/principal/interest panel,False,missing,no monthly outstanding/principal/interest panel,False

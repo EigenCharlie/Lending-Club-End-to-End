@@ -1,103 +1,76 @@
-## Selección de Política Económica {#sec-policy-selection}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-Con multiples combinaciones de tolerancia al riesgo ($\bar{PD}$), modo de politica, parametro de robustez ($\gamma$) y aversion a la incertidumbre ($\lambda$), el espacio de politicas viables es enorme. El **selector economico v3** (`economic_actual_ab_v3`) automatiza la seleccion de la politica champion mediante un proceso de tres etapas: evaluacion exhaustiva, test de no-regresion A/B y seleccion multicriterio.
+## Auditoría de la Selección de Política {#sec-policy-selection}
 
-### Proceso de seleccion
+El repositorio conserva una búsqueda histórica sobre tolerancia al riesgo,
+modo de policy, `gamma` y aversión. El mismo OOT aportó outcomes para calcular
+el payoff ex post estilizado, filtrar candidatos y justificar la promoción editorial.
+Por ello el resultado documenta una selección retrospectiva; no es evaluación
+independiente ni policy de despliegue.
 
-El script `scripts/optimize_portfolio_tradeoff.py` ejecuta una busqueda exhaustiva sobre la grilla de configuraciones. Para cada nivel de tolerancia al riesgo:
+### Proceso histórico
 
-1. **Baseline no robusto**: se resuelve el LP determinístico (PD puntual, $\gamma = 0$, $\lambda = 0$).
-2. **Candidatos robustos**: se resuelven todas las combinaciones de `(policy_mode, gamma, delta_cap_quantile, tail_focus_quantile)` $\times$ `aversion_grid`.
-3. **Price of Robustness**: se calcula como la diferencia de retorno neto entre baseline y candidato robusto.
-4. **Retorno realizado**: se computa el retorno *ex-post* usando las etiquetas reales de default del set OOT.
+`scripts/optimize_portfolio_tradeoff.py` ejecutó esta secuencia:
 
-### Test A/B de no-regresion {#sec-ab-no-regression}
+1. resolver un baseline con el score puntual;
+2. resolver combinaciones de endpoints y parámetros;
+3. calcular diferencias de retorno dentro del mismo universo;
+4. filtrar y ordenar usando defaults observados del OOT;
+5. persistir el punto elegido bajo nombres runtime `champion`.
 
-El test A/B no es un A/B test experimental online, sino una evaluacion retroactiva: dado que conocemos los defaults reales del periodo OOT (2018--2020), se compara el retorno realizado del portafolio robusto contra el baseline no robusto.
+La mecánica es reproducible. La limitación es inferencial: elegir y evaluar en
+los mismos outcomes impide atribuir al punto seleccionado una garantía fuera
+de la corrida.
 
-La condicion de no-regresion es:
+### Comparación retroactiva, no A/B {#sec-ab-no-regression}
+
+El llamado test A/B fue una comparación ex post entre portfolios sobre el mismo
+panel resuelto. No hubo asignación aleatoria, intervención ni tráfico futuro.
+La regla aceptaba una diferencia de retorno de hasta 5%:
 
 $$
-R_{\text{robusto}}^{\text{realizado}} \geq R_{\text{baseline}}^{\text{realizado}} - 0.05 \cdot |R_{\text{baseline}}^{\text{realizado}}|
+R_{\mathrm{candidate}}^{\mathrm{observed}}
+\geq 0.95\,R_{\mathrm{baseline}}^{\mathrm{observed}}.
 $$ {#eq-ab-no-regression}
 
-Es decir, el portafolio robusto puede perder hasta un 5% del retorno realizado del baseline sin ser descartado. Este margen reconoce que la robustez tiene un costo, pero limita cuanto puede costar.
+Debe denominarse *no-regression check retrospectivo*. No identifica efecto
+causal ni comportamiento prospectivo.
 
-### Politica champion seleccionada
+### Artefacto congelado de procedencia
 
-El selector economico v3 eligio la siguiente politica como champion:
+| Campo legacy | Valor congelado | Estado vigente |
+|---|---:|---|
+| `risk_tolerance` | 0.175 | histórico |
+| `uncertainty_aversion` | 0.10 | histórico |
+| `policy_mode` | `blended_uncertainty` | histórico |
+| `gamma` | 0.45 | histórico |
+| etiqueta runtime | `champion` | compatibilidad, no promoción |
 
-| Parametro | Valor |
-|-----------|-------|
-| `risk_tolerance` | 0.18 |
-| `uncertainty_aversion` ($\lambda$) | 0.10 |
-| `policy_mode` | `segment_relative_tail_blended_uncertainty` |
-| `gamma` | 0.10 |
-| `tail_focus_quantile` | 0.75 |
-| `delta_cap_quantile` | 1.0 |
-| A/B no-regresion | PASS |
+: Policy local congelada; no selección del CRPTO vigente. {#tbl-champion-policy}
 
-: Politica champion seleccionada por el selector economico v3. {#tbl-champion-policy}
+| Métrica persistida | Lectura permitida |
+|---|---|
+| `alpha=0.01 exact pass`, `V`, `gamma_cp` | diagnóstico condicionado al diseño y funded set históricos |
+| `realized_total_return` | payoff ex post estilizado basado en outcome terminal; no cash-flow realizado |
 
-```{python}
-#| label: tbl-champion-policy-metrics
-#| tbl-cap: "Métricas económicas y de robustez de la policy promovida"
+: Contrato de lectura de las métricas legacy. {#tbl-champion-policy-metrics}
 
-import sys
-from pathlib import Path
+### Comparadores históricos
 
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-from book._helpers.load_artifacts import load_json
+| Etiqueta legacy | Uso permitido ahora | Uso prohibido |
+|---|---|---|
+| `economic` | provenance de máximo retorno dentro del grid observado | champion vigente |
+| `theorem_tight` | sensibilidad a otra coordenada del diseño | certificado universal |
+| `balanced` | comparador descriptivo | recomendación de negocio |
 
-import pandas as pd
+: Alternativas históricas sin promoción. {#tbl-research-alternatives}
 
-policy = load_json("champion_portfolio_policy", directory="models")
-econ = policy.get("economic_metrics", {})
-rob = policy.get("robustness_metrics", {})
+### Estado actual y requisito de reapertura
 
-rows = [
-    {"Métrica": "No-regression A/B", "Valor": str(econ.get("passed_no_regression"))},
-    {"Métrica": "Price of robustness (%)", "Valor": f"{rob.get('price_of_robustness_pct', 0):.2f}%"},
-    {"Métrica": "Worst-case PD reduction (bps)", "Valor": f"{rob.get('worst_case_pd_reduction_bps', 0):.1f}"},
-    {"Métrica": "Allocation similarity", "Valor": f"{rob.get('allocation_similarity', 0):.3f}"},
-    {"Métrica": "Breadth score", "Valor": f"{rob.get('breadth_score', 0):.3f}"},
-    {"Métrica": "Funded ratio vs baseline", "Valor": f"{econ.get('funded_ratio', 0):.3f}"},
-]
-
-pd.DataFrame(rows)
-```
-
-::: {.callout-note}
-## Interpretacion de la politica champion
-La politica `segment_relative_tail_blended_uncertainty` con $\gamma = 0.10$ aplica un ajuste de robustez solo al 25% superior de prestamos por ancho relativo de incertidumbre, dentro de cada segmento (grado $\times$ plazo $\times$ verificacion). Esto significa que los prestamos con PD bien estimada no reciben penalizacion, mientras que aquellos donde el modelo tiene mayor incertidumbre relativa si la reciben.
-:::
-
-### Alternativas de investigacion
-
-El selector evalua cuatro estrategias de seleccion alternativas para comparacion academica:
-
-| Selector | Criterio principal | Risk tolerance | Policy mode |
-|----------|-------------------|----------------|-------------|
-| **promotion_first** | Maximiza retorno realizado | 0.16 | `tail_blended_uncertainty` |
-| **robustness_aware** | Retorno $\times \sqrt{\gamma}$ | 0.16 | `tail_blended_uncertainty` |
-| **balanced** | Retorno + $\gamma$ alto | 0.16 | `tail_blended_uncertainty` |
-| **guardrail** | PoR $\geq$ -25% + retorno | 0.14 | `hard_worst_case` |
-
-: Alternativas de seleccion de politica para investigacion. {#tbl-research-alternatives}
-
-La estrategia `robustness_aware` pondera el retorno realizado por $\sqrt{\gamma}$, incentivando politicas que realmente usen la informacion de incertidumbre (no trivialmente $\gamma = 0$). La estrategia `guardrail` impone un piso al Price of Robustness para evitar politicas extremadamente conservadoras.
-
-### Breadth score
-
-Para verificar que la politica robusta no colapsa el portafolio a un subconjunto degenerado de prestamos, se calcula un **breadth score** compuesto:
-
-$$
-\text{Breadth} = w_1 \cdot \frac{n_{\text{funded}}^{\text{robusto}}}{n_{\text{funded}}^{\text{baseline}}} + w_2 \cdot \frac{\text{allocated}^{\text{robusto}}}{\text{allocated}^{\text{baseline}}} + w_3 \cdot \text{sim}(\mathbf{x}^{\text{robusto}}, \mathbf{x}^{\text{baseline}})
-$$ {#eq-breadth-score}
-
-con pesos $w_1 = 0.50$, $w_2 = 0.30$, $w_3 = 0.20$ y similitud coseno entre vectores de asignacion. El umbral minimo es 0.93; el champion actual alcanza **0.937**, indicando que la politica robusta mantiene un portafolio amplio y diversificado.
-
-::: {.callout-warning}
-## Configuracion como template
-Los archivos YAML en `configs/` son **templates** con valores por defecto. La politica efectiva en produccion es el artefacto `models/champion_portfolio_policy.json`, que captura la decision del selector economico con todos los parametros resueltos y las metricas de seleccion.
-:::
+El CRPTO externo reporta todas las familias declaradas y no selecciona learner,
+ventana, taxonomía, `gamma`, ruler, coordenada, cap, comparador ni policy. Una
+reapertura confirmatoria necesitaría un protocolo fijado antes del outcome
+join, validación separada del tuning, comparadores con el mismo estimando,
+endpoints no resueltos tratados mediante identificación parcial y un final OOT
+intacto. Hasta entonces, el artefacto local permanece congelado solo para
+compatibilidad operativa.

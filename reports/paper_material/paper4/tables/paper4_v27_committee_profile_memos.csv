@@ -1,0 +1,8 @@
+committee_profile,winning_policy_id,reference_policy_id,committee_score,final_wealth_mean,loss_p95,prob_higher_wealth_vs_reference,robustness_gate_pass,change_recommended,decision_scope,consolidated_decision
+balanced,v13_spo_regret_balanced,paper1_economic_champion,0.6642857142857144,1131182.910089419,91175.15813060428,0.06640625,False,False,Paper 4 committee memo only; no final promotion,review_challenger
+wealth_first,paper1_economic_champion,paper1_economic_champion,0.8035714285714286,1169819.1728555753,141472.10121746128,0.0,False,False,Paper 4 committee memo only; no final promotion,retain_working_champion
+tail_first,v13_fvi_capital_guarded,paper1_economic_champion,0.6624999999999999,1090003.3752301582,49384.56769194493,0.00390625,False,False,Paper 4 committee memo only; no final promotion,review_challenger
+auditability_first,v13_spo_regret_balanced,paper1_economic_champion,0.6803571428571428,1131182.910089419,91175.15813060428,0.06640625,False,False,Paper 4 committee memo only; no final promotion,review_challenger
+ecl_aware,v13_spo_regret_balanced,paper1_economic_champion,0.675,1131182.910089419,91175.15813060428,0.06640625,False,False,Paper 4 committee memo only; no final promotion,review_challenger
+source_governance_aware,v13_spo_regret_balanced,paper1_economic_champion,0.6803571428571428,1131182.910089419,91175.15813060428,0.06640625,False,False,Paper 4 committee memo only; no final promotion,review_challenger
+regret_aware,paper1_economic_champion,paper1_economic_champion,0.7285714285714285,1169819.1728555753,141472.10121746128,0.0,False,False,Paper 4 committee memo only; no final promotion,retain_working_champion

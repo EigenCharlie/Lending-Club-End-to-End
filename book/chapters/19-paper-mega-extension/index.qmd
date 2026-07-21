@@ -1,0 +1,101 @@
+---
+title: "Paper 4: Sequential Credit Decision Analytics Living Lab"
+page-layout: article
+---
+
+{{< include ../../includes/_paper-autocontenido.qmd >}}
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Papel actual del Paper 4 {#sec-paper4-mega-extension}
+
+Paper 4 queda reestructurado como un **laboratorio vivo** con una superficie
+oficial compacta. El libro Quarto ya no intenta renderizar cada ola de
+implementacion; conserva solo los resultados que son tangibles, auditables y
+defendibles para un futuro paper o tesis.
+
+La bitacora canonica del laboratorio es el
+[notebook vivo de Paper 4](../../../reports/paper_material/paper4/notes/paper4_living_lab_notebook.md).
+Ahi viven los goals, fracasos, bloqueos, prompts largos, decisiones intermedias
+y nuevas iteraciones. Quarto queda para lo que ya puede sostener una lectura
+academica.
+
+::: {.callout-note}
+## Regla editorial
+
+Si un resultado no tiene artifact, claim boundary y estabilidad suficiente,
+primero va al notebook vivo. Solo se promueve al capitulo cuando aporta a la
+tesis oficial de Paper 4.
+:::
+
+## Superficie oficial renderizada
+
+| page | role | target_surface |
+| --- | --- | --- |
+| 19a-proposal-and-scope.qmd | official_curated | quarto_official_chapter |
+| 19b-current-assets-and-gaps.qmd | official_curated | quarto_official_chapter |
+| 19c-integrated-architecture.qmd | official_curated | quarto_official_chapter |
+| 19ca-v38-final-synthesis.qmd | official_curated | quarto_official_chapter |
+| 19cb-v38-appendix-registers.qmd | official_appendix | quarto_official_chapter |
+| 19cc-v39-pyepo-real-suite.qmd | official_appendix | quarto_official_chapter |
+| 19f-sequential-decision-framework.qmd | official_curated | quarto_official_chapter |
+| 19h-mvp-evidence-pack.qmd | official_curated | quarto_official_chapter |
+| 19i-regret-auditability-frontier.qmd | official_curated | quarto_official_chapter |
+| 19n-online-mdcp-fairness.qmd | official_curated | quarto_official_chapter |
+| 19t-multi-period-solver.qmd | official_curated | quarto_official_chapter |
+| index.qmd | official_curated | quarto_official_chapter |
+
+## Hallazgos oficiales actuales
+
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is a reproducible sequential-decision living lab, not a policy-selection or deployment protocol. | official | index.qmd |
+| F02 | The active external CRPTO IJDS paper is a retrospective identification audit and selects no learner, residual window, taxonomy, gamma, ruler, coordinate, cap, comparator, or policy. | external_contract | 19ca-v38-final-synthesis.qmd |
+| F03 | The v31 implementation materialized 512 internally generated paths and 494592 policy-month-path rows. | descriptive_artifact | 19t-multi-period-solver.qmd |
+| F04 | Conditional on 512 internally generated paths, the preselected CVaR configuration had mean wealth difference -691.34 and exceeded the legacy reference on 244 paths. | diagnostic_only | 19i-regret-auditability-frontier.qmd |
+| F05 | A rule selected after a 1010-rule replay search was examined in six-month and source-family post-selection slices; these are not strict holdouts. | diagnostic_only | 19n-online-mdcp-fairness.qmd |
+| F06 | PyEPO 1.3.7 provides an exploratory top-k teacher-cost benchmark under randomly sampled menus. | diagnostic_only | 19cc-v39-pyepo-real-suite.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | Paper 4 retains the former IFRS9/SICR lane only as a negative readiness-and-estimand audit; it does not identify PD, ECL, SICR or staging. | diagnostic_negative_audit | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked; the high-rate-within-grade result is an observational, noncausal sensitivity. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park, diagnostic-negative-audit or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Archived Paper 2 artifacts are retained only as non-citable provenance and a negative estimand audit. | diagnostic_negative_audit | 19ca-v38-final-synthesis.qmd |
+| F14 | A legacy-root calibrated model outperformed an origin-time FICO proxy in an archived OOT diagnostic. | append | 19cb-v38-appendix-registers.qmd |
+
+## Como leer ahora el capitulo
+
+1. **Propuesta y alcance** define la tesis academica.
+2. **Activos y gaps** separa resultados oficiales de lanes bloqueadas.
+3. **Arquitectura integrada** explica CRPTO, la auditoria IFRS9/SICR negativa, SDAM y governance.
+4. **Marco SDAM** declara estado, decision, informacion exogena y politica.
+5. **Evidence pack** lista la evidencia tangible.
+6. **Regret-auditability** muestra la tension retorno, cola, cobertura y auditabilidad.
+7. **Online/MDCP/fairness** fija cobertura y source governance con limites claros.
+8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
+9. **Sintesis v38** deja la verdad actual, los claims permitidos y la tabla de contribuciones.
+10. **Appendix registers** conserva cleanup, Lab 4, metricas binder, la auditoria negativa de Paper 2 y stop rules sin inflar el cuerpo.
+11. **PyEPO v39 suite** documenta un benchmark exploratorio de teacher-cost sin convertirlo en evidencia de policy o perdida realizada.
+
+## Direccion academica
+
+La decision post-cierre es tratar Paper 4 como un paper de metodologia y
+gobernanza de investigacion: como definir, auditar y frenar un laboratorio de
+sequential credit decision analytics. El CRPTO IJDS activo es una auditoria
+externa de identificacion que no selecciona modelo, comparador ni policy. Paper
+4 no extiende esa superficie; su aporte local es mostrar una superficie
+reproducible de claims, evidencia, bloqueos, source governance, stress dinamico
+y stop rules.
+
+Paper 4 no absorbe claims prudenciales de Paper 2. Conserva sus artefactos como
+auditoria negativa: los endpoints del resultado binario no son limites de PD,
+el ancho no identifica SICR, el default terminal no equivale a Stage 2 y la
+aritmetica de escenarios no estima ECL. Los importes y umbrales historicos son
+procedencia no citable, no resultados del Paper 4.
+
+La arquitectura de una pagina queda registrada en
+`paper4_one_page_architecture_2026-05-18.csv`: `external CRPTO identification contract ->
+negative IFRS9/SICR audit -> CVaR/OCE tail diagnostic -> source governance ->
+dynamic stress -> parked lanes`. Esa es la candidata natural a primera
+figura/tabla si Paper 4 se extrae como manuscrito completo.

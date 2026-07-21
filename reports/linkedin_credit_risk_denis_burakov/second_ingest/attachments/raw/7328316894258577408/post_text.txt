@@ -1,0 +1,6 @@
+In applied risk problems, most analyses rely on logistic regression to model proportions, such as default or fraud rates. But when we're not interested in proportions and instead care about the actual counts of events, a different data-generating process comes into play: the Poisson distribution. 🏷️
+This text walks through basic examples of fitting and evaluating Poisson models, including a classic case from R.A. Fisher’s 𝘚𝘵𝘢𝘵𝘪𝘴𝘵𝘪𝘤𝘢𝘭 𝘔𝘦𝘵𝘩𝘰𝘥𝘴 𝘧𝘰𝘳 𝘙𝘦𝘴𝘦𝘢𝘳𝘤𝘩 𝘞𝘰𝘳𝘬𝘦𝘳𝘴 and modern applications from J. Hilbe’s 𝘔𝘰𝘥𝘦𝘭𝘪𝘯𝘨 𝘊𝘰𝘶𝘯𝘵 𝘋𝘢𝘵𝘢, featuring well-known datasets on horse kick deaths in the Prussian cavalry and German health reform. 📄
+🐍 You'll find a bonus implementation of Maximum Likelihood Poisson regression with the Fisher Scoring algorithm — built from scratch in #Python for those interested in the computational details.
+Dive right in 👇
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore inference with #LogisticRegression: https://lnkd.in/dnfgP4AJ 💡

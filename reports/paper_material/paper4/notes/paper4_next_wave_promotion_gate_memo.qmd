@@ -1,0 +1,17 @@
+---
+title: "Paper 4 Next-Wave Promotion Gate Memo"
+format: html
+---
+
+# Paper 4 Next-Wave Promotion Gate Memo
+
+El next wave ejecuta búsquedas reales sobre los carriles más valiosos, pero no
+promueve un champion. La regla se mantiene:
+
+- full-universe exact top-k reduce el caveat proxy;
+- online conformal, CVaR/OCE, MDCP, fairness y causalidad siguen sujetos a gates;
+- CATE no entra a `C_t` ni a `X^pi` hasta que identificación y sensibilidad pasen;
+- no se escribe `paper4_final_promotion.json`.
+
+La decisión científica posterior debe mirar la matriz:
+`paper4_next_wave_claim_artifact_matrix.csv`.

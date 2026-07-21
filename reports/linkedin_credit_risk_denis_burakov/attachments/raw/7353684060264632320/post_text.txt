@@ -1,0 +1,5 @@
+Robust Logistic Regression
+Standard logistic regression can be sensitive to outliers or noisy labels, a common issue when working real-world data. Common strategies to mitigate this include preprocessing (data-level) or modifying the loss function (algorithm-level).
+Within the second approach, robust logistic regression treats the data as a mix of "good" and "contaminated" points, downweighting noisy labels to make the fit more reliable. Surprisingly, this technique is rarely covered in standard textbooks, despite its practical benefits.
+Check out this short deck for code, visuals, and intuition on robust logistic regression! ⤵
+#LogisticRegression #DataScience #LinearModels

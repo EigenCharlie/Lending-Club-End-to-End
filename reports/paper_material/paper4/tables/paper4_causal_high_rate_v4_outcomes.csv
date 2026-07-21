@@ -1,0 +1,5 @@
+outcome,treated_mean,ipw_control_mean,att_ipw,claim_scope,dr_default_att_diagnostic
+outcome_default,0.22732345464690928,0.24550448324134097,-0.018181028594431686,diagnostic_association_after_observed_adjustment,-0.00416135964059041
+outcome_prepay_proxy,0.7726765453530907,0.7544955167586592,0.018181028594431492,diagnostic_association_after_observed_adjustment,-0.00416135964059041
+outcome_loss_proxy,3142.47216117087,3394.118325206546,-251.64616403567607,diagnostic_association_after_observed_adjustment,-0.00416135964059041
+outcome_net_return_proxy,-1602.8863264942006,-2076.2900178859004,473.4036913916998,diagnostic_association_after_observed_adjustment,-0.00416135964059041

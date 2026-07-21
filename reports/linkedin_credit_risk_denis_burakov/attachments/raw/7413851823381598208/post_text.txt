@@ -1,0 +1,7 @@
+📚 𝘾𝙧𝙚𝙙𝙞𝙩 𝙍𝙞𝙨𝙠 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙤𝙣 𝘼𝙒𝙎 ☁️
+We're back, this time with updates to the practitioner's guide to Credit Risk Modeling on AWS. The first guide of its kind is shaping up to help more practitioners get hands-on with cloud workflows without the hasty bills 💸
+What is this about, and who is it for?
+The project uses Docker, Inc, LocalStack, and Amazon SageMaker to deliver real-world examples of modern credit risk work. Everything runs locally and for free and yet allows you to implement common use cases without worrying about billing statement emails ✉️
+If you're curious about credit risk data science on AWS in a practical and cost-conscious way, this guide is being built for you!
+🔗 GitHub repo: https://lnkd.in/d3itQCBi
+#AWS #DataScience #MLOps #DataEngineering #Cloud

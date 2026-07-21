@@ -1,65 +1,57 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Drift de Explicaciones {#sec-explanation-drift}
 
-La estabilidad de un modelo no se evalúa solo por AUC o cobertura. Un sistema puede conservar desempeño aceptable mientras cambia silenciosamente la narrativa de por qué decide. Ese riesgo es especialmente sensible en crédito, donde comités y validadores esperan continuidad económica en los drivers.
+`explanation_drift.parquet` compara dos ventanas ya observadas
+(`2018Q1`--`2019Q3` y `2019Q4`--`2020Q3`). Mide estabilidad de salidas SHAP del
+freeze; no es monitoreo prospectivo ni certifica que las razones del modelo
+sean correctas, legales o causales.
 
-### Qué se monitorea
+### Snapshot histórico
 
-El artefacto `explanation_drift.parquet` compara un periodo de referencia amplio (`2018Q1`-`2019Q3`) con un periodo de contraste (`2019Q4`-`2020Q3`). La evaluación resume tres preguntas:
-
-1. ¿se conservan los top drivers globales?
-2. ¿cambió materialmente la distribución SHAP de los drivers críticos?
-3. ¿los reason codes dominantes siguen contando la misma historia?
-
-### Resultado del snapshot actual
-
-| Indicador | Valor | Lectura |
+| Indicador | Valor | Lectura permitida |
 |---|---:|---|
-| `rank_overlap_top10` | 1.00 | mismo top 10 global |
-| `avg_shap_psi_top5` | 0.0491 | cambio pequeño en masa SHAP |
-| `max_shap_psi_top5` | 0.0757 | sin desplazamiento severo |
-| `reason_code_match_rate` | 1.00 | reason codes líderes estables |
-| `passed_all` | `True` | snapshot en verde |
+| `rank_overlap_top10` | 1.00 | los mismos nombres aparecen en el top 10 |
+| `avg_shap_psi_top5` | 0.0491 | cambio pequeño bajo el PSI configurado |
+| `max_shap_psi_top5` | 0.0757 | ningún top-5 superó el gate interno |
+| `reason_code_match_rate` | 1.00 | coincidencia de categorías generadas |
+| `passed_all` | `True` | ningún threshold runtime se activó |
 
-: Resumen de drift explicativo {#tbl-explanation-drift}
+: Drift explicativo del snapshot; `True` no equivale a validación. {#tbl-explanation-drift}
 
-Los detalles internos muestran que `int_rate`, `term`, `fico_score`, `dti` y `home_ownership` siguen siendo el corazón del modelo. Ese resultado es valioso porque el periodo de comparación incluye un entorno de mercado más exigente.
+La comparación incluye un período posterior y sirve para localizar cambios.
+No es un final holdout: las ventanas y los artefactos forman parte de la
+evolución retrospectiva del proyecto.
 
-### Por qué esto importa para gobernanza
+### Qué puede activar una revisión futura
 
-Si el ranking de drivers cambia abruptamente, aparecen dos hipótesis incómodas:
-
-- el modelo empezó a explotar una señal espuria;
-- el proceso de datos cambió y ya no estamos midiendo el mismo fenómeno.
-
-El drift explicativo funciona entonces como una alarma temprana entre el monitoreo de datos y el monitoreo de performance. No sustituye PSI, KS o cobertura conformal, pero complementa esos controles con una capa semántica.
-
-::: {.callout-tip}
-## Señal de confianza
-Un `rank_overlap_top10 = 1.00` no significa “inmutabilidad total”; significa que la narrativa económica principal del modelo sobrevivió al cambio de periodo. Eso aumenta la defendibilidad del sistema frente a revisores humanos.
-:::
-
-### Relación con drift de datos
-
-El capítulo de monitoreo de datos ya mostró que varias variables experimentan desplazamientos detectables por KS o CvM. El punto interesante es que esos movimientos no se tradujeron, por ahora, en una ruptura del mapa explicativo central. La lectura útil es simple: **puede haber drift de datos sin que todavía haya drift explicativo severo**.
-
-Esta separación permite respuestas más finas. No toda alerta de datos requiere reentrenamiento inmediato; algunas pueden manejarse con observación reforzada si la lógica explicativa y la cobertura siguen siendo estables.
-
-| Si observamos... | Entonces conviene... |
+| Patrón observado | Acción de investigación, no policy automática |
 |---|---|
-| drift de datos sin drift explicativo ni pérdida de cobertura | reforzar monitoreo, no necesariamente reentrenar |
-| drift explicativo con performance estable | abrir challenger review: el modelo puede seguir “acertando” por razones peores |
-| drift explicativo + caída de cobertura/performance | activar escalamiento MRM y revisión de datos/artefactos |
+| cambio de datos sin cambio SHAP | revisar representatividad y métricas predictivas |
+| cambio SHAP con performance similar | auditar proxies, lineage y fidelidad |
+| cambio SHAP con degradación | escalar a challenge independiente antes de decidir |
 
-: Caja de decisión para drift explicativo y challenger review {#tbl-explanation-drift-decision}
+: Triage diagnóstico de drift explicativo. {#tbl-explanation-drift-decision}
 
-La tabla anterior merece una lectura operativa más detallada, porque la tentación natural de un equipo de riesgo es tratar toda alerta de drift como señal de reentrenamiento. La primera fila (drift de datos sin consecuencia explicativa ni de performance) es el caso más frecuente y el más mal gestionado: en un portafolio vivo, variables como `int_rate` se mueven constantemente con el ciclo de tasas, y `fico_score` experimenta desplazamientos estacionales. Si el modelo sigue explicando con los mismos drivers y cubriendo con la misma fidelidad, ese movimiento es ruido de entorno, no degradación del modelo. La respuesta correcta es documentar la alerta en el log de monitoreo y programar revisión en el próximo ciclo trimestral — no interrumpir la producción. La segunda fila es la más insidiosa: el modelo sigue "acertando" (AUC estable, cobertura estable) pero cambió *por qué* acierta. Esto puede significar que una variable proxy reemplazó a un driver legítimo, lo cual es un riesgo regulatorio aunque no estadístico. La respuesta correcta aquí es abrir un challenger review formal: comparar las waterfall SHAP del período actual contra el de referencia, verificar si los nuevos drivers tienen sentido económico, y decidir si el modelo necesita reentrenamiento o si el cambio es una adaptación legítima. La tercera fila es la única que justifica escalamiento inmediato al comité MRM, porque la combinación de drift explicativo con caída de performance indica que el modelo ya no funciona *y* que dejó de funcionar por razones distintas a las que lo hicieron funcionar originalmente.
+No toda alerta exige reentrenar, y ningún `PASS` autoriza mantener producción.
+La acción depende de uso, materialidad, datos, autoridad y políticas que este
+repositorio no contiene.
+
+### Scorecards y reason codes
+
+Convertir SHAP o reglas de árboles en scorecards puede comprimir una explicación
+del modelo. La aditividad no garantiza estabilidad, causalidad, fairness ni
+cumplimiento de adverse action. Un candidato debería compararse en fidelidad,
+calibración, monotonicidad, proxies y estabilidad, con revisión independiente.
+
+WOE también puede expresar evidencia relativa por bin, pero congelar bins solo
+preserva reproducibilidad. No prueba que la transformación siga estable o que
+el reason code sea apropiado para una decisión.
 
 ### Limitaciones
 
-El snapshot actual es corto y agregado. Todavía falta:
-
-1. ampliar la comparación por segmento y por grade;
-2. medir estabilidad trimestral continua, no solo dos ventanas agregadas;
-3. vincular alertas explicativas con reglas automáticas de escalamiento en MRM.
-
-Pese a ello, el estado actual ya mejora mucho la práctica usual: el proyecto no solo reporta qué tan bien predice el modelo, sino si sigue contando la misma historia económica a lo largo del tiempo.
+El snapshot usa dos ventanas agregadas, thresholds heurísticos y categorías
+producidas por el mismo stack. Faltan evaluación por segmentos, intervalos de
+incertidumbre, monitoreo verdaderamente prospectivo, protected-attribute
+protocol, adverse-action testing y autoridad de escalamiento. Por ello esta
+capa queda como auditoría de procedencia del freeze.

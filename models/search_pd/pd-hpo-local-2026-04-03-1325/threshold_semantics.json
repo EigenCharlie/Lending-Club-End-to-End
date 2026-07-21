@@ -1,0 +1,21 @@
+{
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-04-04T00:44:26.039653+00:00",
+  "run_tag": "pd-hpo-local-2026-04-03-1325",
+  "pd_internal_selected_threshold": 0.05,
+  "pd_internal_fallback_threshold": 0.35,
+  "fairness_primary_threshold": null,
+  "decision_policy_global_threshold": null,
+  "source_artifacts": {
+    "decision_threshold": "models/search_pd/pd-hpo-local-2026-04-03-1325/decision_threshold.json",
+    "decision_threshold_v2": "models/search_pd/pd-hpo-local-2026-04-03-1325/decision_threshold_v2.json"
+  },
+  "business_meaning": {
+    "pd_internal_selected_threshold": "Threshold interno de screening/seleccion PD usado en busqueda y analisis tecnico.",
+    "pd_internal_fallback_threshold": "Fallback interno tomado de la policy de fairness durante la busqueda de threshold PD.",
+    "fairness_primary_threshold": "Threshold operativo principal para auditoria de fairness y narrativa de aprobacion.",
+    "decision_policy_global_threshold": "Threshold operativo global aplicado por la policy de decision/aprobacion."
+  },
+  "pd_internal_threshold_source": "validation_fairness_search",
+  "calibration_method": "venn_abers"
+}

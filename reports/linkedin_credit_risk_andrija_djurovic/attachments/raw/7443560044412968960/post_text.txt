@@ -1,0 +1,14 @@
+𝗔𝗽𝗽𝗹𝗶𝗲𝗱 𝗗𝗮𝘁𝗮 𝗦𝗰𝗶𝗲𝗻𝗰𝗲 𝗳𝗼𝗿 𝗖𝗿𝗲𝗱𝗶𝘁 𝗥𝗶𝘀𝗸
+When I created my GitHub repository Applied Data Science for Credit Risk (https://lnkd.in/dm2p5UNv), I intended it to be a personal space where I could summarize some of my work related to various credit risk modeling topics. However, over the last two years, it has grown rapidly and now contains hundreds of pages of presentations and working papers, thousands of lines of R and Python code, and has also attracted the interest of other practitioners in the field. It now serves as a supporting repository for my books, with the main goal of extending their scope and addressing some of the challenges practitioners face in their everyday work in the IRB and IFRS9 areas. Regular writing and publishing have helped me think more deeply about certain aspects of common practices and have provided a consistent source of new ideas and motivation for further research.
+For those who find it interesting and useful, below is a list of materials published since the beginning of this year.
+In the coming months, I plan to post more on similar topics, including new ideas for R and Python packages, as well as discussions of topics that challenge current common practices in this area. I hope the material will remain as interesting to others as it is to me.
+✅ smi: An R Package for IFRS9 FLI Modeling https://lnkd.in/drTegZXJ
+✅ Quantification of MoC C in PD Models - Statistical Challenges in Reconciling Regulatory Requirements https://lnkd.in/djtuMbjY
+✅ Somers’ D for Discriminatory Power in LGD and EAD Models: Dyx or Dxy? https://lnkd.in/ddr-yi5Q
+✅ Calibration of Discrete PD Rating Scale - From Segment Default Averages to Grade-Level Estimates https://lnkd.in/d_CcHWXx
+✅ Somers’ D in LGD and EAD Modeling - Impact of Input Binning on Discriminatory Power https://lnkd.in/dZTdymZa
+✅ A Model-Based Approach to Discrete PD Rating Scale Calibration - Logistic Regression Intercept Optimization https://lnkd.in/dVPPmZ7j
+✅ Encoding Categorical Risk Factors in IRB LGD and EAD Models https://lnkd.in/dp27pt2d
+✅ Backtesting PD Models - The Two-Sided Exact Binomial Test https://lnkd.in/d3YZnh6C
+✅ Heterogeneity Testing in IRB Credit Risk Models - Regulatory Requirements, Methods, Challenges, and Considerations https://lnkd.in/dv4yCu2k
+#irb #ifrs9 #pd #lgd #ead

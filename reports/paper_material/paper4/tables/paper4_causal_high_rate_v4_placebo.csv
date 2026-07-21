@@ -1,0 +1,5 @@
+placebo,weighted_smd_after_trim_ipw,placebo_pass_0p10
+annual_inc,0.0010469917082749811,True
+dti,0.023430850075013998,True
+loan_amnt,0.01043680513030872,True
+fico_score,0.03784272347121488,True

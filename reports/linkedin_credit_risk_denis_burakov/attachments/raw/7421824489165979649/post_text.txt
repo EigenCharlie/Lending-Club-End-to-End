@@ -1,0 +1,7 @@
+📚 𝘾𝙧𝙚𝙙𝙞𝙩 𝙍𝙞𝙨𝙠 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙤𝙣 𝘼𝙒𝙎 ☁️
+New chapter: MLflow experiment tracking with Amazon SageMaker
+MLflow was integrated with SageMaker in June 2024 as the recommended replacement for SageMaker Experiments. While Amazon Web Services (AWS) now offers MLflow Apps as a managed serverless experience, this guide focuses on the original tracking server pattern.
+✓ Develop and test your entire ML pipeline locally with LocalStack, then deploy to production with confidence
+✓ All code examples use real-world credit scoring datasets (HELOC) and demonstrate production-ready patterns for experiment tracking, model versioning, and artifact management
+🔗 GitHub repo: https://lnkd.in/d3itQCBi
+#CreditRisk #AWS #DataScience #MLOps #FinTech

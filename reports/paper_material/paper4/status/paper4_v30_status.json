@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.30",
+  "generated_at_utc": "2026-05-15T00:59:12.743927+00:00",
+  "phase": "v30_registry_docs_synthesis",
+  "artifact_registry_rows_v30": 491,
+  "candidate_registry_rows_v30": 21,
+  "claim_rows_v30": 11,
+  "all_claim_artifacts_exist_v30": true,
+  "working_champion_policy_id_v30": "paper1_economic_champion",
+  "champion_changed_vs_v26": false,
+  "ifrs9_contractual_claim_allowed": false,
+  "causal_policy_value_allowed": false,
+  "fair_lending_legal_claim": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "runtime_seconds": 4.371
+}

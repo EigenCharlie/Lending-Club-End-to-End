@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-08.1",
-  "generated_at_utc": "2026-03-30T04:59:30.432853+00:00",
-  "run_tag": "canonical-monotonic-economic-only-2026-03-29",
+  "generated_at_utc": "2026-04-07T16:09:24.688621+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07",
   "selection_stage": "tradeoff_research_only",
   "selection_policy": {
     "rank_order": [
@@ -20,54 +20,54 @@
     ]
   },
   "selected_policy": {
-    "risk_tolerance": 0.18,
-    "policy_mode": "segment_relative_tail_blended_uncertainty",
-    "gamma": 0.05,
+    "risk_tolerance": 0.12,
+    "policy_mode": "segment_tail_blended_uncertainty",
+    "gamma": 0.1,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.25,
-    "min_budget_utilization": 0.0,
-    "pd_cap_slack_penalty": 0.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
     "pd_cap_slack": 0.0,
     "solver_backend": "highs"
   },
   "selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 109355.94344553433,
-    "realized_total_return": 188082.30554512228,
-    "price_of_robustness": -84147.84413026311,
-    "price_of_robustness_pct": -91.48305325690951,
-    "n_funded": 268
+    "ab_diff_total_return": 94362.84590012347,
+    "realized_total_return": 146200.01509477518,
+    "price_of_robustness": -85890.61170733956,
+    "price_of_robustness_pct": -113.4342685989363,
+    "n_funded": 284
   },
   "selected_policy_robustness_aware": {
-    "risk_tolerance": 0.14,
+    "risk_tolerance": 0.12,
     "policy_mode": "tail_blended_uncertainty",
     "gamma": 0.5,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.25,
-    "min_budget_utilization": 0.0,
-    "pd_cap_slack_penalty": 0.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
     "pd_cap_slack": 0.0,
     "solver_backend": "highs"
   },
   "selected_policy_balanced_robustness": {
-    "risk_tolerance": 0.18,
-    "policy_mode": "segment_relative_tail_blended_uncertainty",
-    "gamma": 0.05,
+    "risk_tolerance": 0.12,
+    "policy_mode": "segment_tail_blended_uncertainty",
+    "gamma": 0.1,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.25,
-    "min_budget_utilization": 0.0,
-    "pd_cap_slack_penalty": 0.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
     "pd_cap_slack": 0.0,
     "solver_backend": "highs"
   },
   "research_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 117165.95970745408,
-    "realized_total_return": 179647.6554428785,
-    "price_of_robustness": -82060.69039312552,
-    "price_of_robustness_pct": -98.8670389787912,
-    "n_funded": 267,
-    "robustness_aware_score": 128617.95133027282
+    "ab_diff_total_return": 93586.60884040719,
+    "realized_total_return": 145423.7780350589,
+    "price_of_robustness": -86239.44879177192,
+    "price_of_robustness_pct": -113.89497179741394,
+    "n_funded": 286,
+    "robustness_aware_score": 102830.13959435746
   },
   "balanced_selection_policy": {
     "name": "balanced_robustness",
@@ -81,11 +81,11 @@
   },
   "balanced_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 109355.94344553433,
-    "realized_total_return": 188082.30554512228,
-    "price_of_robustness": -84147.84413026311,
-    "price_of_robustness_pct": -91.48305325690951,
-    "n_funded": 268
+    "ab_diff_total_return": 94362.84590012347,
+    "realized_total_return": 146200.01509477518,
+    "price_of_robustness": -85890.61170733956,
+    "price_of_robustness_pct": -113.4342685989363,
+    "n_funded": 284
   },
   "guardrail_selection_policy": {
     "name": "guardrail_robustness",
@@ -103,23 +103,23 @@
     ]
   },
   "selected_policy_guardrail_robustness": {
-    "risk_tolerance": 0.16,
+    "risk_tolerance": 0.08,
     "policy_mode": "blended_uncertainty",
     "gamma": 0.5,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.0,
-    "min_budget_utilization": 0.0,
-    "pd_cap_slack_penalty": 0.0,
+    "uncertainty_aversion": 0.5,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
     "pd_cap_slack": 0.0,
     "solver_backend": "highs"
   },
   "guardrail_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 21851.288575788043,
-    "realized_total_return": 95115.02411714007,
-    "price_of_robustness": -21159.73868102758,
-    "price_of_robustness_pct": -24.177351023304254,
-    "n_funded": 195
+    "ab_diff_total_return": 41808.37311607883,
+    "realized_total_return": 57744.15169060486,
+    "price_of_robustness": -15804.500551269535,
+    "price_of_robustness_pct": -24.63614666364077,
+    "n_funded": 150
   },
   "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
   "summary_path": "data/processed/portfolio_robustness_summary.parquet",

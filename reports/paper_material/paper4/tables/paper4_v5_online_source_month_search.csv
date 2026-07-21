@@ -1,0 +1,7 @@
+online_method_v5,min_effective_cell_n,q_multiplier,q_additive,borrow_margin,coverage_policy_month_mean,coverage_policy_month_min,coverage_source_month_min,avg_width_policy_month,avg_width_loan,guard_share,gate_pass_80,gate_pass_90,efficiency_gate_width_98,operational_gate_pass
+adaptive_shrinkage_min16,16,1.1,0.03,0.05,1.0,1.0,1.0,0.9927086881435854,0.9945662527122997,1.0,True,True,False,False
+source_month_borrowing_min20,20,1.15,0.04,0.1,1.0,1.0,1.0,0.995426079447933,0.9965911565330395,1.0,True,True,False,False
+width_penalized_minimax_min24,24,1.2,0.05,0.15,1.0,1.0,1.0,1.0,1.0,1.0,True,True,False,False
+source_month_strict_min32,32,1.25,0.06,0.25,1.0,1.0,1.0,1.0,1.0,1.0,True,True,False,False
+hierarchical_pool_min12,12,1.05,0.02,0.0,0.9770501038004684,0.6666666666666666,0.6,0.9746560193217374,0.980742415822524,1.0,False,False,False,False
+v4_reference,8,1.0,0.0,0.0,0.9583500259523102,0.6666666666666666,0.5,0.9203774618317221,0.9285203485163063,1.0,False,False,True,False

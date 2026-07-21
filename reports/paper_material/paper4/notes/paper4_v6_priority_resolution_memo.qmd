@@ -1,0 +1,33 @@
+---
+title: "Paper 4 v6 Priority Resolution Memo"
+format: html
+---
+
+# Paper 4 v6 Priority Resolution Memo
+
+V6 implements the ten active priority blockers without changing Paper Estrella.
+It separates deployable evidence from diagnostic/oracle evidence, especially in
+online source-month conformal calibration.
+
+The key rule remains unchanged: no v6 result is a final promotion.  V6 creates
+better search artifacts, solvers and blockers for the next living-lab cycle.
+
+## Key Results
+
+- Online efficient source-month: `audit_targeted_weak_cell_rescue_v6` passes the
+  0.80 policy/source-month gate with average width close to 0.930, but it uses
+  ex-post weak-cell information and is not deployable.
+- Deployable online: still fails, with worst source-month around 0.50 and worst
+  policy-month around 0.6667.
+- SICR: baseline `absolute_pd25`, `balanced_rel3_abs35_pd20` and
+  `mrm_rel2p5_abs30_pd18` are MRM review candidates; conservative relative
+  rules still over-assign Stage 2.
+- IFRS9 contractual readiness: current artifacts cover about half of the needed
+  servicing requirements; the claim remains enhanced proxy.
+- MDCP inside solver: the base LP is feasible, but stricter weak-source/width
+  caps are mostly infeasible.
+- CVaR: expanded top-k CVaR constraints are feasible under moderate return
+  floors and infeasible under high floors.
+- DLA: Paper 4 now has an endogenous monthly loan-level funding proxy.
+- CATE/fairness remain gated; hybrids are surrogate constrained solvers, not
+  trained DFL models.

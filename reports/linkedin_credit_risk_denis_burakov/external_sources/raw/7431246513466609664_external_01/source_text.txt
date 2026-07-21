@@ -1,0 +1,264 @@
+GitHub - deburky/on-credit-book: Code examples for "On Credit: Scoring Foundations in the Age of AI" · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+deburky
+/
+on-credit-book
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+4
+Star
+15
+Code
+Issues
+0
+Pull requests
+0
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+deburky/on-credit-book
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+NameName
+Last commit message
+Last commit date
+Latest commit
+History
+1 Commit
+1 Commit
+.vscode
+.vscode
+ch01-weight-of-evidence
+ch01-weight-of-evidence
+ch02-logistic-regression
+ch02-logistic-regression
+ch03-deep-learning
+ch03-deep-learning
+ch04-credit-game
+ch04-credit-game
+data
+data
+.DS_Store
+.DS_Store
+.gitignore
+.gitignore
+README.md
+README.md
+book-cover.jpg
+book-cover.jpg
+pyproject.toml
+pyproject.toml
+uv.lock
+uv.lock
+View all files
+Repository files navigation
+README
+On Credit
+Scoring Foundations in the Age of AI
+Denis Burakov
+This repository contains the code and Jupyter notebooks for On Credit: Scoring Foundations in the Age of AI.
+Contents
+Chapter
+Topics
+1. Weight of Evidence
+WOE, Banburismus, MacKay–Turing
+2. Logistic Regression
+Binary/multinomial logistic, WOE–logistic link, gradient descent, log-loss
+3. Deep Learning
+XOR, MLPs, credit scorecard MLP, contour plots, attention
+4. The Credit Game
+Trees, SHAP, scorecards, Fisher–Yates, information gain, two cultures
+Requirements
+Python 3.11
+uv (recommended) or pip
+LaTeX (optional, for some notebook outputs) — e.g. MacTeX on macOS
+Setup
+Clone the repo, then install dependencies with uv:
+uv sync --dev
+If you use MacTeX, ensure texbin is on your PATH:
+export PATH="/Library/TeX/texbin:$PATH"
+Run any notebook with Jupyter (e.g. from the repo root):
+uv run jupyter notebook
+# or
+uv run jupyter lab
+Project layout
+├── book-cover.jpg
+├── pyproject.toml
+├── data/
+├── ch01-weight-of-evidence/
+├── ch02-logistic-regression/
+├── ch03-deep-learning/
+└── ch04-credit-game/
+Dependencies are listed in pyproject.toml (e.g. pandas, scikit-learn, shap, xgboost, catboost, statsmodels, matplotlib, seaborn).
+About
+Code examples for "On Credit: Scoring Foundations in the Age of AI"
+Resources
+Readme
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+15
+stars
+Watchers
+0
+watching
+Forks
+4
+forks
+Report repository
+Releases
+No releases published
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page.
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page.
+Languages
+Jupyter Notebook
+99.1%
+Python
+0.9%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

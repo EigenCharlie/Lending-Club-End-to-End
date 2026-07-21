@@ -1,0 +1,19 @@
+What’s a Gini point worth? Some thoughts on model economics 💵
+A common view is that the Gini score of a credit scoring model is detached from real business outcomes. Gini is a core metric in credit risk, measuring how well a model separates good borrowers from bad ones.
+Gini is directly related to AUC (the concordance probability). If AUC represents 𝖯(𝖼𝗈𝗇𝖼𝗈𝗋𝖽𝖺𝗇𝗍), then: 𝖦𝗂𝗇𝗂 = 𝖯(𝖼𝗈𝗇𝖼𝗈𝗋𝖽𝖺𝗇𝗍) − 𝖯(𝖽𝗂𝗌𝖼𝗈𝗋𝖽𝖺𝗇𝗍).
+While AUC measures the probability that a randomly chosen defaulter scores higher than a randomly chosen non-defaulter,
+Gini rescales this so that a random model equals zero, making the gap between model and chance directly readable.
+This leads to the familiar identity: 𝖦𝗂𝗇𝗂 = 𝖠𝖴𝖢 − (𝟣 − 𝖠𝖴𝖢) = 𝟤 × 𝖠𝖴𝖢 − 𝟣.
+Practitioners know this formula well. The harder question is: 𝘏𝘰𝘸 𝘥𝘰𝘦𝘴 𝘢 𝘩𝘪𝘨𝘩𝘦𝘳 𝘎𝘪𝘯𝘪 𝘵𝘳𝘢𝘯𝘴𝘭𝘢𝘵𝘦 𝘪𝘯𝘵𝘰 𝘣𝘶𝘴𝘪𝘯𝘦𝘴𝘴 𝘷𝘢𝘭𝘶𝘦?
+This link is surprisingly under-discussed. Below is a simple experimental framework to spark a conversation.
+𝗖𝗮𝘀𝗲 𝟭. 𝗙𝗶𝘅𝗲𝗱 𝗥𝗶𝘀𝗸 𝗔𝗽𝗽𝗲𝘁𝗶𝘁𝗲 🏦
+Assume we target a 5% bad rate across our approved portfolio. Since both models operate at the same risk level, unit economics are identical, and the comparison becomes purely about incremental volume. A 10-point Gini improvement between models (41% → 51%) allows approving 13% more customers at the same 5% bad rate.
+𝗖𝗮𝘀𝗲 𝟮. 𝗩𝗮𝗿𝗶𝗮𝗯𝗹𝗲 𝗨𝗻𝗶𝘁 𝗘𝗰𝗼𝗻𝗼𝗺𝗶𝗰𝘀 💳
+Now imagine we don’t have a fixed risk appetite. Instead, we approve loans only when expected unit economics are positive.
+𝖴𝗇𝗂𝗍 𝖤𝖼𝗈𝗇𝗈𝗆𝗂𝖼𝗌 = 𝖤𝖠𝖣 × [(𝟣− 𝖯𝖣) × 𝖬𝖺𝗋𝗀𝗂𝗇 − 𝖯𝖣]
+Where EAD is the loan size and PD is a calibrated probability of default. Margin is the expected return on performing loans.
+Here, each loan contributes expected profit based on its calibrated PD, and we sum these across all approved loans. The optimal approval rate is where we have accepted all loans with positive expected value.
+A stronger model identifies more truly low-risk borrowers and better isolates high-risk ones. At similar approval rates (48% vs 55%), Model B approves a better risk mix, earning 44% more profit with 10 points of Gini improvement.
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+In practice, do you think about model performance in terms of risk appetite or unit economics? And how do you put a business value on an extra Gini point?
+#CreditRiskModeling #Lending #DataScience #CreditScoring

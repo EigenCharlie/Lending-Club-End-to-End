@@ -1,0 +1,2 @@
+scope,run_tag,label,risk_tolerance,policy_mode,gamma,uncertainty_aversion,realized_total_return,alpha01_exact_pass,alpha01_weighted_miscoverage_V,alpha01_gamma_cp,metrics_return,registry_run_tag,promotion_decision_v38
+Paper Estrella official champion,paper-thesis-final-economic-2026-04-06,bound_aware_276k_economic_champion,0.175,blended_uncertainty,0.45,0.1,170464.5429284627,True,0.03645,0.18591,170464.5429284627,paper-thesis-final-economic-2026-04-06,retain_official_champion

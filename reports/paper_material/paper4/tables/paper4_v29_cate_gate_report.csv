@@ -1,0 +1,6 @@
+gate,status_v25,evidence,cate_policy_value_allowed,status_v29,claim_boundary_v29
+identification,theory_blocked,accepted-loan/reject-inference and pricing endogeneity remain,False,theory_blocked,accepted-loan causal diagnostic only; reject inference unresolved
+overlap,review,trimmed overlap share=1.000,False,review,accepted-loan causal diagnostic only; reject inference unresolved
+balance,review,max |trimmed SMD|=0.365,False,review,accepted-loan causal diagnostic only; reject inference unresolved
+sensitivity,blocked,hidden-bias grid remains diagnostic only,False,blocked,accepted-loan causal diagnostic only; reject inference unresolved
+falsification,review,"placebos required for appendix, not promotion",False,review,accepted-loan causal diagnostic only; reject inference unresolved

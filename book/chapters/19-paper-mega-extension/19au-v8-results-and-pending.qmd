@@ -1,0 +1,281 @@
+---
+title: "v8 Results and Pending Work"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+status = _json("paper4_v8_resolution_status.json")
+dashboard = _csv("paper4_v8_blocker_dashboard.csv")
+changes = _csv("paper4_v8_v6_v7_change_report.csv")
+claims = _csv("paper4_v8_claim_artifact_matrix.csv")
+selector = _csv("paper4_v8_selector_governance_results.csv")
+```
+
+## Propósito {#sec-paper4-v8-results-purpose}
+
+Esta página es el tablero de cierre de la ola v8. Su trabajo es separar tres
+cosas:
+
+- lo resuelto de verdad;
+- lo casi resuelto, donde falta una iteración técnica concreta;
+- lo bloqueado por datos o teoría, donde seguir programando no produce un
+  claim honesto.
+
+## Status consolidado
+
+```{python}
+#| label: tbl-paper4-v8-status-consolidated
+#| tbl-cap: "Status consolidado v8"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+    "online_best_width": status.get("online_best_width"),
+    "online_gate80_width95_exists": status.get("online_gate80_width95_exists"),
+    "cvar_bisection_feasible_count": status.get("cvar_bisection_feasible_count"),
+    "mdcp_family_cap_optimal_count": status.get("mdcp_family_cap_optimal_count"),
+    "contractual_ifrs9_readiness_score": status.get("contractual_ifrs9_readiness_score"),
+    "dla_value_delta_vs_static": status.get("dla_value_delta_vs_static"),
+    "causal_policy_value_allowed": status.get("causal_policy_value_allowed"),
+    "fair_lending_legal_claim": status.get("fair_lending_legal_claim"),
+    "selector_promote_count": status.get("selector_promote_count"),
+}])
+```
+
+## Blockers vivos
+
+```{python}
+#| label: tbl-paper4-v8-blocker-dashboard
+#| tbl-cap: "Paper 4 live blocker dashboard v8"
+
+dashboard
+```
+
+La regla de lectura:
+
+- `resolved`: hay artifact reproducible y gate básico;
+- `near_resolved`: el diseño funciona, pero falta eficiencia, escala o ADP
+  formal;
+- `data_blocked`: falta un dato que no se puede inventar limpiamente;
+- `theory_blocked`: falta identificación o justificación teórica antes de usar
+  el resultado para decisión.
+
+## Change report
+
+```{python}
+#| label: tbl-paper4-v8-change-report
+#| tbl-cap: "Automated v6-v7-v8 change report"
+
+changes
+```
+
+V8 automatiza la comparación entre olas para que el laboratorio no dependa de
+memoria informal. Esto importa porque Paper 4 está pensado para meses o años:
+cuando una decisión cambie de rumbo, debe verse en el artifact, no solo en una
+conversación.
+
+## Selector decisions
+
+```{python}
+#| label: tbl-paper4-v8-selector-decisions-compact
+#| tbl-cap: "Selector decisions v8"
+
+selector[
+    [
+        col
+        for col in [
+            "policy_id",
+            "lane",
+            "selector_decision_v8",
+            "primary_blocker_v8",
+            "online_width",
+            "ifrs9_readiness",
+            "auditability_score_v8",
+        ]
+        if col in selector.columns
+    ]
+].head(40) if not selector.empty else selector
+```
+
+## Pendientes exactos después de v8
+
+```{python}
+#| label: tbl-paper4-v8-pending-list
+#| tbl-cap: "Pending list after v8"
+
+rows = [
+    {
+        "prioridad": 1,
+        "pendiente": "online efficient source-month",
+        "estado_v8": "near_resolved" if status.get("online_gate80_defended_deployable_exists") else "active",
+        "siguiente_paso": "si width sigue >0.95, entrenar predictor pre-decision de weak cells con historia y penalizacion de ancho",
+    },
+    {
+        "prioridad": 2,
+        "pendiente": "CVaR full-universe or decomposition",
+        "estado_v8": "near_resolved",
+        "siguiente_paso": "llevar bisection frontier a top-k expandido/full universe con warm starts o descomposicion",
+    },
+    {
+        "prioridad": 3,
+        "pendiente": "MDCP formal source coverage",
+        "estado_v8": "near_resolved",
+        "siguiente_paso": "convertir family caps en gates calibrados por empirical coverage y minimum support",
+    },
+    {
+        "prioridad": 4,
+        "pendiente": "IFRS9 contractual",
+        "estado_v8": "data_blocked",
+        "siguiente_paso": "servicing panel, DPD, forbearance, recovery timing y macro scenario paths",
+    },
+    {
+        "prioridad": 5,
+        "pendiente": "DLA/ADP formal",
+        "estado_v8": "near_resolved",
+        "siguiente_paso": "rollout/value iteration aproximada y paths comunes multi-period",
+    },
+    {
+        "prioridad": 6,
+        "pendiente": "CATE policy value",
+        "estado_v8": "theory_blocked",
+        "siguiente_paso": "outcome causal limpio, sensibilidad estable y CATE intervals utiles",
+    },
+    {
+        "prioridad": 7,
+        "pendiente": "fairness legal claim",
+        "estado_v8": "data_blocked",
+        "siguiente_paso": "atributos protegidos o protocolo externo aprobado; mientras tanto proxy governance only",
+    },
+    {
+        "prioridad": 8,
+        "pendiente": "SPO+/DFL real",
+        "estado_v8": "near_resolved",
+        "siguiente_paso": "entrenar decision-loss model contra targets LP con constraints CRPTO/MDCP/IFRS9",
+    },
+    {
+        "prioridad": 9,
+        "pendiente": "sample paths forecasting scope",
+        "estado_v8": "active",
+        "siguiente_paso": "calibrar shocks con cohortes, dependencia de defaults, LGD ciclico y macro externo",
+    },
+    {
+        "prioridad": 10,
+        "pendiente": "paper4 working champion policy",
+        "estado_v8": "blocked_by_selector" if status.get("selector_promote_count", 0) == 0 else "review_candidate_exists",
+        "siguiente_paso": "solo considerar working champion si online, IFRS9 scope y auditability gates pasan juntos",
+    },
+]
+
+pd.DataFrame(rows)
+```
+
+## Codex `/goal` para Paper 4
+
+El laboratorio de Paper 4 ya tiene el tipo de backlog para el que `/goal` es
+útil: objetivos largos, verificables y con comandos de validación. La feature
+queda habilitada en la configuración local de Codex con:
+
+```toml
+[features]
+multi_agent = true
+goals = true
+```
+
+La documentación oficial describe `/goal` como un modo para darle a Codex un
+objetivo durable de trabajo largo, con una condición verificable de parada:
+<https://developers.openai.com/codex/use-cases/follow-goals>. No debe usarse
+para una lista vaga de pendientes; debe usarse para una meta concreta que pueda
+probarse.
+
+### Goal recomendado para la próxima ola online
+
+```text
+/goal Improve Paper 4 online conformal efficiency until the best deployable
+method reaches source-month defended coverage >= 0.80 and avg_width_loan <=
+0.95, without touching CRPTO/Paper_CRPTO externo artifacts. Validate with pytest
+tests/test_docs/test_paper4_living_lab_guardrails.py -k "not
+quarto_chapter_renders" -q and render chapters/19-paper-mega-extension.
+```
+
+### Goal recomendado para CVaR/MDCP
+
+```text
+/goal Scale Paper 4 CVaR and MDCP experiments beyond the current v8 local pool
+without creating paper4_final_promotion.json. Produce artifacts for full-universe
+or decomposed CVaR, empirical source-coverage-calibrated MDCP caps, selector
+rerun, Quarto documentation, and passing Paper 4 documentation tests.
+```
+
+### Goal recomendado para DLA/SDAM
+
+```text
+/goal Convert the Paper 4 DLA value-function proxy into a stronger ADP/rollout
+experiment with common sample paths, explicit state transition diagnostics, and
+Quarto documentation. Stop only after the DLA summary, comparison artifacts,
+blocker dashboard, and Paper 4 guardrail tests are updated.
+```
+
+Comandos operativos dentro de Codex:
+
+```text
+/goal
+/goal pause
+/goal resume
+/goal clear
+```
+
+La regla de seguridad del proyecto sigue igual: ningún `/goal` de Paper 4 puede
+tocar `models/final_project_promotion.json` ni crear
+`reports/paper_material/paper4/status/paper4_final_promotion.json` sin una
+decisión humana explícita.
+
+::: {.callout-note}
+## Nota posterior v9
+
+El primer `/goal` online fue ejecutado como ola v9. La página
+`19av-v9-online-goal-resolution.qmd` documenta el resultado: el gate explícito
+queda resuelto en replay con `source-month = 0.80`, `policy-month = 0.90` y
+`avg_width = 0.93424`, sin tocar CRPTO/Paper_CRPTO externo ni crear promoción final.
+:::
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v8-results-artifacts
+#| tbl-cap: "V8 claim-artifact matrix"
+
+claims
+```
+
+La conclusión de v8 debe ser sobria: Paper 4 avanzó mucho como laboratorio, no
+como publicación lista. Eso está bien. La arquitectura ya permite iterar con
+memoria, comparar olas y mantener bloqueos vivos sin contaminar el Paper
+Estrella.

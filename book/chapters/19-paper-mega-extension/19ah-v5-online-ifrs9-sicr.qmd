@@ -1,0 +1,190 @@
+---
+title: "v5 Online Source-Month, IFRS9 and SICR"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+online = _csv("paper4_v5_online_source_month_search.csv")
+ifrs9 = _csv("paper4_v5_ifrs9_contractual_policy_summary.csv")
+sicr = _csv("paper4_v5_sicr_rule_comparison.csv")
+quality = _csv("paper4_v5_ifrs9_input_quality.csv")
+status = _json("paper4_v5_blocker_resolution_status.json")
+```
+
+## Pregunta {#sec-paper4-v5-online-ifrs9-question}
+
+Esta página documenta tres bloqueos prioritarios de Paper 4: cobertura online
+por source-month, IFRS9 contractual más realista y SICR defendible. El objetivo
+no es promover un champion final. El objetivo es dejar un estado auditable del
+laboratorio: qué pasó, qué artifact lo prueba, qué caveat lo limita y qué
+decisión queda abierta.
+
+El CRPTO/Paper_CRPTO externo sigue congelado. La v5 solo produce evidencia interna de
+Paper 4 y mantiene `paper4_final_promotion_created = False`.
+
+## Artefactos
+
+| Artefacto | Rol |
+|---|---|
+| `paper4_v5_online_source_month_search.csv` | búsqueda jerárquica/guarded para peor policy-month y source-month |
+| `paper4_v5_online_source_month_policy_month.parquet` | cobertura v5 por policy-month |
+| `paper4_v5_online_source_month_source_month.parquet` | cobertura v5 por source family, policy y mes |
+| `paper4_v5_ifrs9_servicing_panel.parquet` | panel mensual contractual proxy con EAD, cashflows, prepago/default/recovery disponibles |
+| `paper4_v5_ifrs9_contractual_policy_summary.csv` | ECL mensual marginal descontado y net return por policy, escenario y regla SICR |
+| `paper4_v5_sicr_rule_comparison.csv` | comparación Stage 1/2/3 por regla SICR |
+| `paper4_v5_ifrs9_input_quality.csv` | alcance de datos disponibles y limitaciones de servicing ledger |
+
+## Resultado: online source-month
+
+```{python}
+#| label: tbl-paper4-v5-online-search
+#| tbl-cap: "Online conformal v5: cobertura source-month versus ancho"
+
+_cols(
+    online,
+    [
+        "online_method_v5",
+        "min_effective_cell_n",
+        "coverage_policy_month_min",
+        "coverage_source_month_min",
+        "avg_width_loan",
+        "gate_pass_80",
+        "gate_pass_90",
+        "efficiency_gate_width_98",
+        "operational_gate_pass",
+    ],
+)
+```
+
+La v5 sí logra subir el peor source-month por encima del gate 0.80 e incluso
+del objetivo 0.90. Pero lo hace con intervalos casi universales: el mejor método
+por cobertura, `adaptive_shrinkage_min16`, deja ancho promedio cercano a 1.0 y
+por eso falla `efficiency_gate_width_98`.
+
+La lectura correcta es precisa: el bloqueo de cobertura quedó técnicamente
+resuelto, pero el bloqueo de eficiencia sigue vivo. En SDAM, esto afecta
+directamente a `I_t` y `C_t`: la información conformal existe, pero todavía no
+es suficientemente selectiva para gobernar decisiones sin volverlas demasiado
+conservadoras.
+
+## Resultado: IFRS9 contractual proxy
+
+```{python}
+#| label: tbl-paper4-v5-ifrs9-quality
+#| tbl-cap: "Calidad y alcance de inputs IFRS9 v5"
+
+quality
+```
+
+```{python}
+#| label: tbl-paper4-v5-ifrs9-baseline-hybrid
+#| tbl-cap: "Top policies por net return after contractual ECL v5, baseline + hybrid SICR"
+
+_cols(
+    ifrs9[
+        ifrs9["scenario"].eq("baseline")
+        & ifrs9["sicr_rule"].eq("hybrid_sicr_v5")
+    ].sort_values("net_return_after_contractual_ecl_v5", ascending=False),
+    [
+        "policy_id",
+        "contractual_ecl_v5",
+        "realized_return_proxy_lgd45",
+        "stage1_share_v5",
+        "stage2_share_v5",
+        "stage3_share_v5",
+        "net_return_after_contractual_ecl_v5",
+        "ecl_estimation_scope_v5",
+    ],
+).head(20)
+```
+
+El cambio metodológico importante frente a la primera v5 interna es que ECL ya
+no suma una lifetime PD completa en cada mes. Ahora usa una probabilidad
+marginal mensual descontada:
+
+```text
+ECL_t = EAD_t * LGD_t * PD_marginal_t * discount_t
+```
+
+Stage 1 usa ventana de 12 meses; Stage 2 usa lifetime marginal sobre meses
+remanentes; Stage 3 se activa por default proxy observado en el mes. Esto sigue
+siendo un proxy, pero evita el doble conteo que inflaba el ECL y hacía imposible
+interpretar el ranking.
+
+## Resultado: SICR defendible
+
+```{python}
+#| label: tbl-paper4-v5-sicr-comparison
+#| tbl-cap: "SICR v5: ECL y EAD por regla, escenario y stage"
+
+_cols(
+    sicr.sort_values(["scenario", "sicr_rule", "stage"]),
+    ["scenario", "sicr_rule", "stage", "rows", "ecl", "ead"],
+).head(40)
+```
+
+V5 compara cuatro reglas SICR en vez de esconder Stage 2 detrás de "PD alta":
+
+- `relative_2x`: incremento relativo de lifetime PD;
+- `absolute_pd_25`: umbral absoluto de lifetime PD;
+- `pd12_15pct`: umbral de PD a 12 meses;
+- `hybrid_sicr_v5`: regla combinada con aumento relativo y umbrales absolutos.
+
+El resultado mejora la defensa conceptual, pero no convierte el artifact en
+contabilidad IFRS9 auditada. Faltan días en mora, forbearance, cure contractual,
+servicing mensual real y escenarios macro con path económico completo.
+
+## Interpretación
+
+Online CP y SICR ya no son solo ideas. Existen como artifacts ejecutables y
+comparables. Pero ambos dejan una señal de investigación clara: el online
+source-month gana cobertura sacrificando eficiencia, e IFRS9 gana realismo sin
+dejar de depender de proxies de servicing.
+
+La consecuencia para Paper 4 es que ningún challenger debe promocionarse por
+esta página. Lo que sí puede hacerse es usar estos artifacts como gates de
+review y como guía para la siguiente búsqueda local.
+
+## Caveats
+
+El panel IFRS9 v5 no es un servicing ledger externo. Los defaults, prepagos y
+recoveries se infieren desde columnas disponibles como status, fechas de pago,
+LGD y recoveries. La cobertura online v5 pasa nominalmente, pero el ancho alto
+impide llamarla eficiente.
+
+## Next Step
+
+El siguiente paso online es buscar pooling jerárquico con disciplina de ancho:
+subir peor source-month sin usar intervalos casi completos. El siguiente paso
+IFRS9 es separar claramente ECL contractual point-in-time de performance
+realizada mensual cuando aparezca un servicing panel mejor.

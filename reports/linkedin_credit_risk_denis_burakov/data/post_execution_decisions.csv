@@ -1,0 +1,68 @@
+backlog_id,execution_batch,decision,closed_status,implementation_action,stop_condition_result
+POST-016,pdf_text_batch1,append,closed_doc_patch_applied,Add governance note on MLflow/SageMaker lineage; no empirical claim.,Local PDF and GitHub source classified; stop without AWS implementation.
+POST-018,pdf_text_batch1,append,closed_doc_patch_applied,Add score-vs-business-rule separation to MRM text.,Local PDF read; stop without rerunning champion.
+POST-023,pdf_text_batch1,park,closed_no_action,Archive as broad AI/MLOps context.,"Does not change current claim, appendix, or reviewer response."
+POST-026,pdf_text_batch1,append,closed_doc_patch_applied,"Use as deployment caveat linking scorecard artifact, threshold, and audit trail.",No AWS infrastructure implementation needed.
+POST-027,pdf_text_batch1,park,closed_no_action,Archive/park as historical deep-learning context.,No current evidence gap changes.
+POST-030,pdf_text_batch1,append,closed_doc_patch_applied,Add WOE-logit bridge and keep Pearson-style interval as related-work backlog.,Canonical verification still required before manuscript citation.
+POST-034,pdf_text_batch1,append,closed_doc_patch_applied,Add WOE sign-convention and maintenance note.,Historical WOE claims remain source-discovery only.
+POST-039,pdf_text_batch1,append_or_park,closed_backlog_only,Queue bounded label-noise/robust-logistic sensitivity candidate.,Run only if it can alter robustness table or reviewer response.
+POST-042,pdf_text_batch1,append,closed_doc_patch_applied,Add prevalence caveat for precision/F1 in imbalanced PD settings.,Ch06 text patch closes the post.
+POST-044,pdf_text_batch1,append,closed_doc_patch_applied,Add SHAP-scorecard distribution-dependence caveat.,No causal claim implied.
+POST-046,pdf_text_batch1,append,closed_doc_patch_applied,Fold into Ch05 WOE-logit bridge.,Covered jointly with posts 30 and 34.
+POST-048,pdf_text_batch1,append,closed_backlog_only,Queue interval-type contrast for Ch07/Paper Estrella.,No champion change; distinguish classical inference from conformal intervals.
+POST-053,manual_visual_reread,park,closed_visual_reread_completed,Park boosting-beyond-trees deck as pedagogy only.,Visual deck read; no project claim or implementation change.
+POST-054,pdf_text_batch1,append,closed_doc_patch_applied,Add Paper 4 caveat: Lending Club binary target cannot identify DPD/UTP default subtypes.,No multiclass regulatory-default claim without data.
+POST-059,pdf_text_batch1,park_or_append,closed_backlog_only,Record fisher-scoring as optional implementation dependency candidate.,No dependency added without concrete appendix/test.
+POST-002,image_batch1,append,closed_backlog_only,Record GBDT fine-tuning/new-feature-source expansion as model-maintenance governance candidate.,No experiment because current data contract lacks new bureau/alternative feature source.
+POST-007,image_batch1,archive,closed_no_action,Archive as book/source-discovery context.,Vendor/book links resolved; no implementation.
+POST-013,image_batch1,append,closed_doc_patch_applied,Add Gini/class-imbalance caveat to Ch06.,Ch06 distinguishes Gini ranking from threshold and calibration metrics.
+POST-021,image_batch1,append,closed_doc_patch_applied,Treat AWS guide as MLOps context already covered by Ch10 governance note.,No AWS lane opened.
+POST-024,image_batch1,park,closed_backlog_only,Park boosted scorecards/xBooster as future prototype candidate.,Reopen only if bounded benchmark changes appendix/reviewer response.
+POST-028,image_batch1,append_or_park,closed_backlog_only,Record xBooster/FastWoe/Somers D updates as optional implementation candidates.,No dependency added.
+POST-049,image_batch1,park,closed_backlog_only,Park WoeBoost as future benchmark candidate.,No champion reopening without bounded benchmark and claim-change gate.
+POST-040,remaining_posts,park,closed_source_discovery_only,Keep broad credit-risk resource collection for future bibliography triage.,No direct book/paper claim from collection itself.
+POST-052,remaining_posts,park,closed_no_action,Park bias-variance deck as general ML teaching context.,Does not change current claim or artifact.
+POST-011,remaining_posts,archive,closed_source_discovery_only,Archive On Credit release announcement and vendor links.,No implementation.
+POST-012,remaining_posts,archive,closed_source_discovery_only,Archive On Credit code/release preview as source discovery.,GitHub code link resolved; no project change.
+POST-025,remaining_posts,append,closed_doc_patch_applied,Treat SageMaker Pipelines/MLflow article as context already reflected in Ch10 lineage note.,No AWS lane opened.
+POST-029,remaining_posts,append,closed_doc_patch_applied,Treat LocalStack/AWS SAM article as context already reflected in Ch10 lineage note.,No AWS lane opened.
+POST-033,remaining_posts,append,closed_doc_patch_applied,Treat CatBoost lifecycle/MLflow article as context already reflected in Ch10 lineage note.,No AWS lane opened.
+POST-036,remaining_posts,archive,closed_no_action,Archive Fisher-Yates shuffle note.,No credit-risk implementation.
+POST-057,remaining_posts,park,closed_backlog_only,Park LogitBoost/gradient-boosting visualization as optional teaching source.,Reopen only for boosting pedagogy.
+POST-009,remaining_posts,archive,closed_no_action,Archive AWS GenAI certification post.,No implementation.
+POST-043,remaining_posts,archive,closed_no_action,Archive AWS certification post.,No implementation.
+POST-010,remaining_posts,archive,closed_no_action,Archive event/data-adoption post.,No claim or implementation.
+POST-017,remaining_posts,archive,closed_no_action,Archive event/Cursor post.,No claim or implementation.
+POST-019,remaining_posts,park,closed_backlog_only,Park Fisher exact/A-B loan take-up example.,Reopen only if A/B simulation chapter expands.
+POST-037,remaining_posts,park,closed_backlog_only,Park fraud count modeling idea.,No implementation without fraud-count data.
+POST-038,remaining_posts,archive,closed_no_action,Archive autoregressive visual generation post.,Outside credit-risk scope.
+POST-050,remaining_posts,archive,closed_no_action,Archive GAN visual generation post.,Outside credit-risk scope.
+POST-041,remaining_posts,park,closed_backlog_only,Park MCMC logistic regression visualization.,No Bayesian/MCMC implementation.
+POST-047,remaining_posts,park,closed_backlog_only,Park random-forest interval pruning candidate.,Reopen only for model-compression appendix/reviewer request.
+POST-051,remaining_posts,archive,closed_no_action,Archive WOE image-generation example.,Useful idea already covered elsewhere; low project relevance.
+POST-056,manual_visual_reread,append,closed_doc_patch_applied,Use WOE text-classification visuals as contrastive-explanation analogy.,Ch11 WOE explanation note added; no bibliography claim.
+POST-001,p1_memo,append,closed_memo_and_doc_patch_applied,Use Brier/Gini/ECE separation for metric-governance language.,P1 memo completed; Ch06 metric governance updated.
+POST-003,p1_memo,append,closed_memo_completed,Use ranking/calibration metric collection for Ch06/Paper 4 governance backlog.,No claim promoted without canonical source verification.
+POST-004,p1_memo,append,closed_memo_completed,Use economic meaning of Gini for Ch09/Paper Estrella framing backlog.,No empirical project claim added.
+POST-005,p1_memo,append_or_prototype,closed_memo_and_doc_patch_applied,Use WOE recalibration as bounded maintenance candidate.,Ch05 governance note added; no champion reopening.
+POST-006,manual_visual_reread,append,closed_doc_patch_applied,Use observation-level Gini contributions as optional diagnostic backlog.,Ch06 diagnostic note added; no champion metric changed.
+POST-008,p1_memo,park,closed_memo_completed,Park GBDT leaf-to-WOE interactions as future boosted-scorecard candidate.,No dependency/benchmark added.
+POST-014,p1_memo,append_or_park,closed_memo_completed,Use probabilistic LGD/multiclass framing as Paper 4 caveat backlog.,No true LGD/regulatory default claim without data.
+POST-015,manual_visual_reread,append,closed_doc_patch_applied,Use economic value of Gini/approval-rate framing for Ch09 backlog.,Ch09 note added; no public claim beyond project artifacts.
+POST-020,p1_memo,append_or_prototype,closed_memo_completed,Use FastWoe as optional WOE tooling candidate.,No dependency added.
+POST-022,p1_memo,append,closed_memo_completed,Use credit-game/SHAP-scorecard material for governance/explainability backlog.,Ch11 caveat covers SHAP-scorecard risk.
+POST-031,p1_memo,append_or_park,closed_memo_completed,Use multiclass WOE for default-state caveat backlog.,No multiclass experiment without data contract.
+POST-032,p1_memo,append_or_prototype,closed_memo_completed,Use SHAP distillation as governance prototype candidate.,No causal explanation claim.
+POST-035,p1_memo,append,closed_memo_completed,Use class-imbalance/calibration after undersampling as Ch06 caveat backlog.,No new calibration lane opened.
+POST-045,p1_memo,append,closed_memo_completed,Use Pearsonify/probability intervals as Paper Estrella related-work contrast.,No champion change.
+POST-055,p1_memo,append,closed_memo_completed,Use calibration toolkit as Ch06 metric-governance backlog.,Image-based PDF manually read.
+POST-058,p1_memo,append,closed_memo_completed,Use Somers D/Dxy as optional metric extension.,No new official metric without project artifact.
+EXT-LI-001,external_child_posts,append,closed_source_discovery_only,Use WOE estimators post as source trail for WOE/OptBinning references.,No LinkedIn-only claim.
+EXT-LI-002,external_child_posts,append,closed_backlog_only,Use weighted logistic regression as class-imbalance/calibration context.,No champion change.
+EXT-LI-003,external_child_posts,park,closed_backlog_only,Park xBooster child post as future boosted-scorecard prototype context.,No dependency/benchmark added.
+EXT-LI-004,external_child_posts,append,closed_no_action,Use Log Loss child post as generic metric context already covered elsewhere.,No action.
+EXT-LI-005,external_child_posts,park,closed_backlog_only,Park Naive Bayes scorecarding child post as WOE teaching context.,Ch05 WOE note already covers core idea.
+EXT-LI-006,external_child_posts,park,closed_backlog_only,Park Gradient Boosting child post as optional pedagogy source.,No action.
+EXT-LI-007,external_child_posts,append,closed_backlog_only,Use Logistic Regression child post as probability-vs-classification context.,No additional patch needed.
+EXT-LI-008,external_child_posts,append,closed_backlog_only,Use Two Cultures child post as probability-vs-classification context.,No additional patch needed.

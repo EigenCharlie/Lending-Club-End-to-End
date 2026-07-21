@@ -1,0 +1,14 @@
+𝐈𝐅𝐑𝐒𝟗 𝐅𝐨𝐫𝐰𝐚𝐫𝐝-𝐋𝐨𝐨𝐤𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐥𝐢𝐧𝐠
+For me, forward-looking (FLI) modeling under IFRS9 is one of the most interesting areas of credit risk modeling because it goes far beyond a purely statistical exercise. To complete it successfully, practitioners must understand not only the behavior and development of the modeled target but also the key historical events that shaped it - and anticipate potential future events that could influence it as well.
+Practitioners often face serious challenges with this exercise, arguing that a limited number of observations makes it impossible to capture all relevant business and statistical aspects. But is that always the case? Are there methods that can help overcome this limitation and provide a good balance between necessary inputs while keeping bias under control?
+Over the past year, FLI modeling has been one of the topics I have explored most extensively, resulting in numerous presentations and experiments. For those interested, below is a list of links covering specific aspects of FLI modeling. I hope this material encourages other practitioners to further refine and develop models in this area as there is still plenty of room for improvement.
+✅ Principal Component Analysis for IFRS9 Forward-Looking Modeling (https://lnkd.in/dQFr6D98)
+✅ IFRS9 Forward-Looking Modeling - Supervised Macroeconomic Index (https://lnkd.in/dhufwehR)
+✅ IFRS9 Forward-Looking Modeling and Stationarity Testing - How Reliable Is the Augmented Dickey-Fuller Test? (https://lnkd.in/d6sd3d2y)
+✅ IFRS9 Forward-Looking Modeling - OLS Regression and Predictor Importance (https://lnkd.in/dPbKQNcr)
+✅ IFRS9 Forward-Looking Modeling - Do We Use OLS Regression Efficiently? (https://lnkd.in/deapKsbW)
+✅ IFRS9 Forward-Looking Modeling - Dynamic Regression Models and Estimation Uncertainty (https://lnkd.in/dc24n3Tg)
+✅ IFRS9 Forward-Looking Modeling - Recursive Regressions in Practice (https://lnkd.in/dugumWyH)
+✅ The Vasicek PD Model and Transition Matrices - Optimization of the Systemic Factor Z (https://lnkd.in/dGXxqTqk)
+✅ Loss Given Default as a Function of the Default Rate (https://lnkd.in/dF-cxgMY)
+✅ The Vasicek LGD Model - The Functional Form and Parameters Estimation Method (https://lnkd.in/dz8xuNAP)

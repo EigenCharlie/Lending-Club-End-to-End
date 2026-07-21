@@ -16,10 +16,10 @@ import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.yaml"
-PAPER_GRADE_PD_CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.paper_grade_final.yaml"
 CONTRACT_PATH = PROJECT_ROOT / "models" / "pd_model_contract.json"
 DVC_YAML_PATH = PROJECT_ROOT / "dvc.yaml"
 DVC_LOCK_PATH = PROJECT_ROOT / "dvc.lock"
+CORE_CANONICAL_PROFILE_PATH = PROJECT_ROOT / "configs" / "profiles" / "core_canonical_cpu.yaml"
 
 
 @pytest.fixture
@@ -66,6 +66,21 @@ class TestConformalConfig:
         assert 0.5 < level < 1.0, f"confidence_level={level} outside valid range (0.5, 1.0)"
 
 
+class TestCanonicalReplayConfig:
+    def test_default_canonical_rebuild_freezes_legacy_venn_abers_point_rule(self) -> None:
+        profile = yaml.safe_load(CORE_CANONICAL_PROFILE_PATH.read_text(encoding="utf-8"))
+        defaults = profile["defaults"]
+
+        assert defaults["pd_replay"] is True
+        assert defaults["conformal_replay"] is True
+
+        manifest_path = PROJECT_ROOT / defaults["replay_manifest"]
+        assert manifest_path.exists()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["pd"]["selected_calibration_method"] == "venn_abers"
+        assert manifest["pd"]["selected_calibration_point_rule"] == "midpoint_legacy"
+
+
 class TestPDValidationConfig:
     def test_walk_forward_block_valid(self, pd_config: dict) -> None:
         val = pd_config.get("validation", {})
@@ -110,15 +125,6 @@ class TestPDValidationConfig:
             assert int(sign) in {-1, 0, 1}, (
                 f"monotonic constraint for {feature} must be -1/0/1, got {sign}"
             )
-
-    def test_paper_grade_final_pd_config_uses_clean_study_name_and_storage(self) -> None:
-        payload = yaml.safe_load(PAPER_GRADE_PD_CONFIG_PATH.read_text())
-        hpo = payload.get("hpo", {})
-        assert hpo.get("enabled") is True
-        assert hpo.get("study_name") == "pd_catboost_optuna_temporal_paper_grade_final"
-        assert (
-            hpo.get("study_storage") == "sqlite:///models/optuna_pd_catboost_paper_grade_final.db"
-        )
 
 
 class TestModelContract:

@@ -1,0 +1,5 @@
+macro_regime_v15,n_paths,default_factor_mean,lgd_factor_mean,prepay_factor_mean,external_macro_used,path_family_claim_scope
+baseline_internal,64,1.034753821142122,1.0137386863697766,0.9979707116656228,False,"stress design diagnostic, not forecast"
+macro_stress_internal,64,1.5638539067159238,1.2680757494288748,0.7841646979287502,False,"stress design diagnostic, not forecast"
+mild_stress_internal,64,1.1930812299483102,1.0957458340936705,0.919731138481535,False,"stress design diagnostic, not forecast"
+vintage_stress_internal,64,1.3039453930303917,1.1725809628791004,0.8557012492355387,False,"stress design diagnostic, not forecast"

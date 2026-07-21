@@ -1,0 +1,5 @@
+gate_id_v470,source_artifact_v470,candidate_scope_v470,internal_gate_pass_v470,source_or_policy_rows_v470,worst_source_coverage_v470,worst_policy_coverage_v470,external_holdout_available_v470,strict_live_claim_allowed_v470,claim_boundary_v470
+v9_online_goal,paper4_v9_online_efficiency_frontier.csv,method_grid_replay,True,1,0.8,0.9,False,False,selected in replay; future-period validation required
+v10_robustness,paper4_v10_online_robustness_summary.csv,stress_replay,True,4,0.8,0.9,False,False,robustness replay only
+v323_v320_temporal_online,paper4_v323_v320_online_temporal_summary.csv,v320_selected_book,True,2,0.9285714285714286,0.9285714285714286,False,False,selected-book temporal replay only
+v341_v338_temporal_online,paper4_v341_v338_online_temporal_summary.csv,v338_selected_book,True,2,0.9285714285714286,0.9285714285714286,False,False,selected-book temporal replay only

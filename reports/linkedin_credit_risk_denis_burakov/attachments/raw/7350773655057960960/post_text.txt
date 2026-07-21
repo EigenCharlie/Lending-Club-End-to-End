@@ -1,0 +1,9 @@
+Simulating with Markov Chain Monte Carlo ⛓️🎰
+Most algorithms guiding data scientists' daily work rely on gradient descent or its extensions. Logistic regression, neural networks, and gradient boosted trees all follow the maximum likelihood principle. They differ mainly in the 𝘄𝗵𝗮𝘁 vs 𝗵𝗼𝘄 of determining optimal weights.
+Markov Chain Monte Carlo (MCMC) is a different story. Instead of following gradients, MCMC explores the parameter space through intelligent random walks, allowing us to sample directly from probability distributions.
+The Metropolis-Hastings algorithm is MCMC's most classic example. While newer methods often outperform it in practice, Metropolis-Hastings remains the most intuitive for understanding the core ideas behind MCMC and easiest to code from scratch.
+🌀 The animation shows Metropolis-Hastings estimating logistic regression coefficients in real-time. Watch how the algorithm's random walk gradually converges toward the true parameter values (⭐) from early exploration to final convergence.
+#LogisticRegression #Statistics #MCMC #DataScience
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+📜 Animation code: https://lnkd.in/d5x4qqY7
+🌐 For these visualizations I am using Matplotlib, a #Python library to create plots and animation. Check it out here: https://matplotlib.org 🫶

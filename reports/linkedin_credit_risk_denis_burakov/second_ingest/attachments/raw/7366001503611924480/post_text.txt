@@ -1,0 +1,12 @@
+For years, machine learning (ML) has been on the EU regulatory radar, yet existing PD and LGD guidelines left institutions uncertain about whether more advanced techniques could be used for risk differentiation.
+The European Central Bank's revised guide to internal models now brings clarity by introducing new supervisory expectations concerning the use of ML techniques in internal models, applicable across all internal models used for Pillar 1 purposes.
+The scope of changes related to ML is truly remarkable, covering a number of nuanced points. For example, model developers will need to store random seeds and preserve the exact ordering of observations in the training sample (with default XGBoost tree construction, you may get different models for the same dataset depending on shuffling).
+The ECB also expects institutions to rely on a set of explainability techniques and tools to support the plausibility and intuitiveness of ML risk estimates. It remains unclear, however, whether SHAP is something they had in mind when referring to "the relevant state-of-the-art techniques and tools".
+While questions remain, the regulatory view is clear: ML does not alter the principles of model governance or the economic purpose of risk models.
+✓ Definition of a model (inputs → processing → outputs) is unchanged.
+✓ Economic theory continues to underpin expected relationships.
+✓ ML changes only the functional form, not the problem being modeled.
+That said, more complex tools introduce challenges for validation and make it harder for banks to demonstrate conceptual soundness to supervisors without robust interpretability best practices.
+📑 Link to the ECB guide to internal models: https://lnkd.in/dbKAXYHU
+Attached you will find a deck with some of my personal reflections on the use of ML in IRB models, on the well-known accuracy–explainability trade-off and the regulatory frontier, drawing on work by Paul Edwards.
+#CreditRiskModeling #DataScience #MachineLearning #ModelRisk

@@ -1,0 +1,6 @@
+blocker_id_v468,blocking_v468,evidence_count_v468,required_next_artifact_v468,claim_boundary_v468
+grade_a_primary_source_blocker,True,0,future_grade_a_source_counterfactual,grade=A pass rows remain zero
+source_cap_relaxation_not_authorized,True,1,future_source_cap_approval_or_counterfactual,no source cap change authorized
+blind_chunking_stop_rule_active,True,8,future_targeted_source_aware_pricing,sampled chunks produced zero source-exact rows
+global_solver_claims_still_blocked,True,1,future_full_v55_certificate_pack,source refresh is not a solver certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

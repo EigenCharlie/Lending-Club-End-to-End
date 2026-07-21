@@ -38,4 +38,5 @@ favorable.
 
 If min_group_coverage_90 must be improved, the correct approach is grouping-variant
 selection (e.g., score_decile within-grade) rather than post-hoc gap correction.
-See `docs/backlog-papers-unified.md` Paper 3 research items.
+Paper 3 was retired as a local paper on 2026-06-06; this note now feeds the
+core Mondrian layer and Paper 4 diagnostics only.

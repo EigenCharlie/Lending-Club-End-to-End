@@ -1,0 +1,5 @@
+Fraud risk modeling in digital lending typically falls into two camps: binary classifiers on one end, and complex graph-based systems on the other. While classification (legit vs. fraud) using probability thresholds is the most common starting point, fraud is in general a truly rare event, which opens up some alternatives.
+I came across one such idea in the PyData Paris 2024 keynote, which reframed fraud detection as a decision problem of having different thresholds depending on the transaction amount. This approach can simplify a big data classification problem into something leaner and operationally elegant. https://lnkd.in/dK23jsi5
+Rather than classifying individual transactions, another approach models fraud events over time. Using a #BNPL dataset, I modeled hourly and daily fraud counts using linear and tree-based models. This approach supports many operational use cases like fraud monitoring, alerting, and resource planning that go beyond simple yes or no decisions.
+Have a look and let me know your thoughts! ⤵
+#RiskModels #FraudDetection #Statistics #DataScience #FinTech

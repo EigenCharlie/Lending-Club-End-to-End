@@ -1,10 +1,9 @@
 ---
 title: "Agenda de Investigación"
 page-layout: article
-close_takeaway: "Esta parte no existe para listar ideas futuras sin jerarquía, sino para ordenar qué ya es claim defendible, qué ya es paper posible y qué todavía pertenece a la agenda."
-close_connects: "Cierra el libro conectando resultados técnicos, papers, tesis y backlog de investigación en una sola lectura."
-close_reuse: "Su matriz de temas y prioridades sirve para defensa, planificación de papers y evolución del companion académico."
 ---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
@@ -30,4 +29,19 @@ Ejemplo concreto: una misma pieza puede nacer como hallazgo del pipeline, madura
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+La agenda ordena qué claims son defendibles, cuáles están parqueados y qué
+preguntas requieren evidencia nueva; no convierte ideas en contribuciones.
+
+## Esto conecta con…
+
+Cierra el libro separando CRPTO, Paper 2, Paper 4 y el backlog de investigación
+por autoridad y estado.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Su matriz de temas y prioridades sirve para defensa y planificación de nuevos
+protocolos con gates explícitos.
+:::

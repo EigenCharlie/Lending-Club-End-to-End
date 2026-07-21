@@ -1,0 +1,494 @@
+schema_version: 2026-05-17.387
+generated_by: scripts/papers/build_paper4_v387_quarto_archive_guardrail_patch.py
+archive_policy: archive_in_place_with_manifested_guardrail_exemption
+archived_chapter_pages:
+- path: chapters/19-paper-mega-extension/19aa-v3-full-exact-and-ifrs9-realistic.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ab-v3-online-cvar-governance.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ac-v3-causal-fairness-multiperiod.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ad-v4-challenger-online-mdcp.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ae-v4-ifrs9-cvar-selector.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19af-v4-sdam-causal-fairness-regret.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ag-v4-sample-paths-working-champion.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ah-v5-online-ifrs9-sicr.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ai-v5-tail-mdcp-selector-sdam.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19aj-v5-causal-fairness-paths-hybrids.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ak-v6-online-ifrs9-efficient.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19al-v6-solvers-dla-sample-paths.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19am-v6-causal-fairness-hybrids.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19an-v6-pending-backlog.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ao-v7-online-mdcp-resolution.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ap-v7-ifrs9-dla-causal-governance.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19aq-v7-pending-and-results.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ar-v8-method-foundations-and-online.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19as-v8-solvers-selector-dla.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19at-v8-causal-fairness-hybrids-dashboard.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19au-v8-results-and-pending.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19av-v9-online-goal-resolution.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19aw-v10-online-selector-mdcp.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ax-v10-solvers-dla-dfl.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ay-v10-ifrs9-causal-fairness-dashboard.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19az-v11-promising-lanes.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19ba-v12-resolution-wave.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bb-v13-resolution-wave.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bc-v14-powell-framing-audit.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bd-v15-dynamic-stress-engine.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19be-v16-cvar-spo-champion-decomposition.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bf-v17-ifrs9-causal-fairness-gates.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bg-v18-academic-synthesis.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bh-v19-dynamic-engine-v2.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bi-v20-dla-cvar-spo-resolution.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bj-v21-ifrs9-causal-fairness-gates.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bk-v22-academic-synthesis.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bl-v23-dynamic-scale-paths.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bm-v24-dla-cvar-spo-upgrade.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bn-v25-ifrs9-causal-fairness-upgrade.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bo-v26-registry-and-synthesis.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bp-v27-dynamic-scale-and-champion-stress.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bq-v28-cvar-dla-spo-upgrade.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19br-v29-ifrs9-causal-fairness-source.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bs-v30-registry-and-synthesis.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bt-v31-dynamic-512-stress.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bu-v32-spo-environment-oracle.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bw-v34-dla-redesign.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19by-v36-ifrs9-sicr-upgrade.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19bz-v37-cate-fairness-protocol.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19d-implementation-roadmap.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19e-insights-factory-integration.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19g-living-lab-operating-model.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19j-experiment-results-and-failures.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19k-policy-loan-matrix.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19l-ifrs9-full-policy-eval.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19m-diagnostic-selector-and-frontiers.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19o-multi-period-sdam-causal-toy.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19p-exact-replay-topk.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19q-ifrs9-v2-lifetime-ecl.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19r-online-conformal-real.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19s-regret-auditability-replay.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19u-artifact-catalog-and-claims.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19v-tail-mdcp-causal-v2.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19w-next-wave-exact-topk.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19x-next-wave-method-searches.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19y-nonpromoted-lanes-and-causal-gates.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter
+- path: chapters/19-paper-mega-extension/19z-next-wave-promotion-dashboard.qmd
+  archive_reason: historical_paper4_living_lab_page
+  render_policy: intentionally_not_rendered
+  selected_policy: archive_in_place_with_manifested_guardrail_exemption
+  source_decision_artifact: reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv
+  claim_boundary: preserve provenance on disk without expanding official rendered
+    Paper 4 chapter

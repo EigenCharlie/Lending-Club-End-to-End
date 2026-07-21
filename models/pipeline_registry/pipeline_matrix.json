@@ -95,6 +95,36 @@
       ]
     },
     {
+      "pipeline": "search_paper2_ifrs9",
+      "objective": "survival/LGD-EAD/PoC e IFRS9 exhaustivo sobre upstream canónico",
+      "upstream": "core_canonical",
+      "outputs": [
+        "models/survival_summary.pkl",
+        "models/lgd_ead_model.pkl",
+        "models/ifrs9_diagnostics_status.json"
+      ],
+      "papers_served": [
+        "paper2"
+      ],
+      "allowed_lanes": [
+        "preflight",
+        "core_ts",
+        "paper2_survival",
+        "core_ifrs9",
+        "diagnostics_governance"
+      ],
+      "forbidden_lanes": [
+        "core_data_pd",
+        "core_conformal",
+        "core_portfolio",
+        "publication_exports",
+        "research_causal",
+        "research_cate_portfolio",
+        "research_rapids",
+        "research_notebooks"
+      ]
+    },
+    {
       "pipeline": "search_portfolio",
       "objective": "selector economico, frontera y A/B guarded",
       "upstream": "core_canonical",

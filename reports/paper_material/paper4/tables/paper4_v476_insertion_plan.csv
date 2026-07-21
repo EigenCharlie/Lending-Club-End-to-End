@@ -1,0 +1,11 @@
+insertion_order_v476,asset_id_v476,manuscript_section_v476,insertion_reason_v476,inserted_into_quarto_v476,claim_boundary_v476
+1,T5,methods_protocol,establish formal claim boundaries before results,False,insertion plan only
+2,F4,methods_protocol,visualize regret-auditability positioning,False,historical context only
+3,T1,results_evidence,lead results with local return/CVaR frontier,False,local frontier only
+4,F1,results_evidence,provide tail-risk visual context,False,visual context only
+5,T2,results_evidence,show grade-A source blocker evidence,False,source diagnostic only
+6,F2,results_evidence,provide source-governance visual context,False,no cap approval claim
+7,T4,results_evidence,summarize internal online proxy gates,False,internal proxy only
+8,F3,results_evidence,visualize online method search context,False,no production monitoring claim
+9,T3,discussion_limitations,make v353 dynamic replay gap explicit,False,no live dynamic claim
+10,T6,discussion_limitations,make IFRS9 contractual gaps explicit,False,no contractual IFRS9 claim

@@ -207,11 +207,10 @@ OPTIONAL_FILES = [
     "models/conformal_variant_selection_status.json",
     "models/uncertainty_baselines_status.json",
     "models/uncertainty_cohort_status.json",
-    # model_governance.py — SHAP fairness, SDA, portfolio research, paper-grade protocol
+    # model_governance.py — SHAP fairness, SDA, portfolio research
     "models/shap_fairness_status.json",
     "models/sda_policy_status.json",
     "models/portfolio_research_policy.json",
-    "models/paper_grade_protocol_status.json",
     # model_laboratory.py — conformal gap analysis, rare event calibration, HPO stability
     "data/processed/pd_conformal_gap_experiments.parquet",
     "data/processed/pd_conformal_gap_top_candidates.parquet",

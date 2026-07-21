@@ -1,0 +1,6 @@
+source_id,mapped_cap,worst_defended_coverage_v9,min_defended_support,base_cap,empirical_cap_v10,rationale
+original_grade,cap_grade_dplus,0.8,5,0.6,0.5650000000000001,cap tightened when v9 defended coverage is close to or below 0.85
+dti_band,cap_dti_q3,0.8,5,0.6,0.5650000000000001,cap tightened when v9 defended coverage is close to or below 0.85
+score_decile,cap_score_low,0.8,5,0.96,0.925,cap tightened when v9 defended coverage is close to or below 0.85
+income_band,cap_income_q5,0.8571428571428571,5,0.7,0.7,cap tightened when v9 defended coverage is close to or below 0.85
+period,cap_period_2018h1,0.9,5,0.7,0.7,cap tightened when v9 defended coverage is close to or below 0.85

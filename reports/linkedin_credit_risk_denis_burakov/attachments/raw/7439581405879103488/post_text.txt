@@ -1,0 +1,11 @@
+Which observations help (or hurt) your model's Gini?
+Gini is usually treated as a single summary metric, but it can actually be decomposed down to the observation level.
+We can compare each observation to all observations of the opposite class (defaults vs non-defaults and vice versa). The more opposite-class observations it outranks, the higher its contribution. Sum all contributions, divide by 2 (each pair is counted from both sides) → Gini.
+Where is this useful?
+✓ Identify misranked observations hurting model performance
+✓ Debug feature engineering and data quality issues
+✓ Analyze outliers impacting ranking power
+✓ Design policy rules for hard-to-rank cases
+Example: In the visualization, observations in the overlap region (scores 40-65%) contribute less to Gini.
+Notebook: https://lnkd.in/d4Q7DUAX
+#CreditScoring #CreditRiskModeling #DataScience #ModelValidation #ModelRisk

@@ -1,0 +1,51 @@
+CRAN: Package PDtoolkit
+PDtoolkit: Collection of Tools for PD Rating Model Development and
+Validation
+The goal of this package is to cover the most common steps in probability of default (PD) rating model development and validation.
+The main procedures available are those that refer to univariate, bivariate, multivariate analysis, calibration and validation.
+Along with accompanied 'monobin' and 'monobinShiny' packages, 'PDtoolkit' provides functions which are suitable for different
+data transformation and modeling tasks such as:
+imputations, monotonic binning of numeric risk factors, binning of categorical risk factors, weights of evidence (WoE) and
+information value (IV) calculations, WoE coding (replacement of risk factors modalities with WoE values), risk factor clustering,
+area under curve (AUC) calculation and others. Additionally, package provides set of validation functions for testing homogeneity,
+heterogeneity, discriminatory and predictive power of the model.
+Version:
+1.2.0
+Depends:
+monobin, R (≥ 2.10)
+Imports:
+dplyr, rpart
+Published:
+2023-09-20
+DOI:
+10.32614/CRAN.package.PDtoolkit
+Author:
+Andrija Djurovic [aut, cre]
+Maintainer:
+Andrija Djurovic <djandrija at gmail.com>
+License:
+GPL (≥ 3)
+URL:
+https://github.com/andrija-djurovic/PDtoolkit
+NeedsCompilation:
+no
+Materials:
+README, NEWS
+CRAN checks:
+PDtoolkit results
+Documentation:
+Reference manual:
+PDtoolkit.html , PDtoolkit.pdf
+Downloads:
+Package source:
+PDtoolkit_1.2.0.tar.gz
+Windows binaries:
+r-devel: PDtoolkit_1.2.0.zip, r-release: PDtoolkit_1.2.0.zip, r-oldrel: PDtoolkit_1.2.0.zip
+macOS binaries:
+r-release (arm64): PDtoolkit_1.2.0.tgz, r-oldrel (arm64): PDtoolkit_1.2.0.tgz, r-release (x86_64): PDtoolkit_1.2.0.tgz, r-oldrel (x86_64): PDtoolkit_1.2.0.tgz
+Old sources:
+PDtoolkit archive
+Linking:
+Please use the canonical form
+https://CRAN.R-project.org/package=PDtoolkit
+to link to this page.

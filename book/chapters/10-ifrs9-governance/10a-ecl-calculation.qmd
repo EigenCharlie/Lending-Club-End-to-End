@@ -1,163 +1,131 @@
-## Cálculo de ECL {#sec-ecl-calculation}
-
-### La Fórmula Central de IFRS9
-
-La **Expected Credit Loss** (ECL) es la métrica contable que traduce modelos de riesgo en provisiones monetarias. Bajo IFRS9, cada préstamo contribuye al total de provisiones según:
-
-$$
-\text{ECL}_i = \text{PD}_i^{\text{eff}} \times \text{LGD}_i \times \text{EAD}_i \times \text{DF}
-$$ {#eq-ecl-formula}
-
-donde:
-
-- $\text{PD}_i^{\text{eff}}$ es la probabilidad de default efectiva según el stage del préstamo,
-- $\text{LGD}_i$ es la pérdida dado el default (45% en nuestro escenario base),
-- $\text{EAD}_i$ es la exposición al momento del default (monto del préstamo),
-- $\text{DF} = \frac{1}{1 + r}$ es el factor de descuento a la tasa efectiva de interés $r$.
-
-### Lógica de Staging IFRS9
-
-La norma IFRS9 clasifica cada préstamo en uno de tres stages según su nivel de deterioro crediticio. La PD efectiva utilizada en la @eq-ecl-formula depende directamente de esta clasificación:
-
-| Stage | Condición | PD Efectiva | Horizonte |
-|:-----:|-----------|-------------|-----------|
-| **1** | Sin deterioro significativo | $\text{PD}_{12m}$ | 12 meses |
-| **2** | SICR detectado | $\text{PD}_{\text{lifetime}}$ | Vida remanente |
-| **3** | Default confirmado ($\geq 90$ DPD) | $\text{PD} \approx 1.0$ | Pérdida total |
-
-: Lógica de staging IFRS9 y PD efectiva por etapa {#tbl-staging-logic}
-
-La transición de Stage 1 a Stage 2 se activa por el mecanismo de **Significant Increase in Credit Risk** (SICR), que en nuestra implementación combina:
-
-1. **Incremento absoluto de PD**: $\text{PD}_{\text{actual}} - \text{PD}_{\text{originación}} > 0.02$
-2. **Morosidad temprana**: $\text{DPD} \geq 30$ días (presunción refutable)
-3. **Señal conformal** (innovación): ancho del intervalo conformal $> P_{90}$ del portafolio (ver @sec-sicr-signal)
-
-::: {.callout-note}
-## Innovación: SICR Conformal
-Nuestra implementación en `src/evaluation/ifrs9.py` extiende el SICR tradicional usando el ancho del intervalo conformal como señal de incertidumbre epistémica. Un préstamo con intervalo ancho y PD no-decreciente migra a Stage 2 incluso si el incremento absoluto de PD es menor al umbral estándar.
-:::
-
-### Distribución de Staging
-
-En el escenario baseline, el portafolio de test OOT (276,869 préstamos) se distribuye como:
-
-```{python}
-#| label: tbl-staging-distribution
-#| tbl-cap: "Distribución de staging IFRS9 en escenario baseline."
-#| echo: false
-
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-
-from book._helpers.load_artifacts import try_load_parquet, format_money, format_pct
-import pandas as pd
-
-scenarios = try_load_parquet("ifrs9_scenario_summary")
-
-if not scenarios.empty:
-    base = scenarios[scenarios["scenario"] == "baseline"].iloc[0]
-    staging_df = pd.DataFrame({
-        "Stage": ["Stage 1", "Stage 2", "Stage 3", "Total"],
-        "Préstamos": [
-            f"{int(base['stage1_n']):,}",
-            f"{int(base['stage2_n']):,}",
-            f"{int(base['stage3_n']):,}",
-            f"{int(base['n_loans']):,}",
-        ],
-        "Participación": [
-            format_pct(base["stage1_share"]),
-            format_pct(base["stage2_share"]),
-            format_pct(base["stage3_share"]),
-            "100.00%",
-        ],
-        "PD Efectiva": ["PD 12m", "PD Lifetime", "≈ 1.0", "—"],
-    })
-    from IPython.display import Markdown
-    Markdown(staging_df.to_markdown(index=False))
-else:
-    from IPython.display import Markdown
-    Markdown("*Artefacto `ifrs9_scenario_summary.parquet` no disponible.*")
-```
-
-Stage 2 concentra la mayor parte del portafolio (128,959 préstamos, 46.6%), reflejando el período OOT 2018--2020 que incluye deterioro crediticio pre-pandemia. Stage 3 comprende 62,251 préstamos (22.5%) con default confirmado.
-
-La proporción de 46.6% en Stage 2 merece análisis. En portafolios bancarios maduros, Stage 2 típicamente concentra entre 10--25% de las exposiciones. Nuestro 46.6% es elevado por dos razones específicas del dataset: primero, el período OOT (2018--2020) incluye el deterioro pre-COVID que incrementó las PD observadas, activando más triggers SICR; segundo, la tasa de default del dataset (22% en el test set) es sustancialmente mayor que la de un portafolio bancario regulado (típicamente 1--5%), lo cual empuja mecánicamente más préstamos hacia Stage 2. Esta proporción no sería alarmante para un regulador evaluando nuestro sistema, porque es consistente con la composición de riesgo del universo Lending Club --- préstamos personales no garantizados con perfil de riesgo más alto que productos bancarios tradicionales. Lo que sí sería preocupante es si la proporción no cambiara entre escenarios, lo cual indicaría insensibilidad del trigger; como veremos en el análisis de escenarios (@sec-scenario-analysis), la distribución de stages migra de forma coherente con el nivel de estrés.
-
-### Corrección por Riesgos Competitivos (CIF) {#sec-cif-correction}
-
-La PD lifetime utilizada en Stage 2 puede sobreestimarse si se calcula con Kaplan-Meier (KM), que trata el prepago como censura en lugar de como evento competitivo. El mecanismo del sesgo es el siguiente: cuando un préstamo se prepaga en el mes 18, KM lo trata como si hubiera "desaparecido" de la observación --- censura informativa --- y redistribuye el riesgo de ese préstamo entre los sobrevivientes. Pero ese préstamo no desapareció misteriosamente: liquidó su deuda, eliminando cualquier posibilidad futura de default. Al ignorar esta eliminación de riesgo, KM infla artificialmente la probabilidad de default en los meses posteriores al prepago. El método correcto es la función de incidencia acumulada (CIF, Aalen-Johansen), que modela default y prepago como eventos competitivos simultáneos: un préstamo prepagado ya no puede incurrir en default, y viceversa.
-
-El análisis detallado (ver @sec-competing-risks) cuantifica el impacto:
-
-| Métrica | KM | CIF | Diferencia |
-|---|---:|---:|---:|
-| PD lifetime (60m) | 16.90% | 12.39% | -4.51 pp |
-| ECL total (baseline) | \$1,003M | \$870M | -\$133M |
-| Exceso de reserva | --- | --- | 13.3% |
-
-: Impacto de la corrección CIF en ECL Stage 2 {#tbl-cif-impact}
-
-La corrección se implementa como un factor multiplicativo $CF_{\text{lifetime}} = 0.7332$ aplicado a la PD lifetime de Stage 2 en `configs/optimization.yaml`. Para Stage 1 (horizonte 12 meses), el factor es $CF_{12m} = 0.9962$, casi unitario porque a corto plazo la probabilidad de prepago es mínima.
-
-### ECL Total y Rango Conformal
-
-Con la corrección CIF integrada, la ECL baseline se reduce de \$1,003M a **\$870M**. Los intervalos conformales revelan la incertidumbre subyacente:
-
-```{python}
-#| label: tbl-ecl-range
-#| tbl-cap: "ECL baseline con corrección CIF y rango conformal."
-#| echo: false
-
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-
-from book._helpers.load_artifacts import try_load_parquet, format_money
-import pandas as pd
-
-scenarios = try_load_parquet("ifrs9_scenario_summary")
-
-if not scenarios.empty:
-    base = scenarios[scenarios["scenario"] == "baseline"].iloc[0]
-    ecl_df = pd.DataFrame({
-        "Componente": ["ECL Low (conformal)", "ECL Point", "ECL High (conformal)", "ECL Total (staging + CIF)"],
-        "Valor": [
-            format_money(base.get("total_ecl_low", 0)),
-            format_money(base.get("total_ecl_point", 0)),
-            format_money(base.get("total_ecl_high", 0)),
-            format_money(base["total_ecl"]),
-        ],
-    })
-    from IPython.display import Markdown
-    Markdown(ecl_df.to_markdown(index=False))
-else:
-    from IPython.display import Markdown
-    Markdown("*Artefacto `ifrs9_scenario_summary.parquet` no disponible.*")
-```
+## Cálculo de ECL: fórmula y frontera del prototipo {#sec-ecl-calculation}
 
 ::: {.callout-warning}
-## Asimetría del Rango ECL
-El rango conformal es fuertemente asimétrico: la cota superior excede el punto central significativamente, mientras la cota inferior está cerca de cero. Esto refleja que la distribución de PD es right-skewed --- la mayoría de préstamos tienen PD baja, pero la cola derecha puede generar pérdidas significativas. Esta asimetría es precisamente lo que justifica la optimización robusta del portafolio (ver @sec-robust-portfolio).
+
+## Superficie diagnóstica
+
+Esta página distingue la fórmula conceptual de IFRS 9 de la implementación
+retrospectiva del proyecto. Los artefactos actuales no constituyen una medición
+contable ni una banda de provisión. El límite está formalizado en el
+[contrato de claims de Paper 2](../../../reports/paper_material/paper2/paper2_claim_contract.yml).
+
 :::
 
-### ECL Conformal con Ajuste por Stage {#sec-ecl-conformal-staging}
+### Fórmula conceptual
 
-Un detalle técnico importante: los intervalos conformales $[\text{PD}_\text{low}, \text{PD}_\text{high}]$ se estiman sobre la PD a 12 meses. Aplicarlos directamente como cotas de ECL sin ajuste de stage produciría rangos inconsistentes --- Stage 2 usa PD lifetime, no PD 12m. La función `ecl_with_conformal_range()` resuelve esto aplicando transformaciones stage-aware:
+Una representación simplificada de la pérdida crediticia esperada por exposición
+es
 
-| Stage | PD efectiva low | PD efectiva point | PD efectiva high |
-|:-----:|-----------------|-------------------|------------------|
-| **1** | $\text{PD}_\text{low}^{12m}$ | $\text{PD}_\text{point}^{12m}$ | $\text{PD}_\text{high}^{12m}$ |
-| **2** | $\min(\text{PD}_\text{low}^{12m} \times \kappa,\; 1)$ | $\min(\text{PD}_\text{point}^{12m} \times \kappa,\; 1)$ | $\min(\text{PD}_\text{high}^{12m} \times \kappa,\; 1)$ |
-| **3** | 1.0 | 1.0 | 1.0 |
+$$
+\operatorname{ECL}_i
+=\operatorname{PD}_i^{\mathrm{eff}}
+\times \operatorname{LGD}_i
+\times \operatorname{EAD}_i
+\times \operatorname{DF}_i.
+$$ {#eq-ecl-formula}
 
-: Ajuste de cotas conformales por stage IFRS9. $\kappa$ es el multiplicador lifetime (default 3.0) o proviene de PD lifetime explícita del modelo de supervivencia. {#tbl-conformal-staging-adjustment}
+Esta identidad no valida por sí sola ninguno de sus inputs. Para una estimación
+IFRS 9, horizonte, stage, cash flows, EIR, escenarios y fecha de información
+deben pertenecer al mismo contrato contable y temporal.
 
-Para Stage 1, las cotas conformales de 12 meses se usan directamente. Para Stage 2, se escalan por el factor lifetime $\kappa$ (o se reemplazan por cotas lifetime explícitas si el modelo de supervivencia las provee). Para Stage 3, todas las cotas colapsan a 1.0 --- el préstamo ya está en default, no hay incertidumbre sobre la PD.
+### Staging requerido y disponibilidad actual
 
-Este ajuste garantiza que el rango ECL conformal sea coherente con la lógica de staging: $\text{ECL}_\text{low} \leq \text{ECL}_\text{point} \leq \text{ECL}_\text{high}$ para todo stage, y que la amplitud del rango en Stage 2 refleje la incertidumbre amplificada por el horizonte lifetime.
+::: {#tbl-staging-logic}
 
-### Implementación
+| Stage conceptual | Objeto requerido | Evidencia disponible en el prototipo | Veredicto |
+|:---:|---|---|---|
+| 1 | PD a 12 meses a la fecha de reporte | Score de outcome terminal con features de originación | No identificado |
+| 2 | Cambio significativo desde reconocimiento inicial y PD lifetime | Promedio histórico por grade y regla retrospectiva | No identificado |
+| 3 | Estado credit-impaired observado *as of* | Estado final y proxies derivados | Contaminado por información futura |
 
-La función `compute_ecl()` en `src/evaluation/ifrs9.py` aplica la @eq-ecl-formula por stage, mientras `ecl_with_conformal_range()` produce el rango $[\text{ECL}_\text{low}, \text{ECL}_\text{point}, \text{ECL}_\text{high}]$ usando los intervalos conformales de PD como inputs directos, con el ajuste stage-aware descrito en @tbl-conformal-staging-adjustment. El script `scripts/run_ifrs9_sensitivity.py` orquesta el cálculo completo incluyendo la derivación de DPD, la construcción de PD de originación por vintage y la aplicación del factor de corrección CIF para lifetime PD de Stage 2.
+Contrato de staging y brecha de observabilidad.
+:::
+
+La implementación histórica combina una diferencia entre dos objetos no
+comparables, proxies de DPD y un ancho residual. Esa transformación puede
+probarse como función de software, pero no debe denominarse staging IFRS 9. La
+auditoría específica del ancho se desarrolla en @sec-sicr-signal.
+
+### Resultado binario, PD y pérdida esperada
+
+Sea $I_i^Y=[\ell_i,u_i]$ el intervalo calibrado con residuos
+$|Y_i-\widehat p_i|$ para $Y_i\in\{0,1\}$. Su evento de cobertura es
+$Y_i\in I_i^Y$. Los endpoints no son límites de la probabilidad condicional
+$p_i=\Pr(Y_i=1\mid X_i)$.
+
+Si $c_i\geq0$ fuera conocido en el momento de predicción,
+
+$$
+Y_i\in[\ell_i,u_i]
+\quad\Longleftrightarrow\quad
+c_iY_i\in[c_i\ell_i,c_iu_i].
+$$
+
+La transformación se refiere a pérdida **realizada** bajo ese factor fijo. No
+establece
+
+$$
+c_ip_i\in[c_i\ell_i,c_iu_i],
+$$
+
+que sería una afirmación sobre pérdida esperada. Cuando LGD, EAD, horizonte,
+stage o descuento también se estiman, se requieren contratos adicionales y una
+propagación conjunta de incertidumbre.
+
+### Competing risks como requisito de modelado {#sec-cif-correction}
+
+Prepago y default son eventos mutuamente excluyentes después de que uno ocurre.
+Por ello, una estimación lifetime debe declarar cómo trata riesgos competitivos,
+censura y madurez. Kaplan--Meier y una función de incidencia acumulada responden
+a objetos diferentes cuando el prepago impide el default posterior.
+
+El proyecto conserva comparaciones históricas entre métodos, pero sus magnitudes
+monetarias no se promueven: la población de préstamos resueltos, la ausencia de
+snapshots de reporte y el contrato incompleto de cash flows impiden llamarlas
+cambio de reserva.
+
+::: {#tbl-cif-impact}
+
+| Elemento | Requisito para una comparación válida | Uso actual |
+|---|---|---|
+| Tiempo a evento | Origen, fecha as-of y reloj contractual | Auditar definición |
+| Default | Evento y horizonte predeclarados | Diagnóstico histórico |
+| Prepago | Evento competitivo con fecha observable | Comparación metodológica |
+| Censura | Regla independiente y madurez suficiente | Gate pendiente |
+| Impacto monetario | EAD, LGD, cash flows y EIR consistentes | Claim bloqueado |
+
+Contrato mínimo para competing risks y ECL.
+:::
+
+### Por qué el ajuste por stage no crea cobertura {#sec-ecl-conformal-staging}
+
+La función histórica `ecl_with_conformal_range()` escala o colapsa endpoints
+según el stage. Esas operaciones preservan orden numérico, no significado
+estadístico. Multiplicar un endpoint de $Y$ por un factor lifetime no lo convierte
+en una cota de PD lifetime; fijarlo en uno después de usar estado terminal tampoco
+produce una evaluación prospectiva.
+
+::: {#tbl-conformal-staging-adjustment}
+
+| Operación implementada | Propiedad mecánica | Claim que no se obtiene |
+|---|---|---|
+| Clipping a $[0,1]$ | Dominio numérico válido | Intervalo de PD individual |
+| Escalamiento lifetime | Orden de endpoints | Cobertura lifetime |
+| Colapso del Stage 3 | Igualdad de salidas | Clasificación as-of válida |
+| Multiplicación por LGD/EAD/DF | Salida monetaria ordenada | Banda de ECL |
+
+Transformaciones stage-aware y límites de interpretación.
+:::
+
+Además, la salida central del motor de escenarios y el punto central de la
+transformación de endpoints usan actualmente reglas lifetime diferentes. Antes
+de interpretar un rango, `low`, `point` y `high` deben compartir estimador,
+horizonte y stage.
+
+### Rol permitido de la implementación
+
+`compute_ecl()` y `ecl_with_conformal_range()` permanecen como utilidades de
+prototipado. `scripts/run_ifrs9_sensitivity.py` permite comprobar alineación,
+orden y respuesta a multiplicadores. Ninguna de esas pruebas sustituye el panel
+préstamo-fecha-de-reporte, los targets a 12 meses/lifetime ni la validación
+contable exigidos para salir del estado `parked_ifrs9`.

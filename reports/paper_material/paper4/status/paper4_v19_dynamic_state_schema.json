@@ -1,0 +1,80 @@
+{
+  "schema_version": "2026-05-14.19",
+  "generated_at_utc": "2026-05-14T20:42:44.385226+00:00",
+  "state_transition": "S_t -> x_t -> S_t^x -> W_{t+1} -> S_{t+1}",
+  "fields": [
+    {
+      "name": "cash",
+      "role": "liquid capital available before/after monthly decisions"
+    },
+    {
+      "name": "outstanding_principal",
+      "role": "principal still exposed after repayments/defaults/recoveries"
+    },
+    {
+      "name": "funded_exposure",
+      "role": "new capital committed in the current month"
+    },
+    {
+      "name": "repayments",
+      "role": "principal plus interest cash returned this month"
+    },
+    {
+      "name": "defaults",
+      "role": "number of default events realized this month under common path"
+    },
+    {
+      "name": "recoveries",
+      "role": "cash recovered after default under internal LGD proxy"
+    },
+    {
+      "name": "losses",
+      "role": "realized credit losses this month"
+    },
+    {
+      "name": "ECL",
+      "role": "proxy expected credit loss on active outstanding loans"
+    },
+    {
+      "name": "budget_remaining",
+      "role": "cash not currently committed after funding"
+    },
+    {
+      "name": "capital_used",
+      "role": "active outstanding plus current funded amount"
+    },
+    {
+      "name": "stage_mix",
+      "role": "Stage 2 proxy share based on PD/width stress"
+    },
+    {
+      "name": "coverage_state",
+      "role": "historical online conformal gate inherited from v9"
+    },
+    {
+      "name": "source_exposure",
+      "role": "source-family concentration proxy"
+    },
+    {
+      "name": "wealth",
+      "role": "cash plus outstanding minus ECL proxy"
+    }
+  ],
+  "claim_boundary": "dynamic replay/simulation over static historical data; no production deployment or forecast claim",
+  "v19_extension": {
+    "horizons_months": [
+      12,
+      24,
+      36
+    ],
+    "path_scale_targets": [
+      64,
+      128,
+      256,
+      512
+    ],
+    "engine_role": "monthly policy process comparison under common internal paths",
+    "no_leakage_rule": "monthly decisions may only fund loans whose issue_month is not after the replay month",
+    "claim_boundary": "larger internal stress replay, not production deployment and not external forecast"
+  }
+}

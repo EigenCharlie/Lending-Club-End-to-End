@@ -1,0 +1,362 @@
+Machine Learning in Internal Credit Risk Models
+
+
+
+
+Challenges and opportunities of using ML techniques in regulated contexts
+                                                   1   2   3   4   5
+Contents
+
+1. Regulatory Background
+2. Machine Learning in the Context of IRB Models
+3. Challenges
+4. Opportunities
+5. Outlook for the Future
+  1. Regulatory Background                                                                          1
+  EBA’s View on Machine Learning in IRB
+                                                                    EBA on Machine Learning (ML) in the context of IRB
+                                                                    (EBA/REP/2023/281):
+
+                                                                    • Applicable for risk differentiation phase of IRB
+                                                                      model development
+                                                                    • Explainability of ML models remains an open
+                                                                      challenge
+                                                                    • Prudential governance around material model
+                                                                      changes is unclear
+                                                                    • Competency gaps exist when it comes to new
+                                                                      modelling techniques
+
+                                                                    Challenges related to validation of ML models have
+                                                                    not been fully addressed in EBA’s validation
+                                                                    handbook (EBA/REP/2023/292) as of today
+
+1. https://www.eba.europa.eu/publications-and-media/press-releases/eba-publishes-follow-report-use-machine-learning-internal
+2. https://www.eba.europa.eu/activities/single-rulebook/regulatory-activities/model-validation/supervisory-handbook-validation
+  1. Regulatory Background                                                                             1
+  Do we really need ML for IRB?
+                                                                     Hillary J. Allen, professor a Professor of Law,
+                                                                     published a strong piece1 as a follow up to the
+                                                                     discussion paper by EBA (EBA/DP/2021/04)
+
+                                                                     “Explainability doesn’t tell us much about how the
+                                                                     model as a whole works or how it is likely to make
+                                                                     decisions in an uncertain future—which is what
+                                                                     regulators really need to know when assessing IRB
+                                                                     models”, Allen writes
+
+                                                                     The choice of using “black-box” machine learning
+                                                                     for regulatory capital is not fully in line with the
+                                                                     goals of financial stability, and the choice of
+                                                                     complexity over explainability is not warranted
+
+
+
+1. https://blogs.law.ox.ac.uk/business-law-blog/blog/2021/12/just-say-no-machine-learning-irb-models
+  2. Machine Learning in the Context of IRB Models                                                                     2
+  Accuracy and Explainability in ML
+             Accuracy - Explainability “Trade-Off”                            Machine Learning (ML) models allow to gain
+                                                                              benefits in model performance in scoring tasks by
+                                                                              leveraging upon more flexible statistical modeling
+                                                                              techniques
+
+                                                                              Boosting algorithms, such as gradient boosted
+                                                                              decision trees (GBDT) have proven to be the best
+                                                                              algorithms for tabular data outperforming logistic
+                                                                              regression, especially on non-linearly separable
+                                                                              data
+
+                                                                              Gradient boosted tree framework for classification
+                                                                              is based on logistic regression and performs the
+                                                                              same task1
+         Source: Alexandre Duval, Paul Edwards
+
+
+1. Friedman, J., T. Hastie, R. Tibshirani. Additive Logistic Regression: a Statistical View of Boosting. Annals of Statistics, 2000.
+  2. Machine Learning in the Context of IRB Models                                                               2
+  Why Trees Outperform Simpler Models?
+      Gradient boosted decision trees (GBDT)                             Decision trees in gradient boosted decision tree
+                                                                         (GBDT) models provide a flexibility that linear
+                                                                         alternatives like logistic regression lack
+
+                                                                         Each tree works with the errors of the previous
+                                                                         iterations and updates its forecasts as more
+                                                                         trees are added to the ensemble to increase
+                                                                         accuracy
+
+                                                                         The process is somewhat similar to the Weight
+                                                                         of Evidence (WOE) technique used by retail
+                                                                         credit risk modellers in that we are combining
+                                                                         evidences from different sources, in this case
+                                                                         from different decision trees1
+
+
+
+1. Paul Edwards et al. Real AdaBoost: Boosting for Credit Scorecards and Similarity to WOE Logistic Regression. SAS Paper 1323-2017.
+  2. Machine Learning in the Context of IRB Models                                                               2
+  Understanding Gradient Boosting
+                     Gradient boosting                                   The process of gradient boosting can be
+                                                                         understood as the estimation not on parameter
+                                                                         level (as modellers do with linear and logistic
+                                                                         regression), but in the functional space
+
+                                                                         Each tree’s prediction is added to the intercept
+                                                                         (base score) cumulatively to produce a probability
+                                                                         or a linear prediction
+
+                                                                         For regulatory use, however, these models cannot
+                                                                         be used as is. The way these models process
+                                                                         categorical data in major libraries (XGBoost,
+                                                                         LightGBM, CatBoost) requires a careful engineering
+                                                                         of model constraints1
+
+
+
+1. Monotonicity and interactions constraints to preserve the monotonicity with regards to the default rate (EBA/REP/2023/29).
+  3. Opportunities                                                                                               2            3
+  Key Improvement Areas for ML Use in IRB models
+
+                                                                                                                             Only a
+                                                            Key IRB model development
+                                                                                                                             snapshot of
+                                                                areas with ML value
+                                                                                                                             potential
+                                                                                                                             application
+                                                                                                                             scenarios1
+
+
+
+                           Data quality and
+                                                                Risk differentiation                   Risk quantification
+                         representativeness
+
+
+                   • Leverage generative                  • Train highly performant             • Use ML-driven scenario
+                     adversarial networks (GANs)            tree-based risk models for            analysis to predict risk
+                     to create high-quality                 better risk differentiation           under various economic
+                     synthetic data                       • Integrate explainability              conditions
+                   • Employ data augmentation               techniques to ensure that           • Continuously calibrate
+                     techniques to mitigate bias            ML risk models are                    models using conformal
+                     and prevent overfitting                interpretable and                     prediction techniques to
+                                                            transparent                           maintain accuracy over time
+
+
+1. Use cases are selected based on a personal opinion and conversations with adopters and providers in Financial Services.
+  4. Challenges                                                                           1   3   4   5
+  The Explainability (“Black-Box”) Problem1
+
+             Focus of statistical
+                 modeling
+
+
+
+
+              Focus of machine
+                  learning
+
+
+
+
+1. Breiman, Leo. Statistical Modeling: The Two Cultures. Statist. Science, August 2001.
+4. Challenges                                        1              3      4         5
+Explainability as a Regulatory Constraint?
+                              The EU AI Act in conjunction with GDPR create a
+                              regulatory framework for explainability guardrails
+                              when it comes to machine learning (ML) models
+
+                              To comply, organizations must implement
+                              measures to make their models explainable,
+                              especially for high-risk cases (e.g., credit). This
+                              involves techniques such as feature importance
+                              and error analysis, post-hoc explanation methods
+                              to provide insights into how decisions are made
+
+                              By adhering to these explainability requirements,
+                              organizations not only meet regulatory standards
+                              but also enhance the overall reliability and ethical
+                              standards of their AI systems
+  5. Outlook for the Future                            5
+  Changing Model Landscapes1
+
+
+
+                      Next step for IRB models?
+
+
+
+
+1. Author: Fabiana Clemente. Footnote by the author.
+  5. Outlook for the Future                                                                                                                         5
+  Towards the Adoption of ML in the Financial Services
+    • The adoption of Machine Learning (ML) in the area of Financial Services (FS) will
+      continue, and FS may be the most impacted industry1
+
+    • As more Financial Services players adopt cloud technology, ML will play an ever-
+      growing role in the provision of real-time analytical services to customers
+
+    • For institutions with large retail portfolios, IRB models will likely be updated with
+      newer algorithms, especially due to their ability to include more data sources and
+      product segments into one model and process interactions natively
+
+    • Regulatory understanding of technological trends and compliance assessments will
+      remain key to the continuous advancements in this area in the EU
+
+       ML solutions will provide more accurate risk assessments, helping institutions
+       mitigate potential financial losses, but will require more human-in-the loop controls
+
+1. Financial Services Skills Commission. Bridging the Skills Gap in a Rapidly Evolving Sector - Skills for the Future of Financial Services 2024.
+           5
+
+
+
+
+Appendix
+Discussion paper on machine learning for IRB models
+
+Public hearing – 16 December 2021
+Digital age supervisory challenges from AI/ML
+
+           Exponential      The EBA work identifies the supervisory challenges to adapt to
+         increase in data   the technological developments and provides related guidance:
+         availability and
+         storing capacity    Jan 2020, EBA report on the recent trends of big data &
+                              advanced analytics (BD&AA) in the banking sector.
+
+                             April 2021, Commission legislative proposal on AI AI used
+   Improvements
+    in computing              for evaluating the creditworthiness of natural persons among
+        power                 the high-risk use cases.
+
+                             June 2021, EBA report analysing the current RegTech
+           Emergence of       landscape in EU.
+           Big Data and
+           use of AI/ML
+          technologies in    11 Nov 2021, EBA published the Discussion paper on ML for
+            new context       IRB model (DP) for 3 months consultation.
+
+                                                                                          2
+Background
+•   Why we need this discussion paper?
+
+
+
+
+                                                Gap
+                 Limited use for                       Increase in use of ML
+                Regulatory capital                     for Internal purposes
+                  IRB models         Use test Art 144(1)(b) CRR ?
+                  for credit risk
+
+
+•   What is the aim?
+     Investigate the sources of this gap and
+     discuss how ML models can coexist and adhere to the CRR requirements for IRB models for credit risk
+•   Scope/definition: more complex ML models that are difficult to interpret
+•   Why stakeholder feedback is important? Strengthening supervisory experience on ML models used in IRB
+                                                                                                            3
+Structure of the discussion paper
+
+            • Set the scope (complex models)
+Section2    • Current use
+
+                                                           Each section
+            • Challenges and potential benefits of using   has a set of
+              ML in developing CRR compliant IRB Models      practical
+Section 3                                                   questions
+
+
+            • Main concerns
+Section 4   • Principle-based recommendations
+
+
+                                                                          4
+Setting the scope
+                                                                           High
+•   ML covers a wide range of models with                               number of
+                                                                        parameters
+    different level of complexity (from linear
+    regression to deep neural network)
+•   The discussion paper refers only to the      Capacity to                                  Capacity to
+                                                 extract info                                 reflect non-
+    more complex that are difficult to
+                                                                 Complex
+                                                 from large                                       linear
+    interpret and justify to supervisors          datasets                                      relations
+
+•   No clear-cut distinction between simple
+    and complex models                                            models
+•   The DP provides characteristics to
+    consider to evaluate the complexity of a              Applicable                 Big Datasets
+    model                                                     to                      need for a
+                                                          unstructure                   robust
+                                                            d data                    estimation
+
+                                                                                                        5
+    Main challenges and benefits from using ML in IRB
+•    The DP analyses CRR provisions to identify challenges
+     and benefits in using ML to develop IRB compliant
+     models                                                     Benefits         Challenges
+•    These are specific to the context in which ML may
+     be used (e.g. risk differentiation or validation) and
+     depends on whether ML does the prediction in full
+     or it is used as a supporting tool (e.g. data cleansing)
+•    Main concerns:
+       1.   Interpretability of results
+
+       2.   The governance with particular reference to
+            ensuring adequate understanding by their
+            users including management functions
+       3.   The     difficulty    in     evaluating      the
+            generalisation capacity of a the models                        CRR
+                                                                                              6
+ Principle-based recommendations
+The DP stresses economic and supervisory principles that banks should consider when seeking
+approval to apply ML for regulatory purposes, these are aimed at:
+     Ensure that ML models are properly understood by their users (CRCU, validation unit and
+      management functions)
+     Avoid unnecessary complexity (excessive number of parameters and reliance on
+      unstructured data) if not justified by a significant improvement in predictive power
+     Ensure model can be interpreted and documented properly (assess statistical and
+      economic relations of risk drivers with model predictions)
+     Enhancing the understanding of assumptions and behaviour of the model on specific
+      predictions when using human judgement in model development and application
+      respectively.
+     Justify and monitor frequent updates of a model
+     Focus on validation which may require increased depth/frequency
+                                                                                           7
+Industry feedback is sought with a set of 17 questions
+
+            • Explore current use of ML in IRB
+   Q 1-2
+
+
+         • Explore specific challenges related to internal user acceptance,
+           human judgement, overfitting, frequency of model updates.
+  Q 3-12 • Challenges in using ML for IRB models stemming from the AI act
+
+            • Explore potential benefits of using ML in IRB and,
+            • In particular, the use of ML for collateral valuation
+  Q 13-14
+
+          • Explore the use of explainability techniques and, the strategy to
+            ensure understanding by the ML models users
+  Q 15-17 • Investigate industry concerns around the recommendations given
+                                                                                8
+Conclusions and next steps
+
+• ML models can provide added value in the IRB context provided that they ensure
+  acceptable monitoring, validation and explainability of methodology and model outcomes.
+• The need for competence in ML is becoming increasingly important.
+• Decision to go forward with ML in IRB should be based on prudential terms but also
+  considering other relevant aspects (e.g. Ethical or consumer protection considerations)
+• The discussion paper seeks stakeholders’ feedback on many practical aspects related to
+  the use of machine learning in the context of IRB (deadline 11 February 2022)
+• Need to provide further guidance will be assessed based on the feedback received
+• Potential developments related to relations with the Commission AI act
+
+
+                                                                                        9
+EUROPEAN BANKING AUTHORITY
+Floors 24-27, 20 Av André Prothin, 92927 Paris La Défense
+Tel: +33 1 86 52 7000
+E-mail: info@eba.europa.eu
+http://www.eba.europa.eu

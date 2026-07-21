@@ -1,0 +1,16 @@
+section,body_or_appendix,purpose,source_surface,rule
+Thesis and contribution,body,State Paper 4 as governed sequential credit decision analytics,19a-proposal-and-scope.qmd,Keep concise and claim-safe
+One-page architecture,body,Show the external CRPTO contract negative IFRS9/SICR audit tail diagnostics source governance dynamic stress and parked lanes,19c-integrated-architecture.qmd,Use as future Figure/Table 1
+Claim boundary table,body,Separate allowed claims from prohibited claims,19ca-v38-final-synthesis.qmd,Must stay artifact-backed
+External CRPTO boundary,body,State that the active CRPTO paper selects no learner comparator or policy,19ca-v38-final-synthesis.qmd,Context only; no local extension
+Dynamic stress F03,appendix,Describe monthly replay and common internal sample paths,19t-multi-period-solver.qmd,Paper 4 internal evidence only; no transfer to CRPTO
+CVaR/OCE F04,appendix,Document the conditional simulator tail and wealth tradeoff,19i-regret-auditability-frontier.qmd,Reviewer-defense only; no dominance or selection
+Online/source F05,appendix,Document post-selection slice fragility and online caveat,19n-online-mdcp-fairness.qmd,Limitation/future work only; not a holdout
+Paper 2 estimand audit F13,appendix,Retain only non-citable failure analysis for binary-outcome PD ECL SICR staging and threshold substitutions,19ca-v38-final-synthesis.qmd,Negative audit only; no prudential or monetary implication
+Metrics binder addendum,appendix,Calibration-gated Gini and FICO proxy experiment design,docs/research/metrics_credit_ml_models_triage_2026-05-18.md,No new experiment unless it changes a claim
+Loop cleanup provenance,appendix,Show that retired waves are not active evidence,19ca-v38-final-synthesis.qmd,Do not put procedural detail in paper body
+Lab 4 lane closure,appendix,Append park or delete decisions by lane,docs/research/paper4_lab4_all_lanes_synthesis_2026-05-18.md,No new versioned waves
+CRC/LTT gates,appendix,Document decision-loss gate logic and stop rules,reports/paper_material/paper4/tables/paper4_lab4_lane1_crc_ltt_decision_gates_2026-05-18.csv,Governance appendix only; no new champion
+CROMS-lite selector,appendix,Show decision-aware selector tradeoffs over retained finalists,reports/paper_material/paper4/tables/paper4_lab4_selector_final_table_2026-05-18.csv,Selector evidence only; not end-to-end CROMS training
+Source/fairness governance appendix,appendix,Separate source-proxy governance from legal fair-lending claims,reports/paper_material/paper4/tables/paper4_lab4_lane8_governance_fairness_proxy_2026-05-18.csv,No protected-attribute legal claim
+Angelopoulos/CRC future gates,appendix,Record CRC/LTT non-monotonic and online conformal gates for future work,reports/paper_material/global/tables/angelopoulos_conformal_intake_2026-05-19.csv,Future-work boundary only

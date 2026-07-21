@@ -1,0 +1,27 @@
+section,subgroup,n,metric,champion_value,fico_value,delta_champion_minus_fico,interpretation
+global_eval_split,all_oot_latest_40pct,103865,auc,0.700477,0.592906,0.10757,higher is better
+global_eval_split,all_oot_latest_40pct,103865,gini_somers_d,0.400953,0.185813,0.21514,higher is better
+global_eval_split,all_oot_latest_40pct,103865,brier,0.14038,0.151195,-0.010815,lower is better
+global_eval_split,all_oot_latest_40pct,103865,ece_10bin,0.028995,0.051132,-0.022137,lower is better
+global_eval_split,all_oot_latest_40pct,103865,decile_band_mae,0.030545,0.051076,-0.020532,lower is better
+rank_difference,all_oot_latest_40pct,103865,share_abs_rank_shift_ge_20pp,0.486526,,,share of loans materially reordered by champion versus FICO proxy
+slice_eval,income_q1,21875,auc,0.691213,0.601882,0.089332,higher is better; subgroup diagnostic only
+slice_eval,income_q1,21875,brier,0.157875,0.166456,-0.008581,lower is better; subgroup diagnostic only
+slice_eval,income_q5,22051,auc,0.6881,0.582085,0.106016,higher is better; subgroup diagnostic only
+slice_eval,income_q5,22051,brier,0.128667,0.141021,-0.012354,lower is better; subgroup diagnostic only
+slice_eval,dti_q5,20746,auc,0.670988,0.595209,0.07578,higher is better; subgroup diagnostic only
+slice_eval,dti_q5,20746,brier,0.169872,0.176652,-0.00678,lower is better; subgroup diagnostic only
+slice_eval,no_mortgage,42980,auc,0.688556,0.579246,0.10931,higher is better; subgroup diagnostic only
+slice_eval,no_mortgage,42980,brier,0.164283,0.175253,-0.01097,lower is better; subgroup diagnostic only
+slice_eval,thin_file_total_acc_le_10,10844,auc,0.692357,0.555161,0.137197,higher is better; subgroup diagnostic only
+slice_eval,thin_file_total_acc_le_10,10844,brier,0.176124,0.190246,-0.014122,lower is better; subgroup diagnostic only
+slice_eval,grade_A,29070,auc,0.625159,0.580788,0.044371,higher is better; subgroup diagnostic only
+slice_eval,grade_A,29070,brier,0.07281,0.088542,-0.015731,lower is better; subgroup diagnostic only
+slice_eval,grade_B,27963,auc,0.622421,0.52886,0.093561,higher is better; subgroup diagnostic only
+slice_eval,grade_B,27963,brier,0.126742,0.136652,-0.00991,lower is better; subgroup diagnostic only
+slice_eval,grade_C,25455,auc,0.613867,0.510169,0.103697,higher is better; subgroup diagnostic only
+slice_eval,grade_C,25455,brier,0.177308,0.1832,-0.005892,lower is better; subgroup diagnostic only
+slice_eval,grade_D,18354,auc,0.624718,0.50827,0.116448,higher is better; subgroup diagnostic only
+slice_eval,grade_D,18354,brier,0.202656,0.210124,-0.007468,lower is better; subgroup diagnostic only
+slice_eval,grade_E,2934,auc,0.63859,0.484914,0.153676,higher is better; subgroup diagnostic only
+slice_eval,grade_E,2934,brier,0.227683,0.260794,-0.033111,lower is better; subgroup diagnostic only

@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.20",
+  "generated_at_utc": "2026-05-14T20:59:12.667541+00:00",
+  "phase": "v20_dla_cvar_spo_resolution",
+  "dynamic_policy_count_v20": 18,
+  "endogenous_dla_policy_count_v20": 3,
+  "spo_formal_differentiable_claim_allowed": false,
+  "spo_dependency_blocker_count_v20": 3,
+  "cvar_frontier_rows_v20": 15,
+  "cvar_full_universe_exact_claim_v20": false,
+  "working_champion_change_recommended_v20": false,
+  "working_champion_candidate_v20": "v13_spo_regret_audit_guarded",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "DLA/SPO/CVaR are Paper 4 lab challengers; no final promotion and no formal SPO+ claim unless dependency path passes",
+  "runtime_seconds": 548.894
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "2026-05-12.1",
+  "generated_at_utc": "2026-05-13T00:39:01.144958+00:00",
+  "phase": "foundation_and_mvp_diagnostics",
+  "mode": "living_lab_not_publication_first",
+  "paper1_champion_protected": true,
+  "paper4_final_promotion_created": false,
+  "n_frozen_policies": 45,
+  "mvp_tables": {
+    "source_manifest": "reports/paper_material/paper4/tables/paper4_table0_source_manifest.csv",
+    "policy_ecl_scenario": "reports/paper_material/paper4/tables/paper4_table1_policy_ecl_scenario.csv",
+    "net_return_after_ecl": "reports/paper_material/paper4/tables/paper4_table2_net_return_after_ecl.csv",
+    "tail_risk": "reports/paper_material/paper4/tables/paper4_table3_tail_risk_oce_cvar_by_policy.csv",
+    "satisficing": "reports/paper_material/paper4/tables/paper4_table4_satisficing_screen.csv",
+    "temporal_replay": "reports/paper_material/paper4/tables/paper4_table5_temporal_replay_summary.csv",
+    "policy_class_registry": "reports/paper_material/paper4/tables/paper4_table9_policy_class_registry.csv",
+    "pairwise_differences": "reports/paper_material/paper4/tables/paper4_table10_policy_pairwise_differences.csv"
+  },
+  "caveat": "IFRS9/tail overlays are diagnostic MVP artifacts unless a future selector or solver is explicitly opened.",
+  "generated_artifacts": [
+    "reports/paper_material/paper4/tables/paper4_table0_source_manifest.csv",
+    "reports/paper_material/paper4/tables/paper4_policy_universe.csv",
+    "reports/paper_material/paper4/status/paper4_sequential_decision_schema.json",
+    "reports/paper_material/paper4/status/paper4_post_decision_state_schema.json",
+    "reports/paper_material/paper4/tables/paper4_table9_policy_class_registry.csv",
+    "reports/paper_material/paper4/tables/paper4_policy_class_registry.csv",
+    "reports/paper_material/paper4/tables/paper4_table1_policy_ecl_scenario.csv",
+    "reports/paper_material/paper4/tables/paper4_table2_net_return_after_ecl.csv",
+    "reports/paper_material/paper4/tables/paper4_table3_tail_risk_oce_cvar_by_policy.csv",
+    "reports/paper_material/paper4/tables/paper4_table4_satisficing_screen.csv",
+    "reports/paper_material/paper4/tables/paper4_table10_policy_pairwise_differences.csv",
+    "reports/paper_material/paper4/tables/paper4_loan_level_policy_evidence.parquet",
+    "reports/paper_material/paper4/tables/paper4_policy_level_evidence.parquet",
+    "reports/paper_material/paper4/tables/paper4_monthly_replay.parquet",
+    "reports/paper_material/paper4/tables/paper4_table5_temporal_replay_summary.csv",
+    "reports/paper_material/paper4/tables/online_conformal_coverage_regret.parquet",
+    "reports/paper_material/paper4/tables/mdcp_source_coverage_report.parquet",
+    "reports/paper_material/paper4/tables/fairness_constrained_policy_eval.parquet",
+    "reports/paper_material/paper4/tables/paper4_regret_auditability_frontier.csv",
+    "reports/paper_material/paper4/figures/paper4_fig4_regret_auditability_frontier.png",
+    "reports/paper_material/paper4/notes/causal_identification_report.md"
+  ]
+}

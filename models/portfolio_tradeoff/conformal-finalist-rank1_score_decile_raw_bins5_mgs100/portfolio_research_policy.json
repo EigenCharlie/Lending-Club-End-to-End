@@ -1,0 +1,127 @@
+{
+  "schema_version": "2026-03-08.1",
+  "generated_at_utc": "2026-04-05T17:29:37.288069+00:00",
+  "run_tag": "portfolio-finalist-rank1_score_decile_raw_bins5_mgs100",
+  "selection_stage": "tradeoff_research_only",
+  "selection_policy": {
+    "rank_order": [
+      "ab_pass(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(asc)"
+    ]
+  },
+  "research_selection_policy": {
+    "name": "robustness_aware",
+    "rank_order": [
+      "ab_pass(desc)",
+      "realized_total_return * sqrt(gamma) * (1 + 0.05 * min(lambda, 1))",
+      "realized_total_return(desc)",
+      "price_of_robustness(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.1,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.0,
+    "delta_cap_quantile": 1.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "pd_cap_slack": 0.0,
+    "solver_backend": "highs"
+  },
+  "selection_metrics": {
+    "ab_pass": true,
+    "ab_diff_total_return": 58658.82108363598,
+    "realized_total_return": 117080.38737806416,
+    "price_of_robustness": -28503.40275540216,
+    "price_of_robustness_pct": -44.019540367445515,
+    "n_funded": 138
+  },
+  "selected_policy_robustness_aware": {
+    "risk_tolerance": 0.1,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.5,
+    "delta_cap_quantile": 1.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "pd_cap_slack": 0.0,
+    "solver_backend": "highs"
+  },
+  "selected_policy_balanced_robustness": {
+    "risk_tolerance": 0.1,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.1,
+    "delta_cap_quantile": 1.0,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "pd_cap_slack": 0.0,
+    "solver_backend": "highs"
+  },
+  "research_selection_metrics": {
+    "ab_pass": true,
+    "ab_diff_total_return": 53221.146202404765,
+    "realized_total_return": 111642.71249683294,
+    "price_of_robustness": -24651.054890842744,
+    "price_of_robustness_pct": -38.07012500154588,
+    "n_funded": 129,
+    "robustness_aware_score": 78943.3190765707
+  },
+  "balanced_selection_policy": {
+    "name": "balanced_robustness",
+    "rank_order": [
+      "ab_pass(desc)",
+      "realized_total_return(desc)",
+      "gamma(desc)",
+      "uncertainty_aversion(asc)",
+      "price_of_robustness(asc)"
+    ]
+  },
+  "balanced_selection_metrics": {
+    "ab_pass": true,
+    "ab_diff_total_return": 55412.84532164519,
+    "realized_total_return": 113834.41161607337,
+    "price_of_robustness": -27372.97717112671,
+    "price_of_robustness_pct": -42.27375530920452,
+    "n_funded": 134
+  },
+  "guardrail_selection_policy": {
+    "name": "guardrail_robustness",
+    "constraints": {
+      "gamma_gt_zero": true,
+      "ab_pass_frontier": true,
+      "price_of_robustness_pct_gte": -25.0
+    },
+    "fallback": "balanced_robustness",
+    "rank_order": [
+      "realized_total_return(desc)",
+      "price_of_robustness_pct(desc)",
+      "gamma(desc)",
+      "uncertainty_aversion(asc)"
+    ]
+  },
+  "selected_policy_guardrail_robustness": {
+    "risk_tolerance": 0.12,
+    "policy_mode": "capped_blended_uncertainty",
+    "gamma": 0.2,
+    "delta_cap_quantile": 0.5,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "pd_cap_slack": 0.0,
+    "solver_backend": "highs"
+  },
+  "guardrail_selection_metrics": {
+    "ab_pass": true,
+    "ab_diff_total_return": 21053.205003116855,
+    "realized_total_return": 84612.79207159435,
+    "price_of_robustness": -17052.32397801394,
+    "price_of_robustness_pct": -24.94879127877878,
+    "n_funded": 135
+  },
+  "frontier_path": "data/processed/portfolio_tradeoff/conformal-finalist-rank1_score_decile_raw_bins5_mgs100/portfolio_robustness_frontier.parquet",
+  "summary_path": "data/processed/portfolio_tradeoff/conformal-finalist-rank1_score_decile_raw_bins5_mgs100/portfolio_robustness_summary.parquet",
+  "candidate_universe_path": "data/processed/champion_candidate_universe.parquet"
+}

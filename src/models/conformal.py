@@ -1,9 +1,15 @@
 """Conformal prediction utilities using MAPIE >= 1.3.
 
 Includes:
-- Global split-conformal intervals for PD probabilities.
+- Global split-conformal intervals centered on PD scores for binary outcomes.
 - Group-conditional (Mondrian-style) split conformal by segment (e.g., grade).
 - Classification set wrappers (LAC/APS/RAPS via MAPIE).
+
+The legacy ``pd_low``/``pd_high`` vocabulary describes numeric endpoints around
+a PD score. When calibration labels are binary, coverage is for the future
+binary outcome ``Y`` under the conformal design. It is not confidence coverage
+for an individual's latent PD, ECL, SICR status, or a selected downstream
+policy. Those estimands require their own method and validation contract.
 """
 
 from __future__ import annotations
@@ -72,6 +78,22 @@ class PrefitClassifierAdapter(BaseEstimator):
         return self.classifier.predict_proba(X_df)
 
 
+class PrefitCalibratedClassifierAdapter(PrefitClassifierAdapter):
+    """Prefit classifier adapter that applies a probability calibrator."""
+
+    def __init__(self, classifier, calibrator: Any | None = None, n_features_in: int | None = None):
+        super().__init__(classifier, n_features_in=n_features_in)
+        self.calibrator = calibrator
+
+    def predict_proba(self, X):
+        raw = super().predict_proba(X)
+        if self.calibrator is None:
+            return raw
+        p_pos = apply_probability_calibrator(self.calibrator, raw[:, 1])
+        p_neg = np.clip(1.0 - p_pos, 0.0, 1.0)
+        return np.column_stack([p_neg, p_pos])
+
+
 def apply_probability_calibrator(calibrator: Any, scores: np.ndarray) -> np.ndarray:
     """Apply calibrator robustly across sklearn calibrator API variants."""
     scores = np.asarray(scores, dtype=float)
@@ -107,6 +129,36 @@ def _conformal_quantile(scores: np.ndarray, alpha: float) -> float:
     return float(np.quantile(scores, q_level, method="higher"))
 
 
+def _resolve_score_scale_family(*, scaled_scores: bool, score_scale_family: str | None) -> str:
+    family = str(score_scale_family or "").strip().lower()
+    if family in {"", "auto"}:
+        family = "bernoulli_sqrt" if scaled_scores else "none"
+    valid = {
+        "none",
+        "bernoulli_sqrt",
+        "bernoulli_sqrt_clipped_0.02",
+        "bernoulli_sqrt_clipped_0.05",
+    }
+    if family not in valid:
+        raise ValueError(f"Unsupported score_scale_family: {score_scale_family}")
+    return family
+
+
+def _compute_score_scale(y_prob: np.ndarray, score_scale_family: str) -> np.ndarray:
+    y_prob_arr = np.clip(np.asarray(y_prob, dtype=float), 1e-6, 1.0 - 1e-6)
+    if score_scale_family == "none":
+        return np.ones_like(y_prob_arr)
+    if score_scale_family == "bernoulli_sqrt":
+        return np.sqrt(np.clip(y_prob_arr * (1.0 - y_prob_arr), 1e-6, None))
+    if score_scale_family == "bernoulli_sqrt_clipped_0.02":
+        clipped = np.clip(y_prob_arr, 0.02, 0.98)
+        return np.sqrt(np.clip(clipped * (1.0 - clipped), 1e-6, None))
+    if score_scale_family == "bernoulli_sqrt_clipped_0.05":
+        clipped = np.clip(y_prob_arr, 0.05, 0.95)
+        return np.sqrt(np.clip(clipped * (1.0 - clipped), 1e-6, None))
+    raise ValueError(f"Unsupported score_scale_family: {score_scale_family}")
+
+
 def create_pd_intervals(
     classifier,
     X_cal: pd.DataFrame,
@@ -115,7 +167,15 @@ def create_pd_intervals(
     alpha: float = 0.1,
     calibrator: Any | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Generate global split-conformal PD intervals via MAPIE."""
+    """Generate binary-outcome intervals centered on calibrated PD scores.
+
+    ``create_pd_intervals`` is retained as a compatibility name. With binary
+    ``y_cal``, the coverage event concerns ``Y`` rather than latent individual
+    PD. A split-conformal guarantee additionally requires the classifier and
+    calibrator to be fixed without these conformalization labels; this helper
+    cannot verify that provenance. The historical pipeline reused the labels,
+    so its outputs support retrospective empirical coverage only.
+    """
     from mapie.regression import SplitConformalRegressor
 
     prob_reg = ProbabilityRegressor(classifier, calibrator=calibrator)
@@ -135,7 +195,7 @@ def create_pd_intervals(
 
     avg_width = float((y_intervals[:, 1] - y_intervals[:, 0]).mean())
     logger.info(
-        f"Conformal PD intervals (global, alpha={alpha}): "
+        f"Binary-outcome conformal endpoints (global, alpha={alpha}): "
         f"avg_width={avg_width:.4f}, target_coverage={1 - alpha:.0%}"
     )
     return y_pred, y_intervals
@@ -152,8 +212,9 @@ def create_pd_intervals_mondrian(
     min_group_size: int = 500,
     calibrator: Any | None = None,
     scaled_scores: bool = False,
+    score_scale_family: str = "none",
 ) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
-    """Create group-conditional split-conformal PD intervals.
+    """Create group-conditional binary-outcome conformal intervals.
 
     This follows a Mondrian-style approach:
     - compute nonconformity scores on calibration split
@@ -167,11 +228,17 @@ def create_pd_intervals_mondrian(
         group_cal, group_test: segmentation labels (e.g., grade).
         alpha: significance level.
         min_group_size: fallback to global quantile for small groups.
-        calibrator: optional probability calibrator.
-        scaled_scores: if True, scale residuals by sqrt(p*(1-p)).
+        calibrator: optional probability calibrator. For a split-conformal
+            theorem it must be fixed independently of ``y_cal``.
+        scaled_scores: legacy shortcut for Bernoulli scaling.
+        score_scale_family: explicit scaling family for residual scores.
 
     Returns:
-        y_pred_test, y_intervals, diagnostics
+        y_pred_test, y_intervals, diagnostics. The coverage event concerns
+        binary ``Y``, not latent individual PD. A group-conditional theorem
+        also requires within-group exchangeability and a classifier,
+        calibrator, grouping and score rule fixed without the conformalization
+        labels; the helper cannot enforce that provenance.
     """
     y_cal_pred_raw = classifier.predict_proba(X_cal)[:, 1]
     y_test_pred_raw = classifier.predict_proba(X_test)[:, 1]
@@ -183,12 +250,14 @@ def create_pd_intervals_mondrian(
     g_test = pd.Series(group_test).fillna("UNKNOWN").astype(str).to_numpy()
 
     scores = np.abs(y_cal_arr - y_cal_pred)
-    if scaled_scores:
-        cal_scale = np.sqrt(np.clip(y_cal_pred * (1.0 - y_cal_pred), 1e-6, None))
-        test_scale = np.sqrt(np.clip(y_test_pred * (1.0 - y_test_pred), 1e-6, None))
+    resolved_scale_family = _resolve_score_scale_family(
+        scaled_scores=scaled_scores,
+        score_scale_family=score_scale_family,
+    )
+    cal_scale = _compute_score_scale(y_cal_pred, resolved_scale_family)
+    test_scale = _compute_score_scale(y_test_pred, resolved_scale_family)
+    if resolved_scale_family != "none":
         scores = scores / cal_scale
-    else:
-        test_scale = np.ones_like(y_test_pred)
 
     global_q = _conformal_quantile(scores, alpha)
     group_quantiles: dict[str, float] = {}
@@ -218,13 +287,14 @@ def create_pd_intervals_mondrian(
         "group_quantiles": group_quantiles,
         "group_cal_counts": group_cal_counts,
         "fallback_groups": fallback_groups,
-        "scaled_scores": scaled_scores,
+        "scaled_scores": bool(resolved_scale_family != "none"),
+        "score_scale_family": resolved_scale_family,
         "min_group_size": min_group_size,
         "avg_width": float((high - low).mean()),
         "median_width": float(np.median(high - low)),
     }
     logger.info(
-        "Conformal PD intervals (mondrian): "
+        "Binary-outcome conformal intervals (mondrian, PD-score centered): "
         f"groups={len(all_groups)}, avg_width={diagnostics['avg_width']:.4f}, "
         f"fallback_groups={len(fallback_groups)}"
     )
@@ -236,7 +306,7 @@ def conditional_coverage_by_group(
     y_intervals: np.ndarray,
     groups: pd.Series | np.ndarray,
 ) -> pd.DataFrame:
-    """Compute conditional coverage and width per segment."""
+    """Compute empirical binary-outcome coverage and width per segment."""
     g = pd.Series(groups).fillna("UNKNOWN").astype(str)
     y_true_arr = np.asarray(y_true, dtype=float)
     low = y_intervals[:, 0]
@@ -297,26 +367,42 @@ def create_classification_sets(
     X_test: pd.DataFrame,
     alpha: float = 0.1,
     method: str = "lac",
+    calibrator: Any | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Generate conformal prediction sets for classification."""
-    from mapie.classification import SplitConformalClassifier
+    method_key = str(method or "lac").strip().lower()
+    if method_key == "margin":
+        y_pred, y_sets = _create_margin_classification_sets(
+            classifier=classifier,
+            X_cal=X_cal,
+            y_cal=y_cal,
+            X_test=X_test,
+            alpha=alpha,
+            calibrator=calibrator,
+        )
+    else:
+        from mapie.classification import SplitConformalClassifier
 
-    adapted = PrefitClassifierAdapter(classifier, n_features_in=X_cal.shape[1])
-    mapie = SplitConformalClassifier(
-        estimator=adapted,
-        confidence_level=1 - alpha,
-        conformity_score=method,
-        prefit=True,
-    )
-    mapie.conformalize(X_cal, y_cal)
+        adapted = PrefitCalibratedClassifierAdapter(
+            classifier,
+            calibrator=calibrator,
+            n_features_in=X_cal.shape[1],
+        )
+        mapie = SplitConformalClassifier(
+            estimator=adapted,
+            confidence_level=1 - alpha,
+            conformity_score=method_key,
+            prefit=True,
+        )
+        mapie.conformalize(X_cal, y_cal)
 
-    y_pred = mapie.predict(X_test)
-    _, y_sets_raw = mapie.predict_set(X_test)
-    y_sets = np.asarray(y_sets_raw[:, :, 0], dtype=int)
+        y_pred = mapie.predict(X_test)
+        _, y_sets_raw = mapie.predict_set(X_test)
+        y_sets = np.asarray(y_sets_raw[:, :, 0], dtype=int)
 
     singleton_rate = (y_sets.sum(axis=1) == 1).mean()
     logger.info(
-        f"Conformal sets (alpha={alpha}, method={method}): singleton_rate={singleton_rate:.2%}"
+        f"Conformal sets (alpha={alpha}, method={method_key}): singleton_rate={singleton_rate:.2%}"
     )
     return y_pred, y_sets
 
@@ -358,6 +444,92 @@ def summarize_prediction_sets(
     }
 
 
+def _create_margin_classification_sets(
+    *,
+    classifier,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+    alpha: float,
+    calibrator: Any | None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Binary margin-style conformal sets over calibrated probabilities."""
+    p_cal = apply_probability_calibrator(calibrator, classifier.predict_proba(X_cal)[:, 1])
+    p_test = apply_probability_calibrator(calibrator, classifier.predict_proba(X_test)[:, 1])
+    y_cal_arr = np.asarray(y_cal, dtype=int).reshape(-1)
+
+    p_true = np.where(y_cal_arr == 1, p_cal, 1.0 - p_cal)
+    nonconformity = 2.0 * (1.0 - p_true)
+    q_alpha = _conformal_quantile(nonconformity, alpha)
+
+    include_pos = (2.0 * (1.0 - p_test)) <= q_alpha
+    include_neg = (2.0 * p_test) <= q_alpha
+    y_sets = np.column_stack([include_neg.astype(int), include_pos.astype(int)])
+    y_pred = (p_test >= 0.5).astype(int)
+    return y_pred, y_sets
+
+
+def create_classification_sets_mondrian(
+    classifier,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+    group_cal: pd.Series,
+    group_test: pd.Series,
+    alpha: float = 0.1,
+    method: str = "lac",
+    min_group_size: int = 500,
+    calibrator: Any | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """Generate group-conditional conformal prediction sets for binary classification."""
+    g_cal = pd.Series(group_cal).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    g_test = pd.Series(group_test).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    all_groups = sorted(set(g_cal).union(set(g_test)))
+    group_counts = {group: int((g_cal == group).sum()) for group in all_groups}
+    fallback_groups: list[str] = []
+
+    global_pred, global_sets = create_classification_sets(
+        classifier=classifier,
+        X_cal=X_cal,
+        y_cal=y_cal,
+        X_test=X_test,
+        alpha=alpha,
+        method=method,
+        calibrator=calibrator,
+    )
+    y_pred = np.asarray(global_pred, dtype=int).copy()
+    y_sets = np.asarray(global_sets, dtype=int).copy()
+
+    for group in all_groups:
+        cal_mask = g_cal == group
+        test_mask = g_test == group
+        if not test_mask.any():
+            continue
+        if int(cal_mask.sum()) < int(min_group_size):
+            fallback_groups.append(group)
+            continue
+        group_pred, group_sets = create_classification_sets(
+            classifier=classifier,
+            X_cal=X_cal.loc[cal_mask].reset_index(drop=True),
+            y_cal=y_cal.loc[cal_mask].reset_index(drop=True),
+            X_test=X_test.loc[test_mask].reset_index(drop=True),
+            alpha=alpha,
+            method=method,
+            calibrator=calibrator,
+        )
+        y_pred[np.asarray(test_mask)] = np.asarray(group_pred, dtype=int)
+        y_sets[np.asarray(test_mask)] = np.asarray(group_sets, dtype=int)
+
+    diagnostics = {
+        "alpha": float(alpha),
+        "method": str(method),
+        "min_group_size": int(min_group_size),
+        "group_cal_counts": group_counts,
+        "fallback_groups": sorted(set(fallback_groups)),
+    }
+    return y_pred, y_sets, diagnostics
+
+
 def build_mondrian_partition_labels(
     *,
     y_prob_cal: np.ndarray,
@@ -367,6 +539,7 @@ def build_mondrian_partition_labels(
     base_groups_eval: pd.Series | np.ndarray | None = None,
     n_score_bins: int = 10,
     min_group_size: int = 500,
+    fallback_mode: str = "grade_then_global",
 ) -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     """Build partition labels for Mondrian-style calibration.
 
@@ -393,8 +566,8 @@ def build_mondrian_partition_labels(
             },
         )
 
-    cal_scores = pd.Series(np.asarray(y_prob_cal, dtype=float).reshape(-1))
-    eval_scores = pd.Series(np.asarray(y_prob_eval, dtype=float).reshape(-1))
+    cal_scores = pd.Series(np.asarray(y_prob_cal, dtype=float).reshape(-1)).clip(0.0, 1.0)
+    eval_scores = pd.Series(np.asarray(y_prob_eval, dtype=float).reshape(-1)).clip(0.0, 1.0)
     rank_source = cal_scores.rank(method="first")
     n_bins_effective = int(max(1, min(int(n_score_bins), int(rank_source.nunique()))))
     if n_bins_effective <= 1:
@@ -435,6 +608,7 @@ def build_mondrian_partition_labels(
                 "score_band_count": int(cal_band.nunique()),
                 "score_band_edges": [float(x) for x in np.asarray(edges, dtype=float)],
                 "fallback_groups": [],
+                "fallback_mode": "score_only",
             },
         )
 
@@ -452,13 +626,18 @@ def build_mondrian_partition_labels(
     counts = hybrid_cal.value_counts(dropna=False).to_dict()
     grade_counts = grade_cal.value_counts(dropna=False).to_dict()
     fallback_groups: list[str] = []
+    fallback_mode_key = str(fallback_mode or "grade_then_global").strip().lower()
+    if fallback_mode_key not in {"grade_then_global", "global_only"}:
+        raise ValueError(f"Unsupported fallback_mode: {fallback_mode}")
 
     def _resolve_label(label: str, base_grade: str) -> str:
         n_label = int(counts.get(label, 0))
         if n_label >= int(min_group_size):
             return label
         fallback_groups.append(label)
-        if int(grade_counts.get(base_grade, 0)) >= int(min_group_size):
+        if fallback_mode_key == "grade_then_global" and int(grade_counts.get(base_grade, 0)) >= int(
+            min_group_size
+        ):
             return base_grade
         return "GLOBAL"
 
@@ -486,6 +665,7 @@ def build_mondrian_partition_labels(
             "fallback_groups": sorted(set(fallback_groups)),
             "hybrid_group_count_cal": int(hybrid_cal.nunique()),
             "resolved_group_count_cal": int(resolved_cal.nunique()),
+            "fallback_mode": fallback_mode_key,
         },
     )
 
@@ -533,81 +713,38 @@ def create_pd_intervals_venn_abers(
     y_cal: pd.Series,
     X_test: pd.DataFrame,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generate Venn-Abers multi-probability PD intervals.
+    """Generate Venn--Abers point predictions and multiprobability outputs.
 
-    Venn-Abers predictors produce automatically well-calibrated probability
-    intervals [p0, p1] with theoretical guarantees (Vovk & Petej, 2014).
-
-    Uses MAPIE's native VennAbersCalibrator (mapie.calibration) when available,
-    falling back to the external venn_abers library otherwise.
+    The ``venn_abers`` implementation returns both the log-loss minimax point
+    probability and the associated pair ``[p0, p1]`` (Vovk & Petej, 2014).
+    MAPIE's public ``VennAbersCalibrator.predict_proba`` returns class
+    probabilities, not that pair, so it must not be interpreted as bounds.
 
     Args:
         classifier: Fitted classifier with predict_proba.
-        X_cal: Calibration features (required for MAPIE path).
+        X_cal: Calibration features used to obtain raw classifier scores.
         y_cal: Calibration labels.
-        X_test: Test features (required for MAPIE path).
+        X_test: Evaluation features used to obtain raw classifier scores.
 
     Returns:
         Tuple of (y_pred_point, p0_array, p1_array) where:
-        - y_pred_point: positive-class probability as point estimate.
-        - p0_array: lower probability bound per observation.
-        - p1_array: upper probability bound per observation.
+        - y_pred_point: positive-class log-loss minimax probability.
+        - p0_array: lower Venn--Abers multiprobability per observation.
+        - p1_array: upper Venn--Abers multiprobability per observation.
     """
     y_cal_arr = np.asarray(y_cal.values if hasattr(y_cal, "values") else y_cal, dtype=int).reshape(
         -1
     )
 
-    # ── MAPIE native path (preferred) ─────────────────────────────────────────
-    try:
-        from mapie.calibration import VennAbersCalibrator
-
-        va = VennAbersCalibrator(estimator=classifier, inductive=True, random_state=42)
-        va.fit(
-            X_cal,
-            y_cal_arr,
-            X_calib=X_cal,
-            y_calib=y_cal_arr,
-        )
-        probs = va.predict_proba(X_test)  # shape (n, 2): [p_neg, p_pos]
-        p_low_raw = np.clip(np.asarray(probs[:, 0], dtype=float), 0.0, 1.0)
-        p_high_raw = np.clip(np.asarray(probs[:, 1], dtype=float), 0.0, 1.0)
-        # VennAbersCalibrator returns [p0, p1] bounds for positive class
-        p_low = np.minimum(p_low_raw, p_high_raw)
-        p_high = np.maximum(p_low_raw, p_high_raw)
-        y_pred_point = np.clip((p_low + p_high) / 2.0, 0.0, 1.0)
-        avg_width = float((p_high - p_low).mean())
-        logger.info(
-            f"Venn-Abers PD intervals [MAPIE]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
-        )
-        return y_pred_point, p_low, p_high
-
-    except (ImportError, ValueError, TypeError, RuntimeError, AttributeError) as exc:
-        logger.warning(
-            f"MAPIE VennAbersCalibrator failed ({exc}) — falling back to venn_abers library."
-        )
-
-    # ── External venn_abers fallback ──────────────────────────────────────────
-    from venn_abers import VennAbers
+    from src.models.venn_abers import VennAbersScoreCalibrator
 
     p_cal_pos = np.asarray(classifier.predict_proba(X_cal)[:, 1], dtype=float).reshape(-1)
-    p_cal = np.column_stack([1.0 - p_cal_pos, p_cal_pos])
     p_test_pos = np.asarray(classifier.predict_proba(X_test)[:, 1], dtype=float).reshape(-1)
-    p_test = np.column_stack([1.0 - p_test_pos, p_test_pos])
-
-    wrapped = VennAbers()
-    wrapped.fit(p_cal, y_cal_arr)
-    y_pred_binary, p_result = wrapped.predict_proba(p_test)
-    p0 = np.clip(np.asarray(p_result[:, 0], dtype=float), 0.0, 1.0)
-    p1 = np.clip(np.asarray(p_result[:, 1], dtype=float), 0.0, 1.0)
-
-    p_low = np.minimum(p0, p1)
-    p_high = np.maximum(p0, p1)
-    y_pred_point = np.clip(np.asarray(y_pred_binary[:, 1], dtype=float), 0.0, 1.0)
+    calibrator = VennAbersScoreCalibrator().fit(p_cal_pos, y_cal_arr)
+    y_pred_point, p_low, p_high = calibrator.predict_with_bounds(p_test_pos)
 
     avg_width = float((p_high - p_low).mean())
-    logger.info(
-        f"Venn-Abers PD intervals [fallback]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
-    )
+    logger.info(f"Venn-Abers multiprobabilities: avg_width={avg_width:.4f}, n_test={len(X_test)}")
     return y_pred_point, p_low, p_high
 
 

@@ -1,211 +1,149 @@
-# Model Risk Management Document — SR 11-7
+# Historical Model-Risk Control Reconstruction
 
-## 1. Model Identification & Purpose
+> **HISTORICAL INTERNAL CONTROL DOCUMENT (2026-07-20 boundary).** This file
+> reconstructs the local model freeze and its automated controls. It is not an
+> independent validation, an SR 11-7 compliance opinion, a deployment approval,
+> an accounting opinion, or authority for CRPTO, Paper 2, or Paper 4. Historical
+> terms such as `champion`, `PD`, `PASS`, `promotable`, and `policy` retain their
+> runtime-schema meaning only.
 
-| Field | Value |
-|-------|-------|
-| **Model Name** | CorePDCanonical |
-| **Model Type** | Probability of Default (PD) — Binary Classification |
-| **Algorithm** | Monotonic CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Venn-Abers) |
-| **Uncertainty Quantification** | Mondrian Conformal Prediction (MAPIE 1.3) |
-| **Owner** | Carlos Vergara |
-| **Version** | See `models/pd_training_record.pkl` for current version |
-| **Champion Artifact** | `models/pd_canonical.cbm` |
-| **Calibrator Artifact** | `models/pd_canonical_calibrator.pkl` |
-| **Feature Contract** | `models/pd_model_contract.json` (42 champion features; broader FE universe tracked in `data/processed/feature_manifest_v2.parquet`) |
+## 1. Authority and purpose
 
-### Intended Use
-- **Primary**: PD estimation for credit portfolio optimization under uncertainty
-- **Secondary**: IFRS9 ECL computation (Stage 1/2/3 classification), conformal interval generation for robust decision-making
+Current scientific status is governed by `SESSION_STATE.md`,
+`docs/research/crpto_external_contract_2026-07-20.yml`, and the relevant
+surface-specific claim contract. This document answers the narrower question:
+what did the local software freeze, check, and record?
 
-### Out-of-Scope Uses
-- Individual loan underwriting decisions without human review
-- Real-time credit scoring for automated approval/denial
-- Application to non-Lending-Club loan populations without recalibration
-- Use as a sole regulatory capital model without independent validation
+The primary modeled target is the observed future binary outcome $Y$ in the
+Lending Club archive. The runtime often calls its score `PD`; that label does
+not by itself identify an IFRS 9 probability of default at reporting date or a
+latent borrower-level parameter.
 
----
+## 2. Frozen artifact inventory
 
-## 2. Model Development
+| Field | Historical runtime value | Current interpretation |
+|---|---|---|
+| Model name | `CorePDCanonical` | Local binary-outcome score |
+| Estimator | monotonic CatBoost plus calibration | Reproducible fitted artifact, not a current winner |
+| Model artifact | `models/pd_canonical.cbm` | Frozen provenance object |
+| Calibrator | `models/pd_canonical_calibrator.pkl` | Frozen Venn–Abers object with legacy point semantics |
+| Feature contract | `models/pd_model_contract.json` | Runtime schema for 42 model features |
+| Conformal output | `data/processed/conformal_intervals_mondrian.parquet` | Binary-$Y$ diagnostic with legacy `pd_*` names |
+| Registry | `models/champion_registry.json` | Historical selection record, not current scientific authority |
 
-### 2.1 Data
+Artifacts and status JSON files must be interpreted with their run tags,
+configs, data hashes, split definitions, and package versions. A file called
+`canonical` or `champion` is evidence of an engineering decision at that time,
+not proof of external validity.
 
-**Source**: Lending Club Loan Data (Kaggle), 2.26M loans, 2007-2020.
+## 3. Data and evaluation history
 
-**Temporal Splits** (out-of-time, NOT random):
+The archived workflow used temporal train, calibration, and 2018–2020 labeled
+evaluation partitions. Post-outcome and repayment variables were removed by the
+feature pipeline. That separation is useful evidence against direct fitting
+leakage in the original run.
 
-| Split | Rows | Default Rate | Date Range |
-|-------|------|-------------|------------|
-| Train | 1,346,311 | 18.52% | 2007-06 to 2017-03 |
-| Calibration | 237,584 | 22.20% | 2017-03 to 2017-12 |
-| Test (OOT) | 276,869 | 21.98% | 2018-01 to 2020-09 |
+It is nevertheless incorrect to call the 2018–2020 outcomes a currently
+untouched holdout. They were later inspected and reused across calibration
+diagnostics, conformal analyses, challenger searches, threshold work, and
+economic-policy experiments. Accordingly:
 
-**Data Leakage Prevention**: Post-loan variables removed in `src/data/make_dataset.py`:
-total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_pymnt_*, settlement_*, hardship_*, funded_amnt*.
+- reported metrics are retrospective, in-sample-to-the-research-program
+  diagnostics;
+- comparisons affected by that reuse are post-selection summaries;
+- the archive cannot provide prospective confirmation for a selected model or
+  policy without new untouched data or a properly nested protocol.
 
-**Feature Engineering**: The rerun V2 introduced a canonical feature producer that materializes `train_fe`, `calibration_fe`, `test_fe`, `feature_config.pkl`, `woe_encoders.pkl`, and `feature_manifest_v2`. The official champion now freezes a **42-feature contract**, while the broader FE universe retains additional bureau, ratio, missingness-flag, and challenger-only variables. Schema enforced by Pandera (`src/features/schemas.py`).
+Temporal ordering also does not establish exchangeability or eliminate
+distribution shift. It changes the evaluation geometry; it does not repair the
+assumption.
 
-### 2.2 Methodology
+## 4. What the automation checked
 
-**Architecture**: Predict → Calibrate → Conformalize → Optimize
+The repository records automated checks for discrimination, calibration,
+coverage, drift, monotonicity, proxy-group disparities, feature stability, and
+downstream calculations. Examples include:
 
-1. **Logistic Regression baseline** — regulatory interpretability benchmark
-2. **CatBoost default** — gradient boosting with default hyperparameters
-3. **CatBoost tuned** — Optuna HPO (when enabled by config)
-4. **Calibration selection** — temporal multi-metric policy evaluates Platt Sigmoid, Isotonic Regression, Venn-Abers, and Beta Calibration; the current canonical artifact is Venn-Abers
-5. **Fairness on approval decisions** — official fairness and threshold semantics are read on approval outcomes, not on internal PD search thresholds
-6. **Mondrian Conformal Prediction** — group-conditional coverage by grade using MAPIE 1.3 SplitConformalRegressor
-7. **Robust Portfolio Optimization** — Pyomo + HiGHS with box uncertainty sets from conformal intervals
-8. **Post-promotion diagnostics** — C2ST with drivers, monotonicity audit, PD backtesting suite, PD validation interpretation, IFRS9 diagnostics, and encoding stability
+- `data/processed/pipeline_summary.json`;
+- `models/conformal_policy_status.json`;
+- `models/fairness_audit_status.json`;
+- `models/governance_status.json`;
+- `models/pd_backtesting_status.json`;
+- `models/bootstrap_validation_status.json`;
+- `models/calibration_mapping_status.json`;
+- `models/encoding_stability_status.json`.
 
-### 2.3 Key Assumptions and Limitations
+These files can demonstrate that code ran and that declared numerical rules
+were met. They do not demonstrate independent validation, regulatory
+acceptance, legal fairness, or continuing monitoring. Large-sample hypothesis
+tests and policy booleans require substantive interpretation; `overall_pass`
+must never be translated mechanically into model approval.
 
-1. **Exchangeability** (Conformal): calibration and test observations are drawn from the same distribution. Temporal split mitigates but does not eliminate distribution shift risk.
-2. **Grade A coverage**: Group A has fewer calibration samples, resulting in wider intervals. Coverage may be slightly below target for this subgroup.
-3. **Time series exchangeability**: 118-month history is limited for long-horizon forecasting. IFRS9 scenarios should be treated as indicative, not precise.
-4. **Cox PH proportional hazards**: The assumption is violated for some covariates; Random Survival Forest is used as a robustness check.
-5. **No demographic data**: Lending Club does not provide race, gender, or age. Fairness analysis is limited to proxy attributes (home_ownership, income quartile, verification status).
+### Conformal and Venn–Abers boundary
 
----
+Observed coverage can be reported for the declared binary-$Y$ procedure and
+sample. A finite-sample theorem requires the protocol's assumptions and does
+not turn score endpoints into confidence bounds for latent PD. Group summaries
+over proxies are not demographic fairness validation.
 
-## 3. Model Validation
+The July 2026 audit also found that ordinary class-probability columns and the
+Venn–Abers multiprobability pair had been conflated in one helper. New fits use
+the log-loss minimax point rule; old pickles without a rule marker preserve the
+historical midpoint behavior. No frozen model or result artifact was rewritten.
 
-### 3.1 Backtesting (Out-of-Time)
-- **Metrics**: AUC-ROC, Gini, Brier score, KS statistic, ECE
-- **Source**: `data/processed/pipeline_summary.json`
-- The OOT test set (2018-2020) was never seen during training or calibration
-- Additional diagnostic layers now exist for post-promotion validation:
-  - `models/pd_backtesting_status.json` — exact binomial, Jeffreys, z-score, HL;
-  - `models/bootstrap_validation_status.json` — bootstrap materiality layer for aggregate and slice-level calibration gaps;
-  - `models/pd_validation_interpretation_status.json` — materiality-oriented interpretation of those tests plus quarter persistence;
-  - `models/calibration_mapping_status.json` — shadow remap/intercept comparison without replacing the canonical calibrator;
-  - `models/calibration_mapping_shadow_impact_status.json` — consolidated decision artifact for the executed shadow lane;
-  - `models/pd_rare_event_calibration_status.json` — rare-event and slice calibration sidecar.
+## 5. Permitted and blocked uses
 
-Current reading after execution:
-- the shadow lane was executed on the confirmatory monotonic run and closed with `keep_current_calibrator`;
-- no lightweight remap candidate improved cohort persistence without degrading calibration quality;
-- therefore the remaining PD work is better framed as cohort-sensitive analytical interpretation, not as a simple calibrator replacement exercise.
+Permitted uses of the freeze are limited to:
 
-### 3.2 Benchmarking
-- **Comparison**: Logistic Regression vs CatBoost default vs CatBoost tuned
-- **Source**: `data/processed/model_comparison.json`
-- Logistic Regression serves as the mandatory interpretable baseline
+- software and artifact-lineage reproduction;
+- retrospective diagnostics for the observed binary outcome;
+- teaching and methodological reconstruction;
+- hypothesis generation for a newly designed study;
+- sensitivity calculations explicitly labeled as such.
 
-### 3.3 Conformal Coverage
-- **Target**: 90% coverage (alpha = 0.10)
-- **Mondrian groups**: By grade (A-G) for group-conditional coverage
-- **Policy gate**: the current canonical status is `overall_pass = true`, `strict_overall_pass = false`, and `methodological_justification_pass = true`; non-statistical checks pass and statistical tests remain diagnostic because coverage is conservatively above nominal in a very large OOT sample
-- **Source**: `models/conformal_policy_status.json`
+The current evidence does not authorize:
 
-### 3.4 Fairness Audit
-- **Metrics**: Demographic Parity Difference, Equalized Odds Gap, Disparate Impact Ratio
-- **Attributes**: home_ownership, annual_inc quartile, verification_status
-- **Thresholds**: DPD < 0.10, EO gap < 0.10, DIR > 0.80
-- **Decision semantics**: `outcome_mode=approval`
-- **Source**: `models/fairness_audit_status.json`
+- automated underwriting or borrower-level decisions;
+- deployment or an operational forecasting contract;
+- interpretation as regulatory capital or IFRS 9 PD;
+- ECL, lifetime-PD, SICR, or staging conclusions;
+- a current learner, threshold, comparator, or portfolio-policy winner;
+- robust-decision guarantees from marginal row-wise endpoints;
+- legal, protected-class, or demographic fairness conclusions;
+- generalization to other populations without new evidence.
 
----
+Historical portfolio and IFRS9-inspired scripts remain useful as executable
+research components. Their outputs are mechanical transformations of inputs,
+not validated accounting estimates or realized-decision evidence.
 
-## 4. Model Governance
+## 6. Historical governance design
 
-### 4.1 Roles and Responsibilities
+The repository encoded a developer/validator/owner separation, Git and DVC
+lineage, MLflow logging, challenger criteria, retraining triggers, and quarterly
+monitoring thresholds. That design is evidence of intended controls. The
+archive does not establish that an independent validator assumed those roles,
+that a committee approved deployment, or that recurring monitoring occurred.
 
-| Role | Responsibility |
-|------|---------------|
-| **Developer** | Model training, testing, documentation |
-| **Validator** | Independent validation, stress testing |
-| **Model Owner** | Approval, deployment decisions, risk acceptance |
+Likewise, the runtime distinction among `point_champion`,
+`interval_champion`, and `promotable` records how scripts routed artifacts. It
+does not create an official operational forecast or validated interval layer.
+The time-series and IFRS9-inspired lanes remain retrospective analytical
+support under the current claim contract.
 
-### 4.2 Change Management
-- All model changes tracked via Git (DagsHub mirror)
-- Data and model artifacts versioned with DVC
-- MLflow experiments logged for reproducibility
-- Decision history in `docs/DECISION_CHANGES_AND_LEARNINGS.md`
+## 7. Requirements for a future promotion
 
-### 4.3 Documentation Lineage
-- `CLAUDE.md` — project conventions and standards
-- `docs/PROJECT_JUSTIFICATION.md` — methodology justification
-- `configs/pd_model.yaml` — model hyperparameters
-- `configs/conformal_policy.yaml` — conformal prediction policy
-- `configs/fairness_policy.yaml` — fairness audit thresholds
+A defensible future model-risk package would need, at minimum:
 
----
+1. a declared estimand and intended use before evaluation;
+2. a target definition appropriate to that use, including horizon and
+   observation process;
+3. untouched prospective data or properly nested selection and evaluation;
+4. independent validation with documented challenge and disposition;
+5. calibration, discrimination, stability, and subgroup analyses tied to the
+   intended population;
+6. separate validation of every downstream accounting or decision mapping;
+7. explicit owners, monitoring cadence, escalation paths, and evidence that
+   the controls actually operated.
 
-## 5. Model Use and Limitations
-
-### Approved Uses
-- Academic thesis demonstration of predict-then-optimize pipeline
-- Portfolio-level risk assessment and optimization
-- IFRS9 Expected Credit Loss estimation under multiple scenarios
-- Conformal prediction research and methodology validation
-
-### Known Limitations
-1. Model trained on US consumer lending data (2007-2020) — may not generalize to other geographies or time periods
-2. Conformal coverage guarantee holds under exchangeability — distribution shifts void the guarantee
-3. No causal interpretation of features — model is predictive, not causal (causal analysis in NB07 is separate)
-4. LGD fixed at 0.45 in optimization — a simplification; two-stage LGD model exists but is not integrated into the optimizer
-5. Portfolio optimization assumes linear programming — real-world constraints (regulatory capital, liquidity) are more complex
-
----
-
-## 6. Ongoing Monitoring Plan
-
-### Monitoring Metrics
-
-| Metric | Threshold | Frequency | Source |
-|--------|-----------|-----------|--------|
-| AUC degradation | < 0.03 vs baseline | Quarterly | Pipeline summary |
-| Conformal coverage | > 0.88 (at 0.90 target) | Quarterly | Conformal policy |
-| Fairness (DIR) | > 0.80 | Quarterly | Fairness audit |
-| Conformal statistical validity | Kupiec/Christoffersen (diagnostic only; `methodological_justification_pass` is the operational gate) | Quarterly | Conformal policy v2 |
-| Drift governance | KS/CvM/C2ST policy pass | Quarterly | Governance status |
-| PD validation interpretation | `warning` or better | Quarterly | PD validation interpretation status |
-| Bootstrap validation | Large-`N` calibration gap uncertainty by aggregate and slice | Quarterly | Bootstrap validation status |
-| Calibration mapping sidecar | Shadow remap/intercept review for cohort persistence; currently closed as keep-current-calibrator | Quarterly | Calibration mapping status + shadow impact status |
-| IFRS9 diagnostics | Diagnostic review required when recursive stability / ADF power deteriorate | Quarterly | IFRS9 diagnostics status |
-| Monotonicity audit | `overall_pass = true` expected for the promoted monotonic champion | Quarterly | Monotonicity audit status |
-| Encoding stability | `overall_pass = true` expected unless bins/WOE become unstable | Quarterly | Encoding stability status |
-| Model-shift posture | Structural shift vs predictive degradation distinction | Quarterly | Model shift status |
-
-### Retraining Triggers
-- PSI exceeds 0.25 on any monitored feature
-- AUC drops more than 0.03 below the champion baseline
-- Conformal coverage drops more than 0.02 below target
-- See `configs/mrm_policy.yaml` for machine-readable thresholds
-
-### Escalation
-- Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`) gate deployment
-- Manual: quarterly review of monitoring dashboard (Streamlit → Model Governance page)
-- Canonical single-write status artifacts are enforced for conformal/fairness/governance
-
----
-
-## 7. Champion/Challenger Framework
-
-### Current Champion
-- **Model**: `models/pd_canonical.cbm` (monotonic CatBoost + probabilistic calibration; current artifact is Venn-Abers)
-- **Calibrator**: `models/pd_canonical_calibrator.pkl`
-- **Contract**: `models/pd_model_contract.json` (42 champion features)
-- **Registry source**: `models/champion_registry.json`
-
-### Challenger Criteria
-A challenger model must demonstrate:
-- AUC improvement ≥ 0.005 over champion on OOT test set
-- ECE improvement ≥ 0.002 (better calibration)
-- No degradation in conformal coverage or fairness metrics
-- Monotonic constraints aligned with domain priors when the challenger lane is explicitly monotonic
-- Feature-selection evidence package (`data/processed/challenger_feature_selection.parquet`)
-- Explicit policy: **no SMOTE** in challenger or champion training flows
-
-### Promotion Gate
-All of the following must pass:
-1. Conformal policy gate (current canonical artifact passes operationally via `methodological_justification_pass = true`; strict statistical diagnostics remain documented but non-blocking)
-2. Fairness audit (all attributes pass thresholds)
-3. Governance checks (drift, robustness, slicing)
-4. Independent validation review
-
-### Retirement Policy
-- Superseded models archived with version tag in DVC
-- MLflow experiment history preserved for audit trail
-- Minimum 90-day parallel run before champion retirement
+Until those conditions are met, the appropriate status is historical,
+diagnostic, and non-promoted.

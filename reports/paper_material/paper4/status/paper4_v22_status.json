@@ -1,0 +1,19 @@
+{
+  "schema_version": "2026-05-14.22",
+  "generated_at_utc": "2026-05-14T21:01:10.563648+00:00",
+  "phase": "v22_academic_synthesis",
+  "working_champion_policy_id_v22": "paper1_economic_champion",
+  "champion_changed_vs_v18": false,
+  "blocker_rows_v22": 10,
+  "claim_rows_v22": 9,
+  "all_claim_artifacts_exist_v22": true,
+  "contribution_rows_v22": 9,
+  "ifrs9_contractual_claim_allowed": false,
+  "causal_policy_value_allowed": false,
+  "fair_lending_legal_claim": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "Paper 4 lab synthesis only; working champion is not a final promotion",
+  "runtime_seconds": 0.021
+}

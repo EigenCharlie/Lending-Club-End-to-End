@@ -1,0 +1,309 @@
+{
+  "schema_version": "2026-05-26.1",
+  "generated_at_utc": "2026-05-28T22:08:09.104020+00:00",
+  "run_tag": "paper4_pyepo137_wls_pfyl_risk_only_full_20260528",
+  "mode": "paper4_full",
+  "config": {
+    "n_items": 100,
+    "budget": 30,
+    "selection_rate": 0.3,
+    "n_train_instances": 2000,
+    "n_test_instances": 500,
+    "epochs": 75,
+    "seeds": 10,
+    "batch_size": 32,
+    "lr": 0.001,
+    "feature_set": "full",
+    "feature_names": [
+      "loan_amnt",
+      "int_rate",
+      "annual_inc",
+      "dti",
+      "fico_range_low",
+      "open_acc",
+      "revol_bal",
+      "revol_util",
+      "total_acc",
+      "installment",
+      "emp_length",
+      "pub_rec",
+      "delinq_2yrs",
+      "inq_last_6mths",
+      "mths_since_last_delinq"
+    ],
+    "cost_target": "risk_only",
+    "methods": [
+      "pfyl_mul"
+    ],
+    "include_crpto": true,
+    "lgd": 0.4,
+    "torch_num_threads": 4,
+    "cave_max_iter": 3,
+    "archive_dir": "reports/paper_material/paper4/status/paper4_pyepo137_wls_pfyl_risk_only_full_20260528"
+  },
+  "data": {
+    "train_rows": 1346311,
+    "test_rows": 276869,
+    "conformal_rows": 276869,
+    "cost_target": "risk_only",
+    "cost_definition": "calibrated_pd * LGD",
+    "use_calibrated_pd": true,
+    "standard_oracle_backend": "exact_topk_numpy_lexicographic",
+    "cave_oracle_backend": "gurobi_binary_optDatasetConstrs"
+  },
+  "versions": {
+    "pyepo": "1.3.7",
+    "gurobipy": "13.0.2",
+    "torch": "2.10.0",
+    "ortools": "9.10.4067",
+    "numpy": "2.4.3",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "catboost": "1.2.10",
+    "mapie": "1.3.0",
+    "venn-abers": "1.5.1",
+    "cuda_available": "True",
+    "torch_cuda": "12.8"
+  },
+  "pyepo_validation": {
+    "expected": "1.3.7",
+    "actual": "1.3.7",
+    "ok": true,
+    "docs_note": "Public docs may be labeled 1.3.8; this suite pins executable PyPI 1.3.7."
+  },
+  "cave_status": {
+    "available": true,
+    "reason": "gurobipy imports and solves a minimal binary model",
+    "gurobi_version": "13.0.2",
+    "license_note": "Found a gurobi.lic candidate in a default/project-visible location.",
+    "main_suite_included": true,
+    "license_file_candidate_count": 2
+  },
+  "source_log": [
+    "Elmachtoub and Grigas (2021/2022), Smart predict, then optimize",
+    "Mandi, Stuckey, Guns (2020), Smart predict-and-optimize for combinatorial optimization",
+    "Vlastelica et al. (2019), Differentiation of blackbox combinatorial solvers",
+    "Sahoo et al. (2022), Backpropagation through combinatorial algorithms",
+    "Berthet et al. (2020), Learning with differentiable perturbed optimizers",
+    "Dalle et al. (2022), Learning with Combinatorial Optimization Layers",
+    "Mulamba et al. (2021), Contrastive losses and solution caching",
+    "Mandi et al. (2022), Decision-focused learning through the lens of learning to rank",
+    "Niepert et al. (2021) and Minervini et al. (2023), implicit MLE and perturbation gradients",
+    "Gupta and Huang (2024), Decision-Focused Learning with Directional Gradients",
+    "Schutte, Postek, Yorke-Smith (2023), Robust losses for DFL",
+    "Tang and Khalil (2024), CaVE"
+  ],
+  "runtime_seconds": 883.5737688541412,
+  "results": {
+    "summary": [
+      {
+        "method": "two_stage",
+        "method_display": "Two-stage Ridge",
+        "mean_regret": 0.0830137202,
+        "std_regret": 0.0383297536,
+        "median_regret": 0.0784014892,
+        "q25_regret": 0.0552697275,
+        "q75_regret": 0.1062542205,
+        "min_regret": 0.0,
+        "max_regret": 0.2569310833,
+        "n_observations": 5000,
+        "improvement_vs_two_stage_pct": 0.0,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": null,
+        "wilcoxon_vs_two_stage_pvalue": null,
+        "wilcoxon_alternative": "baseline",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "crpto_robust",
+        "method_display": "CRPTO robust",
+        "mean_regret": 0.0910631714,
+        "std_regret": 0.0435131403,
+        "median_regret": 0.0867642816,
+        "q25_regret": 0.0600271756,
+        "q75_regret": 0.1160397851,
+        "min_regret": 0.0,
+        "max_regret": 0.329641562,
+        "n_observations": 5000,
+        "improvement_vs_two_stage_pct": -9.6965310552,
+        "auditability_score": 3.0,
+        "wilcoxon_vs_two_stage_statistic": 5206534.5,
+        "wilcoxon_vs_two_stage_pvalue": 1.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": 0.9293384236,
+        "coverage_95": 0.9623395902,
+        "avg_width_90": 0.7641557153,
+        "min_grade_coverage_90": 0.900350942
+      },
+      {
+        "method": "pfyl_mul",
+        "method_display": "PFYL-Mul",
+        "mean_regret": 0.4810471147,
+        "std_regret": 0.1635114734,
+        "median_regret": 0.466911573,
+        "q25_regret": 0.3624859187,
+        "q75_regret": 0.582503119,
+        "min_regret": 0.0418112278,
+        "max_regret": 1.1250704397,
+        "n_observations": 5000,
+        "improvement_vs_two_stage_pct": -479.479041576,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 84.0,
+        "wilcoxon_vs_two_stage_pvalue": 1.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      }
+    ],
+    "n_regret_rows": 15000,
+    "n_loss_rows": 750
+  },
+  "acceptance_checks": {
+    "smoke_gate_passed": true,
+    "nonnegative_regret_tolerance": true,
+    "min_regret": 0.0,
+    "required_methods_present": true,
+    "required_methods": [
+      "crpto_robust",
+      "pfyl_mul",
+      "two_stage"
+    ],
+    "observed_methods": [
+      "crpto_robust",
+      "pfyl_mul",
+      "two_stage"
+    ],
+    "spo_plus_improvement_required": true,
+    "spo_plus_improves_two_stage": false,
+    "spo_plus_reproduction_gate_passed": false,
+    "spo_plus_improvement_vs_two_stage_pct": null,
+    "use_calibrated_pd": true,
+    "pyepo_version_ok": true
+  },
+  "artifacts": {
+    "data/processed/pyepo_real_suite_regrets.parquet": "f2e943c9a70e0bc447161134509e54648ea0f30442ba046484c8b70ae0bc850b",
+    "data/processed/pyepo_real_suite_losses.parquet": "89f2f6809699480d10e8dc1c5d15f15dddf36edf3290402e6c83e7aedbd1ab52",
+    "reports/paper_material/paper4/tables/pyepo_real_suite_summary.csv": "e25c8620fce59c4990d6292acd2a7c24e0ced3d949c21a3de9e974b71c750a86",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.pdf": "c0604b578eb366859e3495b5943186901973a6e6fe1336b3e69b821107e557e1",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.png": "a06d68d90509edd95238cf67c30dae1627fe8988363ce932a23bfcf599517612",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.pdf": "d76ed81ff7a8318b4dc3d651d358b60d9791d98331f908f4dc5c376cf99d897d",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.png": "94bfb10389e52fdec190626c4d12814e0e22536723df11c488993169d8eed61b"
+  },
+  "extra_meta": {
+    "42": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016701454296708107
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 30.72981905937195
+      }
+    },
+    "1042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016701454296708107
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 32.73461937904358
+      }
+    },
+    "2042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016427114605903625
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 35.06634449958801
+      }
+    },
+    "3042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016460912302136421
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 34.22342658042908
+      }
+    },
+    "4042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.001694914884865284
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 33.36670255661011
+      }
+    },
+    "5042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0017057554796338081
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 35.842740535736084
+      }
+    },
+    "6042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.001677148975431919
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 35.89822053909302
+      }
+    },
+    "7042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.001677148975431919
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 35.23073697090149
+      }
+    },
+    "8042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016736388206481934
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 33.33824682235718
+      }
+    },
+    "9042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.0,
+        "max_shift": 0.0,
+        "mean_shift": 0.0,
+        "positive_min_cost": 0.0016736388206481934
+      },
+      "method_runtime_seconds": {
+        "pfyl_mul": 32.91035461425781
+      }
+    }
+  }
+}

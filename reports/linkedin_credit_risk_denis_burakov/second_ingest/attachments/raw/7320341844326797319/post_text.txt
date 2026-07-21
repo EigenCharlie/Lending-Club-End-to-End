@@ -1,0 +1,12 @@
+Excited to announce the inclusion of CatBoost into the scorecard boosting package! 🌳
+With this addition, practitioners can leverage the CatBoost algorithm to:
+• Extract interpretable rules from gradient-boosted decision trees
+• Create credit scorecards that are indistinguishable from existing tools
+The xbooster package now transitioned to uv packaging in #Python 🐍 and can be installed with 𝘶𝘷 𝘢𝘥𝘥 𝘹𝘣𝘰𝘰𝘴𝘵𝘦𝘳 as well as via pip.
+📚 Medium article: https://lnkd.in/djgXGmnJ
+⭐ Git repo: https://lnkd.in/dySsE_Z6
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Boosted Trees to Logistic Regression: https://lnkd.in/dV6te4sJ 💡
+▷ Enhancing Credit Scorecards with Boosting: https://lnkd.in/d9DxiEq3 💡
+▷ Explore more here: https://linktr.ee/deburky ♻️
+▬

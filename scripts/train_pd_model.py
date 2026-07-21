@@ -100,6 +100,15 @@ def validate_pd_config(config: dict[str, Any], *, config_path: str) -> dict[str,
         "checkpoint_dir": "models/pd_training_checkpoints",
         "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
         "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png",
+        "canonical_model_path": str(CANONICAL_MODEL_PATH),
+        "canonical_calibrator_path": str(CANONICAL_CALIBRATOR_PATH),
+        "contract_path": str(CONTRACT_PATH),
+        "logreg_model_path": "models/pd_logreg_baseline.pkl",
+        "training_record_path": "models/pd_training_record.pkl",
+        "seed_replay_status_path": "models/pd_hpo_seed_replay_status.json",
+        "test_predictions_path": "data/processed/test_predictions.parquet",
+        "shap_dir": "reports/figures/shap",
+        "threshold_semantics_path": "models/threshold_semantics.json",
     }
     for key, value in output_defaults.items():
         normalized["output"].setdefault(key, value)
@@ -343,14 +352,33 @@ def _safe_auc(y_true: np.ndarray, y_prob: np.ndarray) -> float | None:
     return float(roc_auc_score(y_true, y_prob))
 
 
+def _resolve_calibration_point_rule(
+    method: str,
+    *,
+    run_mode: str,
+    replay_cfg: dict[str, Any] | None = None,
+) -> str | None:
+    """Resolve Venn--Abers point semantics without breaking old replay manifests."""
+    if str(method).strip().lower() != "venn_abers":
+        return None
+    if str(run_mode).strip().lower() == "replay":
+        value = str((replay_cfg or {}).get("selected_calibration_point_rule", "") or "").strip()
+        return value or VennAbersScoreCalibrator.LEGACY_POINT_RULE
+    return VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+
+
 def _fit_calibrator_from_scores(
     method: str,
     y_true: np.ndarray,
     y_prob_raw: np.ndarray,
+    *,
+    point_rule: str | None = None,
 ) -> Any:
     """Fit score-based calibrator from raw probabilities."""
     if method == "venn_abers":
-        model = VennAbersScoreCalibrator()
+        model = VennAbersScoreCalibrator(
+            point_rule=point_rule or VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+        )
         model.fit(y_prob_raw, y_true)
         return model
     if method == "platt":
@@ -570,6 +598,8 @@ def _evaluate_calibration_method(
     y_true: np.ndarray,
     y_prob_raw: np.ndarray,
     splits: list[tuple[np.ndarray, np.ndarray]],
+    *,
+    point_rule: str | None = None,
 ) -> dict[str, Any]:
     """Backtest calibrator over temporal folds using multi-metric summary."""
     fold_rows: list[dict[str, Any]] = []
@@ -583,7 +613,12 @@ def _evaluate_calibration_method(
         if len(np.unique(y_fit)) < 2 or len(np.unique(y_eval)) < 2:
             continue
 
-        calibrator = _fit_calibrator_from_scores(method, y_fit, p_fit)
+        calibrator = _fit_calibrator_from_scores(
+            method,
+            y_fit,
+            p_fit,
+            point_rule=point_rule,
+        )
         p_eval_cal = _apply_calibrator(calibrator, p_eval)
 
         raw_auc = _safe_auc(y_eval, p_eval)
@@ -614,6 +649,11 @@ def _evaluate_calibration_method(
     if not fold_rows:
         return {
             "method": method,
+            "point_rule": (
+                point_rule or VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+                if method == "venn_abers"
+                else None
+            ),
             "folds_used": 0,
             "mean_brier": float("inf"),
             "mean_log_loss": float("inf"),
@@ -634,6 +674,11 @@ def _evaluate_calibration_method(
 
     return {
         "method": method,
+        "point_rule": (
+            point_rule or VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+            if method == "venn_abers"
+            else None
+        ),
         "folds_used": int(len(fold_rows)),
         "mean_brier": float(np.mean(briers)),
         "mean_log_loss": float(np.mean(log_losses)),
@@ -1348,6 +1393,10 @@ def main(
             n_jobs=int(hpo_cfg.get("n_jobs", 1)),
             sample_weight=train_fit_weights,
             eval_sample_weight=train_val_weights,
+            search_space_mode=str(hpo_cfg.get("search_space_mode", "global")),
+            local_refine_space=dict(hpo_cfg.get("local_refine", {}) or {}),
+            constraints_policy=dict(hpo_cfg.get("constraints_policy", {}) or {}),
+            search_space_version=str(hpo_cfg.get("search_space_version", "cb_space_v2")),
         )
 
         if bool(seed_replay_cfg.get("enabled", True)):
@@ -1467,6 +1516,11 @@ def main(
     cal_reports: list[dict[str, Any]] = []
     if run_mode == "replay":
         selected_cal_method = str(replay_cfg.get("selected_calibration_method", "venn_abers"))
+        selected_cal_point_rule = _resolve_calibration_point_rule(
+            selected_cal_method,
+            run_mode=run_mode,
+            replay_cfg=replay_cfg,
+        )
         try:
             cal_reports.append(
                 _evaluate_calibration_method(
@@ -1474,12 +1528,14 @@ def main(
                     y_cal.to_numpy(),
                     y_prob_tuned_cal,
                     cal_splits,
+                    point_rule=selected_cal_point_rule,
                 )
             )
         except Exception as exc:
             cal_reports.append(
                 {
                     "method": selected_cal_method,
+                    "point_rule": selected_cal_point_rule,
                     "folds_used": 0,
                     "mean_brier": float("inf"),
                     "mean_log_loss": float("inf"),
@@ -1495,6 +1551,7 @@ def main(
             )
         cal_selection_report = {
             "selected_method": selected_cal_method,
+            "selected_point_rule": selected_cal_point_rule,
             "selection_reason": "frozen_replay_manifest",
             "auc_drop_limit": 0.0015,
             "candidates": cal_reports,
@@ -1505,18 +1562,27 @@ def main(
     else:
         for method in cal_candidates:
             try:
+                candidate_point_rule = _resolve_calibration_point_rule(
+                    str(method),
+                    run_mode=run_mode,
+                )
                 cal_reports.append(
                     _evaluate_calibration_method(
                         str(method),
                         y_cal.to_numpy(),
                         y_prob_tuned_cal,
                         cal_splits,
+                        point_rule=candidate_point_rule,
                     )
                 )
             except Exception as exc:
                 cal_reports.append(
                     {
                         "method": str(method),
+                        "point_rule": _resolve_calibration_point_rule(
+                            str(method),
+                            run_mode=run_mode,
+                        ),
                         "folds_used": 0,
                         "mean_brier": float("inf"),
                         "mean_log_loss": float("inf"),
@@ -1534,11 +1600,17 @@ def main(
             cal_reports,
             auc_drop_limit=0.0015,
         )
+        selected_cal_point_rule = _resolve_calibration_point_rule(
+            selected_cal_method,
+            run_mode=run_mode,
+        )
+        cal_selection_report["selected_point_rule"] = selected_cal_point_rule
     _write_checkpoint(
         checkpoint_dir,
         "calibration_selection",
         {
             "selected_method": selected_cal_method,
+            "selected_point_rule": selected_cal_point_rule,
             "selection_report": cal_selection_report,
             "candidate_reports": cal_reports,
         },
@@ -1548,13 +1620,17 @@ def main(
         phase="calibration_selected",
         state="running",
         config_path=config_path,
-        extra={"selected_calibration_method": selected_cal_method},
+        extra={
+            "selected_calibration_method": selected_cal_method,
+            "selected_calibration_point_rule": selected_cal_point_rule,
+        },
     )
 
     calibrator = _fit_calibrator_from_scores(
         selected_cal_method,
         y_cal.to_numpy(),
         y_prob_tuned_cal,
+        point_rule=selected_cal_point_rule,
     )
     y_prob_final = _apply_calibrator(calibrator, y_prob_tuned_test)
     y_prob_final_val = _apply_calibrator(calibrator, y_prob_tuned_val)
@@ -1741,6 +1817,7 @@ def main(
             "calibrated": calibrated_decomposition,
             "uncalibrated": raw_decomposition,
             "selected_calibration_method": selected_cal_method,
+            "selected_calibration_point_rule": selected_cal_point_rule,
         },
     )
 
@@ -1821,13 +1898,18 @@ def main(
             "decision_threshold_v2": str(decision_threshold_v2_path),
         },
         run_tag=resolved_run_tag,
+        path=_artifact_path(
+            config["output"].get("threshold_semantics_path", "models/threshold_semantics.json")
+        ),
         extra={
             "pd_internal_threshold_source": str(decision_threshold_artifact.get("source", "")),
             "calibration_method": selected_cal_method,
         },
     )
 
-    logreg_model_path = _artifact_path("models/pd_logreg_baseline.pkl")
+    logreg_model_path = _artifact_path(
+        config["output"].get("logreg_model_path", "models/pd_logreg_baseline.pkl")
+    )
     logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
     with open(logreg_model_path, "wb") as f:
         pickle.dump(
@@ -1840,9 +1922,13 @@ def main(
         )
 
     # Canonical artifacts for downstream loading.
-    canonical_model_path = _artifact_path(CANONICAL_MODEL_PATH)
-    canonical_calibrator_path = _artifact_path(CANONICAL_CALIBRATOR_PATH)
-    contract_path = _artifact_path(CONTRACT_PATH)
+    canonical_model_path = _artifact_path(
+        config["output"].get("canonical_model_path", str(CANONICAL_MODEL_PATH))
+    )
+    canonical_calibrator_path = _artifact_path(
+        config["output"].get("canonical_calibrator_path", str(CANONICAL_CALIBRATOR_PATH))
+    )
+    contract_path = _artifact_path(config["output"].get("contract_path", str(CONTRACT_PATH)))
     canonical_model_path.parent.mkdir(parents=True, exist_ok=True)
     canonical_calibrator_path.parent.mkdir(parents=True, exist_ok=True)
     if model_path.resolve() != canonical_model_path.resolve():
@@ -1864,6 +1950,11 @@ def main(
         split_shapes=split_shapes,
         split_missing_features=split_missing,
     )
+    contract_payload["calibrator"] = {
+        "method": selected_cal_method,
+        "class": type(calibrator).__name__,
+        "point_rule": getattr(calibrator, "point_rule", None),
+    }
     save_contract(contract_payload, contract_path)
 
     # ── SHAP feature importance export (CatBoost native) ──
@@ -1883,7 +1974,7 @@ def main(
             key=lambda x: x[1],
             reverse=True,
         )
-        shap_dir = _artifact_path("reports/figures/shap")
+        shap_dir = _artifact_path(config["output"].get("shap_dir", "reports/figures/shap"))
         shap_dir.mkdir(parents=True, exist_ok=True)
 
         # Save raw SHAP values (compressed)
@@ -1918,7 +2009,9 @@ def main(
         shap_artifact["error"] = str(exc)
 
     # Persist test predictions for downstream contracts.
-    test_predictions_path = _artifact_path("data/processed/test_predictions.parquet")
+    test_predictions_path = _artifact_path(
+        config["output"].get("test_predictions_path", "data/processed/test_predictions.parquet")
+    )
     test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
     y_prob_lr = lr_model.predict_proba(X_test_lr)[:, 1]
     preds_df = pd.DataFrame(
@@ -1940,6 +2033,7 @@ def main(
         "replay_manifest_path": str(replay_manifest_path) if replay_manifest_path else None,
         "best_model": "CatBoost (tuned + calibrated)",
         "best_calibration": _human_calibration_name(selected_cal_method),
+        "calibration_point_rule": selected_cal_point_rule,
         "calibration_selection_report": cal_selection_report,
         "feature_source": feature_sets.get("feature_source", feature_mode),
         "feature_config_path": str(feature_config_path),
@@ -1979,14 +2073,19 @@ def main(
         "murphy_diagram_path": str(murphy_diagram_path),
     }
 
-    record_path = _artifact_path("models/pd_training_record.pkl")
+    record_path = _artifact_path(
+        config["output"].get("training_record_path", "models/pd_training_record.pkl")
+    )
     record_path.parent.mkdir(parents=True, exist_ok=True)
     with open(record_path, "wb") as f:
         pickle.dump(training_record, f)
     if seed_replay_report:
-        seed_replay_status_path = _artifact_path("models/pd_hpo_seed_replay_status.json")
+        seed_replay_status_path = _artifact_path(
+            config["output"].get("seed_replay_status_path", "models/pd_hpo_seed_replay_status.json")
+        )
         seed_replay_status = {
             "selected_calibration_method": selected_cal_method,
+            "selected_calibration_point_rule": selected_cal_point_rule,
             "validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
             "oot_auc": float(final_test_metrics.get("auc_roc", 0.0)),
             "brier": float(final_test_metrics.get("brier_score", 0.0)),

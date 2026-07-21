@@ -1,0 +1,14 @@
+metric_id,pyramid_level,metric_family,metric_name,powell_role,direction,current_artifact,champion_decision_role,deployability_gate,caveat
+M01,1,base,final wealth / state value,objective,maximize,paper4_v13_dla_fvi_comparison.csv,champion ranking input,not sufficient alone,DLA value is fitted-value proxy
+M02,1,base,robust gross/net return,objective,maximize,paper4_v13_working_candidate_registry.csv,champion ranking input,not sufficient alone,return can dominate risk if ungated
+M03,2,risk,CVaR/OCE scenario loss,limit,minimize,paper4_v13_cvar_stronger_decomposition_frontier.csv,tail-risk gate,hard/review limit,strict caps remain partly infeasible
+M04,2,risk,ECL/provision and Stage 2 share,limit,minimize,paper4_v13_ifrs9_sicr_sensitivity.csv,prudential gate,proxy-only gate,no contractual IFRS9 claim
+M05,2,risk,MDCP/source coverage stress,limit,maximize,paper4_v13_mdcp_cap_regime_solver_summary.csv,source governance gate,coverage/support gate,no legal fairness claim
+M06,2,risk,sample-path p95 loss,limit,minimize,paper4_v13_sample_path_macro_calibrated_ci.csv,common-path stress gate,stress diagnostic,internal calibration only
+M07,3,estimation,online conformal worst-cell coverage,target,hit_or_exceed,paper4_v9_online_goal_status.json,coverage gate,target 0.80/0.90 by cell,historical replay
+M08,3,estimation,online conformal interval width,target,minimize subject to coverage,paper4_v9_online_goal_status.json,efficiency gate,target <= 0.95,future-period validation pending
+M09,3,estimation,decision regret proxy,objective,minimize,paper4_v13_spo_decision_loss_report.csv,SPO/DFL lane evidence,surrogate only,not differentiable SPO+ proof
+M10,4,implementation,auditability score / claim traceability,target,maximize,paper4_v13_working_candidate_registry.csv,MRM/documentation gate,must be artifact-backed,score is governance proxy
+M11,4,implementation,IFRS9 contractual data readiness,limit,maximize,paper4_v13_ifrs9_data_blocker_register.csv,claim authorization gate,must pass before claim,data blocked
+M12,4,implementation,fair-lending evidence readiness,limit,maximize,paper4_v13_fairness_proxy_governance.csv,legal-claim gate,must pass before claim,protected attributes/protocol absent
+M13,4,implementation,CATE identification readiness,limit,maximize,paper4_v13_causal_cate_dossier.csv,policy-value gate,must pass before claim,theory/identification blocked

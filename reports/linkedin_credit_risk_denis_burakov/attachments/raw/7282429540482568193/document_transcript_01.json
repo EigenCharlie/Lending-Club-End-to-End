@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "Logistic Regression Inference",
+    "Logistic Regression Inference - Example 1 With binary logistic regression we can make inference about coefficients, predictions, and the mean response (e.g., how predictions and confidence intervals change depending on the inputs) In Applied Logistic Regression by Hosmer, Lemeshow, and Sturdivant, a good example of the mean response estimation was provided for the Low Birth Weight Study This analysis can be performed with statsmodels in Python, but requires a manual setup Using `predict_ci` method of the logistic regression from `fisher-scoring`, we reconstruct the intervals as in the book (see the step-by-step example in the notebook)",
+    "Logistic Regression Inference - Example 2 We can also perform inference about mean response (default) with categorical features by comparing the confidence intervals of several groups In Introduction to Statistical Learning with Python, an example was provided for credit default dataset Using the same model as estimated in the book, we provide the estimation result for balance and income for students and non-students The coefficient of student is negative meaning that the default rate, keeping balance and income fixed, is lower for the student group, what we see in the diagram at a balance range between $2000 and $3000",
+    "Model Fit Summaries Example 1 (Applied Logistic Regression) Example 2 (Intro to Statistical Learning)",
+    "Reproducible Example from ISLP import load_data from sklearn.model_selection import train_test_split from fisher_scoring import FisherScoringLogisticRegression Default = load_data('Default') features = ['balance', 'income'] label = 'default' X, y = Default[features], Default[label].map({'No': 0, 'Yes': 1}) X['is_student'] = Default['student'].map({'No': 0, 'Yes': 1}) X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.3, random_state=0 ) # Fit model model = FisherScoringLogisticRegression() model.fit(X_train, y_train) # Make predictions probas = model.predict_proba(X_test)[:, 1] intervals = model.predict_ci(X_test) ci_lower, ci_upper = intervals[:, 0], intervals[:, 1]",
+    "Books",
+    "Fisher Scoring with Python pip install fisher-scoring Install with pip: Notebook with examples: github.com/xrisklab/fisher-scoring http://github.com/xrisklab/fisher-scoring"
+  ]
+}

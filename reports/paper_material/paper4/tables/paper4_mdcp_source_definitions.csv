@@ -1,0 +1,5 @@
+source_id,columns,status
+grade,original_grade,implemented
+period,period,implemented
+grade_period,original_grade|period,implemented
+score_decile,score_decile,implemented

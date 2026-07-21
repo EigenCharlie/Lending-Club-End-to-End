@@ -1,12 +1,14 @@
 ---
 title: "Optimización de Portafolio"
 page-layout: article
-close_takeaway: "La optimización robusta convierte intervalos conformales en decisiones de capital con un price of robustness de solo -2.58%. La capa de decisión no es un accesorio: es donde la incertidumbre cuantificada deja de ser estadística y se convierte en valor económico concreto ($207K retorno, 299 préstamos seleccionados)."
-close_connects: "El portafolio champion alimenta directamente el cálculo ECL de IFRS9 (@sec-ecl-calculation), el análisis de escenarios (@sec-scenario-analysis) y la simulación A/B retroactiva (@sec-ab-testing). El ajuste CATE conecta con inferencia causal (@sec-causal-inference)."
-close_reuse: "La frontera de robustez y el price of robustness son resultados centrales del Paper Estrella (@sec-estrella-intro). La comparación CATE-adjusted vs baseline reaparece en el puente académico (Capítulo 17)."
 ---
 
-Este capitulo transforma las predicciones calibradas de PD y los intervalos de incertidumbre conformal en decisiones concretas de asignacion de capital. El pipeline completo sigue una arquitectura *predict-then-optimize* donde cada componente alimenta al siguiente:
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+Este capítulo documenta cómo el repositorio transformó scores y endpoints
+binarios en decisiones de asignación. La transformación es reproducible, pero
+debe leerse como stress histórico: cada flecha necesita un estimando propio y
+no existe una garantía que cubra la cadena completa.
 
 La @tbl-portfolio-chapter-overview resume las secciones y su contribucion al pipeline.
 
@@ -14,9 +16,9 @@ La @tbl-portfolio-chapter-overview resume las secciones y su contribucion al pip
 |---------|-----------|---------------------|
 | @sec-deterministic-portfolio | Formulacion LP, Pyomo + HiGHS | `portfolio_allocations.parquet` |
 | @sec-robust-portfolio | Conjuntos de incertidumbre box, contraparte robusta | `portfolio_robustness_frontier.parquet` |
-| @sec-policy-selection | Selector economico v3, test A/B de no-regresion | `champion_portfolio_policy.json` |
-| @sec-cate-portfolio | Ajuste causal (CATE) al retorno esperado | `cate_portfolio_comparison.parquet` |
-| @sec-efficient-frontier | Frontera de Pareto: riesgo vs robustez vs retorno | `portfolio_robustness_summary.parquet` |
+| @sec-policy-selection | Selector económico histórico y auditoría de sus límites | `champion_portfolio_policy.json` (legacy) |
+| @sec-cate-portfolio | Inyección stress-only de un score etiquetado CATE en el objetivo estilizado | `cate_portfolio_comparison.parquet` |
+| @sec-efficient-frontier | Grid histórico de sensibilidad: score, endpoints y retorno ex post; no Pareto poblacional | `portfolio_robustness_summary.parquet` |
 
 : Resumen del capitulo de optimizacion de portafolio. {#tbl-portfolio-chapter-overview}
 
@@ -25,29 +27,43 @@ La @tbl-portfolio-chapter-overview resume las secciones y su contribucion al pip
 Toda la optimizacion usa **HiGHS** como solver LP/MILP open-source [@huangfu_parallelizing_2018], modelado con Pyomo. No se requiere licencia comercial (Gurobi/CPLEX).
 :::
 
-::: {.column-page}
-![Visualización de conjuntos de incertidumbre usados por la capa de optimización robusta para transformar intervalos conformales en restricciones de decisión.](../../assets/figures/notebooks/uncertainty_sets.png){#fig-uncertainty-sets fig-alt="Conjuntos de incertidumbre box usados en la optimización robusta del portafolio."}
-:::
-
-La figura @fig-uncertainty-sets conecta estadística con OR: cada intervalo conformal deja de ser una salida descriptiva y se convierte en una región factible de decisión.
+El diagrama legacy de cajas se conserva como procedencia y se omite de la
+navegación porque rotula los endpoints como “conformal PD intervals”. El
+prototipo trató endpoints de $Y$ como una caja de stress; esa operación no
+identifica incertidumbre de PD.
 
 | Capa de entrada | Qué aporta a la optimización | Qué error evita |
 |---|---|---|
-| `pd_point` | ranking base y retorno esperado | decidir como si el score fuera exacto |
-| intervalo conformal | rango plausible de riesgo por préstamo | sobreasignar capital a candidatos con alta ambigüedad |
-| policy champion | umbrales y perfil económico promovido | dejar la selección final en tuning implícito o subjetivo |
-| evaluación A/B y regret | evidencia económica posterior | confundir elegancia metodológica con valor real |
+| `pd_point` | score base y objetivo estilizado | decidir como si el score fuera exacto |
+| endpoints conformales | stress numérico sobre la solución | asumir que el stress hereda cobertura sobre PD |
+| policy congelada | reproducibilidad de la corrida local | confundir un nombre runtime con promoción científica |
+| comparación ex post y regret | diagnóstico sobre outcomes reutilizados | llamarlo A/B, valor causal o evaluación independiente |
 
 : Cómo se traduce la estadística en decisión de portafolio {#tbl-portfolio-inputs}
 
 ```{=html}
 <div class="chapter-landing-grid">
   <div class="chapter-card"><h4><a href="09a-deterministic-portfolio.html">35. Determinístico</a></h4><p>Formulación base LP y restricciones canónicas.</p></div>
-  <div class="chapter-card"><h4><a href="09b-robust-portfolio.html">36. Robusto</a></h4><p>Uncertainty sets conformales y peor caso plausible.</p></div>
-  <div class="chapter-card"><h4><a href="09c-policy-selection.html">37. Política Champion</a></h4><p>Selector económico, A/B y promoción final.</p></div>
-  <div class="chapter-card"><h4><a href="09d-cate-adjusted-portfolio.html">38. CATE-Adjusted</a></h4><p>Bridge entre inferencia causal y asignación.</p></div>
+  <div class="chapter-card"><h4><a href="09b-robust-portfolio.html">36. Robusto</a></h4><p>Sensibilidad histórica a endpoints y peor caso estilizado.</p></div>
+  <div class="chapter-card"><h4><a href="09c-policy-selection.html">37. Selección retrospectiva</a></h4><p>Selector económico y no-regression check sobre el mismo OOT.</p></div>
+  <div class="chapter-card"><h4><a href="09d-cate-adjusted-portfolio.html">38. CATE-Adjusted</a></h4><p>Stress observacional, sin identificación de policy value.</p></div>
   <div class="chapter-card"><h4><a href="09e-efficient-frontier.html">39. Frontera</a></h4><p>Trade-off retorno/robustez y price of robustness.</p></div>
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+La capa conserva un experimento de sensibilidad a endpoints que cubren $Y$, no
+PD latente; la caja no hereda robustez conformal ni selecciona una policy.
+
+## Esto conecta con…
+
+ECL, comparaciones retroactivas y CATE son consumidores diagnósticos con
+estimandos propios.
+
+## Dónde se reutiliza esta señal o artefacto
+
+La auditoría CRPTO reemplazó la promoción antigua por reporte completo de
+diseño, comparadores e identificación parcial, sin winner.
+:::

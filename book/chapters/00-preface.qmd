@@ -3,13 +3,26 @@ title: "Prefacio"
 page-layout: article
 ---
 
+{{< include ../includes/_scientific-scope-contract.qmd >}}
+
 ## Motivación
 
-En la práctica de gestión de riesgo crediticio, las decisiones de originación, provisión y capital se basan en modelos de Probabilidad de Default (PD). Sin embargo, un modelo que produce una PD puntual de 0.12 para un solicitante no comunica cuánta confianza debería depositar el decisor en ese número. ¿Es un 12% con margen de error de ±2%, o de ±15%? La diferencia importa: el primer caso permite decidir con certeza razonable; el segundo exige cautela.
+En gestión de riesgo crediticio, una PD puntual no comunica por sí sola la
+incertidumbre relevante para originación, provisión o capital. Tampoco es
+correcto interpretar cualquier intervalo centrado en ese score como margen de
+error de la PD individual. El objeto estadístico importa tanto como el número.
 
-Este problema no es nuevo. Los intervalos de confianza clásicos requieren supuestos distribucionales fuertes. Los intervalos bootstrap son computacionalmente costosos y carecen de garantías en muestra finita. Los intervalos bayesianos exigen priors que pueden no reflejar la realidad. La **predicción conformal** resuelve este problema de manera elegante: produce intervalos de predicción con garantías matemáticas de cobertura, sin supuestos sobre la distribución de los datos, y en muestra finita.
+La predicción conformal puede ofrecer cobertura finita para un resultado futuro
+bajo su protocolo e intercambiabilidad. En la implementación histórica, el
+evento de cobertura empírica se refiere a $Y$ binario, no a una probabilidad
+latente. Sin embargo, los mismos labels ajustaron el calibrador y
+conformalizaron; junto con el split temporal y la reutilización del OOT, esto
+impide que el freeze herede automáticamente la garantía teórica.
 
-Este libro documenta un proyecto que lleva esa idea hasta sus consecuencias operativas: las PD calibradas se convierten en intervalos conformal, los intervalos se convierten en conjuntos de incertidumbre para optimización robusta, y la optimización robusta produce portafolios más resilientes frente a escenarios adversos plausibles. El pipeline completo conecta predicción → incertidumbre → decisión → provisión → gobernanza.
+Este libro documenta el pipeline y su evolución crítica. Las capas de
+optimización e IFRS9 se conservan como experimentos y failure modes; no heredan
+la cobertura conformal. La edición actual conecta predicción → estimando →
+evidencia → decisión de claim → gobernanza.
 
 ## Sobre este libro
 
@@ -17,7 +30,10 @@ Este no es un libro de texto convencional ni una tesis condensada. Es un **docum
 
 1. **Documentar el pipeline completo**: Cada etapa del proceso --- desde la ingesta de datos hasta la optimización de portafolio y las provisiones IFRS9 --- se explica con la profundidad necesaria para entender *qué* hace, *por qué* se diseñó así, y *cómo* se conecta con las demás etapas.
 
-2. **Servir como plataforma de investigación**: Tres papers de investigación (Predicción Conformal Mondrian, IFRS9 End-to-End, y Predict-then-Optimize con incertidumbre conformal) se desarrollan como secciones autocontenidas, con sus propios marcos teóricos, estados del arte y resultados.
+2. **Servir como plataforma de investigación**: CRPTO se mantiene en su
+   repositorio externo como auditoría de identificación; Paper 2 queda
+   parqueado como diagnóstico IFRS9-inspired; Paper 4 conserva un living lab
+   con stop rules explícitas.
 
 3. **Proveer una visión 360° del dataset**: Lending Club es un dataset estático de 1.86 millones de préstamos. Al ser estático, podemos aplicar un arsenal completo de técnicas modernas para extraer la máxima información: desde análisis de supervivencia hasta inferencia causal, desde predicción conformal hasta optimización robusta.
 
@@ -28,10 +44,10 @@ El libro está organizado en seis partes. No es necesario leerlo secuencialmente
 ::: {.callout-tip}
 ## Guía de lectura por perfil
 
-- **Si tienes experiencia en ML/DS pero no en riesgo crediticio**: Comienza por el glosario de fundamentos de riesgo crediticio y luego sigue el pipeline desde el capítulo 11.
+- **Si tienes experiencia en ML/DS pero no en riesgo crediticio**: Comienza por el glosario y luego sigue la Parte II.
 - **Si tienes experiencia en riesgo crediticio pero no en ML avanzado**: Comienza por los fundamentos de ML y predicción conformal, y luego explora los capítulos que más te interesen.
 - **Si te interesan los papers de investigación**: Cada paper en la Parte IV es autocontenido. Puedes leerlos directamente sin necesidad de recorrer todo el pipeline.
-- **Si quieres una visión ejecutiva rápida**: El Mapa Ejecutivo (capítulo 3) proporciona un resumen de KPIs y resultados clave.
+- **Si quieres una visión ejecutiva rápida**: El Mapa Ejecutivo distingue métricas históricas, diagnósticos y claims vigentes.
 :::
 
 ## Convenciones del libro
@@ -55,11 +71,14 @@ Los recuadros amarillos señalan limitaciones metodológicas, supuestos que debe
 
 Cuando aparezca código, será porque ayuda a entender una decisión importante o una implementación clave. En el resto del libro se prioriza la intuición, la lectura guiada de resultados y la interpretación de negocio.
 
-## El pipeline en una imagen
+## El pipeline como cadena auditada
 
-![Diagrama editorial del pipeline completo, desde los datos crudos de Lending Club hasta la decisión robusta y la gobernanza regulatoria.](../assets/figures/poster/methods_flowchart.png){#fig-pipeline-overview fig-alt="Diagrama de flujo del método del proyecto con bloques de preparación de datos, modelado PD, calibración, predicción conformal, optimización robusta e IFRS9."}
-
-La figura @fig-pipeline-overview actúa como mapa de lectura de alto nivel. El capítulo [Visión General del Pipeline](04-pipeline-overview/index.qmd) descompone el mismo flujo en capas operativas y evidencia de artefactos congelados.
+El flujo histórico fue `datos → score → calibración → endpoints de Y → stress
+de optimización/IFRS9-inspired → gobernanza`. Cada flecha cambia objeto o
+estimando y necesita validación propia. El diagrama legacy que confundía esa
+cadena con PD, ECL y decisiones se conserva solo como procedencia. El capítulo
+[Visión General del Pipeline](04-pipeline-overview/index.qmd) descompone el
+flujo en capas y artefactos congelados.
 
 ## Agradecimientos
 

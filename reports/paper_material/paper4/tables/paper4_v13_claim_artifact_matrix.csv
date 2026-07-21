@@ -1,0 +1,12 @@
+priority,claim_status,artifact,quarto_page,caveat
+V12 audit,implemented,paper4_v13_v12_artifact_audit.csv,19bb-v13-resolution-wave.qmd,inventory/audit only
+Method references,implemented_primary_sources,paper4_v13_method_reference_registry.csv,19bb-v13-resolution-wave.qmd,primary sources define claim boundaries
+CVaR/OCE decomposition,implemented_larger_pool_decomposition,paper4_v13_cvar_stronger_decomposition_frontier.csv,19bb-v13-resolution-wave.qmd,not exact full-universe proof
+Champion stress test,implemented_common_path_stress,paper4_v13_champion_stress_test.csv,19bb-v13-resolution-wave.qmd,Paper 4 working decision only
+DLA/SDAM integration,implemented_representative_common_paths,paper4_v13_dla_representative_allocations.parquet,19bb-v13-resolution-wave.qmd,budget-capped representative DLA book
+SPO/DFL,implemented_temporal_regret_surrogate,paper4_v13_spo_decision_loss_report.csv,19bb-v13-resolution-wave.qmd,not differentiable SPO+ theorem
+Sample paths,implemented_macro_common_paths,paper4_v13_sample_path_macro_calibrated_ci.csv,19bb-v13-resolution-wave.qmd,"internal calibration, not forecast"
+MDCP caps,implemented_cap_regimes,paper4_v13_mdcp_cap_regime_solver_summary.csv,19bb-v13-resolution-wave.qmd,"source governance, no legal fairness claim"
+IFRS9/SICR,implemented_proxy_sensitivity,paper4_v13_ifrs9_sicr_sensitivity.csv,19bb-v13-resolution-wave.qmd,no contractual IFRS9 claim
+Causal/Fairness,implemented_blocker_dossier,paper4_v13_causal_cate_dossier.csv,19bb-v13-resolution-wave.qmd,CATE/fair-lending claims blocked
+Paper Estrella freeze,guardrail_verified,paper4_v13_status.json,19bb-v13-resolution-wave.qmd,models/final_project_promotion.json not modified

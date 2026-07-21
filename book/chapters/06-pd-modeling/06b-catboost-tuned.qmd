@@ -1,3 +1,5 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## CatBoost: Default y Optimizado con Optuna {#sec-catboost-tuned}
 
 ### Arquitectura de CatBoost
@@ -6,7 +8,12 @@ CatBoost (*Categorical Boosting*) es un algoritmo de gradient boosting desarroll
 
 #### Ordered Boosting
 
-El gradient boosting estándar calcula los residuos sobre las mismas observaciones usadas para construir los árboles anteriores, lo que introduce un sesgo de *target leakage* especialmente en datasets pequeños. CatBoost resuelve esto con *ordered boosting*: para estimar el error de una observación, se apoya en un modelo construido solo con observaciones anteriores dentro de una permutación del dataset. La intuición es simple: evita "mirar el futuro" del mismo registro cuando está aprendiendo. A cambio, paga un poco más de costo computacional, pero gana estabilidad y reduce leakage.
+Calcular residuos in-sample en gradient boosting no constituye por sí solo
+target leakage. CatBoost introdujo *ordered boosting* y estadísticas objetivo
+ordenadas para reducir *prediction shift* y leakage en el encoding de
+categorías: cada observación se procesa usando prefijos de permutaciones que no
+incluyen su propio target. Esto puede regularizar el aprendizaje, sin eliminar
+todo sobreajuste o leakage de datos.
 
 #### Arboles Oblivious (Simétricos)
 
@@ -14,9 +21,9 @@ CatBoost utiliza por defecto *oblivious decision trees* (ODT), donde cada nivel 
 
 Las ventajas para credit scoring son:
 
-- **Regularización implícita**: la simetría reduce drásticamente el número de parámetros libres, previniendo overfitting.
+- **Restricción estructural**: la simetría reduce grados de libertad y puede regularizar; no previene overfitting por garantía.
 - **Velocidad de inferencia**: la predicción se resuelve como una tabla de lookup, no como una travesía del árbol.
-- **Estabilidad**: modelos entrenados con semillas diferentes producen predicciones más similares entre sí.
+- **Estabilidad potencial**: la estructura puede reducir variación, pero la estabilidad entre semillas debe medirse.
 
 #### Manejo Nativo de Categorías y NaN
 
@@ -32,35 +39,44 @@ Para valores faltantes (NaN), CatBoost asigna cada observación con NaN a la ram
 
 ### Ventajas sobre XGBoost/LightGBM para Credit Scoring {#sec-catboost-advantages}
 
-La selección de CatBoost como modelo principal no es arbitraria. Para aplicaciones de credit scoring, presenta ventajas concretas:
+La elección de CatBoost en el pipeline histórico respondió a propiedades
+concretas de implementación. La tabla resume motivaciones de aquella elección,
+no una comparación empírica suficiente para seleccionar un modelo vigente:
 
 | Aspecto | CatBoost | XGBoost | LightGBM |
 |---------|----------|---------|----------|
 | **Categorías** | Nativo (target statistics) | Requiere encoding manual | Nativo (split por subconjuntos) |
 | **NaN** | Nativo (optimal branch) | Nativo (default direction) | Nativo (zero bin) |
-| **Calibración** | Mejor out-of-box | Requiere post-hoc | Requiere post-hoc |
-| **Sensibilidad a HPO** | Baja (defaults robustos) | Media-alta | Alta |
+| **Calibración** | Debe medirse y, si corresponde, ajustarse | Debe medirse y, si corresponde, ajustarse | Debe medirse y, si corresponde, ajustarse |
+| **Sensibilidad a HPO** | Dependiente del diseño | Dependiente del diseño | Dependiente del diseño |
 | **Arboles** | Oblivious (regularizados) | Asimétricos | Asimétricos (leaf-wise) |
 | **Ordered boosting** | Si | No | No |
 
 : Comparación de frameworks de gradient boosting para credit scoring {#tbl-catboost-vs-others}
 
 ::: {.callout-tip}
-## Calibración out-of-box
-La combinación de ordered boosting y árboles oblivious produce predicciones que son *a priori* mejor calibradas que las de XGBoost/LightGBM. Esto es relevante en credit scoring, donde las probabilidades no solo deben ordenar bien a los clientes (discriminación), sino reflejar la tasa de default real (calibración). Aun así, la calibración post-hoc es necesaria para uso regulatorio --- ver @sec-calibration-selection.
+## Calibración debe evaluarse
+Ordered boosting y árboles oblivious no garantizan mejor calibración que otros
+frameworks. En credit scoring se deben separar discriminación y calibración y
+evaluarlas en la población y horizonte declarados. Una calibración post-hoc o
+un PASS local tampoco autoriza uso regulatorio.
 :::
 
 ::: {.callout-note}
-## Monotonic constraints: de challenger interpretable a champion vigente
-El proyecto pasó por dos etapas distintas. Primero, el carril monotónico apareció como challenger interpretable: forzaba coherencia económica local en variables como `loan_to_income` y otras señales estructurales. Más tarde, después de corregir la semántica de fairness para que la búsqueda y la auditoría oficial midieran lo mismo, el carril monotónico terminó **promoviéndose al champion vigente**.
+## Monotonic constraints: trayectoria histórica
+El proyecto pasó por dos etapas locales. Primero, el carril monotónico apareció
+como challenger interpretable; más tarde fue etiquetado `champion` dentro de un
+snapshot operativo histórico. Esa etiqueta se conserva como procedencia y no
+selecciona el modelo vigente del CRPTO externo.
 
-La razón por la que hoy sí se justifica no es solo “monotonía por elegancia”. Es una combinación de tres cosas:
+La promoción histórica se documentó mediante tres checks internos:
 
-- mejora competitiva o al menos no regresiva en AUC/Brier bajo comparación operativa;
-- cierre de fairness bajo la semántica oficial de aprobación;
-- evidencia estructural posterior a la promoción: `models/monotonicity_audit_status.json` queda en `PASS` con `0` disrupciones entre bandas y `0` violaciones en las features monotónicas activas.
+- mejora o no regresión registrada en AUC/Brier bajo aquella comparación local;
+- resultado de fairness bajo la semántica local de aprobación;
+- `models/monotonicity_audit_status.json` en `PASS` con `0` disrupciones entre bandas y `0` violaciones en las features monotónicas declaradas.
 
-La lectura correcta hoy es entonces más fuerte: la monotonicidad no se quedó en una ganancia de gobernanza; pasó a ser parte del **stack campeón** del proyecto porque mejoró la defendibilidad sin romper la calidad operativa.
+Estos checks describen coherencia interna del artefacto; no prueban fairness,
+validez económica, despliegue ni superioridad del modelo.
 :::
 
 ### CatBoost Default {#sec-catboost-default}
@@ -99,7 +115,9 @@ df_params
 
 El parámetro `has_time=True` indica a CatBoost que el orden de las observaciones es informativo (temporal), lo cual ajusta las permutaciones del ordered boosting para respetar la estructura temporal --- un detalle importante para datos de crédito donde la distribución cambia con el ciclo económico.
 
-El entrenamiento utiliza un split temporal donde el 15% final del set de entrenamiento sirve como validación para early stopping, garantizando que la selección de la mejor iteración es prospectiva.
+El entrenamiento histórico utilizó el 15% final del set de entrenamiento para
+*early stopping*. Ese orden reduce leakage dentro de la corrida, pero no la
+convierte en validación prospectiva ni en un holdout no inspeccionado.
 
 ```{python}
 #| label: tbl-catboost-default-metrics
@@ -124,11 +142,16 @@ if cb_default:
     pd.DataFrame(list(metrics_default.items()), columns=["Métrica", "Valor"])
 ```
 
-Con un AUC de 0.7125, el CatBoost default ya supera sustancialmente a la LR baseline (0.683, ver @sec-lr-baseline), demostrando que las interacciones no lineales y el procesamiento nativo de categorías aportan +0.030 AUC (+4.3% relativo). La pregunta es si la optimización de hiperparámetros puede mejorar aún más este rendimiento.
+En el snapshot histórico, CatBoost default reportó AUC 0.7128 frente a 0.679
+para la LR baseline (ver @sec-lr-baseline). La diferencia es descriptiva de esa
+comparación y no demuestra qué mecanismo la produjo ni selecciona un learner
+actual.
 
 ### Optimización con Optuna (HPO) {#sec-optuna-hpo}
 
-El modelo default ya funciona bien, así que la pregunta correcta no es “¿podemos tunear algo?”, sino “¿queda ganancia material después de defaults robustos, categorías nativas y orden temporal?”. Esta sección documenta esa búsqueda para dejar claro qué sí aporta el HPO y qué parte del valor del pipeline viene, en realidad, de calibración y downstream.
+En la corrida histórica, el modelo default y el modelo ajustado tuvieron AUC
+similares. Esta sección documenta la búsqueda; no concluye que el default esté
+bien especificado ni atribuye valor decisional a calibración o downstream.
 
 #### Diseño del Experimento
 
@@ -204,7 +227,11 @@ optuna_results = {
 pd.DataFrame(list(optuna_results.items()), columns=["Aspecto", "Valor"])
 ```
 
-Los 320 trials alcanzaron un AUC de validación de 0.7227, pero el AUC en el test OOT es 0.7131 --- una brecha de 0.0096 que indica *temporal overfitting* al set de validación. El set de validación temporal cubre un período específico (cola del período 2007--2017), mientras que el test OOT abarca 2018--2020 con condiciones macroeconómicas potencialmente diferentes.
+Los trials históricos de Optuna alcanzaron AUC de validación 0.7221 y AUC OOT
+0.7128. La brecha de 0.0093 es compatible con transporte temporal imperfecto,
+pero no identifica por sí sola su causa. El snapshot local retenido utilizó
+cuatro restricciones monotónicas (`installment:1`, `annual_inc:-1`, `dti:1`,
+`loan_to_income:1`) y Venn-Abers; no son selecciones vigentes del CRPTO externo.
 
 #### Visualización del Proceso HPO
 
@@ -217,11 +244,11 @@ La función `export_hpo_visualizations()` en `src/models/optuna_tuning.py` gener
 
 Los plots se exportan como HTML interactivo (Plotly) y opcionalmente como PNG estático a `reports/figures/hpo/`.
 
-#### Hiperparámetros Ganadores
+#### Hiperparámetros retenidos en la búsqueda histórica
 
 ```{python}
 #| label: tbl-best-params
-#| tbl-cap: "Hiperparámetros óptimos seleccionados por Optuna"
+#| tbl-cap: "Hiperparámetros retenidos por la búsqueda histórica de Optuna"
 
 from book._helpers.load_artifacts import load_yaml
 
@@ -251,15 +278,20 @@ pd.DataFrame(
 
 ::: {.callout-note}
 ## Configuración como template
-Los hiperparámetros en `configs/pd_model.yaml` reflejan los mejores valores encontrados en la última búsqueda. Sin embargo, como se establece en la política del proyecto, los artefactos de runtime (`data/processed/model_comparison.json`, `models/pd_training_record.pkl`) son la fuente de verdad para métricas y decisiones --- el YAML es un template que puede ser actualizado en búsquedas futuras.
+Los hiperparámetros en `configs/pd_model.yaml` reflejan los valores retenidos en
+la búsqueda histórica. Los artefactos de runtime
+(`data/processed/model_comparison.json`, `models/pd_training_record.pkl`) son la
+fuente de procedencia para ese snapshot; no son autoridad de claims vigentes.
 :::
 
 ### Features Nativos de CatBoost {#sec-catboost-features}
 
-Una ventaja clave de CatBoost es la capacidad de consumir directamente variables categóricas y valores faltantes sin preprocesamiento. El contrato canónico del modelo define 42 features, de las cuales 9 son categóricas:
+Una ventaja de implementación de CatBoost es consumir variables categóricas y
+valores faltantes sin el mismo preprocesamiento manual. El contrato histórico
+local define 42 features, de las cuales 9 son categóricas:
 
 ```{python}
-#| label: tbl-categorical-features
+#| label: tbl-catboost-categorical-features
 #| tbl-cap: "Features categóricos procesados nativamente por CatBoost"
 
 from book._helpers.load_artifacts import load_json
@@ -322,20 +354,21 @@ En datos de crédito, el patrón de ausencia frecuentemente es informativo: un `
 
 ### ¿Por Qué la Ganancia del Tuning es Tan Pequeña? {#sec-tuning-gain}
 
-Vale la pena explicitar esta sección porque, sin ese contexto, una mejora pequeña puede leerse como decepción. Aquí ocurre lo contrario: una ganancia marginal confirma que el modelo ya estaba bien especificado y que el cuello de botella real del proyecto está en cómo usamos la PD, no en seguir exprimiendo décimas de AUC.
+Vale la pena explicitar esta sección porque la mejora pequeña del snapshot no
+demuestra que el modelo esté bien especificado ni localiza un cuello de botella
+causal. Solo acota cuánto cambió AUC dentro de esa búsqueda.
 
 ::: {.callout-warning}
-## Ganancia marginal: 0.0006 AUC
-La mejora del tuning con 320 trials de Optuna es de apenas 0.0006 AUC (0.7125 $\rightarrow$ 0.7131). Esto no es un fallo del proceso de optimización --- es un resultado esperado y bien documentado en la literatura.
+## Ganancia marginal del HPO
+La búsqueda observada cambió poco el AUC OOT (0.7128 con y sin HPO, al redondeo). Ese hecho no ordena universalmente HPO, calibración, restricciones o conformal, ni establece valor downstream.
 :::
 
-Tres factores explican esta convergencia:
-
-**1. Los defaults de CatBoost ya son robustos.** A diferencia de XGBoost (donde la elección de `max_depth`, `min_child_weight` y `learning_rate` puede cambiar el AUC en 2--5 puntos), CatBoost fue diseñado con defaults que funcionan bien sin tuning extensivo. Los árboles oblivious proporcionan regularización estructural que reduce la sensibilidad a los hiperparámetros.
-
-**2. El techo discriminativo del dataset.** Los features disponibles en Lending Club --- FICO score, DTI, ingreso, propósito del préstamo --- tienen un poder discriminativo limitado. @lessmann2015 documentan que en benchmarks de credit scoring, la diferencia entre el mejor y peor modelo rara vez excede 2--3 puntos de AUC, y que la ganancia por HPO es típicamente inferior a 1 punto. El verdadero cuello de botella no son los hiperparámetros sino la información contenida en los features.
-
-**3. La ganancia real está en la calibración, no en la discriminación.** Observemos la diferencia en las métricas clave:
+La búsqueda no identifica por qué hubo poca variación. Posibles explicaciones
+incluyen el espacio y presupuesto de tuning, la regularización del estimador y
+la señal disponible; este experimento no las distingue. Brier y ECE mejoraron
+descriptivamente tras calibración, sin demostrar que esa etapa sea la fuente de
+“ganancia real” ni transportar el resultado a otra población. La tabla conserva
+la descomposición histórica:
 
 ```{python}
 #| label: tbl-gain-analysis
@@ -362,22 +395,33 @@ if cb_tuned and cb_calibrated:
         "Δ AUC": f"{cb_calibrated['auc'] - cb_tuned['auc']:.4f}",
         "Δ Brier": f"{cb_calibrated['brier'] - cb_tuned['brier']:.4f}",
         "Δ D² Brier": f"+{cb_calibrated['d2_brier'] - cb_tuned['d2_brier']:.4f}",
-        "Interpretación": "Mejora masiva en calibración (ECE → " + f"{ece:.4f})",
+        "Interpretación": "Reducción descriptiva observada en métricas de calibración (ECE → " + f"{ece:.4f})",
     })
 
 pd.DataFrame(gain_analysis)
 ```
 
-La calibración (ver @sec-calibration-selection) reduce el Brier Score en $\sim$0.05 y lleva el D² Brier de negativo a positivo --- una mejora de un orden de magnitud mayor que la del HPO. Esto confirma que para un pipeline de credit scoring donde las probabilidades deben ser interpretables y usables en cálculos de ECL (ver @sec-ecl-calculation), la prioridad de inversión computacional debe ser calibración > conformal > HPO.
+En el snapshot histórico, la calibración (ver @sec-calibration-selection) redujo
+el Brier Score en $\sim$0.05 y llevó el D² Brier de negativo a positivo. Esa
+comparación describe la corrida; no establece una prioridad universal
+`calibración > conformal > HPO` ni valida el score como input de ECL.
 
 ::: {.callout-note}
-## Implicación para el pipeline predict-then-optimize
-La robustez de CatBoost a los hiperparámetros es una ventaja en el contexto del pipeline predict-then-optimize (@sec-robust-portfolio). Si pequeños cambios en hiperparámetros produjeran grandes cambios en las PD estimadas, la incertidumbre de los intervalos conformales (ver @sec-split-conformal) sería atribuible en parte a inestabilidad del modelo, no solo a incertidumbre epistémica genuina. La estabilidad de CatBoost permite interpretar los intervalos conformales como reflejo de la incertidumbre real del problema.
+## Límite para el pipeline predict-then-optimize
+La sensibilidad a hiperparámetros puede estudiarse como diagnóstico separado.
+No permite descomponer el ancho conformal en incertidumbre epistémica o
+“incertidumbre real” de la PD: los intervalos binarios del proyecto predicen
+$Y$, y cualquier transporte hacia PD o decisiones requiere otro estimando (ver
+@sec-split-conformal y @sec-robust-portfolio).
 :::
 
 ### Exportación de SHAP Values {#sec-shap-export}
 
-El pipeline exporta valores SHAP usando la implementación **nativa de CatBoost** (`get_feature_importance(type='ShapValues')`), que es exacta para árboles oblivious --- a diferencia de la librería SHAP genérica, que usa aproximaciones kernel o tree para modelos de terceros. Los artefactos generados son:
+El pipeline exporta valores SHAP usando la implementación **nativa de
+CatBoost**: `get_feature_importance` con `type='ShapValues'`. Para árboles
+oblivious es exacta, a diferencia de la librería SHAP genérica, que usa
+aproximaciones kernel o tree para modelos de terceros. Los artefactos generados
+son:
 
 - `models/shap_values_test.npz`: Matriz completa de SHAP values para el test set (comprimida).
 - `models/shap_feature_importance.json`: Top-20 features ordenados por $|\text{SHAP}|$ medio.

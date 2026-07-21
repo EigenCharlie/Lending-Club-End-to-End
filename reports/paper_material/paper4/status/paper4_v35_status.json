@@ -1,0 +1,14 @@
+{
+  "schema_version": "2026-05-15.35",
+  "generated_at_utc": "2026-05-15T02:13:19.556839+00:00",
+  "phase": "v35_online_macro_validation",
+  "external_macro_success_count_v35": 4,
+  "online_holdout_rows_v35": 9,
+  "online_gate_survives_v35": false,
+  "external_forecast_validation_claim_allowed": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "online validation is replay/holdout only; macro data are context labels, not forecasts",
+  "runtime_seconds": 1.89
+}

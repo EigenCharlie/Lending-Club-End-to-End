@@ -1,0 +1,8 @@
+You'll often see claims that Gini score isn't suitable for imbalanced problems. Credit risk problems are imbalanced by nature (if your default rate > 50%, the business probably isn't there anymore), and Gini is exactly the right metric in this setting.
+Take as an example a portfolio with a ~10% default rate and relatively strong credit score. Here's what a CAP diagram will show:
+• 𝘕𝘶𝘮𝘦𝘳𝘢𝘵𝘰𝘳 (0.469): Area between model and random line
+• 𝘋𝘦𝘯𝘰𝘮𝘪𝘯𝘢𝘵𝘰𝘳 (1−DR = 0.903): Maximum achievable area given DR
+• 𝘎𝘪𝘯𝘪 (Accuracy Ratio): 0.469 / 0.903 = 51.9%
+The DR adjustment in this formula is what enables fair comparison across portfolios with different default rates. With the same raw ranking power (numerator = 0.4), a model achieving 42% Gini at 5% DR (0.4/0.95) is actually weaker than one achieving 50% Gini at 20% DR (0.4/0.80).
+Accounting for class imbalance through the DR constraint is what makes Gini the standard for measuring model discrimination in credit risk.
+#CreditRisk #DataScience #CreditScoring #ModelRisk #ModelValidation

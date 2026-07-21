@@ -1,0 +1,15 @@
+policy_id,reference_policy_id,n_common_paths,mean_wealth_diff,ci95_low_wealth_diff,ci95_high_wealth_diff,prob_higher_wealth,mean_loss_diff,prob_lower_loss,paired_scope
+paper1_economic_champion,paper1_economic_champion,128,0.0,0.0,0.0,0.0,0.0,0.0,common_random_numbers_internal_v19_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,paper1_economic_champion,128,-295.6936934836758,-3260.0615338802713,2668.6741469129197,0.5,-27159.134046702617,0.9921875,common_random_numbers_internal_v19_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor125000_cap360000,paper1_economic_champion,128,-295.6936934836758,-3260.0615338802713,2668.6741469129197,0.5,-27159.134046702617,0.9921875,common_random_numbers_internal_v19_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,paper1_economic_champion,128,-22551.097111193216,-26064.956273282743,-19037.237949103688,0.15625,-27531.379012736576,0.9765625,common_random_numbers_internal_v19_paths
+v13_fvi_bellman_rollout,paper1_economic_champion,128,-78959.23256203122,-84015.56731892962,-73902.89780513282,0.0,-61582.64337719957,1.0,common_random_numbers_internal_v19_paths
+v13_fvi_capital_guarded,paper1_economic_champion,128,-80760.60721539371,-85826.99927357647,-75694.21515721096,0.0,-61382.936216512484,1.0,common_random_numbers_internal_v19_paths
+v13_fvi_return_recovery,paper1_economic_champion,128,-72326.72665535488,-77436.45742816073,-67216.99588254903,0.0,-60476.63034751722,1.0,common_random_numbers_internal_v19_paths
+v13_mdcp_empirical_base,paper1_economic_champion,128,-70774.9697786615,-75303.64252939845,-66246.29702792455,0.0,-36648.46334314678,0.9921875,common_random_numbers_internal_v19_paths
+v13_mdcp_empirical_return_recovery,paper1_economic_champion,128,-43583.55077738417,-47483.768572914414,-39683.33298185392,0.0234375,-33633.775044383656,1.0,common_random_numbers_internal_v19_paths
+v13_mdcp_empirical_tight,paper1_economic_champion,128,-106834.71811280474,-111431.08360604296,-102238.35261956652,0.0,-45964.80183212913,1.0,common_random_numbers_internal_v19_paths
+v13_spo_regret_audit_guarded,paper1_economic_champion,128,-49723.87336855351,-53901.79573738288,-45545.95099972414,0.0234375,-36028.79822447663,1.0,common_random_numbers_internal_v19_paths
+v13_spo_regret_balanced,paper1_economic_champion,128,-40780.35964377774,-44990.630149874116,-36570.08913768136,0.0546875,-35450.0891235107,0.9921875,common_random_numbers_internal_v19_paths
+v13_spo_regret_return_recovery,paper1_economic_champion,128,-39180.240204230446,-43185.12379908397,-35175.35660937692,0.046875,-32260.98515309456,1.0,common_random_numbers_internal_v19_paths
+v13_static_reference,paper1_economic_champion,128,-118756.96410409277,-129670.75018496312,-107843.17802322241,0.0234375,181669.14714105276,0.0,common_random_numbers_internal_v19_paths

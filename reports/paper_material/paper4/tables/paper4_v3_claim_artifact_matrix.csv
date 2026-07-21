@@ -1,0 +1,9 @@
+priority,claim_status,artifact,quarto_page,caveat
+Full exact all policies,exact_full_universe_45,paper4_v3_full_universe_all_policy_allocations.parquet,19aa-v3-full-exact-and-ifrs9-realistic.qmd,no promotion JSON
+IFRS9 cashflow lifetime,cashflow_proxy,paper4_v3_ifrs9_cashflow_policy_summary.csv,19aa-v3-full-exact-and-ifrs9-realistic.qmd,no contractual performance panel
+Online CP v3,method_search,paper4_v3_online_conformal_method_summary.csv,19ab-v3-online-cvar-governance.qmd,not final theorem-level online CP
+Formal CVaR LP,candidate_pool_formal_lp,paper4_v3_formal_cvar_lp_results.csv,19ab-v3-online-cvar-governance.qmd,"candidate pool, not full universe"
+Governance thresholds,explicit_rationale,paper4_v3_selector_governance_thresholds.csv,19ab-v3-online-cvar-governance.qmd,thresholds need committee validation
+Causal high-rate dossier,dossier_only,paper4_v3_causal_high_rate_dossier.csv,19ac-v3-causal-fairness-multiperiod.qmd,no causal policy promotion
+Fairness attribute audit,proxy_governance,paper4_v3_fairness_attribute_audit.csv,19ac-v3-causal-fairness-multiperiod.qmd,no protected attributes
+Loan-level multi-period replay,state_transition_proxy,paper4_v3_multiperiod_loan_level_state.parquet,19ac-v3-causal-fairness-multiperiod.qmd,repayment/default timing proxy

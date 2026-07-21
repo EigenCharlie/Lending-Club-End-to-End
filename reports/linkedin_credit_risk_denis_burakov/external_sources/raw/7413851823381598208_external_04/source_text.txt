@@ -1,0 +1,318 @@
+GitHub - deburky/credit-risk-modeling-on-aws: Credit Risk Modeling on AWS project · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+deburky
+/
+credit-risk-modeling-on-aws
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+8
+Star
+18
+Code
+Issues
+0
+Pull requests
+0
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+deburky/credit-risk-modeling-on-aws
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+NameName
+Last commit message
+Last commit date
+Latest commit
+History
+24 Commits
+24 Commits
+.claude
+.claude
+.cursor/rules
+.cursor/rules
+.github/workflows
+.github/workflows
+.vscode
+.vscode
+batch_scoring
+batch_scoring
+media
+media
+mlflow_on_aws
+mlflow_on_aws
+real_time_scoring
+real_time_scoring
+sagemaker_endpoints
+sagemaker_endpoints
+step_functions
+step_functions
+.gitignore
+.gitignore
+.pre-commit-config.yaml
+.pre-commit-config.yaml
+LICENSE
+LICENSE
+README.md
+README.md
+pyproject.toml
+pyproject.toml
+View all files
+Repository files navigation
+README
+MIT license
+📚 Credit Risk Modeling on AWS ☁️
+This repository contains code examples and implementations from the Credit Risk Modeling on AWS book project.
+Author: Denis Burakov
+🧩 Use Cases
+This project demonstrates several credit risk modeling use cases using AWS services, including model training, deployment, and inference pipelines.
+Important
+To run the code examples, you need to have Docker installed and have AWS credentials to use SageMaker local mode. You can get AWS credentials by creating an AWS account and then creating an IAM user with the necessary permissions.
+🚀 Real-Time Credit Scoring
+The real_time_scoring/ folder contains a complete implementation of a real-time credit scoring system using:
+SageMaker for model training
+Kinesis for streaming loan applications
+Lambda for real-time scoring
+DynamoDB for storing approved applications
+CloudFormation for infrastructure as code
+Run the workflow using the Makefile:
+cd real_time_scoring/local && make run-workflow
+Note
+See the README.md for detailed instructions.
+🚀 Batch Scoring & Credit Limit Management
+The batch_scoring/ folder contains a complete implementation of a batch credit scoring and limit management system.
+We use CatBoost with SHAP values for model training and PostgreSQL (as a local Redshift-compatible database) for storing customer batch scores.
+The batch_scoring/ folder contains a complete implementation of a batch credit scoring and limit increase system using:
+EventBridge for scheduled pipeline triggers (daily at 2 AM UTC)
+SageMaker Pipelines for ML workflow orchestration:
+Model training (CatBoost with SHAP values)
+Query eligible customers from PostgreSQL
+Batch inference scoring
+Lambda for business logic (limit increase/decrease decisions)
+PostgreSQL for storing customer batch scores and decisions
+Note
+On AWS, EventBridge can directly trigger SageMaker Pipelines. In LocalStack, we use a Lambda intermediary (pipeline_trigger.py) to start the pipeline.
+Run the workflow using the Makefile:
+cd batch_scoring/local && make run-workflow
+Note
+See the README.md for detailed instructions.
+🔄 MLflow on AWS
+The mlflow_on_aws/ folder contains a complete implementation of a MLflow tracking server on AWS using:
+MLflow 3.0+ for model tracking with logged-models API support
+PostgreSQL for storing MLflow experiments and runs
+S3/LocalStack for storing MLflow artifacts
+SageMaker for model training with MLflow integration
+Features:
+Model logging using mlflow.sklearn.log_model() (logged-models API)
+SageMaker-ready models packaged as tar.gz format
+LocalStack S3 for local development
+Run the workflow using the Makefile:
+cd mlflow_on_aws/local && make start
+cd .. && make deploy-stack
+cd local && make train
+Note
+See the README.md for detailed instructions.
+🧪 SageMaker Endpoints with A/B Testing Lambda
+The sagemaker_endpoints/ folder contains a complete implementation of A/B testing for credit scoring using:
+SQS for queuing loan applications
+A/B Processor (Lambda function) for processing messages and applying A/B test logic
+SageMaker for model inference via real-time endpoints
+DynamoDB for storing processing results with A/B variant information
+The A/B testing logic applies different approval thresholds:
+Variant A: Threshold 600
+Variant B: Threshold 550
+Run the workflow using the Makefile:
+cd sagemaker_endpoints && make start && make deploy-stack && make deploy-endpoint && make test-workflow
+Check A/B test results:
+make check-ab-results
+Note
+The A/B processor is implemented as an AWS Lambda function that automatically processes SQS messages and assigns A/B variants based on application IDs.
+📄 License
+LICENSE
+🔗 References
+Amazon SageMaker - Run Pipelines Using Local Mode
+An Unsung Hero of Amazon SageMaker: Local Mode
+AWS in Plain English - Develop AWS ML Workloads Locally with LocalStack and SAM
+GitHub - aws-samples/amazon-sagemaker-local-mode
+Setting up a Development Machine with MLFlow and MinIO
+About
+Credit Risk Modeling on AWS project
+Topics
+aws
+data-science
+machine-learning
+sagemaker
+localstack
+Resources
+Readme
+License
+MIT license
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+18
+stars
+Watchers
+0
+watching
+Forks
+8
+forks
+Report repository
+Releases
+No releases published
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page.
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page.
+Languages
+Python
+90.3%
+Makefile
+9.2%
+Dockerfile
+0.5%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

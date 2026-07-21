@@ -1,0 +1,2 @@
+policy_id,horizon_months,funded_loans,total_funded_exposure,final_cash,final_state_value_proxy,cumulative_realized_loss,cumulative_expected_loss,claim_scope
+v6_dla_loan_level_endogenous,12,258,1278075.0,89267.63390624992,1365638.4274862646,0.0,19005.247001707,endogenous_monthly_loan_selection_proxy_not_full_bellman_solve

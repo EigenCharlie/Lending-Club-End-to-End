@@ -1,0 +1,7 @@
+triage_bucket,lane,current_publishability,decision
+journal_core,sequential decision governance with CRPTO/CVaR/DLA under common paths,viable after tightening intervals and simplifying scope,main future paper candidate
+journal_appendix,strict CVaR infeasibility and committee-relaxed frontier,publishable as negative/governance result,appendix or robustness section
+method_extension,SPO/DFL decision-regret surrogate,needs formal optimizer or clear non-differentiable framing,do not claim formal SPO+ yet
+lab_notebook,IFRS9 contractual proxy panel,useful but not contractual,keep as IFRS9-inspired ECL only
+blocked,CATE policy value,not publishable as causal policy without new identification design,blocked by theory/data
+prohibited_claim,fair-lending legal claim,not allowed,proxy governance only

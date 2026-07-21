@@ -1,0 +1,10 @@
+📘 𝘋𝘦𝘦𝘱 𝘓𝘦𝘢𝘳𝘯𝘪𝘯𝘨: 𝘊𝘳𝘦𝘥𝘪𝘵 𝘙𝘪𝘴𝘬 𝘢𝘯𝘥 𝘞𝘢𝘷𝘦𝘴 𝘰𝘧 𝘈𝘐
+In the earlier chapters of this book, each had a "hero".
+Chapter 1 explored Alan Turing and the Enigma, and Chapter 2 introduced Ronald Fisher and the birth of modern data science.
+The hero of Chapter 3 is HAL-9000, Stanley Kubrick's fictional AI. The foundations of machine minds like HAL were laid decades earlier by Alan Turing, whose 1948 concept of "unorganised machines" anticipated the earliest neural networks.
+By the mid-1950s, while AI researchers debated the nature of general intelligence at Dartmouth in 1956, the founders of FICO were already building the first scorecards, focused on interpretable, odds-based risk models.
+This chapter brings these two worlds together.
+It weaves the forgotten origins of neural networks, the rise of commercial credit scoring, and the later breakthroughs in backpropagation and transformers into a single narrative.
+The final chapter, 𝘛𝘩𝘦 𝘊𝘳𝘦𝘥𝘪𝘵 𝘎𝘢𝘮𝘦: 𝘔𝘢𝘤𝘩𝘪𝘯𝘦 𝘓𝘦𝘢𝘳𝘯𝘪𝘯𝘨 𝘢𝘯𝘥 𝘌𝘹𝘱𝘭𝘢𝘪𝘯𝘢𝘣𝘪𝘭𝘪𝘵𝘺 (which will also have its own "hero"), is planned for release around Christmas 🎄.
+The full book is expected to be published in early 2026, alongside several exciting announcements related to next year’s plans. Stay tuned!
+#Statistics #CreditRisk #DataScience #MachineLearning #AI

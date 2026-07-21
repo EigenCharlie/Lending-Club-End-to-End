@@ -1,0 +1,2 @@
+candidate_policy_id,current_reference_policy_id,working_champion_change_recommended_v20,governance_score_v20,prob_higher_wealth_vs_current,mean_final_wealth,loss_p95,decision_scope
+v13_spo_regret_audit_guarded,paper1_economic_champion,False,0.5805555555555555,0.015625,1119646.771076392,98679.1756664222,Paper 4 working champion only; no Paper Estrella promotion

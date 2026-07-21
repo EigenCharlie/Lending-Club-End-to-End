@@ -1,0 +1,2 @@
+training_id,training_rows,positive_target_loans,top1000_target_precision,target_mse,claim_scope_v11
+v11_spo_ridge_solver_target_proxy,20000,1110,0.504,0.06926480490841354,"trained decision-loss proxy against LP/solver targets, not neural SPO+ theorem"

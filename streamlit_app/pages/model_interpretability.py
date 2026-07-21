@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: E402 - Streamlit pages bootstrap repo root before app-local imports.
 import json
 import sys
 from pathlib import Path
@@ -123,7 +124,7 @@ def _build_driver_map_figure(global_df: pd.DataFrame) -> go.Figure:
         },
         title="Mapa de drivers: atribucion vs sensibilidad",
     )
-    fig.update_traces(textposition="top center", marker=dict(size=12, line=dict(width=0.5, color="white")))
+    fig.update_traces(textposition="top center", marker={"size": 12, "line": {"width": 0.5, "color": "white"}})
     median_x = float(df["permutation_auc_drop"].dropna().median()) if df["permutation_auc_drop"].notna().any() else 0.0
     median_y = float(df["mean_abs_shap"].dropna().median()) if df["mean_abs_shap"].notna().any() else 0.0
     fig.add_vline(x=median_x, line_dash="dot", line_color="#94A3B8")
@@ -214,7 +215,7 @@ def _build_local_reason_figure(reasons: pd.DataFrame, title: str) -> go.Figure:
             x=reasons["shap_value"],
             y=reasons["label"],
             orientation="h",
-            marker=dict(color=colors),
+            marker={"color": colors},
             hovertemplate=(
                 "<b>%{y}</b><br>"
                 "Contribucion SHAP: %{x:.4f}<br>"
@@ -268,7 +269,7 @@ def _build_pdp_ice_figure(pdp_subset: pd.DataFrame, feature: str) -> go.Figure:
                 x=row_df["grid_value"],
                 y=row_df["ice_pred"],
                 mode="lines",
-                line=dict(color="rgba(11, 94, 215, 0.10)", width=1),
+                line={"color": "rgba(11, 94, 215, 0.10)", "width": 1},
                 hoverinfo="skip",
                 showlegend=False,
             )
@@ -282,7 +283,7 @@ def _build_pdp_ice_figure(pdp_subset: pd.DataFrame, feature: str) -> go.Figure:
             x=pdp_line["grid_value"],
             y=pdp_line["pdp_pred"],
             mode="lines+markers",
-            line=dict(color="#0B5ED7", width=3),
+            line={"color": "#0B5ED7", "width": 3},
             name="PDP",
         )
     )
@@ -519,7 +520,7 @@ def _render_notebook_gallery() -> None:
         return
 
     tabs = st.tabs([item["label"] for item in valid_items])
-    for tab, item in zip(tabs, valid_items):
+    for tab, item in zip(tabs, valid_items, strict=False):
         with tab:
             img_path = get_notebook_image_path(item["stem"], item["file"])
             col_img, col_txt = st.columns([1.25, 1.0], gap="large")
@@ -717,7 +718,7 @@ with tabs[0]:
             "Responde si la explicación sigue siendo defendible y si existe un challenger más interpretable.",
         ),
     ]
-    for col, (title, subtitle, body) in zip(card_cols, cards):
+    for col, (title, subtitle, body) in zip(card_cols, cards, strict=False):
         with col, st.container(border=True):
             st.markdown(f"**{title}**")
             st.caption(subtitle)
@@ -834,7 +835,7 @@ with tabs[2]:
                 for segmento in local_cases_view["segmento"].astype(str).tolist()
             ]
         )
-        for tab, (_, case_row) in zip(case_tabs, local_cases_view.iterrows()):
+        for tab, (_, case_row) in zip(case_tabs, local_cases_view.iterrows(), strict=False):
             with tab:
                 _render_case_panel(case_row)
 

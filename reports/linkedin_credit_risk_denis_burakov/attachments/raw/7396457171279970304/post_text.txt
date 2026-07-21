@@ -1,0 +1,13 @@
+🚀 Open-source credit scoring tools keep improving thanks to an amazing community!
+Yes, Colab in VS Code and TOON are great, but even more exciting are the features we've been rolling out to make scorecard modeling faster, more interpretable, and more scalable.
+Here’s what’s new in 𝘅𝗕𝗼𝗼𝘀𝘁𝗲𝗿 and 𝗙𝗮𝘀𝘁𝗪𝗼𝗲 modeling packages ⤵
+🌳 𝘅𝗕𝗼𝗼𝘀𝘁𝗲𝗿
+• We've introduced a new tool to build scorecards using the Interval Method for XGBoost, following Naeem Siddiqi's methodology. This makes it possible to compress model splits into condensed, interpretable rules. Special thanks to Juan Antonio Montero de Espinosa for this contribution 🤝
+• A new release with #LightGBM support is also on the way.
+🧩 GitHub repo: https://lnkd.in/dag5Kqwf
+🎲 𝗙𝗮𝘀𝘁𝗪𝗼𝗲
+• FastWoe now includes monotonic binning using decision trees and FAISS K-means (GPU-enabled) for continuous variables.
+• It now supports multiclass inference, which allows you to run quick tests to produce multiclass probabilities and do classification.
+• We added a fast implementation of 𝖲𝗈𝗆𝖾𝗋𝗌' 𝖣 that returns Gini for the binary case (𝖲𝗈𝗆𝖾𝗋𝗌' 𝖣𝗒𝗑) and extends naturally to ordinal targets such as LGD and EAD.
+🧩 GitHub repo: https://lnkd.in/dQHFHQs3
+#CreditRiskModeling #DataScience #Scorecards #Python #OpenSource

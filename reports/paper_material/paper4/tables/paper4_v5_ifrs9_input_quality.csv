@@ -1,0 +1,3 @@
+input,rows,has_loan_status,has_last_pymnt_d,has_recoveries,has_lgd,claim_scope,has_macro_multipliers,has_monthly_macro_path
+ead_dataset_and_loan_master,249380,True,False,False,True,contractual_proxy_monthly_panel_not_servicing_ledger,,
+ts_ecl_intervals,4,,,,,"ts_ecl_intervals,ts_ecl_intervals_p90_adverse_floor",True,True

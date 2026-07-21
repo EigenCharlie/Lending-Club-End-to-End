@@ -1,0 +1,15 @@
+{
+  "schema_version": "2026-05-15.32",
+  "generated_at_utc": "2026-05-15T02:13:19.578166+00:00",
+  "phase": "v32_spo_environment_and_oracle_regret",
+  "cvxpy_import_clean_v32": false,
+  "torch_available_v32": false,
+  "formal_differentiable_spo_claim_allowed": false,
+  "oracle_regret_rows_v32": 33,
+  "spo_candidate_rows_v32": 12,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "SPO oracle-regret route only; differentiable SPO+ dependency blocked unless isolated env passes",
+  "runtime_seconds": 1.955
+}

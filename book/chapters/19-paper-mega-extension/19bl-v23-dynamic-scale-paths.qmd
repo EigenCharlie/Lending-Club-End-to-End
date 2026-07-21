@@ -1,0 +1,66 @@
+---
+title: "v23 Dynamic Scale and Paths"
+page-layout: article
+---
+
+## Pregunta
+
+V23 pregunta si las conclusiones dinámicas de Paper 4 sobreviven al primer salto
+real de escala: de 64 a 128 sample paths, manteniendo horizonte 36 meses y la
+misma regla de no leakage.
+
+## Qué intentamos
+
+La ola re-ejecuta el motor mensual sobre las 14 policies base con 128 paths,
+añade convergencia por número de paths, sensibilidad de horizonte, ranking
+stability contra v19 y una versión v3 de sample paths con anclas observadas por
+mes/grade. También intenta contexto macro externo; el fetch de FRED volvió a
+fallar, así que no se reclama forecast externo.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v23_dynamic_policy_trace.parquet` | traza mensual 128-path |
+| `paper4_v23_dynamic_policy_summary.csv` | resumen dinámico v23 |
+| `paper4_v23_scale_convergence.csv` | convergencia 32/64/128 paths |
+| `paper4_v23_ranking_stability.csv` | estabilidad de ranking vs v19 |
+| `paper4_v23_policy_pairwise_common_path_ci.csv` | CI pareado contra champion |
+| `paper4_v23_path_calibration_diagnostics.csv` | sample paths v3 |
+| `paper4_v23_performance_report.csv` | runtime 64 vs 128 |
+| `paper4_v23_status.json` | status reproducible |
+
+## Resultado
+
+La corrida generó 123,648 filas de trace: 14 policies, 128 paths y horizonte 36.
+El no-leakage mínimo sigue en 1.0. La comparación de ranking muestra una señal
+importante: el top por score v19 fue `v13_spo_regret_audit_guarded`, pero con el
+proxy escalado v23 el top vuelve a `paper1_economic_champion`. Esa inestabilidad
+no es mala noticia; es exactamente por qué Paper 4 necesita convergencia y
+memos de comité antes de cambiar working champion.
+
+## Qué mejoró
+
+Ahora tenemos evidencia de escala, no solo una corrida piloto. También queda un
+performance report: el salto 64 -> 128 paths es costoso pero viable, y deja
+claro dónde optimizar antes de 256/512.
+
+## Qué falló
+
+El fetch macro externo falló otra vez. Los paths v3 mejoran calibración interna
+y etiquetas contextuales, pero no autorizan forecast externo.
+
+## Claim permitido
+
+Paper 4 puede decir que tiene replay dinámico 128-path, convergencia de paths y
+diagnósticos de estabilidad bajo paths comunes internos.
+
+## Claim no permitido
+
+No puede decir que la simulación sea forecast macro, producción o prueba final
+de superioridad de un challenger.
+
+## Qué queda pendiente
+
+256/512 paths, cache de eventos loan/path y posible macro cache local si se
+quiere usar contexto FRED de forma reproducible.

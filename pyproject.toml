@@ -81,7 +81,8 @@ dev = [
     "optuna-integration>=4.1",
 ]
 spo = [
-    "pyepo>=0.5",
+    "gurobipy>=13.0,<14",
+    "pyepo[ortools]==1.3.7",
 ]
 platform = [
     "dbt-duckdb>=1.10",

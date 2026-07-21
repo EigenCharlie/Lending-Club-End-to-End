@@ -27,6 +27,7 @@ def _args(**overrides):
         "comparison_baseline_run_tag": None,
         "upstream_canonical_run_tag": None,
         "writes_canonical_artifacts": None,
+        "pd_config_override": None,
     }
     base.update(overrides)
     return argparse.Namespace(**base)
@@ -72,6 +73,34 @@ def test_build_steps_diagnostics_governance_runs_governance_before_mrm() -> None
     assert "build_pipeline_results.py" not in diagnostics_cmd
 
 
+def test_build_steps_default_core_profile_replays_frozen_point_rule() -> None:
+    profile = lp.load_profile_config("core_canonical_cpu")
+    contract = lp._derive_pipeline_contract(
+        pipeline_family="core_canonical",
+        pipeline_profile_arg=None,
+        sampling_profile="champion64safe",
+        writes_canonical_artifacts_arg=None,
+        upstream_canonical_run_tag="baseline-run",
+    )
+    steps = lp.build_steps(
+        "run-replay",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+        pipeline_family="core_canonical",
+        pipeline_contract=contract,
+        profile_cfg=profile,
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+
+    expected_manifest = str(
+        (lp.REPO_ROOT / "configs/baselines/clean_baseline_manifest.json").resolve()
+    )
+    replay_args = f"--mode replay --replay_manifest {expected_manifest}"
+    assert replay_args in by_name["core_data_pd"]
+    assert replay_args in by_name["core_conformal"]
+
+
 def test_build_steps_search_pd_excludes_unrelated_lanes() -> None:
     contract = lp._derive_pipeline_contract(
         pipeline_family="search_pd",
@@ -87,13 +116,54 @@ def test_build_steps_search_pd_excludes_unrelated_lanes() -> None:
         sampling_profile="mega64plus",
         pipeline_family="search_pd",
         pipeline_contract=contract,
-        profile_cfg={"search_space": {"pd": {"config_path": "configs/pd_model.smart.yaml"}}},
+        profile_cfg={
+            "search_space": {
+                "pd": {
+                    "config_path": "configs/pd_model.smart.yaml",
+                    "monotonic_competitor_config": "configs/monotonic_competitor_blockwise_exhaustive.yaml",
+                }
+            }
+        },
     )
     names = [name for name, _required, _cmd in steps]
     assert names == ["preflight", "core_data_pd", "diagnostics_governance"]
     by_name = {name: cmd for name, _required, cmd in steps}
     assert "train_pd_model.py --config configs/pd_model.smart.yaml" in by_name["core_data_pd"]
+    assert (
+        "search_monotonic_competitor.py --config configs/monotonic_competitor_blockwise_exhaustive.yaml --run-tag run-pd"
+        in by_name["core_data_pd"]
+    )
     assert "generate_conformal_intervals.py" not in by_name["core_data_pd"]
+
+
+def test_build_steps_pd_config_override_takes_precedence(tmp_path, monkeypatch) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "pd_model.smart.yaml").write_text("model: {}", encoding="utf-8")
+    (repo / "models" / "search_pd" / "override-run").mkdir(parents=True, exist_ok=True)
+    override_rel = "models/search_pd/override-run/pd_model_hpo_local.yaml"
+    (repo / override_rel).write_text("model: {}", encoding="utf-8")
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+    contract = lp._derive_pipeline_contract(
+        pipeline_family="search_pd",
+        pipeline_profile_arg=None,
+        sampling_profile="mega64plus",
+        writes_canonical_artifacts_arg=None,
+        upstream_canonical_run_tag="baseline-run",
+    )
+    steps = lp.build_steps(
+        "run-pd-override",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="mega64plus",
+        pipeline_family="search_pd",
+        pipeline_contract=contract,
+        profile_cfg={"search_space": {"pd": {"config_path": "configs/pd_model.smart.yaml"}}},
+        pd_config_override=override_rel,
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    assert f"train_pd_model.py --config {override_rel}" in by_name["preflight"]
+    assert f"train_pd_model.py --config {override_rel}" in by_name["core_data_pd"]
 
 
 def test_build_steps_search_conformal_runs_sensitivity_outside_core() -> None:
@@ -120,6 +190,14 @@ def test_build_steps_search_conformal_runs_sensitivity_outside_core() -> None:
                         "grade",
                         "grade_x_scoreband_mondrian",
                     ],
+                    "partition_probability_sources": ["calibrated", "raw"],
+                    "n_score_bins_candidates": [5, 10, 15],
+                    "fallback_modes": ["grade_then_global", "global_only"],
+                    "score_scale_families": ["none", "bernoulli_sqrt_clipped_0.02"],
+                    "alpha_candidates_95": [0.045, 0.05, 0.055],
+                    "calibration_fraction": 0.75,
+                    "evaluation_scope": "holdout",
+                    "calibration_size_fractions": [0.25, 0.50, 1.0],
                     "shrinkback_enabled": True,
                     "group_coverage_floor_enabled": True,
                     "scaled_scores_options": [True, False],
@@ -129,14 +207,29 @@ def test_build_steps_search_conformal_runs_sensitivity_outside_core() -> None:
     )
     by_name = {name: cmd for name, _required, cmd in steps}
     conformal_cmd = by_name["core_conformal"]
+    assert "--artifact_namespace run-conf" in conformal_cmd
     assert (
         "--partition_candidates score_decile_mondrian,grade,grade_x_scoreband_mondrian"
         in conformal_cmd
     )
+    assert "--partition_probability_sources calibrated,raw" in conformal_cmd
+    assert "--n_score_bins_candidates 5,10,15" in conformal_cmd
+    assert "--fallback_modes grade_then_global,global_only" in conformal_cmd
+    assert "--score_scale_families none,bernoulli_sqrt_clipped_0.02" in conformal_cmd
+    assert "--alpha_candidates_95 0.045,0.05,0.055" in conformal_cmd
+    assert "--calibration_fraction 0.75" in conformal_cmd
+    assert "--evaluation_scope holdout" in conformal_cmd
     assert "--shrinkback_enabled 1" in conformal_cmd
     assert "--group_coverage_floor_enabled 1" in conformal_cmd
     assert "--scaled_scores_options True,False" in conformal_cmd
+    assert (
+        "--intervals-path data/processed/conformal_gap/run-conf/conformal_intervals_mondrian.parquet"
+        in conformal_cmd
+    )
+    assert "--output-dir data/processed/conformal_gap/run-conf" in conformal_cmd
+    assert "--artifact-namespace run-conf" in conformal_cmd
     assert "--sensitivity-config configs/conformal_policy_sensitivity.yaml" in conformal_cmd
+    assert "--calibration_size_fractions 0.25,0.5,1.0" in conformal_cmd
 
 
 def test_build_steps_search_portfolio_does_not_retrain_pd(tmp_path, monkeypatch) -> None:
@@ -218,6 +311,53 @@ def test_build_steps_paper2_e2e_explicitly_runs_survival() -> None:
     assert "run_survival_analysis.py" in by_name["paper2_survival"]
     assert "train_lgd_ead.py" in by_name["paper2_survival"]
     assert "run_ifrs9_sensitivity.py" in by_name["core_ifrs9"]
+
+
+def test_build_steps_search_paper2_ifrs9_matches_paper2_scope() -> None:
+    contract = lp._derive_pipeline_contract(
+        pipeline_family="search_paper2_ifrs9",
+        pipeline_profile_arg=None,
+        sampling_profile="mega64safe",
+        writes_canonical_artifacts_arg=None,
+        upstream_canonical_run_tag="baseline-run",
+    )
+    steps = lp.build_steps(
+        "run-paper2-search",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="mega64safe",
+        pipeline_family="search_paper2_ifrs9",
+        pipeline_contract=contract,
+        profile_cfg={
+            "search_space": {
+                "survival": {
+                    "full_data": True,
+                    "rsf_n_estimators": 300,
+                    "rsf_max_depth": 16,
+                    "rsf_sample_size": 650000,
+                    "rsf_n_jobs": 16,
+                }
+            }
+        },
+    )
+    names = [name for name, _required, _cmd in steps]
+    assert names == [
+        "preflight",
+        "core_ts",
+        "paper2_survival",
+        "core_ifrs9",
+        "diagnostics_governance",
+    ]
+    by_name = {name: cmd for name, _required, cmd in steps}
+    assert "forecast_default_rates.py" in by_name["core_ts"]
+    assert (
+        "run_survival_analysis.py --full-data --rsf_n_estimators 300" in by_name["paper2_survival"]
+    )
+    assert "--rsf_max_depth 16" in by_name["paper2_survival"]
+    assert "--rsf_sample_size 650000" in by_name["paper2_survival"]
+    assert "--rsf_n_jobs 16" in by_name["paper2_survival"]
+    assert "run_ifrs9_sensitivity.py" in by_name["core_ifrs9"]
+    assert "export_streamlit_artifacts.py" not in by_name["core_ifrs9"]
 
 
 def test_build_steps_core_canonical_forces_frozen_scope_and_no_bundle(
@@ -324,7 +464,9 @@ def test_preflight_validates_pd_config_before_long_run() -> None:
     assert "--validate-only" in preflight_cmd
 
 
-def test_build_steps_profile_can_route_or_phases_to_rapids(tmp_path, monkeypatch) -> None:
+def test_build_steps_profile_routes_only_contract_allowed_phases_to_rapids(
+    tmp_path, monkeypatch
+) -> None:
     repo = tmp_path
     (repo / "configs").mkdir(parents=True, exist_ok=True)
     (repo / "configs" / "optimization.yaml").write_text(
@@ -379,10 +521,9 @@ portfolio_selection:
     assert (
         "rapids-python -u -m scripts.optimize_cate_portfolio" in by_name["research_cate_portfolio"]
     )
-    assert (
-        "run_ifrs9_monte_carlo_gpu.py --n-scenarios 8192 --chunk-size 256"
-        in by_name["research_rapids"]
-    )
+    # research_labs retired the standalone RAPIDS/IFRS9 lane from its contract;
+    # include_rapids can route an allowed phase to cuOpt but cannot resurrect it.
+    assert "research_rapids" not in by_name
 
 
 def test_main_rejects_core_run_without_explicit_baseline(tmp_path, monkeypatch) -> None:

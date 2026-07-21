@@ -1,0 +1,6 @@
+outcome,availability,causal_comment
+default_12m_or_lifetime,available_proxy,primary but confounded; needs sensitivity
+prepayment,partial_proxy,available only via status/date proxy
+net_return,available_proxy,post-treatment outcome; needs leakage discipline
+loss_given_default,available_proxy,conditional outcome; selection risk
+approval_or_funding,not_available,Lending Club accepted loans do not reveal rejected applicants

@@ -2,7 +2,10 @@
 
 ## PROJECT OVERVIEW
 
-Master's thesis on credit risk management using the **Lending Club Loan Data** (Kaggle 2007-2020Q3 source; modeling uses a cleaned resolved OOT subset). Implements a complete ML + Operations Research pipeline with a novel **predict-then-optimize** approach using conformal prediction.
+Master's thesis repository on credit risk management using the **Lending Club
+Loan Data** (Kaggle 2007-2020Q3 source; modeling uses a cleaned, resolved-only
+temporal subset). It preserves a historical ML + Operations Research
+**predict-then-optimize** pipeline and its subsequent identification audit.
 
 **Owner**: Carlos Vergara | **Language**: Python | **Package manager**: `uv` (not pip)
 
@@ -10,7 +13,9 @@ Master's thesis on credit risk management using the **Lending Club Loan Data** (
 
 ## DOCUMENT SCOPE POLICY
 
-This file and `docs/PROJECT_JUSTIFICATION.md` contain only **current official decisions and standards**.
+This file and `docs/PROJECT_JUSTIFICATION.md` contain current engineering
+standards for this repository. Scientific claims about the active IJDS paper
+belong to the independent `Paper_CRPTO` repository.
 
 - Do not store historical decision changes, mistakes, or retrospective notes here.
 - Store that history in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.
@@ -18,38 +23,63 @@ This file and `docs/PROJECT_JUSTIFICATION.md` contain only **current official de
 
 ## THESIS CONTRIBUTION
 
-The central innovation is a **predict-then-optimize pipeline with conformal prediction**:
+The repository contains a historical **predict-then-optimize pipeline with
+conformal prediction**:
 
 ```
-CatBoost PD → Calibration Selection (Platt/Isotonic/Venn-Abers/Beta) → MAPIE Mondrian Conformal → [PD_low, PD_high]
-  → Box Uncertainty Sets → Pyomo Robust Optimization (HiGHS) → Optimal Portfolio
+CatBoost PD → Calibration Selection → binary-outcome conformal endpoints
+  → diagnostic box-stress heuristics → Pyomo portfolio experiments
 ```
 
 Why this matters:
 - Point estimates ignore uncertainty → fragile portfolios
 - Bootstrap intervals have no finite-sample guarantees
 - Bayesian intervals require distributional assumptions
-- **Conformal prediction intervals are distribution-free with mathematical coverage guarantees**
+- Conformal coverage is finite-sample under the method's assumptions for the
+  declared future outcome. With binary calibration labels here, it covers
+  observed `Y`, not latent individual PD, ECL, SICR or a selected policy.
 
-## CURRENT OFFICIAL DECISIONS
+The current external CRPTO/IJDS surface is a retrospective identification
+audit. It selects no learner, window, taxonomy, gamma, ruler, coordinate, cap,
+comparator or portfolio policy. Never promote this repository's legacy
+`pd_low`/`pd_high`, IFRS9 or `champion` artifacts into that paper by default.
+The observed external authority is pinned by commit and content hash in
+`docs/research/crpto_external_contract_2026-07-20.yml`; refresh that contract
+explicitly instead of accepting cross-repository drift.
+
+## CURRENT ENGINEERING DECISIONS AND HISTORICAL LOCAL FREEZE
 
 - **Serving mode**: Quarto-first publication mode, with a reduced local Streamlit companion for optional interactive analysis and FastAPI/MCP as optional support services.
-- **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model.
-- **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
+- **Historical score architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + a locally selected calibrator. The frozen artifact labelled `champion` uses monotonic constraints `installment:1, annual_inc:-1, dti:1, loan_to_income:1`; the label is runtime provenance, not a current scientific winner.
+- **Historical evaluation scheme**: chronological `train/val/cal/test` partitions. The resolved-only `test OOT` is a retrospective internal evaluation that was reused downstream; it is not an untouched, prospective or external holdout.
 - **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
-- **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config.
-- **Calibration policy**: 4 candidates (Platt, Isotonic, Venn-Abers, Beta); method selected by temporal multi-metric validation policy with log-loss + degradation rate tracking per fold. Config files are **templates** with defaults (`method: auto`); runtime artifacts are the source of truth.
+- **HPO runtime**: Optuna tuning for CatBoost when enabled by config. The frozen local artifact records trial 56 parameters; this does not select a current CRPTO learner.
+- **Calibration runtime**: 4 candidates (Platt, Isotonic, Venn-Abers, Beta) are compared by a temporal multi-metric routine. Venn-Abers was retained in the historical local freeze. Config files are **templates** with defaults (`method: auto`); runtime artifacts reproduce software behavior, not paper-wide scientific authority.
+- **Historical conformal freeze**: `score_decile_mondrian` (rank1 reopen,
+  2026-04-05), retained for local reproducibility; not selected by current CRPTO.
+- **Historical portfolio freeze**: `bound_aware_276k_economic_champion` from
+  `paper-thesis-final-economic-2026-04-06`, retained for non-search pipeline
+  compatibility; not a current scientific promotion or deployment policy.
+- **Pipeline freeze policy**: Non-search pipelines (`paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild`) use `freeze_if_available` execution mode — no portfolio re-search. Search pipelines (`search_portfolio`, `search_pd`) still do full search when invoked explicitly.
 
-Current runtime metrics and winners must be read from artifacts, primarily:
-- `data/processed/model_comparison.json`
-- `models/pd_training_record.pkl`
-- `data/processed/pipeline_summary.json`
+To reproduce the historical local runtime, read the following artifacts.
+Fields such as `winner`, `champion`, `selected` or `promotion` are compatibility
+and provenance labels; they do not override the claim contracts in
+`SESSION_STATE.md`:
+
+- `models/final_project_promotion.json` (legacy promotion package + comparators + local robust-region diagnostics)
+- `models/champion_portfolio_policy.json` (frozen policy used by all non-search pipelines)
+- `models/champion_registry.json` (broader registry incl. PD, conformal, threshold semantics)
+- `data/processed/pipeline_summary.json` (historical score/conformal/portfolio snapshot)
+- `data/processed/model_comparison.json` (PD model family comparison)
+- `models/pd_training_record.pkl` (PD training audit log)
 
 ## DATASET
 
 **Source**: https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data
 
-**Splits** (out-of-time, NOT random):
+**Historical resolved-only splits** (chronological, not random; subject to
+maturity selection and downstream reuse):
 | Split | Rows | Default Rate | Date Range |
 |-------|------|-------------|------------|
 | Train | 1,346,311 | 18.52% | 2007-06 to 2017-03 |
@@ -60,7 +90,7 @@ Current runtime metrics and winners must be read from artifacts, primarily:
 total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_pymnt_*, settlement_*, hardship_*, funded_amnt*.
 
 **Three Analytical Datasets**:
-1. `loan_master.parquet` — One row per loan (PD, LGD, survival)
+1. `loan_master.parquet` — One row per loan (binary score and historical severity/survival proxies)
 2. `time_series.parquet` — Monthly aggregates (118 rows, Nixtla-ready: unique_id, ds, y)
 3. `ead_dataset.parquet` — Defaults only (EAD modeling)
 
@@ -86,13 +116,17 @@ uv run ruff format src/ # Format
 | MLOps | dvc 3.56+, mlflow 3.9+, dagshub, pandera 0.22+ |
 | Dev | uv, ruff, pytest, nbstripout, loguru, pre-commit |
 
-### MAPIE 1.3.0 API (current)
+### MAPIE 1.3.0 API used by the local runtime
 - `SplitConformalRegressor` (not MapieRegressor)
 - `SplitConformalClassifier` (not MapieClassifier)
-- Workflow: `fit()` → `conformalize()` → `predict_interval()`
+- With the local `prefit=True` wrapper, the estimator is already fitted:
+  `SplitConformalRegressor(...)` → `conformalize()` → `predict_interval()`;
+  do **not** call `fit()` on the MAPIE wrapper.
 - `confidence_level` at `__init__` (not alpha at predict)
 - `prefit=True` (not cv="prefit")
-- PD intervals: wrap CatBoost in `ProbabilityRegressor` (src/models/conformal.py)
+- Binary-outcome endpoints: the legacy implementation wraps CatBoost in
+  `ProbabilityRegressor` (`src/models/conformal.py`). Schema names such as
+  `pd_low`/`pd_high` do not make those endpoints intervals for latent PD.
 
 ## PROJECT STRUCTURE
 
@@ -145,16 +179,16 @@ uv run ruff format src/ # Format
 1. `src/data/make_dataset.py` → interim cleaned dataset
 2. `src/data/prepare_dataset.py` → OOT train/calibration/test splits
 3. `src/data/build_datasets.py` + `src/features/feature_engineering.py` → analytical datasets
-4. `scripts/train_pd_model.py` → LR baseline + CatBoost default/tuned + selected calibrator + canonical contract
-5. `scripts/generate_conformal_intervals.py` → Mondrian conformal intervals
-6. `scripts/backtest_conformal_coverage.py` + `scripts/validate_conformal_policy.py` → monitoring + policy gate
-7. `scripts/estimate_causal_effects.py` → `simulate_causal_policy.py` → `validate_causal_policy.py`
-8. `scripts/run_ifrs9_sensitivity.py` → scenario and sensitivity ECL
-9. `scripts/optimize_portfolio.py` + `scripts/optimize_portfolio_tradeoff.py` → allocation + robustness frontier
-10. `scripts/run_fairness_audit.py` → demographic parity, equalized odds, disparate impact audit
-11. `scripts/optimize_cate_portfolio.py` → CATE-adjusted portfolio vs baseline comparison
+4. `scripts/train_pd_model.py` → LR baseline + CatBoost variants + locally retained calibrator + runtime contract
+5. `scripts/generate_conformal_intervals.py` → legacy-named endpoints for binary outcome `Y`
+6. `scripts/backtest_conformal_coverage.py` + `scripts/validate_conformal_policy.py` → historical coverage diagnostics + internal software gate
+7. `scripts/estimate_causal_effects.py` → `simulate_causal_policy.py` → `validate_causal_policy.py` (observational diagnostic; no identified policy value)
+8. `scripts/run_ifrs9_sensitivity.py` → IFRS9-inspired mechanical scenarios; no accounting measurement
+9. `scripts/optimize_portfolio.py` + `scripts/optimize_portfolio_tradeoff.py` → historical allocation stress + retrospective frontier
+10. `scripts/run_fairness_audit.py` → internal approval-proxy disparity diagnostics; no fair-lending determination
+11. `scripts/optimize_cate_portfolio.py` → CATE-labelled stress comparison; no causal policy selection
 12. `scripts/simulate_ab_test.py` → retroactive A/B simulation (robust vs non-robust)
-13. `scripts/generate_mrm_report.py` → consolidated MRM validation report (SR 11-7)
+13. `scripts/generate_mrm_report.py` → internal MRM diagnostic report; not independent SR 11-7 validation
 14. `scripts/end_to_end_pipeline.py` → orchestrates all stages
 
 ### Canonical Model Contract
@@ -190,17 +224,23 @@ Test inventory and counts evolve frequently. Use `uv run pytest --collect-only -
 Pytest config uses `--strict-markers --strict-config` to prevent typos in markers and invalid configs.
 Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 
-## IFRS9 / BASEL CONTEXT
+## IFRS9 / BASEL CONTEXT AND PROJECT BOUNDARY
 
-**ECL = PD x LGD x EAD x Discount Factor**
+A common modeling approximation is `PD x LGD x EAD x Discount Factor`. It is
+not the complete IFRS 9 accounting measurement, which requires coherent
+reporting-date information, horizons, probability-weighted cash shortfalls,
+forward-looking scenarios and time value of money.
 
-| Stage | Trigger | PD Used |
-|-------|---------|---------|
-| 1 | No SICR | 12-month PD |
-| 2 | SICR detected | Lifetime PD |
-| 3 | Credit-impaired (90+ DPD) | PD ~ 1.0 |
+| Stage | Condition | Measurement posture |
+|-------|-----------|---------------------|
+| 1 | No significant increase since initial recognition | 12-month ECL |
+| 2 | Significant increase in credit risk | Lifetime ECL |
+| 3 | Credit-impaired asset | Lifetime ECL with the applicable interest treatment |
 
-**Our enhancement**: Conformal interval width (PD_high - PD_point) as additional SICR signal.
+The historical prototype tested binary-endpoint width as a SICR-labelled proxy.
+That rule is retired: width does not identify a change in PD, SICR, Stage 2 or
+ECL. Likewise, 30/90 DPD thresholds are rebuttable backstops or default
+presumptions in the relevant context, not automatic stage identities.
 
 ## KEY REFERENCES
 
@@ -217,6 +257,12 @@ Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 - WOE features are computed in NB02 via OptBinning (not pre-existing in raw data)
 - CatBoost handles NaN natively — no imputation needed. LogReg baseline uses fillna(0).
 - LGD modeling only uses defaults (default_flag=1). ~88% null LGD values are expected.
-- Calibration method can change across runs by temporal model-selection policy (4 candidates: Platt, Isotonic, Venn-Abers, Beta); check `data/processed/model_comparison.json` for the active winner.
+- The local calibration routine can retain a different method across runs (Platt, Isotonic, Venn-Abers, Beta); `data/processed/model_comparison.json` records that run's selection, not an active scientific winner.
 - Side projects (RAPIDS GPU benchmark) are in `*/side_projects/` — not part of core thesis.
+- **Legacy Paper 1 tables** (`reports/paper_material/paper1/tables/*`) are regenerated only via `scripts/export_paper1_canonical_tables.py` for historical reproducibility. They are not the current external CRPTO claim surface.
+- **Legacy Paper Estrella P1 evidence** remains in `models/paper1_p1_evidence_status.json`, `docs/research/paper_estrella_p1_evidence_2026-05-04.md`, and `paper1_tableA3`--`paper1_tableA6`; it records post-selection diagnostics and synthetic stresses, not a current selection or prospective validation.
+- **Legacy policy naming**: the root freeze labels the economic point, rather
+  than `theorem_tight`, as `champion` for pipeline compatibility. This is
+  historical provenance only; current Paper_CRPTO selects no policy.
+- **Pipeline freeze**: `paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild` use `freeze_if_available` mode and the AB selector `explicit_champion_only` to read `models/champion_portfolio_policy.json` directly — no portfolio re-search.
 - History of decision changes, errors, and learnings lives in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.

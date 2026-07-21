@@ -1,0 +1,8 @@
+Credit Scoring with Trended Data ↗ ↘
+Trended credit scores are gaining attention in the lending industry as a valuable addition to a scoring toolbox 🪛. The key premise of trended scoring lies in its ability to provide a more comprehensive view of a consumer's financial behavior compared to single-point-in-time snapshots 🎞️
+The concept of modeling trended attributes is not new, and recent industry use cases have demonstrated that deep learning models excel in this task 🚀. By leveraging neural network representations of raw transactions, model Gini scores can improve by 5-10 percentage points due to the incorporation of historical trends into the models 📈
+Explore an end-to-end modeling approach designed to predict consumer defaults based on sequences of transactional data ⤵️
+▬
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own.

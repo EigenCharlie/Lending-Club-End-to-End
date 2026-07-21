@@ -1,0 +1,124 @@
+---
+title: "Paper 4 Experiment Ledger"
+format: html
+---
+
+# Paper 4 Experiment Ledger
+
+Esta bitácora registra experimentos del laboratorio vivo de Paper 4. Cada
+entrada debe dejar claro qué se intentó, por qué importaba, qué artefactos
+nacieron, qué resultado apareció y qué decisión tomamos.
+
+## Estado
+
+| ID | Fecha | Lane | Pregunta | Estado | Decisión | Artifact principal |
+|---|---|---|---|---|---|---|
+| EXP-2026-05-12-sdam-framing | 2026-05-12 | SDAM / operating model | ¿Cómo convertir Paper 4 en laboratorio secuencial de largo plazo? | complete | keep | `book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd` |
+| EXP-2026-05-12-living-lab | 2026-05-12 | governance / memory | ¿Cómo documentar experimentos, fracasos y cambios de dirección? | complete | keep | `book/chapters/19-paper-mega-extension/19g-living-lab-operating-model.qmd` |
+| EXP-2026-05-12-mvp-evidence-pack | 2026-05-12 | MVP diagnostics | ¿Podemos producir manifests, schemas, overlays IFRS9/tail/satisficing y evidencia `loan/policy/month` sin cambiar el champion? | complete | keep | `reports/paper_material/paper4/status/paper4_mvp_status.json` |
+| EXP-2026-05-12-regret-auditability | 2026-05-12 | SPO+ / CRPTO comparison | ¿Podemos sembrar una frontera regret-auditability para comparar performance y gobernanza? | complete | keep | `reports/paper_material/paper4/tables/paper4_regret_auditability_frontier.csv` |
+| EXP-2026-05-12-policy-loan-matrix | 2026-05-12 | P0 evidence architecture | ¿Podemos reconstruir evidencia `policy_id × loan_id` para las 45 policies? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_policy_loan_matrix.parquet` |
+| EXP-2026-05-12-ifrs9-full-eval | 2026-05-12 | P0 IFRS9 | ¿Podemos evaluar ECL/stage/provisión préstamo por préstamo y por policy? | complete | keep | `reports/paper_material/paper4/tables/paper4_table12_ifrs9_policy_full_eval.csv` |
+| EXP-2026-05-12-diagnostic-selector | 2026-05-12 | P0 selector | ¿Aparecen candidates al combinar retorno, ECL, cola, satisficing y auditabilidad? | complete | keep-for-rerun | `reports/paper_material/paper4/tables/paper4_table14_ifrs9_tail_satisficing_selector.csv` |
+| EXP-2026-05-12-online-mdcp-fairness | 2026-05-12 | P1 monitoring | ¿Podemos crear monitores ACI, MDCP y fairness proxy sin claims fuertes? | complete | keep | `reports/paper_material/paper4/tables/paper4_mdcp_worst_source_coverage.csv` |
+| EXP-2026-05-12-sdam-causal-toy | 2026-05-12 | P2 sequential / causal | ¿Podemos crear un toy DLA 3/6 meses y CATE toy sin promoción causal? | complete | keep | `reports/paper_material/paper4/status/paper4_multi_period_toy_policy.json` |
+| EXP-2026-05-12-exact-limited-topk | 2026-05-12 | exact replay | ¿Cuánto cambia el funded set proxy si rerresolvemos top candidates con HiGHS dentro de pools policy-specific? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_exact_vs_proxy_comparison.csv` |
+| EXP-2026-05-12-ifrs9-v2-lifetime | 2026-05-12 | IFRS9 v2 | ¿Cómo cambian ECL, Stage 2 y net return bajo reglas SICR y escenarios baseline/adverse/severe? | complete | keep | `reports/paper_material/paper4/tables/paper4_ifrs9_v2_policy_summary.csv` |
+| EXP-2026-05-12-selector-v2 | 2026-05-12 | selector / governance | ¿Podemos rankear policies con ECL, tail, MDCP, fairness proxy y auditabilidad sin crear champion? | complete | keep-for-rerun | `reports/paper_material/paper4/tables/paper4_selector_v2_results.csv` |
+| EXP-2026-05-12-online-forward-replay | 2026-05-12 | online conformal | ¿Qué cobertura mensual aparece si los intervalos usan solo errores previos? | complete | keep | `reports/paper_material/paper4/tables/paper4_online_conformal_coverage_regret_v2.csv` |
+| EXP-2026-05-12-regret-auditability-v2 | 2026-05-12 | SPO+ / CRPTO comparison | ¿Qué frontera aparece entre regret mensual neto de ECL y auditabilidad conformal/robusta? | complete | keep | `reports/paper_material/paper4/tables/paper4_regret_auditability_pareto_v2.csv` |
+| EXP-2026-05-12-tail-risk-selector | 2026-05-12 | OCE / CVaR | ¿Un gate de cola cambia el candidate preferido frente a net return after ECL? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_oce_cvar_constraint_grid.csv` |
+| EXP-2026-05-12-multi-period-solver-v2 | 2026-05-12 | sequential / DLA | ¿Un policy switching mensual con coverage gate mejora contra champion estático? | complete | keep-as-toy | `reports/paper_material/paper4/tables/paper4_dla_vs_static_policy_comparison.csv` |
+| EXP-2026-05-12-mdcp-formal-v2 | 2026-05-12 | MDCP | ¿Podemos definir source families y worst-source coverage por policy? | complete | keep | `reports/paper_material/paper4/tables/paper4_mdcp_worst_source_frontier.csv` |
+| EXP-2026-05-12-cate-gate-v2 | 2026-05-12 | causal | ¿CATE aporta value diagnóstico bajo overlap y CI gates sin claim causal? | complete | gated | `reports/paper_material/paper4/tables/paper4_cate_exact_topk_value.csv` |
+| EXP-2026-05-12-claim-matrix | 2026-05-12 | reproducibility | ¿Cada prioridad tiene artifact, página Quarto, caveat y test asociado? | complete | keep | `reports/paper_material/paper4/tables/paper4_claim_artifact_test_matrix.csv` |
+| EXP-2026-05-12-full-universe-exact-topk | 2026-05-12 | exact replay | ¿Los top candidates siguen siendo viables cuando el solve vuelve al universo completo de 276,869 préstamos? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_full_universe_topk_policy_eval.csv` |
+| EXP-2026-05-12-online-method-search | 2026-05-12 | online conformal | ¿Qué variante rolling/grade/decile ofrece mejor cobertura-ancho sin mirar el futuro? | complete | keep-no-promotion | `reports/paper_material/paper4/tables/paper4_online_conformal_method_search.csv` |
+| EXP-2026-05-12-selector-gate-sensitivity | 2026-05-12 | selector / governance | ¿Qué tan sensible es el selector a thresholds de MDCP, fairness proxy, tail y ECL? | complete | keep-for-committee | `reports/paper_material/paper4/tables/paper4_selector_gate_sensitivity_summary.csv` |
+| EXP-2026-05-12-tail-penalty-lp | 2026-05-12 | OCE / CVaR | ¿Un LP con penalización de stress loss puede mover el funded set hacia menor cola? | complete | keep-as-prototype | `reports/paper_material/paper4/tables/paper4_tail_penalty_lp_search.csv` |
+| EXP-2026-05-12-mdcp-source-family | 2026-05-12 | MDCP | ¿Qué source family, grade/period/grade-period, deja peor cobertura defendible? | complete | keep | `reports/paper_material/paper4/tables/paper4_mdcp_source_family_search.csv` |
+| EXP-2026-05-12-fairness-proxy-governance | 2026-05-12 | fairness proxy | ¿Qué thresholds de composición por grade/period/term/subgrade son razonables como proxy stress? | complete | keep-gated | `reports/paper_material/paper4/tables/paper4_fairness_proxy_governance_grid.csv` |
+| EXP-2026-05-12-causal-treatment-identification | 2026-05-12 | causal | ¿Algún treatment observable tiene overlap, balance y sensibilidad suficiente para dossier causal? | complete | gated | `reports/paper_material/paper4/tables/paper4_causal_treatment_identification_grid.csv` |
+| EXP-2026-05-12-multi-period-sample-paths | 2026-05-12 | sequential / DLA | ¿El switching mensual robusto conserva valor bajo baseline, adverse y severe sample paths? | complete | keep-as-toy | `reports/paper_material/paper4/tables/paper4_multi_period_sample_path_search.csv` |
+| EXP-2026-05-12-nonpromoted-dashboard | 2026-05-12 | research lanes | ¿Qué carriles valiosos siguen sin promoción y qué búsqueda concreta los puede desbloquear? | complete | keep | `reports/paper_material/paper4/tables/paper4_nonpromoted_lane_dashboard.csv` |
+| EXP-2026-05-13-v3-full-exact-45 | 2026-05-13 | exact replay | ¿Podemos resolver y persistir allocations exactas para las 45 policies congeladas en universo completo? | complete | keep-no-promotion | `reports/paper_material/paper4/tables/paper4_v3_full_universe_all_policy_eval.csv` |
+| EXP-2026-05-13-v3-ifrs9-cashflow | 2026-05-13 | IFRS9 cashflow | ¿Lifetime ECL con EAD mensual, prepago, default, cure/recovery y escenarios macro cambia el ranking? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_v3_ifrs9_cashflow_policy_summary.csv` |
+| EXP-2026-05-13-v3-online-cp | 2026-05-13 | online conformal | ¿ACI, Mondrian, score-Mondrian y UP-OCP proxy reducen el peor policy-month/source-month? | complete | keep-no-promotion | `reports/paper_material/paper4/tables/paper4_v3_online_conformal_method_summary.csv` |
+| EXP-2026-05-13-v3-formal-cvar-lp | 2026-05-13 | CVaR/OCE solver | ¿CVaR formal con variables auxiliares dentro del LP produce una frontera retorno-cola utilizable? | complete | keep-as-solver-prototype | `reports/paper_material/paper4/tables/paper4_v3_formal_cvar_lp_results.csv` |
+| EXP-2026-05-13-v3-governance-selector | 2026-05-13 | selector / governance | ¿Un selector con thresholds justificados puede distinguir review, park y champion protegido? | complete | keep-for-rerun | `reports/paper_material/paper4/tables/paper4_v3_selector_results.csv` |
+| EXP-2026-05-13-v3-causal-high-rate-dossier | 2026-05-13 | causal dossier | ¿`high_rate_within_grade` sobrevive balance, placebo, overlap y sensibilidad como dossier causal inicial? | complete | gated | `reports/paper_material/paper4/tables/paper4_v3_causal_high_rate_dossier.csv` |
+| EXP-2026-05-13-v3-fairness-audit | 2026-05-13 | fairness governance | ¿Hay atributos protegidos directos o solo proxies defendibles como stress de gobernanza? | complete | proxy-only | `reports/paper_material/paper4/tables/paper4_v3_fairness_attribute_audit.csv` |
+| EXP-2026-05-13-v3-loan-level-sdam | 2026-05-13 | sequential / DLA | ¿Un replay multi-period loan-level con estado financiero realista cambia la lectura del toy switching? | complete | keep-negative-result | `reports/paper_material/paper4/tables/paper4_v3_multiperiod_loan_level_summary.csv` |
+| EXP-2026-05-13-v4-challenger-local-search | 2026-05-13 | challenger search | ¿La ventaja bruta del challenger exacto existe en una vecindad local de `uncertainty_aversion`, `gamma` y `risk_tolerance`? | complete | keep-for-review | `reports/paper_material/paper4/tables/paper4_challenger_local_search.csv` |
+| EXP-2026-05-13-v4-online-conformal | 2026-05-13 | online conformal | ¿ACI local, Mondrian shrinkage, pooling y source-aware guarded resuelven peor policy-month/source-month? | complete | keep-blocking-gate | `reports/paper_material/paper4/tables/paper4_online_conformal_v4_method_summary.csv` |
+| EXP-2026-05-13-v4-ifrs9-contractual | 2026-05-13 | IFRS9 contractual proxy | ¿El ranking cambia al usar performance disponible, installment, LGD/status y macro scenarios en ECL contractual? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_ifrs9_v4_contractual_policy_summary.csv` |
+| EXP-2026-05-13-v4-cvar-constraint | 2026-05-13 | CVaR/OCE solver | ¿CVaR como constraint con return floor produce una frontera interpretable dentro del pool local? | complete | keep-as-constraint-prototype | `reports/paper_material/paper4/tables/paper4_cvar_oce_v4_constraint_frontier.csv` |
+| EXP-2026-05-13-v4-selector-governance | 2026-05-13 | selector / governance | ¿Podemos crear reglas promote/review/park/kill con gate online global y working champion de Paper 4? | complete | review-only | `reports/paper_material/paper4/tables/paper4_selector_v4_results.csv` |
+| EXP-2026-05-13-v4-dynamic-sdam | 2026-05-13 | sequential / DLA | ¿Un solver loan-level mensual con cash, outstanding, repayments, losses, ECL y coverage state funciona como DLA real mínimo? | complete | keep-for-iteration | `reports/paper_material/paper4/tables/paper4_sdam_v4_dynamic_solver_summary.csv` |
+| EXP-2026-05-13-v4-causal-dossier | 2026-05-13 | causal dossier | ¿`high_rate_within_grade` mejora balance residual, placebos, overlap y sensibilidad? | complete | dossier-only | `reports/paper_material/paper4/tables/paper4_causal_high_rate_v4_dossier.csv` |
+| EXP-2026-05-13-v4-fairness-proxy | 2026-05-13 | fairness proxy | ¿Podemos dejar una estrategia clara de proxy governance sin hacer fair-lending legal claim? | complete | proxy-only | `reports/paper_material/paper4/tables/paper4_fairness_v4_proxy_strategy.csv` |
+| EXP-2026-05-13-v4-mdcp-source-coverage | 2026-05-13 | MDCP | ¿Grade, period, state, income, DTI, score decile e intersecciones producen worst-source gate defendible? | complete | keep | `reports/paper_material/paper4/tables/paper4_mdcp_v4_source_coverage.csv` |
+| EXP-2026-05-13-v4-regret-auditability | 2026-05-13 | regret / auditability | ¿Podemos comparar CRPTO, SPO+, CVaR e híbridos con score formal de auditabilidad? | complete | keep | `reports/paper_material/paper4/tables/paper4_regret_auditability_v4_frontier.csv` |
+| EXP-2026-05-13-v4-common-sample-paths | 2026-05-13 | sample paths | ¿Las 100 policies del grid sobreviven bootstrap/scenario replay con shocks comunes contra el Paper Estrella congelado? | complete | keep-for-selector | `reports/paper_material/paper4/tables/paper4_common_sample_path_pairwise_ci.csv` |
+| EXP-2026-05-13-v5-online-source-month | 2026-05-13 | online conformal | ¿Podemos subir peor source-month a 0.80/0.90 con pooling, shrinkage y minimum effective sample size? | complete | keep-blocked-by-width | `reports/paper_material/paper4/tables/paper4_v5_online_source_month_search.csv` |
+| EXP-2026-05-13-v5-ifrs9-marginal-ecl | 2026-05-13 | IFRS9 / SICR | ¿Podemos reemplazar el doble conteo de lifetime PD por ECL mensual marginal descontado y reglas SICR defendibles? | complete | keep-with-caveat | `reports/paper_material/paper4/tables/paper4_v5_ifrs9_contractual_policy_summary.csv` |
+| EXP-2026-05-13-v5-cvar-expanded | 2026-05-13 | CVaR/OCE | ¿CVaR top-k expandido sobre 100 allocations exactas ordena la frontera retorno-cola? | complete | keep-as-frontier | `reports/paper_material/paper4/tables/paper4_v5_cvar_topk_expanded_frontier.csv` |
+| EXP-2026-05-13-v5-mdcp-aware-search | 2026-05-13 | MDCP / selector | ¿Un score que penaliza source débil, ECL y CVaR cambia el candidate interno de Paper 4? | complete | review-only | `reports/paper_material/paper4/tables/paper4_v5_mdcp_aware_search.csv` |
+| EXP-2026-05-13-v5-selector-committee | 2026-05-13 | governance | ¿Podemos justificar thresholds con protocolo MRM/comité y sensibilidad por escenario? | complete | keep-for-committee | `reports/paper_material/paper4/tables/paper4_v5_selector_threshold_protocol.csv` |
+| EXP-2026-05-13-v5-sdam-dla | 2026-05-13 | sequential / DLA | ¿Podemos separar pérdida observada de pérdida esperada en el DLA 3/6/12? | complete | keep-for-iteration | `reports/paper_material/paper4/tables/paper4_v5_sdam_realistic_transition_summary.csv` |
+| EXP-2026-05-13-v5-causal-gates | 2026-05-13 | causal / CATE | ¿CATE puede entrar a policy value después de placebos, overlap y sensibilidad formal? | complete | blocked | `reports/paper_material/paper4/tables/paper4_v5_causal_cate_policy_value_screen.csv` |
+| EXP-2026-05-13-v5-fairness-protocol | 2026-05-13 | fairness governance | ¿Podemos dejar una decisión explícita sobre atributos protegidos y claims legales? | complete | proxy-only | `reports/paper_material/paper4/tables/paper4_v5_fairness_protocol_decision.csv` |
+| EXP-2026-05-13-v5-correlated-paths | 2026-05-13 | sample paths | ¿Shocks macro/grade/month mejoran la comparación pareada contra el Paper Estrella congelado? | complete | keep-comparative-only | `reports/paper_material/paper4/tables/paper4_v5_correlated_sample_path_ci.csv` |
+| EXP-2026-05-13-v5-hybrids-temporal-cqr | 2026-05-13 | research lanes | ¿SPO/DFL, temporal TS/ECL y CQR tienen criterio claro para salir de research-only? | complete | gated | `reports/paper_material/paper4/tables/paper4_v5_claim_artifact_matrix.csv` |
+| EXP-2026-05-13-v6-efficient-online | 2026-05-13 | online conformal | ¿Podemos pasar el gate policy/source-month con ancho mucho menor que v5? | complete | keep-as-target-not-deployable | `reports/paper_material/paper4/tables/paper4_v6_online_source_month_efficiency_search.csv` |
+| EXP-2026-05-13-v6-sicr-calibration | 2026-05-13 | IFRS9 / SICR | ¿Qué reglas SICR reducen Stage 2 dominante sin volverse demasiado laxas? | complete | keep-for-mrm-review | `reports/paper_material/paper4/tables/paper4_v6_sicr_calibration_grid.csv` |
+| EXP-2026-05-13-v6-contractual-readiness | 2026-05-13 | IFRS9 data | ¿Los artifacts actuales sostienen un IFRS9 contractual completo o solo proxy? | complete | blocked-by-data | `reports/paper_material/paper4/tables/paper4_v6_servicing_gap_register.csv` |
+| EXP-2026-05-13-v6-mdcp-inside-solver | 2026-05-13 | MDCP / solver | ¿Qué pasa al meter weak-source y width discipline dentro del LP? | complete | mostly-infeasible | `reports/paper_material/paper4/tables/paper4_v6_mdcp_solver_summary.csv` |
+| EXP-2026-05-13-v6-cvar-constraint | 2026-05-13 | CVaR/OCE | ¿CVaR constraint top-k expandido produce soluciones factibles y frontera retorno-cola? | complete | keep-frontier | `reports/paper_material/paper4/tables/paper4_v6_cvar_constraint_summary.csv` |
+| EXP-2026-05-13-v6-endogenous-dla | 2026-05-13 | sequential / DLA | ¿Podemos financiar préstamos mes a mes con estado cash/outstanding/ECL en vez de elegir policy fija? | complete | keep-proxy | `reports/paper_material/paper4/tables/paper4_v6_dla_loan_level_summary.csv` |
+| EXP-2026-05-13-v6-correlated-sample-paths | 2026-05-13 | sample paths | ¿Macro AR(1), grade shocks, defaults dependientes y LGD cíclico mejoran el replay? | complete | keep-comparative-only | `reports/paper_material/paper4/tables/paper4_v6_correlated_sample_path_ci.csv` |
+| EXP-2026-05-13-v6-cate-fairness-hybrids | 2026-05-13 | gated lanes | ¿CATE/fairness/hybrids tienen artifacts y gates claros para siguiente iteración? | complete | gated-with-surrogate-hybrid | `reports/paper_material/paper4/tables/paper4_v6_claim_artifact_matrix.csv` |
+| EXP-2026-05-13-v7-deployable-online | 2026-05-13 | online conformal | ¿Podemos pasar source-month 0.80 con método deployable y soporte mínimo, no oracle? | complete | keep-blocked-by-efficiency | `reports/paper_material/paper4/tables/paper4_v7_online_deployable_weak_cell_search.csv` |
+| EXP-2026-05-13-v7-mdcp-cvar-solvers | 2026-05-13 | solver / tail / MDCP | ¿Penalties suaves MDCP y CVaR top-k expandido producen soluciones factibles auditables? | complete | keep-for-frontier | `reports/paper_material/paper4/tables/paper4_v7_mdcp_soft_penalty_solver_summary.csv` |
+| EXP-2026-05-13-v7-sicr-ifrs9-governance | 2026-05-13 | IFRS9 / SICR | ¿Podemos dejar shortlist SICR MRM y plan explícito de datos contractuales faltantes? | complete | keep-with-data-blocker | `reports/paper_material/paper4/tables/paper4_v7_sicr_mrm_shortlist.csv` |
+| EXP-2026-05-13-v7-dla-capital-state | 2026-05-13 | sequential / DLA | ¿El DLA puede incluir capital, recoveries, pérdidas realizadas no nulas y macro state? | complete | keep-proxy-for-adp | `reports/paper_material/paper4/tables/paper4_v7_dla_capital_state_summary.csv` |
+| EXP-2026-05-13-v7-causal-fairness-hybrids | 2026-05-13 | gated lanes / hybrids | ¿CATE, fairness y hybrids quedan documentados con bloqueo o registry sin promoción? | complete | gated-with-review-candidates | `reports/paper_material/paper4/tables/paper4_v7_causal_fairness_blocker_matrix.csv` |
+| EXP-2026-05-13-v8-online-efficiency | 2026-05-13 | online conformal | ¿Podemos bajar el ancho deployable de v7 manteniendo source-month defendido `0.80`? | complete | near-resolved-blocked-by-0p95 | `reports/paper_material/paper4/tables/paper4_v8_online_efficiency_frontier.csv` |
+| EXP-2026-05-13-v8-cvar-bisection | 2026-05-13 | CVaR/OCE | ¿Los caps CVaR por bisección producen frontera activa y puntos no dominados? | complete | keep-for-scale-up | `reports/paper_material/paper4/tables/paper4_v8_cvar_bisection_frontier.csv` |
+| EXP-2026-05-13-v8-mdcp-family-caps | 2026-05-13 | MDCP / solver | ¿Caps por family/source dentro del LP resuelven sin colapsar el feasible set? | complete | keep-as-governance-solver | `reports/paper_material/paper4/tables/paper4_v8_mdcp_family_cap_solver_summary.csv` |
+| EXP-2026-05-13-v8-selector-governance | 2026-05-13 | selector / governance | ¿El selector tipo comité bloquea promoción cuando online/IFRS9 aún no cumplen? | complete | keep-no-final-promotion | `reports/paper_material/paper4/tables/paper4_v8_selector_governance_results.csv` |
+| EXP-2026-05-13-v8-dla-value-function | 2026-05-13 | sequential / DLA | ¿Una función de valor proxy mejora el estado final frente a referencia mensual estática? | complete | keep-for-adp | `reports/paper_material/paper4/tables/paper4_v8_dla_value_function_summary.csv` |
+| EXP-2026-05-13-v8-causal-fairness-dfl | 2026-05-13 | gated lanes / DFL | ¿Causal, fairness y SPO+/DFL pueden avanzar sin hacer claims indebidos? | complete | gated-with-surrogate | `reports/paper_material/paper4/tables/paper4_v8_causal_dossier.csv` |
+| EXP-2026-05-13-v8-live-dashboard | 2026-05-13 | lab governance | ¿Podemos dejar blockers vivos con estados `resolved/near_resolved/data_blocked/theory_blocked`? | complete | keep-as-operating-dashboard | `reports/paper_material/paper4/tables/paper4_v8_blocker_dashboard.csv` |
+
+## Template
+
+```markdown
+## EXP-YYYY-MM-DD-slug
+
+**Fecha**:
+
+**Lane**:
+
+**Pregunta**:
+
+**Hipótesis**:
+
+**Estado SDAM**:
+R_t / I_t / B_t / x_t / W_{t+1} / S^M / C_t / X^pi
+
+**Setup**:
+- datos:
+- scripts:
+- artifacts:
+- run tag:
+
+**Resultado**:
+
+**Interpretación**:
+
+**Decisión**:
+keep / promote / park / kill
+
+**Próximo paso**:
+```

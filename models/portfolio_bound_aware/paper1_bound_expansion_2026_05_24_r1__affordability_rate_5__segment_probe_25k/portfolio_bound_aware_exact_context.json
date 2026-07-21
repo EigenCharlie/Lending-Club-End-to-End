@@ -1,0 +1,118 @@
+{
+  "schema_version": "2026-04-05.2",
+  "generated_at_utc": "2026-05-24T22:48:48.308319+00:00",
+  "run_label": "paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k",
+  "conformal_intervals_path": "data/processed/conformal_gap/paper1_champion_replacement_2026_05_23_r3__affordability_rate_5__conformal__phase2__final__rank-1/conformal_intervals_mondrian.parquet",
+  "search_space": {
+    "risk_grid": [
+      0.16,
+      0.165,
+      0.17,
+      0.175,
+      0.18,
+      0.185,
+      0.19
+    ],
+    "aversion_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "gamma_grid": [
+      0.05,
+      0.1,
+      0.2,
+      0.35,
+      0.5
+    ],
+    "delta_cap_grid": [
+      1.0
+    ],
+    "tail_focus_grid": [
+      0.75,
+      0.9,
+      0.95
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      }
+    ],
+    "alpha_grid": [
+      0.01,
+      0.03,
+      0.1
+    ],
+    "max_candidates": 25000,
+    "random_states": [
+      42
+    ],
+    "policy_modes": [
+      "segment_tail_blended_uncertainty",
+      "segment_relative_tail_blended_uncertainty"
+    ],
+    "enable_segment_policy_grid": true,
+    "bucket_return_k": 100,
+    "bucket_proxy_k": 100,
+    "bucket_family_k": 60,
+    "bucket_region_k": 80,
+    "incumbent_policy_path": "models/champion_portfolio_policy.json",
+    "incumbent_risk_neighbors": [
+      0.165,
+      0.17,
+      0.175,
+      0.18,
+      0.185,
+      0.19
+    ],
+    "incumbent_gamma_neighbors": [
+      0.375,
+      0.4,
+      0.425,
+      0.45,
+      0.475,
+      0.5,
+      0.55
+    ],
+    "incumbent_policy_modes": [
+      "segment_tail_blended_uncertainty",
+      "segment_relative_tail_blended_uncertainty"
+    ]
+  },
+  "selection_policy": {
+    "shortlist_strategy": "stratified_bound_first",
+    "rank_order": [
+      "alpha01_exact_pass(desc)",
+      "alpha03_exact_pass(desc)",
+      "ab_pass_all(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(desc)",
+      "alpha01_weighted_miscoverage_V(asc)",
+      "alpha01_gamma_cp(asc)"
+    ]
+  },
+  "frontier_raw_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_frontier_raw.parquet",
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_frontier.parquet",
+  "shortlist_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_shortlist.parquet",
+  "bound_eval_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_bound_eval.parquet",
+  "selection_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_selection.json",
+  "runtime_status_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_runtime_status.json",
+  "runtime_checkpoint_dir": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/portfolio_bound_aware_runtime_checkpoints",
+  "resource_snapshot_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__segment_probe_25k/resource_snapshot.json",
+  "frontier_solver_backend": "highs",
+  "exact_solver_backend": "highs",
+  "budget": 1000000.0,
+  "t_eval": 0.05,
+  "max_candidates": 25000,
+  "random_states": [
+    42
+  ],
+  "alpha_grid": [
+    0.01,
+    0.03,
+    0.1
+  ]
+}

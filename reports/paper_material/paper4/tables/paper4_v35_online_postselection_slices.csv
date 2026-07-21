@@ -1,0 +1,10 @@
+validation_item,source_month_defended_min,policy_month_defended_min,avg_width_loan,pass_gate,strict_holdout,selection_scope,claim_boundary_v35
+v10_best_nominal,0.8,0.9,0.9342434494753106,True,False,same_replay_selection,"Selection-replay diagnostic; not a holdout or live-deployment result."
+last_six_months_postselection_slice,,,0.9055164133961281,False,False,postselection_temporal_slice,"Rule was selected on the replay before this descriptive slice; no refit, exclusion or prospective evaluation."
+leave_source_family_view::dti_band,0.5,,0.9409266601638892,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+leave_source_family_view::income_band,0.7,,0.9442702541836404,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+leave_source_family_view::original_grade,0.6666666666666666,,0.9551529566210606,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+leave_source_family_view::period,0.7142857142857143,,0.9380726166372746,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+leave_source_family_view::score_decile,0.6666666666666666,,0.9496492113099685,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+leave_source_family_view::state_top20,0.8,,0.9529031586395263,False,False,postselection_source_slice,"Source-family diagnostic after selection; not new calibration or an independent holdout."
+month_bootstrap_min,0.8,0.9,0.9341074582242176,True,False,postselection_replay_bootstrap,"Bootstrap over replay months after rule search; not an independent holdout."

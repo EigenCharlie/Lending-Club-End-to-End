@@ -1,0 +1,60 @@
+---
+title: "MVP Evidence Pack"
+page-layout: article
+---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Evidencia tangible
+
+El evidence pack oficial ya no es una lista de todas las olas. Es el conjunto
+minimo que permite defender que Paper 4 existe como laboratorio reproducible.
+
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is a reproducible sequential-decision living lab, not a policy-selection or deployment protocol. | official | index.qmd |
+| F02 | The active external CRPTO IJDS paper is a retrospective identification audit with no selected learner or policy. | external_contract | 19ca-v38-final-synthesis.qmd |
+| F03 | The v31 implementation materialized 512 internally generated paths and 494592 policy-month-path rows. | descriptive_artifact | 19t-multi-period-solver.qmd |
+| F04 | The preselected CVaR configuration records a conditional tail-loss/wealth tradeoff in one internal simulator. | diagnostic_only | 19i-regret-auditability-frontier.qmd |
+| F05 | The v35 six-month and source-family views are post-selection slices, not strict holdouts. | diagnostic_only | 19n-online-mdcp-fairness.qmd |
+| F06 | PyEPO is retained as a descriptive teacher-cost benchmark on sampled top-k menus. | diagnostic_only | 19cc-v39-pyepo-real-suite.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | Paper 4 retains the former IFRS9/SICR lane only as a negative readiness-and-estimand audit; it does not identify PD, ECL, SICR or staging. | diagnostic_negative_audit | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked; the high-rate-within-grade result is an observational, noncausal sensitivity. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park, diagnostic-negative-audit or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Archived Paper 2 artifacts are retained only as non-citable provenance and a negative estimand audit. | diagnostic_negative_audit | 19ca-v38-final-synthesis.qmd |
+| F14 | A legacy-root calibrated model outperformed an origin-time FICO proxy in an archived OOT diagnostic. | append | 19cb-v38-appendix-registers.qmd |
+
+## Artefactos livianos de esta reestructura
+
+| Artifact | Rol |
+|---|---|
+| `paper4_quarto_restructure_status.json` | Estado de la separacion Quarto/notebook |
+| `paper4_current_official_findings.csv` | Hallazgos oficiales actuales |
+| `paper4_current_claim_boundaries.csv` | Claims permitidos y prohibidos |
+| `paper4_living_lab_backlog.csv` | Implementables por horizonte |
+| `paper4_quarto_page_registry.csv` | Paginas oficiales vs archivo historico |
+| `paper4_living_lab_notebook.md` | Bitacora canonica de laboratorio |
+| `paper4_data_frontier_variable_inventory_2026-05-18.csv` | Inventario cleaned/raw/diccionario para los siete carriles parqueados |
+| `paper4_data_frontier_lane_decisions_2026-05-18.csv` | Decision promote/park por carril despues de auditar datos e investigacion |
+| `paper4_data_frontier_raw_servicing_profile_2026-05-18.csv` | Perfil raw de cashflows, hardship, recoveries y servicing fields |
+| `paper4_data_frontier_research_proposal_2026-05-18.md` | Propuesta de experimentos acotados sin reabrir el loop |
+| `paper4_one_page_architecture_2026-05-18.csv` | Arquitectura historica; la lectura activa parte del contrato externo de identificacion CRPTO |
+| `paper4_paper2_absorption_anchors_2026-05-18.csv` | Registro no citable de los fallos de estimando en la antigua absorcion de Paper 2 |
+| `paper4_v35_online_postselection_slices.csv` | Vista reemitida de v35 con `strict_holdout=False` |
+| `pyepo_real_suite_summary_descriptive_20260528.csv` | Vista descriptiva PyEPO sin Wilcoxon ni score manual de auditabilidad |
+| `paper4_future_paper_body_appendix_split_2026-05-18.csv` | Separacion body/appendix para una extraccion futura de Paper 4 |
+| `paper4_status_taxonomy_2026-05-18.csv` | Taxonomia canonica de estados para evitar drift entre paginas |
+| `paper4_lab4_all_lane_summary_2026-05-18.csv` | Sintesis de lanes Lab 4 como append, park o context-only |
+| `angelopoulos_conformal_intake_2026-05-19.csv` | Intake Angelopoulos/Bates/Barber para foundation, CRC gates, label-noise y online/drift future work |
+| `angelopoulos_conformal_bound_intake_2026-05-19.md` | Memo historico de frontera; no autoriza transferencia al CRPTO IJDS activo |
+| `paper4_frontier_metric_governance_decision_2026-05-19.csv` | FICO proxy vs modelo legacy-root calibrado: diagnostico historico de scoring |
+| `paper4_strong_appendix_register_2026-05-19.csv` | Registro del appendix fuerte recomendado para Paper 4 |
+| `paper4_future_experiment_gate_register_2026-05-19.csv` | Gate register para FICO, CRC/LTT directo, non-monotonic CRC y online/drift sin reabrir loops |
+
+## Regla de uso
+
+Cuando una nueva ola produzca resultados, primero se agrega al notebook. Solo si
+se vuelve estable, artifact-backed y claim-safe se promueve a una pagina oficial.

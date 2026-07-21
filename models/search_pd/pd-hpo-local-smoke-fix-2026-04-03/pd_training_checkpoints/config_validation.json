@@ -1,0 +1,56 @@
+{
+  "config_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_model_hpo_local.yaml",
+  "output": {
+    "model_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_local_hpo_tuned.cbm",
+    "conformal_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_local_hpo_calibrator.pkl",
+    "default_model_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_local_hpo_default.cbm",
+    "tuned_model_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_local_hpo_tuned_alias.cbm",
+    "status_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_training_status.json",
+    "checkpoint_dir": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_training_checkpoints",
+    "brier_decomposition_path": "data/processed/search_pd/pd-hpo-local-smoke-fix-2026-04-03/brier_score_decomposition.json",
+    "murphy_diagram_path": "reports/figures/search_pd/pd-hpo-local-smoke-fix-2026-04-03/murphy_diagram.png",
+    "canonical_model_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_candidate_model.cbm",
+    "canonical_calibrator_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_candidate_calibrator.pkl",
+    "contract_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_model_contract.json",
+    "logreg_model_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_logreg_baseline.pkl",
+    "training_record_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_training_record.pkl",
+    "seed_replay_status_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_hpo_seed_replay_status.json",
+    "test_predictions_path": "data/processed/search_pd/pd-hpo-local-smoke-fix-2026-04-03/test_predictions.parquet",
+    "shap_dir": "reports/figures/search_pd/pd-hpo-local-smoke-fix-2026-04-03/shap",
+    "threshold_semantics_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/threshold_semantics.json"
+  },
+  "feature_source": {
+    "mode": "feature_config",
+    "feature_config_path": "data/processed/feature_config.pkl"
+  },
+  "data": {
+    "train_path": "data/processed/train_fe.parquet",
+    "test_path": "data/processed/test_fe.parquet",
+    "calibration_path": "data/processed/calibration_fe.parquet",
+    "cutoff_date": "2018-01-01"
+  },
+  "hpo_enabled": true,
+  "validation": {
+    "scheme": "temporal_train_val_cal_test",
+    "val_from_tail_fraction_of_train": 0.15,
+    "oot_test_cutoff": "2018-01-01",
+    "walk_forward": {
+      "enabled": false,
+      "n_windows": 3,
+      "min_train_rows": 200000,
+      "window_rows": 80000,
+      "date_col": "issue_d",
+      "max_rows": 0
+    },
+    "seed_replay": {
+      "enabled": true,
+      "top_k_trials": 3,
+      "seeds": [
+        42,
+        59,
+        76
+      ],
+      "prioritize_gate_pass": true
+    }
+  }
+}

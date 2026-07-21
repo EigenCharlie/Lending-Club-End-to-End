@@ -1,0 +1,85 @@
+---
+title: "Paper 4 Failure Log"
+format: html
+---
+
+# Paper 4 Failure Log
+
+Este archivo registra fracasos útiles: resultados nulos, rutas bloqueadas,
+experimentos que no mejoran nada, métodos que rompen gates o ideas que quedan
+demasiado lejos. Un fracaso documentado evita repetir trabajo y mejora la
+arquitectura.
+
+## Fracasos Registrados
+
+| ID | Fecha | Lane | Qué falló | Diagnóstico | Decisión |
+|---|---|---|---|---|---|
+| FAIL-2026-05-12-none | 2026-05-12 | setup | aún no hay fracaso experimental nuevo en Paper 4 living lab | archivo inicial creado para registrar próximos intentos | keep |
+| LIMIT-2026-05-12-policy-loan-matrix | 2026-05-12 | evidence architecture | no existe todavía una matriz completa `loan_id × policy_id × funded_flag` para las 45 policies congeladas | el MVP puede comparar policies a nivel agregado, pero la evidencia loan-level actual corresponde al funded set del champion | park until funded-set reconstruction |
+| LIMIT-2026-05-12-ifrs9-proxy | 2026-05-12 | IFRS9 overlay | `policy × ECL × scenario` usa proxy escalado desde sensibilidad alpha/ECL | útil para screening, insuficiente para claim IFRS9 full loan-level por policy | retry with policy-level IFRS9 grid |
+| LIMIT-2026-05-12-nonchampion-allocation-proxy | 2026-05-12 | P0 policy-loan matrix | las allocations exactas de las 44 policies no champion no estaban persistidas en el run bound-aware | se construyó una matriz sparse con reconstrucción greedy proxy; cualquier candidate necesita rerun exacto antes de claim fuerte | retry with exact top5 rerun |
+| LIMIT-2026-05-12-stage2-proxy-dominates | 2026-05-12 | IFRS9 full eval | la regla SICR proxy clasifica gran parte de funded rows como Stage 2/3 | esto sirve como stress conservador, pero no como lifetime ECL formal | refine SICR and lifetime ECL |
+| LIMIT-2026-05-12-exact-limited-not-full-universe | 2026-05-12 | exact replay | el rerun top-k es exacto solo dentro de un subset de 3,000 préstamos por policy | el resultado mide diferencia proxy/exacto y desbloquea análisis top-k, pero no reemplaza un solve full-universe de 276,869 préstamos | retry with persisted full-universe allocations |
+| LIMIT-2026-05-12-selector-gates-too-strict | 2026-05-12 | selector v2 | varios candidates rankean alto por score continuo pero fallan gates MDCP/fairness proxy | buen comportamiento de gobernanza: ranking no equivale a promoción; hay que decidir si los thresholds son comité real o stress exploratorio | tune gates after exact allocations |
+| LIMIT-2026-05-12-online-score-intervals | 2026-05-12 | online conformal | los intervalos forward-only usan error absoluto de PD binaria | son monitores útiles de cobertura, pero no una teoría online CP final para clasificación crediticia | compare rolling, ACI and Mondrian online variants |
+| LIMIT-2026-05-12-cate-ci-crosses-zero | 2026-05-12 | causal | los intervalos CATE cruzan cero para la mayor parte del funded set | no hay identificación suficiente para usar CATE como objetivo del solver | keep causal lane gated |
+| LIMIT-2026-05-12-online-worst-month | 2026-05-12 | online conformal | la búsqueda de métodos logra cobertura media cercana al target, pero deja peor policy-month cerca de 0.67 | la media no basta para promoción; Paper 4 necesita cobertura por régimen/mes/source | retry with ACI, Mondrian online and UP-OCP |
+| LIMIT-2026-05-12-tail-lp-small-candidate-pool | 2026-05-12 | tail LP | el LP de penalización de cola opera sobre un pool candidato de 20,000 préstamos | sirve para probar la arquitectura de objetivo penalizado, pero no es CVaR formal ni solve full-universe | scale to full-universe scenario-CVaR LP |
+| LIMIT-2026-05-12-causal-treatment-still-gated | 2026-05-12 | causal | `high_rate_within_grade` pasa como dossier inicial, no como política causal promocionable | el treatment es observable y mejora overlap, pero todavía faltan supuestos, falsification tests y sensibilidad | build causal identification appendix before policy value |
+| LIMIT-2026-05-12-fairness-no-protected-attrs | 2026-05-12 | fairness proxy | los screens usan grade/period/term/subgrade, no atributos protegidos directos | útil como governance stress, insuficiente para fairness claim legal o fair-lending fuerte | add protected-attribute strategy or external validation |
+| LIMIT-2026-05-13-v3-online-worst-policy-month | 2026-05-13 | online conformal | las variantes ACI/Mondrian/UP-OCP proxy mantienen cobertura media cercana a 0.95, pero el peor policy-month queda en 0.6667 y el peor source-month en 0.5714 | el cuello de botella no es cobertura promedio; es cobertura condicional por régimen pequeño y mes | retry with richer local adaptation and minimum-cell governance |
+| LIMIT-2026-05-13-v3-cvar-return-collapse | 2026-05-13 | CVaR/OCE solver | el LP formal reduce CVaR cuando sube la penalización, pero a partir de penalizaciones altas destruye retorno económico | CVaR funciona como objetivo matemático, aunque la frontera actual es demasiado cara para reemplazar retorno robusto | expand scenario design and test CVaR as constraint with return floor |
+| LIMIT-2026-05-13-v3-causal-residual-pd-balance | 2026-05-13 | causal | `high_rate_within_grade` mejora balance con IPW ATT, pero `pd_point_alpha01` queda con SMD 0.116 > 0.10 | el dossier es útil para aprendizaje causal, no para claim causal promocionable ni policy value | refine propensity/outcome model and add sensitivity appendix |
+| LIMIT-2026-05-13-v3-fairness-protected-unavailable | 2026-05-13 | fairness governance | no hay race, ethnicity, sex, gender, age/date-of-birth ni marital status en los artifacts actuales | Paper 4 solo puede hacer proxy governance con grade, term, geography/income/debt variables; no fair-lending legal claim | keep proxy-only scope unless valid protected attributes or external protocol appear |
+| LIMIT-2026-05-13-v3-multiperiod-static-wins | 2026-05-13 | sequential / DLA | el replay loan-level con cash, outstanding, interest, losses y deployment favorece al champion estático frente al proxy IFRS9/selector | el resultado corrige el toy switching: una política dinámica no gana por cambiar nombres de policy, debe ganar con estado financiero y decisions loan-level | iterate real DLA with endogenous loan choices and richer state transitions |
+| LIMIT-2026-05-13-v4-online-global-source-month | 2026-05-13 | online conformal | `source_aware_guarded` sube peor policy-month a 0.8824 pero peor source-month queda en 0.7500 | el gate global online bloquea toda promoción; Paper 4 solo permite working champion de revisión | retry source-aware recalibration with hierarchical pooling and width discipline |
+| LIMIT-2026-05-13-v4-top-gross-mdcp-fails | 2026-05-13 | MDCP / challenger | los top brutos ganan retorno pero varios quedan con worst-source MDCP 0.7500 | retorno bruto y cobertura defendible no son el mismo objetivo; selector debe separar review de park | search around high-return region with MDCP-aware objective |
+| LIMIT-2026-05-13-v4-ifrs9-not-servicing-panel | 2026-05-13 | IFRS9 | ECL contractual usa status/LGD/installment disponibles, no un servicing panel mensual completo | mejora el proxy anterior, pero no prueba lifetime ECL contractual real con cure/recovery/default timing observados | build servicing panel or document data limitation explicitly |
+| LIMIT-2026-05-13-v4-cvar-pool-only | 2026-05-13 | CVaR/OCE | CVaR constraint LP opera sobre pool local de 12,000 préstamos | la formulación es formal, pero no full-universe; infeasibilidades con floor alto son información de frontera, no fallo del solver | scale top-k exact CVaR or decompose full-universe scenario LP |
+| LIMIT-2026-05-13-v4-causal-no-policy-value | 2026-05-13 | causal | balance residual mejora y pasa 0.10, pero sensibilidad no es estable con sesgo oculto de 6pp | el dossier puede documentarse, CATE sigue bloqueado para policy value | add falsification appendix and alternative outcome definitions |
+| LIMIT-2026-05-13-v4-paper4-working-not-final | 2026-05-13 | governance | existe working champion de Paper 4, pero no promoción final | el bloqueo es intencional: `gate_online_global_method=False` y Paper Estrella permanece congelado | keep working champion only for next experiments |
+| LIMIT-2026-05-13-v5-online-width | 2026-05-13 | online conformal | peor source-month sube a 1.0, pero el ancho promedio queda cerca de 0.995 | la cobertura está resuelta de forma demasiado conservadora; todavía no es un intervalo eficiente para decisiones | retry hierarchical pooling with width penalty inside search |
+| LIMIT-2026-05-13-v5-ifrs9-servicing-proxy | 2026-05-13 | IFRS9 | ECL usa PD marginal mensual y cashflow proxy, pero no un servicing ledger externo | mejora el doble conteo y la regla SICR, aunque falta prepago/default/cure/recovery observados mes a mes | find or build real monthly performance panel |
+| LIMIT-2026-05-13-v5-cvar-not-full-lp | 2026-05-13 | CVaR/OCE | CVaR v5 evalúa 100 allocations exactas locales, no un LP full-universe | sirve para frontera de revisión, no para claim final de optimalidad de cola | scale CVaR with decomposition or top-k exact expanded solve |
+| LIMIT-2026-05-13-v5-mdcp-posthoc | 2026-05-13 | MDCP | MDCP-aware search penaliza después de generar allocations | el método todavía no optimiza con MDCP como constraint endógeno | put MDCP and width penalty inside solver objective/constraints |
+| LIMIT-2026-05-13-v5-dla-action-library | 2026-05-13 | sequential / DLA | DLA v5 decide entre acciones de librería, no aprende una policy endógena loan-level | separa pérdida esperada de pérdida observada, pero no es Bellman/ADP ni aprendizaje secuencial completo | implement loan-level dynamic decision with budget, ECL and coverage state |
+| LIMIT-2026-05-13-v5-cate-blocked | 2026-05-13 | causal / CATE | 96%+ de intervalos CATE cruzan cero y treatment no es aleatorizado | CATE sigue siendo dossier, no policy value ni objetivo de solver | strengthen falsification tests and define clean causal outcomes |
+| LIMIT-2026-05-13-v5-fairness-legal-claim | 2026-05-13 | fairness | no existen atributos protegidos directos | Paper 4 solo puede decir proxy governance; no fair-lending legal claim | keep no-legal-claim language unless external protocol appears |
+| LIMIT-2026-05-13-v5-temporal-cqr-gated | 2026-05-13 | temporal / CQR | TS/ECL falla coverage gate y CQR no mejora cobertura, ancho y elegibilidad simultáneamente | ambos carriles quedan research-only aunque tengan valor diagnóstico | rerun only if downstream ECL coverage and decision eligibility improve |
+| LIMIT-2026-05-13-v6-online-not-deployable | 2026-05-13 | online conformal | el audit rescue pasa gate 0.80 con ancho 0.930, pero usa outcomes/celdas débiles ex post | ya sabemos que el rescate eficiente existe, pero todavía no tenemos predictor pre-decision de celdas débiles | train pre-decision weak-cell model from historical months |
+| LIMIT-2026-05-13-v6-mdcp-infeasible | 2026-05-13 | MDCP / solver | tres de cuatro variants con weak-source/width caps dentro del solver fueron infeasible | el pool local no sostiene budget + PD cap + weak cap estricto; MDCP debe entrar primero como penalty suave o con caps por familia | relax constraints and expand/diversify pool |
+| LIMIT-2026-05-13-v6-ifrs9-readiness-half | 2026-05-13 | IFRS9 data | readiness contractual queda en 0.50 | faltan payment panel, EAD observado, recovery timing y macro scenario path | buscar servicing/performance data o declarar proxy scope permanente |
+| LIMIT-2026-05-13-v6-cvar-return-floor | 2026-05-13 | CVaR/OCE | CVaR constraint es factible con return floor 80k/110k pero infeasible con 140k | frontera retorno-cola confirma que el feasible set se vacía con floors altos | probar decomposition/full-universe y floors adaptativos |
+| LIMIT-2026-05-13-v6-dla-still-proxy | 2026-05-13 | sequential / DLA | DLA ya decide loans mes a mes, pero la transición sigue proxy y realized losses quedan en cero | es loan-level, pero no Bellman/ADP ni servicing-real | incorporar shocks calibrados, ECL capital y coverage state real |
+| LIMIT-2026-05-13-v7-online-efficiency | 2026-05-13 | online conformal | el método deployable pasa source-month 0.80 defendido, pero ancho promedio queda en 0.9564 | el bloqueo cambió de cobertura a eficiencia; falta una reducción pequeña pero real para cruzar el gate 0.95 | entrenar weak-cell predictor y penalizar ancho |
+| LIMIT-2026-05-13-v7-ifrs9-data-boundary | 2026-05-13 | IFRS9 data | readiness contractual permanece en 0.50 | el código ya documenta SICR y ECL proxy; lo faltante es servicing/macro data externo o no materializado | mantener proxy-only o conseguir data real |
+| LIMIT-2026-05-13-v7-cvar-inactive-caps | 2026-05-13 | CVaR/OCE | varias soluciones CVaR factibles repiten la misma allocation porque el cap no es activo | la frontera existe, pero los caps deben acercarse al boundary con bisección/adaptación | construir frontera no dominada con caps adaptativos |
+| LIMIT-2026-05-13-v7-causal-fairness-blocked | 2026-05-13 | causal / fairness | CATE sigue sin policy value y fairness sin claim legal | no hay identificación causal estable ni atributos protegidos/protocolo externo | conservar blockers como gates explícitos |
+| LIMIT-2026-05-13-v8-online-width-gap | 2026-05-13 | online conformal | v8 reduce el ancho deployable a 0.9544 manteniendo source-month 0.80, pero no cruza 0.95 | la estrategia de encoger base y ensanchar máscara correcta ayuda, aunque faltan 0.0044 de ancho | entrenar weak-cell predictor histórico o optimizar delta/mask con costo explícito por source débil |
+| LIMIT-2026-05-13-v8-best-under-width95-fails-source | 2026-05-13 | online conformal | el mejor punto bajo width 0.95 falla source-month con 0.6667 | el ahorro de ancho rompe exactamente el gate que Paper 4 quiere defender | usar borrowing jerárquico/source-aware no lineal antes de promover |
+| LIMIT-2026-05-13-v8-ifrs9-readiness-still-half | 2026-05-13 | IFRS9 data | readiness contractual sigue en 0.50 aunque selector y comité estén mejor documentados | el cuello de botella es servicing/DPD/recovery/macro data, no falta de script | mantener data-blocked y no hacer claim IFRS9 contractual |
+| LIMIT-2026-05-13-v8-causal-overlap-sensitivity | 2026-05-13 | causal | balance y falsification pasan, pero overlap/sensitivity no desbloquean policy value | el dossier es útil para investigación, no para meter CATE en el solver | definir outcome causal limpio y sensibilidad formal más fuerte |
+| LIMIT-2026-05-13-v8-dfl-surrogate-not-spo-plus | 2026-05-13 | SPO+/DFL | el surrogate produce candidates auditables, pero no es entrenamiento SPO+ neural ni end-to-end | ya hay target decision-aware transparente, falta aprendizaje real contra targets LP | entrenar modelo decision-loss con constraints CRPTO/MDCP/IFRS9 |
+
+## Template
+
+```markdown
+## FAIL-YYYY-MM-DD-slug
+
+**Experimento relacionado**:
+
+**Qué esperábamos**:
+
+**Qué pasó**:
+
+**Tipo de fracaso**:
+resultado nulo / intervalos inútiles / gate fallido / solver infeasible /
+causal no identificado / artifact débil / costo excesivo / otro
+
+**Diagnóstico**:
+
+**Qué aprendimos**:
+
+**Decisión**:
+park / kill / retry with changes
+```

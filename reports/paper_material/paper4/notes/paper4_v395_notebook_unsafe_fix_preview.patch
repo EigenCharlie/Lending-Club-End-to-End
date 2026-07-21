@@ -1,0 +1,151 @@
+--- notebooks/01_eda_lending_club.ipynb:cell 2
++++ notebooks/01_eda_lending_club.ipynb:cell 2
+@@ -9,6 +9,7 @@
+ import numpy as np
+ import pandas as pd
+ import seaborn as sns
++import contextlib
+
+ # Style
+ sns.set_theme(style="whitegrid", palette="muted", font_scale=1.1)
+--- notebooks/01_eda_lending_club.ipynb:cell 4
++++ notebooks/01_eda_lending_club.ipynb:cell 4
+--- notebooks/01_eda_lending_club.ipynb:cell 5
++++ notebooks/01_eda_lending_club.ipynb:cell 5
+--- notebooks/01_eda_lending_club.ipynb:cell 6
++++ notebooks/01_eda_lending_club.ipynb:cell 6
+--- notebooks/01_eda_lending_club.ipynb:cell 8
++++ notebooks/01_eda_lending_club.ipynb:cell 8
+--- notebooks/01_eda_lending_club.ipynb:cell 9
++++ notebooks/01_eda_lending_club.ipynb:cell 9
+--- notebooks/01_eda_lending_club.ipynb:cell 12
++++ notebooks/01_eda_lending_club.ipynb:cell 12
+--- notebooks/01_eda_lending_club.ipynb:cell 14
++++ notebooks/01_eda_lending_club.ipynb:cell 14
+@@ -19,10 +19,8 @@
+     data_clipped = data.clip(upper=q99)
+
+     axes[i].hist(data_clipped, bins=50, color="#3498db", alpha=0.7, edgecolor="white", density=True)
+-    try:
++    with contextlib.suppress(Exception):
+         data_clipped.plot.kde(ax=axes[i], color="#e74c3c", linewidth=2)
+-    except Exception:
+-        pass
+     axes[i].set_title(col, fontweight="bold")
+     axes[i].set_ylabel("")
+     axes[i].axvline(
+--- notebooks/01_eda_lending_club.ipynb:cell 15
++++ notebooks/01_eda_lending_club.ipynb:cell 15
+--- notebooks/01_eda_lending_club.ipynb:cell 16
++++ notebooks/01_eda_lending_club.ipynb:cell 16
+--- notebooks/01_eda_lending_club.ipynb:cell 18
++++ notebooks/01_eda_lending_club.ipynb:cell 18
+--- notebooks/01_eda_lending_club.ipynb:cell 19
++++ notebooks/01_eda_lending_club.ipynb:cell 19
+--- notebooks/01_eda_lending_club.ipynb:cell 21
++++ notebooks/01_eda_lending_club.ipynb:cell 21
+--- notebooks/01_eda_lending_club.ipynb:cell 22
++++ notebooks/01_eda_lending_club.ipynb:cell 22
+--- notebooks/01_eda_lending_club.ipynb:cell 23
++++ notebooks/01_eda_lending_club.ipynb:cell 23
+--- notebooks/01_eda_lending_club.ipynb:cell 24
++++ notebooks/01_eda_lending_club.ipynb:cell 24
+--- notebooks/01_eda_lending_club.ipynb:cell 25
++++ notebooks/01_eda_lending_club.ipynb:cell 25
+--- notebooks/01_eda_lending_club.ipynb:cell 26
++++ notebooks/01_eda_lending_club.ipynb:cell 26
+--- notebooks/01_eda_lending_club.ipynb:cell 27
++++ notebooks/01_eda_lending_club.ipynb:cell 27
+--- notebooks/01_eda_lending_club.ipynb:cell 29
++++ notebooks/01_eda_lending_club.ipynb:cell 29
+--- notebooks/01_eda_lending_club.ipynb:cell 30
++++ notebooks/01_eda_lending_club.ipynb:cell 30
+--- notebooks/01_eda_lending_club.ipynb:cell 31
++++ notebooks/01_eda_lending_club.ipynb:cell 31
+--- notebooks/01_eda_lending_club.ipynb:cell 33
++++ notebooks/01_eda_lending_club.ipynb:cell 33
+--- notebooks/01_eda_lending_club.ipynb:cell 34
++++ notebooks/01_eda_lending_club.ipynb:cell 34
+--- notebooks/01_eda_lending_club.ipynb:cell 36
++++ notebooks/01_eda_lending_club.ipynb:cell 36
+--- notebooks/01_eda_lending_club.ipynb:cell 37
++++ notebooks/01_eda_lending_club.ipynb:cell 37
+--- notebooks/01_eda_lending_club.ipynb:cell 38
++++ notebooks/01_eda_lending_club.ipynb:cell 38
+
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 3
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 3
+@@ -118,7 +118,7 @@
+         for sp, ss, qp in zip(
+             out["speedup_x"].to_numpy(np.float64),
+             out["seconds_saved"].to_numpy(np.float64),
+-            out["quality_pass"].to_numpy(bool),
++            out["quality_pass"].to_numpy(bool), strict=False,
+         )
+     ]
+     order = [
+@@ -188,7 +188,7 @@
+
+         xmax = max(positive) if positive else 1.0
+         ax.set_xlim(0, xmax * 1.35 if np.isfinite(xmax) else 1.0)
+-        for b, v in zip(bars, [cpu_s, gpu_s]):
++        for b, v in zip(bars, [cpu_s, gpu_s], strict=False):
+             ax.text(
+                 b.get_width() + xmax * 0.025,
+                 b.get_y() + b.get_height() / 2,
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 5
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 5
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 7
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 7
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 9
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 9
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 11
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 11
+@@ -1,12 +1,11 @@
+ import networkx as nx
++import contextlib
+
+ np.random.seed(int(CONFIG["seed"]))
+
+ if hasattr(nx, "config") and hasattr(nx.config, "warnings_to_ignore"):
+-    try:
++    with contextlib.suppress(Exception):
+         nx.config.warnings_to_ignore.add("cache")
+-    except Exception:
+-        pass
+
+
+ g = pd.read_parquet(TRAIN, columns=["id", "grade", "purpose", "sub_grade", "verification_status"]).dropna(subset=["id"]).copy()
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 13
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 13
+@@ -1,5 +1,6 @@
+ from scipy.optimize import Bounds, LinearConstraint, linprog, milp
+ from scipy.sparse import csr_matrix
++import contextlib
+
+ np.random.seed(int(CONFIG["seed"]))
+
+@@ -111,10 +112,8 @@
+             dm.set_variable_upper_bounds(ub)
+
+             settings = lp_api.SolverSettings()
+-            try:
++            with contextlib.suppress(Exception):
+                 settings.set_parameter("log_to_console", False)
+-            except Exception:
+-                pass
+             settings.set_parameter("time_limit", 120)
+
+             s = time.perf_counter()
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 15
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 15
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 17
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 17
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 19
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 19
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 21
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 21
+--- notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 23
++++ notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb:cell 23
+
+Would fix 5 errors.

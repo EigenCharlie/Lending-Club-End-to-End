@@ -1,0 +1,344 @@
+SageMaker MLflow Pipelines: Automating End-to-End ML Workloads on AWS | by Denis Burakov | AWS in Plain English
+Sitemap
+Open in app
+Sign up
+Sign in
+Medium Logo
+Get app
+Write
+Search
+Sign up
+Sign in
+AWS in Plain English
+·
+New AWS, Cloud, and DevOps content every day. Follow to join our 3.5M+ monthly readers.
+SageMaker MLflow Pipelines: Automating End-to-End ML Workloads on AWS
+Build fully automated, reproducible ML pipelines on AWS using SageMaker and MLflow
+Denis Burakov
+6 min read
+·
+Dec 1, 2025
+--
+Listen
+Share
+Press enter or click to view image in full size
+SageMaker Pipelines.
+Building and deploying machine learning models at scale requires more than just training — it demands a repeatable, automated process that connects data preparation, model training, inference, and analytics.
+SageMaker Pipelines provide exactly that: a framework to orchestrate and automate every stage of the ML lifecycle, ensuring reproducibility and scalability across workflows.
+In the previous article, we explored how to manage the end-to-end model lifecycle on SageMaker using MLflow 3.0, covering individual steps like ML dataset creation, model training, tracking, and versioning of models.
+End-to-End CatBoost Model Lifecycle with SageMaker and MLflow
+Train, tune, and scale CatBoost on SageMaker with MLflow 3.0
+ai.plainenglish.io
+In this follow-up, we’ll take the next step — automating the entire workflow with SageMaker SDK Pipelines. You’ll see how to chain together data preparation, model training, batch inference, and Redshift loading into a single, reproducible, and scalable MLOps pipeline.
+Imports
+This section imports the required SageMaker SDK classes to define and orchestrate the ML pipeline. It also includes boto3 for AWS service integration and standard Python modules for configuration and runtime management.
+from datetime import datetime
+import boto3
+from sagemaker.estimator import Estimator
+from sagemaker.inputs import TrainingInput
+from sagemaker.network import NetworkConfig
+from sagemaker.workflow.functions import Join
+from sagemaker.workflow.parameters import (
+ParameterFloat,
+ParameterInteger,
+ParameterString,
+)
+from sagemaker.workflow.pipeline import Pipeline
+from sagemaker.workflow.properties import PropertyFile
+from sagemaker.workflow.steps import CacheConfig, ProcessingStep, TrainingStep
+import sagemaker
+from sagemaker.processing import ProcessingInput, ProcessingOutput, ScriptProcessor
+Pipeline Configuration
+This section centralizes SageMaker, S3, and MLflow configuration, along with all tunable pipeline parameters.
+Defining them as ParameterString or ParameterFloat allows you to override values (e.g., model version, data filter, or hyperparameters) directly when triggering a pipeline execution—making experiments and re-runs reproducible and consistent.
+# Configuration
+region = "us-east-1"
+role = "arn:aws:iam::497487485332:role/service-role/AmazonSageMaker-ExecutionRole"
+bucket = "my-s3-bucket"
+base_prefix = "data"
+job_id = f"pipe-{datetime.now().strftime('%Y%m%d%H%M')}"
+mlflow_tracking_uri = "arn:aws:sagemaker:us-east-1:497487485332:mlflow-tracking-server/sagemaker-mlflow-3"
+mlflow_bucket = "sagemaker-us-east-1-497487485332"
+mlflow_experiment_path = "mlflow-experiments-3/1"
+# Create SageMaker session
+sm_session = sagemaker.Session(boto3.Session(region_name=region))
+glue_props = PropertyFile(name="GlueProps", output_name="glue", path="glue.json")
+kms_key = "arn:aws:kms:us-east-1:497487485332:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+# Security groups (examples only, not a real config)
+network_config = NetworkConfig(
+security_group_ids=["sg-a9e76d60e03a174ff"],
+subnets=["subnet-f28751aa8ad2ad51a", "subnet-0a26e0df316b74f23", "subnet-ccca708d00e55a2bb"],
+)
+cache_config = CacheConfig(
+enable_caching=True,
+expire_after="1 day",
+)
+# Pipeline parameters
+model_version = ParameterString(name="ModelVersion", default_value="v1.1d")
+date_filter = ParameterString(name="DateFilter", default_value="reporting_qdate = DATE '2025-01-01'")
+test_size = ParameterFloat(name="TestSize", default_value=0.3)
+sampling_ratio = ParameterFloat(name="SamplingRatio", default_value=0.1)
+iterations = ParameterInteger(name="Iterations", default_value=357)
+learning_rate = ParameterFloat(name="LearningRate", default_value=0.13)
+depth = ParameterInteger(name="Depth", default_value=4)
+early_stop_rounds = ParameterInteger(name="EarlyStopRounds", default_value=43)
+instance_type = ParameterString(name="InstanceType", default_value="ml.m6i.8xlarge")
+instance_count = ParameterInteger(name="InstanceCount", default_value=4)
+batch_size = ParameterInteger(name="BatchSize", default_value=10000)
+Data Preparation Step
+This pipeline step uses an AWS Glue job (triggered within data_preparation.py) to handle large-scale ETL and dataset preparation.
+Leveraging Glue allows scaling preprocessing independently of SageMaker by adjusting the number of workers, making the pipeline more resilient to data growth.
+Additionally, a Glue Crawler is used to maintain metadata and enable data quality checks within Athena.
+data_prep = ProcessingStep(
+name="DataPreparation",
+processor=ScriptProcessor(
+command=["python3"],
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest",
+role=role,
+instance_count=1,
+instance_type="ml.m6i.16xlarge",
+sagemaker_session=sm_session
+),
+code="../data_preparation.py",
+job_arguments=[
+"--bucket", bucket,
+"--base_prefix", base_prefix,
+"--out_prefix", f"{base_prefix}/ml-dataset",
+"--crawler_name", "ML_DATASET",
+"--custom_date_filter", date_filter,
+"--run-glue-job",
+"--test-size", test_size.to_string(),
+"--sampling-ratio", sampling_ratio.to_string(),
+"--output-prefix", f"{base_prefix}/ml-dataset-stratified/{job_id}",
+"--job-id", job_id
+],
+cache_config=cache_config,
+)
+Training Step
+This step triggers train.py on SageMaker using the custom MLflow-enabled CatBoost container.
+It handles model training, evaluation, and automatic logging of metrics and artifacts to the MLflow tracking server defined in MLFLOW_TRACKING_URI.
+# Define the estimator
+estimator = Estimator(
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest",
+role=role,
+instance_count=1,
+instance_type="ml.m6i.32xlarge",
+sagemaker_session=sm_session,
+entry_point="train.py",
+source_dir="../",
+environment={"MLFLOW_TRACKING_URI": mlflow_tracking_uri},
+output_path=f"s3://{bucket}/{base_prefix}/ml-artifacts",
+)
+# Set the hyperparameters exactly as train.py expects them
+estimator.set_hyperparameters(
+model_version=model_version,
+iterations=iterations,
+learning_rate=learning_rate,
+depth=depth,
+early_stopping_rounds=early_stop_rounds,
+)
+# Create the TrainingStep
+training = TrainingStep(
+name="ModelTraining",
+estimator=estimator,
+inputs={
+"train": TrainingInput(
+s3_data=f"s3://{bucket}/{base_prefix}/ml-dataset-stratified/{job_id}/train-resampled",
+content_type="application/x-parquet"
+),
+"test": TrainingInput(
+s3_data=f"s3://{bucket}/{base_prefix}/ml-dataset-stratified/{job_id}/test",
+content_type="application/x-parquet"
+),
+},
+depends_on=[data_prep],
+cache_config=cache_config,
+)
+Note: because the SageMaker TrainingStep doesn’t support emitting property files (unlike ProcessingStep), you can’t directly pass MLflow metadata such as the run_id or model_id to later steps.
+I recommend saving both the trained model in mlflow.catboost format (model.cb) and a small mlflow.json file containing the mlflow_run_id and mlflow_model_id in the training output. You can retrieve these IDs as follows:
+# in train.py
+model_info = mlflow.catboost.log_model(cb_model=model, name="catboost_model")
+run_id = mlflow.active_run().info.run_id # MLflow Run ID
+model_id = model_info.model_id # MLflow Model ID
+This lets the inference step reuse the exact model and MLflow context via --mlflow-metadata /opt/ml/processing/mlflow.
+Inference Step
+This step performs distributed batch inference using ray_inference.py and a custom Ray-enabled SageMaker container.
+Get Denis Burakov’s stories in your inbox
+Join Medium for free to get updates from this writer.
+Subscribe
+Subscribe
+Remember me for faster sign in
+It retrieves the model and MLflow metadata from the previous training step, runs inference over large datasets in parallel, and outputs results to S3 for analysis and integration with Glue/Athena.
+inference = ProcessingStep(
+name="BatchInference",
+processor=ScriptProcessor(
+command=["python3"],
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/ray-inference-container:latest",
+role=role,
+instance_count=4,
+instance_type="ml.m6i.8xlarge",
+volume_size_in_gb=100,
+sagemaker_session=sm_session,
+env={"MLFLOW_TRACKING_URI": mlflow_tracking_uri},
+output_kms_key=kms_key,
+),
+code="../batch_inference.py",
+inputs=[
+ProcessingInput(
+source=f"s3://{bucket}/{base_prefix}/ml-dataset",
+destination="/opt/ml/processing/input",
+),
+ProcessingInput( # model.tar.gz from training step
+source=training.properties.ModelArtifacts.S3ModelArtifacts,
+destination="/opt/ml/processing/model-artifacts",
+),
+ProcessingInput( # output.tar.gz (MLflow metadata + model info)
+source=Join(
+on="",
+values=[
+f"s3://{bucket}/{base_prefix}/ml-artifacts/",
+training.properties.TrainingJobName,
+"/output/",
+],
+),
+destination="/opt/ml/processing/mlflow",
+),
+],
+outputs=[
+ProcessingOutput(
+output_name="inference_results",
+source="/opt/ml/processing/output",
+destination=f"s3://{bucket}/{base_prefix}/outputs/inference/{job_id}",
+),
+ProcessingOutput(
+output_name="inference_metadata",
+source="/opt/ml/processing/output_metadata",
+destination=f"s3://{bucket}/{base_prefix}/outputs/inference/{job_id}/metadata",
+),
+],
+job_arguments=[
+"--data-path", "/opt/ml/processing/input",
+"--mlflow-metadata", "/opt/ml/processing/mlflow",
+"--model-version", model_version,
+"--output-path", "/opt/ml/processing/output",
+"--region", region,
+"--bucket", bucket,
+"--glue-crawler", "BATCH_INFERENCE",
+"--glue-database", "scoring_service",
+"--glue-table", "model_scores_aud",
+],
+depends_on=[training],
+)
+Note: when running distributed batch inference with SageMaker Processing jobs (e.g., using Ray), you may encounter deserialization issues if multiple workers attempt to extract the same model.tar.gz concurrently.
+To avoid this, ensure the extraction logic handles concurrency safely — for example:
+# Add to batch_inference.py
+import os
+model_dir = "/opt/ml/processing/model-artifacts"
+tar_path = f"{model_dir}/model.tar.gz"
+if os.path.exists(tar_path) and not os.path.exists(f"{model_dir}/.extracted"):
+tarfile.open(tar_path).extractall(model_dir)
+open(f"{model_dir}/.extracted", "w").close()
+Additionally, when writing batch or shard outputs from different workers, include a unique identifier (such as a random suffix or process index) in each output file name to prevent overwriting collisions:
+import uuid
+output_file = f"/opt/ml/processing/output/preds_{uuid.uuid4().hex}.parquet"
+df.to_parquet(output_file)
+Load Step
+In this step, the pipeline executes s3_to_redshift.py to load the batch inference results from S3 into Redshift.
+This enables downstream analytics, reporting, or integration with BI tools by making model predictions directly queryable within the data warehouse.
+load = ProcessingStep(
+name="RedshiftLoad",
+processor=ScriptProcessor(
+command=["python3"],
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/ray-inference-container:latest",
+role=role,
+instance_count=1,
+instance_type="ml.m6i.large",
+sagemaker_session=sm_session,
+env={"AWS_DEFAULT_REGION": region},
+network_config=network_config,
+),
+code="../s3_to_redshift.py",
+inputs=[
+ProcessingInput(
+source=inference.properties.ProcessingOutputConfig.Outputs["inference_metadata"].S3Output.S3Uri,
+destination="/opt/ml/processing/metadata",
+)
+],
+job_arguments=[
+"--metadata-path", "/opt/ml/processing/metadata/metadata.json",
+"--redshift-schema", "scoring_service",
+"--redshift-table", "model_scores_aud",
+"--redshift-iam-role", "arn:aws:iam::497487485332:role/AWSGlueServiceRoleDefault",
+"--job-name", f"redshift-load-job-{job_id}",
+],
+depends_on=[inference],
+)
+Note: if your Redshift cluster resides in a different AWS account (cross-account loading), ensure that S3 outputs are encrypted with a customer-managed KMS key.
+The KMS key policy must explicitly grant access to the Redshift (reader) account to enable seamless cross-account data transfer and decryption during the load process.
+Pipeline
+Finally, all steps are orchestrated into a SageMaker Pipeline that automates data preparation, model training, batch inference, and loading results into Redshift.
+The pipeline can be created, updated, and executed programmatically, enabling fully reproducible ML workflows.
+pipeline = Pipeline(
+name=f"mlflow-training-pipeline-{job_id}",
+parameters=[
+model_version,
+date_filter,
+test_size,
+sampling_ratio,
+iterations,
+learning_rate,
+depth,
+early_stop_rounds,
+instance_type,
+instance_count,
+batch_size,
+],
+steps=[data_prep, training, inference, load],
+sagemaker_session=sm_session,
+)
+# Create or update the pipeline
+pipeline.upsert(role_arn=role)
+# Start using default parameters
+execution = pipeline.start()
+print(f"✅ Pipeline started: {execution.arn}")
+After the pipeline is kicked off, you can monitor its execution and view logs directly in the SageMaker Studio UI under Pipelines.
+Each step’s outputs — from data prep to Redshift copy — are versioned automatically, ensuring full traceability and reproducibility across runs.
+Press enter or click to view image in full size
+SageMaker Pipeline execution.
+This completes the end-to-end ML workflow — from data preparation and training to scalable batch inference and analytics.
+Conclusion
+This end-to-end SageMaker pipeline demonstrates how to combine MLflow tracking, CatBoost training, Ray-powered inference, and Redshift integration into a single reproducible workflow.
+By modularizing each step — data preparation, training, inference, and loading — you enable seamless automation, scalability, and transparency across the ML lifecycle.
+Whether you’re building a retraining system or scaling analytics pipelines, this pattern offers a strong foundation for production-grade MLOps on AWS.
+Thanks for reading — I hope this helps you build your own scalable ML pipelines on AWS!
+You can find the script templates for this pipeline in this repository.
+🧠 If you found this helpful…
+If you found this walkthrough helpful, you might also enjoy my deep dive on model explainability:
+Why SHAP Breaks in Production (and How MLflow Fixes It)
+A hands-on guide to packaging SHAP explainers with CatBoost + SageMaker MLflow
+ai.plainenglish.io
+AWS
+Machine Learning
+Data Science
+Mlops
+Python
+--
+--
+Published in AWS in Plain English
+61K followers
+·Last published 2 days ago
+New AWS, Cloud, and DevOps content every day. Follow to join our 3.5M+ monthly readers.
+Written by Denis Burakov
+153 followers
+·25 following
+I write about Python, Data Science, and AI
+Help
+Status
+About
+Careers
+Press
+Blog
+Privacy
+Rules
+Terms
+Text to speech

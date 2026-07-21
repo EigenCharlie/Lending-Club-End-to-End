@@ -1,9 +1,8 @@
 ---
 title: "Stack Tecnológico"
-close_takeaway: "El stack importa menos como lista de librerías que como sistema de decisiones: baseline abierto, contratos explícitos, separación de carriles y trazabilidad sobre artefactos."
-close_connects: "Sostiene todo lo que ocurre después: ETL, modelado PD, conformal, portafolio, IFRS9, companion y libro."
-close_reuse: "Sus prácticas se reutilizan en MLOps, benchmark GPU, papers y defensa metodológica del proyecto."
 ---
+
+{{< include ../includes/_scientific-scope-contract.qmd >}}
 
 Este capítulo documenta las librerías y herramientas utilizadas en el proyecto, junto con la **justificación** de por qué cada una fue seleccionada sobre sus alternativas. El stack completo se gestiona con `uv` (no pip) y las versiones están fijadas en `pyproject.toml`.
 
@@ -20,7 +19,7 @@ Las herramientas se eligieron con tres criterios:
 | una sola fuente de verdad | lógica reusable en `src/`, no duplicada entre scripts, notebooks y Streamlit |
 | contratos explícitos | schemas Pandera, configs YAML y artefactos versionados |
 | baseline abierto | CatBoost, MAPIE, Pyomo, HiGHS, DVC y Quarto sin dependencia de licencias cerradas |
-| separación de carriles | baseline operativo CPU vs insight factory / research en GPU |
+| separación de carriles | freeze histórico CPU vs insight factory / research en GPU |
 
 : Prácticas de ingeniería que sostienen el stack, más allá de la lista de librerías {#tbl-stack-engineering-principles}
 
@@ -33,9 +32,9 @@ Las herramientas se eligieron con tres criterios:
 import pandas as pd
 
 ml_stack = [
-    {"Librería": "CatBoost 1.2.8", "Rol": "Modelo PD (gradient boosting)",
+    {"Librería": "CatBoost 1.2.8", "Rol": "Score binario (gradient boosting)",
      "Alternativas": "XGBoost, LightGBM",
-     "Justificación": "Manejo nativo de categorías y NaN, ordered boosting reduce overfitting, mejor calibración out-of-the-box para credit scoring"},
+     "Justificación": "Manejo nativo de categorías y NaN, ordered boosting y soporte de restricciones monotónicas; calibración y transporte se evalúan por separado"},
     {"Librería": "scikit-learn 1.6.1", "Rol": "Baseline LR, calibración, métricas",
      "Alternativas": "—",
      "Justificación": "Estándar de facto para ML en Python. Provee CalibratedClassifierCV, IsotonicRegression, y todas las métricas de evaluación"},
@@ -44,7 +43,7 @@ ml_stack = [
      "Justificación": "TPE sampler es state-of-the-art para HPO con presupuesto limitado, pruning via MedianPruner, integración nativa con CatBoost"},
     {"Librería": "OptBinning 0.19+", "Rol": "WOE/IV binning",
      "Alternativas": "scorecardpy, binning manual",
-     "Justificación": "Binning óptimo basado en programación matemática, soporta constraints regulatorios (monotonía, máximo de bins)"},
+     "Justificación": "Binning basado en programación matemática con restricciones configurables de monotonía, tamaño y número de bins; no implica conformidad regulatoria"},
     {"Librería": "SHAP 0.48", "Rol": "Explicabilidad (TreeExplainer)",
      "Alternativas": "LIME, ELI5",
      "Justificación": "SHAP values tienen fundamento teórico en teoría de juegos (Shapley values), TreeExplainer es exacto para tree ensembles"},
@@ -73,7 +72,7 @@ pd.DataFrame(conformal_stack)
 
 ::: {.callout-warning}
 ## MAPIE 1.3.0 — Cambio de API
-MAPIE 1.3.0 introdujo una API completamente nueva. La clase principal es `SplitConformalRegressor` (no `MapieRegressor`). El workflow es: `fit()` → `conformalize()` → `predict_interval()`. El parámetro `confidence_level` se define en `__init__`, no `alpha` en `predict`. Usamos `prefit=True` para integrar con modelos CatBoost pre-entrenados.
+MAPIE 1.3.0 introdujo una API completamente nueva. La clase principal es `SplitConformalRegressor` (no `MapieRegressor`). Con el wrapper local `prefit=True`, el estimador ya está ajustado: se instancia `SplitConformalRegressor`, se llama directamente a `conformalize()` y luego a `predict_interval()`; no se llama a `fit()` sobre el wrapper. El parámetro `confidence_level` se define en `__init__`, no `alpha` en `predict`.
 :::
 
 ## Series de Tiempo y Supervivencia
@@ -237,10 +236,10 @@ pd.DataFrame(delivery_stack)
 gpu_stack = [
     {"Librería": "RAPIDS (cuDF, cuML, cuPy)", "Rol": "Aceleración GPU para ETL, ML, Monte Carlo",
      "Alternativas": "pandas, scikit-learn, numpy",
-     "Justificación": "Speedup selectivo: Monte Carlo IFRS9 (16K scenarios), HPO masivo, benchmark comparativo. No reemplaza CPU baseline canónico"},
+     "Justificación": "Speedup selectivo: escenarios IFRS9-inspired históricos, HPO y benchmarks. No reemplaza el freeze CPU ni valida ECL"},
     {"Librería": "NVIDIA cuOpt", "Rol": "Optimización combinatoria GPU",
      "Alternativas": "OR-Tools, Pyomo+HiGHS",
-     "Justificación": "Exploración de formulaciones alternativas en GPU para portafolio. Resultado: HiGHS CPU sigue siendo óptimo para nuestro tamaño"},
+     "Justificación": "Exploración de formulaciones alternativas en GPU; HiGHS CPU se retuvo como baseline local para el tamaño y la formulación ejecutados"},
 ]
 
 pd.DataFrame(gpu_stack)
@@ -248,18 +247,22 @@ pd.DataFrame(gpu_stack)
 
 ::: {.callout-warning}
 ## GPU no es el baseline
-Las herramientas GPU son parte del *insights factory* --- un carril de investigación complementario. El baseline operativo corre enteramente en CPU. Los benchmarks GPU se documentan en el Apéndice B.
+Las herramientas GPU son parte del *insights factory* --- un carril de
+investigación complementario. El freeze histórico reproducible corre
+enteramente en CPU; eso no lo convierte en baseline de producción. Los
+benchmarks GPU retirados conservan procedencia en artefactos y en Git, pero el
+libro activo ya no publica un Apéndice B propio.
 :::
 
 ## Arquitectura end-to-end y riesgos metodológicos
 
 | Bloque | Riesgo metodológico dominante | Mitigación en el stack |
 |---|---|---|
-| datos | leakage, mezcla de cortes temporales, drift silencioso | DVC, dbt, Pandera, splits OOT |
-| modelado PD | sobreajuste, mala calibración, métricas engañosas | Optuna, calibration layer, tests y benchmarks |
-| conformal | buena cobertura global pero mala utilidad por grupo o en el tiempo | Mondrian, policy status, backtesting, Winkler |
-| optimización | maximizar retorno ignorando ambigüedad | uncertainty sets + policy champion |
-| IFRS9 / governance | provisiones sensibles a supuestos y artefactos opacos | escenarios, MRM, registry, fairness, explainability |
+| datos | leakage, madurez, mezcla de cortes y drift silencioso | DVC, dbt, Pandera y particiones cronológicas; no holdout final intacto |
+| score binario | sobreajuste, mala calibración, métricas engañosas | Optuna, calibración y tests locales; no PD regulatoria validada |
+| conformal | cobertura agregada que oculta grupos o tiempo | backtesting de cobertura de $Y$; no incertidumbre de PD ni policy gate científico |
+| optimización | tratar endpoints como riesgo identificado | caja numérica de stress y procedencia retrospectiva; no `champion` vigente |
+| IFRS9 / governance | saltos de score a provisión o aprobación | escenarios y checks internos como diagnósticos; no validación contable, legal o independiente |
 
 : Riesgos metodológicos y la parte del stack que los contiene {#tbl-stack-risk-checklist}
 
@@ -277,4 +280,19 @@ Las herramientas GPU son parte del *insights factory* --- un carril de investiga
 
 : Versiones clave del stack {#tbl-versions}
 
-{{< include ../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+El stack importa como sistema de decisiones: baseline abierto, contratos,
+separación de carriles y trazabilidad de artefactos.
+
+## Esto conecta con…
+
+Sostiene ETL, modelado PD, experimentos conformales, simuladores de portafolio,
+el companion y el libro, sin validar sus claims científicos por sí solo.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Sus prácticas reaparecen en MLOps, benchmarks, papers y defensa metodológica
+como infraestructura reproducible.
+:::

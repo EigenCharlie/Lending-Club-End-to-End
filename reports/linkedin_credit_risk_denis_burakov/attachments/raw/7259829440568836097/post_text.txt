@@ -1,0 +1,11 @@
+Adversarial Learning with Iris🪻
+How can neural networks create images that look almost real❓
+Generative Adversarial Networks (GANs) make this possible by pitting two models against each other: a generator that creates images from scratch and a discriminator that tries to tell them apart from real ones 🖼️
+Through adversarial learning, the generator's images become nearly indistinguishable from reality ✨
+Check out this fun experiment generating Iris flower images, along with a visual breakdown of how GAN training works ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore credit scoring with neural networks: https://lnkd.in/dUs2Uf6y 💡
+▷ Explore back-propagation in neural networks: https://lnkd.in/d7PAabw3 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

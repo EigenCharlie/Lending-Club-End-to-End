@@ -1,0 +1,6 @@
+Notes on Lending, Credit Risk, and Data Science 🗒️
+While recent work has largely focused on applied data problems and algorithms, I've noticed a growing interest in adjacent topics, from modern credit risk modeling resources to the growing role of ML in lending and fintech.
+To share some of the learnings, I've compiled a selection of 75+ resources from a broader collection I've been assembling since 2021. It brings together unique blogs, tool deep-dives, and real-world examples across credit scoring, loan decisioning, ML and data workflows, model governance, lending product management, and data science in #FinancialServices.
+You'll find everything from alternative data sources for thin-file borrowers to ML resources for lending teams, along with insights on regulatory compliance, emerging trends in model governance, and AI risk management.
+This isn't a polished playbook, but rather a curated collection for those at the intersection of #Credit, #Data, and #Product who are looking for new resources or revisiting some familiar topics. Let me know if you'd like to see more like this!
+📎 Link to the web version: https://lnkd.in/drhNP6zb

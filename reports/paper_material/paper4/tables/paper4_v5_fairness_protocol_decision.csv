@@ -1,0 +1,4 @@
+item,decision,condition_to_change,current_evidence
+legal_claim,no fair-lending legal claim,valid protected attributes or approved external proxy protocol,race/ethnicity/sex/gender/age unavailable
+proxy_governance,continue using proxy concentration stress,committee defines source thresholds and review workflow,max_proxy_gap_v4 approximately 0.26-0.28
+paper_language,"must say proxy governance, not fairness compliance",none without protected-attribute evidence,guardrail for writing and selector claims

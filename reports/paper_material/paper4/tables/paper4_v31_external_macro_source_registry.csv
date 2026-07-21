@@ -1,0 +1,2 @@
+source_id,source_url,source_owner,use_in_v19,claim_boundary,fetch_status,error,rows_fetched,version_v31
+FRED_UNRATE_FEDFUNDS_DROCLACBS_USREC,"https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE,FEDFUNDS,DROCLACBS,USREC",Federal Reserve Bank of St. Louis FRED,optional_context_only,official macro context can label stress regimes; it does not turn internal paths into forecasts,fetch_failed,UnicodeDecodeError: 'utf-8' codec can't decode byte 0xaa in position 10: invalid start byte,0,external_macro_context_retry_v31

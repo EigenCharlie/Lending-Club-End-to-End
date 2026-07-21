@@ -1,0 +1,15 @@
+area,blocker_id,status_v38,next_action
+Paper 4,dynamic_engine_scale,resolved,512 paths only if manuscript requires narrower intervals
+Paper 4,champion_stress,resolved,use paired robustness gate for champion changes
+Paper 4,sample_paths_v4,near_resolved_with_plateau,external forecast validation remains out of scope
+Paper 4,dla_adp_rollout,near_resolved_with_plateau,exact Bellman proof remains future work
+Paper 4,cvar_column_generation,near_resolved_with_plateau,no exact full-universe optimality claim
+Paper 4,spo_dfl,dependency_blocked,differentiable SPO stack remains blocked unless dependencies are isolated
+Paper 4,ifrs9_contractual,data_blocked,contractual IFRS9 blocked by servicing/DPD/cure/timing/macros
+Paper 4,cate_policy_value,theory_blocked,reject-inference/identification unresolved
+Paper 4,fair_lending,prohibited_claim,no protected attributes/protocol
+Paper 4,artifact_registry,resolved,keep updated on future waves
+Paper 4,candidate_registry,resolved,working champion is Paper 4 only
+Paper Estrella,artifact_coherence_false_in_broad_comparisons,resolved_as_scope_mixing,memo only; no champion artifact change
+Project docs,legacy_march_champion_language,documentation_cleanup_required,SESSION_STATE/docs/backlog/index cleanup
+SPO,cvxpy_cvxplayers_torch_dependency,dependency_blocked,isolated env before formal differentiable SPO claim

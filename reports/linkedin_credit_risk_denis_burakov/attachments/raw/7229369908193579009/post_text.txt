@@ -1,0 +1,21 @@
+Visualizing Gradient Boosting 🌳
+You've probably come across various explanations of how gradient boosting works. In a nutshell, gradient boosting is an ensemble technique where each new decision tree learns from the mistakes (pseudo-residuals) of the previous trees, iteratively improving the model’s predictions. Yet, despite this clear explanation, the process can still feel abstract 🌀
+To bring this concept to life, I've created a visualization that demonstrates the dynamics of gradient boosting in action 🔎 ⤵
+• Positive cases are marked with a ➕ symbol.
+• Negative cases are marked with a ➖ symbol.
+• The size of each symbol represents the residuals, i.e. how far off the model's prediction was from the true label.
+How it works 🔄
+• Initially, the model may misclassify several examples, leading to large residuals (and thus larger symbols).
+• As the boosting process continues, the model adjusts predictions by adding new trees that correct these mistakes.
+• Over successive iterations, incorrectly classified examples with large residuals are gradually corrected, reducing their size and improving accuracy.
+In this example, I'm using additive logistic regression (LogitBoost), a variant of gradient boosting closely related to the classic logistic regression, to show how each iteration refines the model to boost accuracy 📈
+Watch the animation below to see how gradient boosting transforms residuals into powerful predictions, one tree at a time! 🌟
+💻 Colab notebook: https://lnkd.in/dm-f2tx3
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore Additive Logistic Regression (#LogitBoost): https://lnkd.in/dtwnB9hS 💡
+▷ Explore #GradientBoosting from scratch: https://lnkd.in/edwQq2Rq 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬
+🌐 For these visualizations I am using Matplotlib, a #Python library to create plots and animation. Check it out here: https://matplotlib.org 🫶
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

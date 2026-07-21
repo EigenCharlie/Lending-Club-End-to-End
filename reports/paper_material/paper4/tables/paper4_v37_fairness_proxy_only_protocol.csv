@@ -1,0 +1,5 @@
+protocol_item,status_v37,allowed_claim,decision
+protected_attribute_data,missing,False,do_not_infer_protected_attributes
+external_proxy_protocol,not_approved,False,source governance only
+observable_source_caps,implemented_as_governance_diagnostic,True,use grade/month/period/state/income/DTI/score support-aware sources
+fair_lending_legal_claim,prohibited_claim,False,no legal claim without data and approved protocol

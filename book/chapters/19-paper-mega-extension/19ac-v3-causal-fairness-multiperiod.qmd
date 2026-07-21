@@ -1,0 +1,155 @@
+---
+title: "v3 Causal, Fairness and Loan-Level SDAM"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+dossier = _csv("paper4_v3_causal_high_rate_dossier.csv")
+balance = _csv("paper4_v3_causal_high_rate_balance.csv")
+placebo = _csv("paper4_v3_causal_high_rate_placebo.csv")
+sensitivity = _csv("paper4_v3_causal_high_rate_sensitivity.csv")
+fair_audit = _csv("paper4_v3_fairness_attribute_audit.csv")
+fair_summary = _csv("paper4_v3_fairness_proxy_summary.csv")
+mp = _csv("paper4_v3_multiperiod_loan_level_summary.csv")
+```
+
+## Pregunta {#sec-paper4-v3-causal-fairness-question}
+
+Esta página cubre los tres carriles más delicados de Paper 4:
+
+- CATE/causalidad;
+- fairness/protected attributes;
+- decisión secuencial loan-level.
+
+Los tres avanzan, pero ninguno debe convertirse todavía en claim fuerte.
+
+## Causal Dossier: `high_rate_within_grade`
+
+```{python}
+#| label: tbl-paper4-v3-causal-dossier
+#| tbl-cap: "Causal dossier high_rate_within_grade"
+
+dossier
+```
+
+El treatment se define como tasa de interés por encima de la mediana dentro del
+grade. Es una ruta mejor que "selected by policy" porque tiene interpretación
+operativa: pricing/tightness conditional on grade. El resultado ATT IPW sobre
+default queda negativo, pero eso no autoriza causal promotion.
+
+```{python}
+#| label: tbl-paper4-v3-causal-balance
+#| tbl-cap: "Balance covariate diagnostics"
+
+balance
+```
+
+```{python}
+#| label: tbl-paper4-v3-causal-placebo
+#| tbl-cap: "Placebo balance diagnostics"
+
+placebo
+```
+
+```{python}
+#| label: tbl-paper4-v3-causal-sensitivity
+#| tbl-cap: "Sensitivity to hidden default-rate bias"
+
+sensitivity
+```
+
+El dossier mejora mucho el carril causal: overlap grade-period es alto y casi
+todos los placebos pasan después de IPW. Pero `pd_point_alpha01` todavía queda
+por encima del threshold SMD 0.10, y la sensibilidad deja de ser estable con
+sesgos ocultos cercanos a 4 puntos porcentuales. Por eso la decisión correcta
+sigue siendo `pass_for_dossier_only_no_policy_promotion`.
+
+## Fairness Audit
+
+```{python}
+#| label: tbl-paper4-v3-fairness-audit
+#| tbl-cap: "Protected-attribute availability audit"
+
+fair_audit
+```
+
+El audit es deliberadamente tajante: no hay `race`, `ethnicity`, `sex`, `gender`,
+`age`, fecha de nacimiento ni estado civil en los artifacts actuales. Por tanto,
+Paper 4 no puede hacer un claim legal de fair lending con atributos protegidos.
+
+Lo que sí puede hacer es proxy governance: mirar concentración por grade, term,
+home ownership, income band, DTI band, state y zip3, siempre etiquetado como
+screening, no como fairness formal.
+
+```{python}
+#| label: tbl-paper4-v3-fairness-summary
+#| tbl-cap: "Fairness proxy governance summary"
+
+_cols(
+    fair_summary,
+    [
+        "policy_id",
+        "max_proxy_gap",
+        "mean_proxy_gap",
+        "proxy_sources_pass_30",
+    ],
+).head(20)
+```
+
+La mejor policy sigue teniendo `max_proxy_gap` por encima de 0.30. Eso confirma
+que el gate de fairness proxy debe tratarse como warning/committee review, no
+como prueba de cumplimiento.
+
+## Loan-Level SDAM Replay
+
+```{python}
+#| label: tbl-paper4-v3-multiperiod-summary
+#| tbl-cap: "Loan-level multi-period SDAM replay"
+
+mp
+```
+
+La diferencia frente al toy anterior es importante. Aquí ya no solo cambiamos
+de policy por mes; resolvemos decisiones loan-level por mes, actualizamos
+budget, outstanding exposure, principal, interest y pérdidas realizadas proxy.
+
+El resultado es sobrio: el champion estático mensual gana en `net_cash_result`
+frente al candidate IFRS9/selector en este replay. Esta es una señal negativa
+útil. El switching toy anterior parecía más prometedor; el replay financiero
+loan-level muestra que la ventaja desaparece cuando entra una transición de
+estado más realista.
+
+## Interpretación
+
+CATE, fairness y multi-period ya tienen forma experimental seria:
+
+- CATE tiene un dossier plausible, pero no identificación suficiente.
+- Fairness tiene audit claro, pero no atributos protegidos.
+- Multi-period tiene estado financiero, pero todavía usa timing proxy de
+  repayments/defaults.
+
+Los tres carriles avanzaron porque ahora sabemos exactamente qué falta, no
+porque ya estén listos para publicación.

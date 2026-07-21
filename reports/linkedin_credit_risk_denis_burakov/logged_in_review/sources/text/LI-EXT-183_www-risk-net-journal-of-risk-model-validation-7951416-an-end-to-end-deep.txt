@@ -1,0 +1,220 @@
+An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data - Journal of Risk Model Validation Skip to main content
+Risk.net
+English
+日本語
+All sections
+Latest
+Desks
+Risk management
+Markets
+Regulation
+Investing
+Risk Quantum
+Cutting Edge
+Risk Data
+Counterparty Radar
+Credit: Index CDS
+Credit: Single-name CDS
+Credit: Credit options
+Equity: Index stock options
+Equity: Single-stock options
+Foreign exchange: FX forwards
+Foreign exchange: FX options
+Rates: Inflation swaps
+Rates: Interest rate swaps
+Rates: Interest rate swaptions
+Repo
+Risk Quantum
+Risk Quantum database
+Risk Scenarios
+Inflation scenarios (May 22)
+Climate scenarios
+Inflation scenarios (Oct 21)
+US election scenarios
+Editors' choice
+US blows the floors off Basel III
+Top 10 operational risks for 2026
+Deutsche Bank CRO’s year of living dangerously
+Model risk in the age of generative AI
+The loneliness of the model risk manager
+Top stories by region
+Asia Pacific
+Europe
+North America
+US Banking
+Special features
+Top 10 Op Risks 2025
+Op Risk Benchmarking
+Quant Finance Master's Guide 2026
+Talking Heads
+Top 10 Investment Risks 2026
+Dealer Rankings
+Awards
+Risk Awards
+Asia Risk Awards
+Markets Tech Awards
+Risk Tech Awards
+Upcoming events
+Conferences
+Training
+Webinars
+Risk Learning
+Public courses
+Books
+Journals
+White papers and resources
+Marketing services
+Our digital network
+Central Banking
+FX Markets
+WatersTechnology
+Chartis Research
+Glossary
+Access and account options
+Sign in
+Newsletters
+Register
+Subscriptions
+Corporate license finder
+Apps
+Help centre
+End of drawer navigation content
+Search
+Risk.net
+English
+日本語
+Register
+Subscribe
+Sign in
+My account
+Newsletters
+Apps
+Help Centre
+Welcome
+You are currently accessing Risk.net via your Enterprise account.
+If you already have an account please use the link below to sign in .
+If you have any problems with your access or would like to request an individual access account please contact our customer service team.
+Phone: 1+44 (0)870 240 8859
+Email: csqueries@infopro-digital.com
+Sign in
+Welcome
+You are currently accessing Risk.net via your institutional login.
+If you already have an account please use the link below to sign in .
+If you have any problems with your access, contact our customer services team.
+Phone: +44 20 7316 9685
+Email: csqueries@infopro-digital.com
+Sign in
+Home
+Risk management
+Markets
+Regulation
+Investing
+Cutting Edge
+Quantum
+Counterparty Radar
+Benchmarking
+Insights
+Books
+Journals
+Learning
+Events
+Awards
+Searching Search the site
+Latest articles
+Topics
+More
+Less
+Journal of Risk Model Validation
+ISSN:
+1753-9587 (online)
+Editor-in-chief: Steve Satchell
+Impact Factor: 0.6
+First Published: March 2007
+Volume 16, Number 2 (June 2022)
+DOI:
+10.21314/JRMV.2022.018
+First published:
+05 July 2022
+An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data
+Lars Ole Hjelkrem,
+Petter Eilif de Lange and
+Erik Nesset
+Tweet
+Facebook
+LinkedIn
+Save this article
+Send to
+Print this page
+Need to know
+Open Banking API s can prove to be an important data source for banks when assessing the creditworthiness of potential customers using application credit score models and have the potential to increase the profitability of banks when recruiting new customers.
+We find that traditional regression models perform poorly, while machine learning methods can generate credit score models with satisfactory performance based on transaction data solely from the last 90-days before the score date.
+The best-performing machine learning models are based on an end-to-end deep learning approach, where the machine learning algorithms create the explanatory variables based on non-aggregated data.
+This result is in accordance with experiments in other scientific fields where deep learning has replaced shallow learning as state-of-the- art.
+Abstract
+The performance of credit scoring models is closely linked to a bank’s profitability. Application scoring models for potential customers usually perform worse than models for existing customers. This is due to the lender not having access to the financial behavioral data of potential customers. Access to such data about potential customers could therefore increase a bank’s profitability. Open banking application programming interfaces ( API s) provide access to 90 days of historical data on potential customers’ balances and transactions. We examine the performance of credit scoring models developed using such data from a Norwegian bank. We find that traditional regression models perform poorly, while machine learning ( ML ) methods can provide models that perform satisfactorily based on these data alone. Further, we find that the best performing models are based on an end-to-end deep learning approach, where machine learning algorithms create explanatory variables based on non-aggregated data. These results indicate that data available through the open banking API s can be an important data source when banks assess the creditworthiness of potential customers. In combination with end-to-end deep learning methods they have the potential to increase the performance of a bank’s application credit scoring models and thus increase the bank’s profitability.
+Copyright Infopro Digital Limited. All rights reserved.
+As outlined in our terms and conditions, https://www.infopro-digital.com/terms-and-conditions/subscriptions/ (point 2.4), printing is limited to a single copy.
+If you would like to purchase additional rights please email info@risk.net
+Copyright Infopro Digital Limited. All rights reserved.
+You may share this content using our article tools. As outlined in our terms and conditions, https://www.infopro-digital.com/terms-and-conditions/subscriptions/ (clause 2.4), an Authorised User may only make one copy of the materials for their own personal use. You must also comply with the restrictions in clause 2.5.
+If you would like to purchase additional rights please email info@risk.net
+About the editor
+Editorial board
+Subscribe
+Call for papers
+All issues
+Select a volume to view Volume 20, Number 3 (September 2026) Volume 20, Number 2 (June 2026) Volume 20, Number 1 (March 2026) Volume 19, Number 4 (December 2025) Volume 19, Number 3 (September 2025) Volume 19, Number 2 (June 2025) Volume 19, Number 1 (March 2025) Volume 18, Number 4 (December 2024) Volume 18, Number 3 (September 2024) Volume 18, Number 2 (June 2024) Volume 18, Number 1 (March 2024) Volume 17, Number 4 (December 2023) Volume 17, Number 3 (September 2023) Volume 17, Number 2 (June 2023) Volume 17, Number 1 (March 2023) Volume 16, Number 4 (December 2022) Volume 16, Number 3 (September 2022) Volume 16, Number 2 (June 2022) Volume 16, Number 1 (March 2022) Volume 15, Number 4 (December 2021) Volume 15, Number 3 (September 2021) Volume 15, Number 2 (June 2021) Volume 15, Number 1 (March 2021) Volume 14, Number 4 (December 2020) Volume 14, Issue (September 2020) Volume 14, Issue 2 (June 2020) Volume 14, Number 1 (March 2020) Volume 13, Number 4 (December 2019) Volume 13, Number 3 (September 2019) Volume 13, Number 2 (June 2019) Volume 13, Number 1 (March 2019) Volume 12, Number 4 (December 2018) Volume 12, Number 3 (September 2018) Volume 12, Number 2 (June 2018) Volume 12, Number 1 (March 2018) Volume 11, Number 4 (December 2017) Volume 11, Number 3 (September 2017) Volume 11, Number 2 (June 2017) Volume 11, Number 1 (March 2017) Volume 10, Number 4 (December 2016) Volume 10, Number 3 (September 2016) Volume 10, Number 2 (June 2016) Volume 10, Number 1 (March 2016) Volume 9, Number 4 (December 2015) Volume 9, Number 3 (September 2015) Volume 9, Number 2 (June 2015) Volume 9, Number 1 (March 2015) Volume 8, Number 4 (December 2014) Volume 8, Number 3 (September 2014) Volume 8, Number 2 (June 2014) Volume 8, Number 1 (March 2014) Volume 7, Number 4 (December 2013) Volume 7, Number 3 (September 2013) Volume 7, Number 2 (June 2013) Volume 7, Number 1 (March 2013) Volume 6, Number 4 (December 2012) Volume 6, Number 3 (September 2012) Volume 6, Number 2 (June 2012) Volume 6, Number 1 (March 2012) Volume 5, Number 4 (December 2011) Volume 5, Number 3 (September 2011) Volume 5, Number 2 (June 2011) Volume 5, Number 1 (March 2011) Volume 4, Number 4 (December 2010) Volume 4, Number 3 (September 2010) Volume 4, Number 2 (June 2010) Volume 4, Number 1 (March 2010) Volume 3, Number 4 (December 2009) Volume 3, Number 3 (September 2009) Volume 3, Number 2 (June 2009) Volume 3, Number 1 (March 2009) Volume 2, Number 4 (December 2008) Volume 2, Number 3 (September 2008) Volume 2, Number 2 (Summer 2008) Volume 2, Number 1 (Spring 2008) Volume 1, Number 4 (Winter 2007) Volume 1, Number 3 (September 2007) Volume 1, Number 2 (Summer 2007) Volume 1, Number 1 (Spring 2007) Go
+Publish with us
+Permissions enquiries
+Contact us
+Sorry, our subscription options are not loading right now
+Please try again later. Get in touch with our customer services team if this issue persists.
+New to Risk.net? View our subscription options
+If you already have an account, please sign in here .
+More papers in this issue
+Can we take the “stress” out of stress testing? Applications of generalized structural equation modeling to consumer finance
+José Canals-Cerdá
+Volume 16, Number 2 (June 2022)
+Expected shortfall model based on a neural network
+Sanja Doncic
+, et al
+Volume 16, Number 2 (June 2022)
+General bounds on the area under the receiver operating characteristic curve and other performance measures when only a single sensitivity and specificity point is known
+Roger M. Stein
+Volume 16, Number 2 (June 2022)
+Back to Top
+Browse journals
+You need to sign in to use this feature. If you don’t have a Risk.net account, please register for a trial.
+Sign in
+Support
+About us
+Contact us
+Editorial pledge
+Help Centre
+Services
+Advertising
+Media pack
+Legal & Privacy
+Accessibility
+Website conditions of use
+Privacy notice
+Terms and conditions
+California Residents – Do not sell my personal information
+Consent preferences
+Useful links
+View all Follow topics
+Linkedin
+Facebook
+Newsletters
+Bluesky
+Apps
+Social hub
+RSS
+© Infopro Digital 2026
+© Infopro Digital Services Limited (2026). All rights reserved. Published by Infopro Digital Services Limited, 133 Houndsditch, London, EC3A 7BX. Company registered in England and Wales with company registration number 04699701.
+You need to sign in to use this feature. If you don’t have a Risk.net account, please register for a trial.
+Sign in
+You are currently on corporate access.
+To use this feature you will need an individual account. If you have one already please sign in.
+Sign in .
+Alternatively you can request an individual account here

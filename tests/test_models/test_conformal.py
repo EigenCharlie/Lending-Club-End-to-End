@@ -10,7 +10,10 @@ from src.models.conformal import (
     apply_probability_calibrator,
     build_mondrian_partition_labels,
     conditional_coverage_by_group,
+    create_classification_sets,
+    create_classification_sets_mondrian,
     create_cross_conformal_score_intervals,
+    create_pd_intervals_mondrian,
     summarize_prediction_sets,
     validate_coverage,
 )
@@ -256,6 +259,28 @@ def test_build_mondrian_partition_labels_hybrid_falls_back_for_small_groups():
     assert all(isinstance(label, str) for label in group_cal)
 
 
+def test_build_mondrian_partition_labels_global_only_fallback_uses_global():
+    y_prob_cal = np.linspace(0.01, 0.99, 10)
+    y_prob_eval = np.array([0.10, 0.90])
+    base_groups_cal = pd.Series(["A"] * 8 + ["B"] * 2)
+    base_groups_eval = pd.Series(["A", "B"])
+
+    group_cal, group_eval, meta = build_mondrian_partition_labels(
+        y_prob_cal=y_prob_cal,
+        y_prob_eval=y_prob_eval,
+        partition="grade_x_scoreband_mondrian",
+        base_groups_cal=base_groups_cal,
+        base_groups_eval=base_groups_eval,
+        n_score_bins=5,
+        min_group_size=20,
+        fallback_mode="global_only",
+    )
+
+    assert meta["fallback_mode"] == "global_only"
+    assert set(group_cal) == {"GLOBAL"}
+    assert set(group_eval) == {"GLOBAL"}
+
+
 def test_summarize_prediction_sets_reports_ambiguity_metrics():
     y_true = np.array([0, 1, 1, 0])
     y_pred = np.array([0, 1, 1, 0])
@@ -274,6 +299,79 @@ def test_summarize_prediction_sets_reports_ambiguity_metrics():
     assert result["ambiguity_rate"] == pytest.approx(0.25)
     assert result["empty_set_rate"] == pytest.approx(0.25)
     assert result["set_coverage"] == pytest.approx(0.75)
+
+
+def test_create_classification_sets_margin_returns_valid_sets():
+    clf = FakeBinaryClassifier(seed=7)
+    rng = np.random.RandomState(7)
+    X_cal = pd.DataFrame({"a": rng.random(120), "b": rng.random(120)})
+    y_cal = pd.Series(rng.randint(0, 2, 120))
+    X_test = pd.DataFrame({"a": rng.random(30), "b": rng.random(30)})
+
+    y_pred, y_sets = create_classification_sets(
+        classifier=clf,
+        X_cal=X_cal,
+        y_cal=y_cal,
+        X_test=X_test,
+        alpha=0.10,
+        method="margin",
+    )
+
+    assert y_pred.shape == (30,)
+    assert y_sets.shape == (30, 2)
+    assert np.isin(y_sets, [0, 1]).all()
+
+
+def test_create_classification_sets_mondrian_supports_margin_with_fallback():
+    clf = FakeBinaryClassifier(seed=9)
+    rng = np.random.RandomState(9)
+    X_cal = pd.DataFrame({"a": rng.random(40), "b": rng.random(40)})
+    y_cal = pd.Series(rng.randint(0, 2, 40))
+    X_test = pd.DataFrame({"a": rng.random(12), "b": rng.random(12)})
+    group_cal = pd.Series(["A"] * 30 + ["B"] * 10)
+    group_test = pd.Series(["A"] * 6 + ["B"] * 6)
+
+    y_pred, y_sets, diagnostics = create_classification_sets_mondrian(
+        classifier=clf,
+        X_cal=X_cal,
+        y_cal=y_cal,
+        X_test=X_test,
+        group_cal=group_cal,
+        group_test=group_test,
+        alpha=0.10,
+        method="margin",
+        min_group_size=25,
+    )
+
+    assert y_pred.shape == (12,)
+    assert y_sets.shape == (12, 2)
+    assert "B" in diagnostics["fallback_groups"]
+
+
+def test_create_pd_intervals_mondrian_supports_score_scale_family():
+    clf = FakeBinaryClassifier(seed=11)
+    rng = np.random.RandomState(11)
+    X_cal = pd.DataFrame({"a": rng.random(120), "b": rng.random(120)})
+    y_cal = pd.Series(rng.randint(0, 2, 120))
+    X_test = pd.DataFrame({"a": rng.random(24), "b": rng.random(24)})
+    group_cal = pd.Series(["A"] * 60 + ["B"] * 60)
+    group_test = pd.Series(["A"] * 12 + ["B"] * 12)
+
+    y_pred, y_intervals, diagnostics = create_pd_intervals_mondrian(
+        classifier=clf,
+        X_cal=X_cal,
+        y_cal=y_cal,
+        X_test=X_test,
+        group_cal=group_cal,
+        group_test=group_test,
+        alpha=0.10,
+        min_group_size=20,
+        score_scale_family="bernoulli_sqrt_clipped_0.02",
+    )
+
+    assert y_pred.shape == (24,)
+    assert y_intervals.shape == (24, 2)
+    assert diagnostics["score_scale_family"] == "bernoulli_sqrt_clipped_0.02"
 
 
 def test_cross_conformal_score_intervals_output_shape():
@@ -403,3 +501,75 @@ def test_venn_abers_bounds_valid():
     assert np.all(p0 <= p1)
     assert np.all(y_pred >= p0)
     assert np.all(y_pred <= p1)
+
+
+class DeterministicScoreClassifier:
+    """Binary classifier whose positive score is the first input column."""
+
+    classes_ = np.array([0, 1])
+
+    def predict_proba(self, X):
+        score = np.clip(np.asarray(X, dtype=float)[:, 0], 0.0, 1.0)
+        return np.column_stack([1.0 - score, score])
+
+
+def test_venn_abers_uses_public_multiprobabilities_and_logloss_point_rule(monkeypatch):
+    """The helper must not reinterpret class probabilities as Venn--Abers bounds."""
+    pytest.importorskip("venn_abers")
+    import mapie.calibration
+    from venn_abers import VennAbers
+
+    from src.models.conformal import create_pd_intervals_venn_abers
+
+    mapie_calls = {"count": 0}
+
+    class ForbiddenMapieVennAbers:
+        def __init__(self, *args, **kwargs):
+            mapie_calls["count"] += 1
+            raise TypeError("MAPIE class probabilities are not Venn-Abers bounds")
+
+    monkeypatch.setattr(
+        mapie.calibration,
+        "VennAbersCalibrator",
+        ForbiddenMapieVennAbers,
+    )
+
+    cal_scores = np.linspace(0.02, 0.98, 200)
+    test_scores = np.linspace(0.05, 0.95, 31)
+    X_cal = pd.DataFrame({"score": cal_scores})
+    X_test = pd.DataFrame({"score": test_scores})
+    y_cal = pd.Series((cal_scores > 0.55).astype(int))
+
+    y_pred, p0, p1 = create_pd_intervals_venn_abers(
+        DeterministicScoreClassifier(), X_cal, y_cal, X_test
+    )
+
+    p_cal = np.column_stack([1.0 - cal_scores, cal_scores])
+    p_test = np.column_stack([1.0 - test_scores, test_scores])
+    direct = VennAbers().fit(p_cal, y_cal.to_numpy())
+    direct_point, direct_bounds = direct.predict_proba(p_test)
+
+    assert mapie_calls["count"] == 0
+    assert np.allclose(p0, direct_bounds[:, 0])
+    assert np.allclose(p1, direct_bounds[:, 1])
+    assert np.allclose(y_pred, direct_point[:, 1])
+    assert np.allclose(y_pred, p1 / (1.0 - p0 + p1))
+    assert not np.allclose(y_pred, (p0 + p1) / 2.0)
+    assert not np.allclose(y_pred, 0.5)
+    assert not np.allclose(p0, 1.0 - p1)
+
+
+def test_apply_probability_calibrator_uses_versioned_venn_abers_point_rule():
+    pytest.importorskip("venn_abers")
+    from src.models.venn_abers import VennAbersScoreCalibrator
+
+    cal_scores = np.linspace(0.02, 0.98, 200)
+    y_cal = (cal_scores > 0.55).astype(int)
+    test_scores = np.linspace(0.05, 0.95, 31)
+    calibrator = VennAbersScoreCalibrator().fit(cal_scores, y_cal)
+
+    point, p0, p1 = calibrator.predict_with_bounds(test_scores)
+    applied = apply_probability_calibrator(calibrator, test_scores)
+
+    assert np.allclose(point, p1 / (1.0 - p0 + p1))
+    assert np.allclose(applied, point)

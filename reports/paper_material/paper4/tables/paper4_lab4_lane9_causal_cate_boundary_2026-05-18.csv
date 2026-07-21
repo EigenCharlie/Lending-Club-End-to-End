@@ -1,0 +1,6 @@
+evidence_block,metric,value,decision,claim_boundary
+frontier_aipw_screen,aipw_ate_high_rate_within_grade,0.007132460071951,park_policy_value,"Accepted-loan observational sensitivity, not causal policy value."
+frontier_overlap,overlap_share_10_90,0.2837619047619047,park_policy_value,Overlap remains far below the 0.80 diagnostic stability gate.
+frontier_placebo,placebo_to_effect_abs_ratio,0.31193781864175363,park_policy_value,Placebo is nonzero and supports caution.
+v37_gate_report,blocked_or_unpromotable_gates,5.0,park_policy_value,"CATE policy value blocked unless identification, overlap, sensitivity, falsification and intervals pass."
+v37_identification_protocol,protocol_items_not_allowing_policy_value,8.0,park_policy_value,Reject inference and application selection remain unresolved.

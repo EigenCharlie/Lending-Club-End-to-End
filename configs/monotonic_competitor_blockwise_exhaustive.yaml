@@ -1,0 +1,100 @@
+schema_version: "2026-04-02.1"
+description: >
+  Exhaustive blockwise / constrained-threshold monotonic challenger search.
+  This run targets the real remaining PD issue: temporal cohort persistence,
+  while preserving fairness and monotonic coherence.
+
+defaults:
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  config_path: configs/pd_model.champion.yaml
+  output_path: models/search_pd/{run_tag}/monotonic_competitor_search_blockwise_exhaustive.json
+  best_output_path: models/search_pd/{run_tag}/monotonic_competitor_best_blockwise_exhaustive.json
+
+promotion_policy:
+  max_auc_drop: 0.003
+  max_brier_increase_pct: 0.015
+  max_ece_delta: 0.01
+  require_fairness_ok: true
+
+calibration_methods:
+  - venn_abers
+  - isotonic
+
+seed_offsets:
+  - 0
+  - 17
+
+decision_threshold_candidates:
+  - 0.25
+  - 0.275
+  - 0.30
+  - 0.325
+  - 0.35
+  - 0.375
+  - 0.40
+
+constraint_profiles:
+  blockwise_affordability:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      dti: 1
+      installment: 1
+  blockwise_capacity:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      grade_woe: 1
+  blockwise_risk_core:
+    features:
+      dti: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      int_rate: 1
+      grade_woe: 1
+  threshold_constrained:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      dti: 1
+      installment: 1
+      int_rate: 1
+      grade_woe: 1
+  strict_all:
+    use_all_declared_constraints: true
+
+param_variants:
+  - id: base
+    learning_rate_multiplier: 1.0
+    l2_leaf_reg_multiplier: 1.0
+    depth_offset: 0
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.0
+  - id: reg_up
+    learning_rate_multiplier: 0.9
+    l2_leaf_reg_multiplier: 1.5
+    depth_offset: -1
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.25
+  - id: smoother
+    learning_rate_multiplier: 0.85
+    l2_leaf_reg_multiplier: 1.75
+    depth_offset: -1
+    iterations_multiplier: 1.15
+    random_strength_multiplier: 1.4
+  - id: deeper_regularized
+    learning_rate_multiplier: 0.82
+    l2_leaf_reg_multiplier: 1.8
+    depth_offset: 1
+    iterations_multiplier: 1.15
+    random_strength_multiplier: 1.2
+  - id: shallow_strong
+    learning_rate_multiplier: 0.8
+    l2_leaf_reg_multiplier: 2.2
+    depth_offset: -2
+    iterations_multiplier: 1.05
+    random_strength_multiplier: 1.6

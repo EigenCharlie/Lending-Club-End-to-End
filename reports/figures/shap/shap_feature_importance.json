@@ -1,87 +1,87 @@
 {
-  "expected_value": -0.02391584197774123,
+  "expected_value": -0.03901007782390173,
   "n_samples": 276869,
   "n_features": 42,
   "top_features": [
     {
       "feature": "int_rate",
-      "mean_abs_shap": 0.275525
+      "mean_abs_shap": 0.309221
     },
     {
       "feature": "term",
-      "mean_abs_shap": 0.228483
+      "mean_abs_shap": 0.223697
     },
     {
       "feature": "fico_score",
-      "mean_abs_shap": 0.193388
-    },
-    {
-      "feature": "home_ownership",
-      "mean_abs_shap": 0.094361
-    },
-    {
-      "feature": "many_recent_opens",
-      "mean_abs_shap": 0.088282
+      "mean_abs_shap": 0.18686
     },
     {
       "feature": "dti",
-      "mean_abs_shap": 0.085845
+      "mean_abs_shap": 0.102366
     },
     {
-      "feature": "sub_grade",
-      "mean_abs_shap": 0.070656
+      "feature": "home_ownership",
+      "mean_abs_shap": 0.097396
+    },
+    {
+      "feature": "many_recent_opens",
+      "mean_abs_shap": 0.087002
+    },
+    {
+      "feature": "loan_to_income",
+      "mean_abs_shap": 0.08191
     },
     {
       "feature": "emp_length_num",
-      "mean_abs_shap": 0.06371
+      "mean_abs_shap": 0.063586
     },
     {
       "feature": "mort_acc",
-      "mean_abs_shap": 0.053867
-    },
-    {
-      "feature": "int_rate_bucket",
-      "mean_abs_shap": 0.0526
+      "mean_abs_shap": 0.062331
     },
     {
       "feature": "open_acc",
-      "mean_abs_shap": 0.047877
+      "mean_abs_shap": 0.048542
     },
     {
-      "feature": "grade",
-      "mean_abs_shap": 0.045517
+      "feature": "int_rate_bucket",
+      "mean_abs_shap": 0.046503
+    },
+    {
+      "feature": "sub_grade",
+      "mean_abs_shap": 0.044693
     },
     {
       "feature": "revol_bal_to_income",
-      "mean_abs_shap": 0.042738
-    },
-    {
-      "feature": "loan_to_income_sq",
-      "mean_abs_shap": 0.041864
-    },
-    {
-      "feature": "fico_bucket",
-      "mean_abs_shap": 0.040062
-    },
-    {
-      "feature": "inq_last_6mths",
-      "mean_abs_shap": 0.039662
-    },
-    {
-      "feature": "installment_burden",
-      "mean_abs_shap": 0.039471
-    },
-    {
-      "feature": "il_ratio",
-      "mean_abs_shap": 0.03812
-    },
-    {
-      "feature": "fico_x_dti",
-      "mean_abs_shap": 0.03705
+      "mean_abs_shap": 0.044154
     },
     {
       "feature": "loan_amnt",
-      "mean_abs_shap": 0.034882
+      "mean_abs_shap": 0.041868
+    },
+    {
+      "feature": "inq_last_6mths",
+      "mean_abs_shap": 0.041196
+    },
+    {
+      "feature": "il_ratio",
+      "mean_abs_shap": 0.040656
+    },
+    {
+      "feature": "grade",
+      "mean_abs_shap": 0.040516
+    },
+    {
+      "feature": "fico_bucket",
+      "mean_abs_shap": 0.040219
+    },
+    {
+      "feature": "open_acc_ratio",
+      "mean_abs_shap": 0.032364
+    },
+    {
+      "feature": "verification_status",
+      "mean_abs_shap": 0.032124
     }
   ]
 }

@@ -1,0 +1,62 @@
+{
+  "schema_version": "2026-04-05.2",
+  "run_label": "paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k",
+  "solver_backend": "cuopt",
+  "exact_solver_backend": "highs",
+  "start": {
+    "captured_at_utc": "2026-05-25T20:31:01.862521+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 57109484,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 1686.0,
+      "memory_free_mb": 8368.0,
+      "gpu_util_pct": 2.0,
+      "memory_util_pct": 33.0
+    }
+  },
+  "backend_validation": {
+    "validated_at_utc": "2026-05-25T20:31:00.884906+00:00",
+    "python": "/home/eigenlinux/miniforge3/envs/rapids-cuopt-2604-clean/bin/python",
+    "supported_cuopt_releases": [
+      "26.02",
+      "26.04"
+    ],
+    "cuopt": "26.04.00",
+    "cudf": "26.04.00",
+    "cupy": "14.1.0",
+    "pyomo": "6.10.0",
+    "loguru": "0.7.3"
+  },
+  "gpu_summary": {
+    "available": true,
+    "sample_count": 3,
+    "csv_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k/gpu_samples.csv",
+    "peak_gpu_util": 1.0,
+    "avg_gpu_util": 1.0,
+    "peak_memory_used_mb": 1686.0,
+    "avg_memory_used_mb": 1686.0,
+    "peak_power_draw_w": 26.1,
+    "avg_power_draw_w": 25.723333333333333
+  },
+  "end": {
+    "captured_at_utc": "2026-05-25T20:31:05.135993+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 55535348,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 1678.0,
+      "memory_free_mb": 8376.0,
+      "gpu_util_pct": 5.0,
+      "memory_util_pct": 24.0
+    }
+  }
+}

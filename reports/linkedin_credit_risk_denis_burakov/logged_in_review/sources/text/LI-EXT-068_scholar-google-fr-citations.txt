@@ -1,0 +1,33 @@
+Afficher l'article
+Chargement en cours…
+Le système ne peut pas réaliser cette opération maintenant. Veuillez réessayer plus tard.
+Mon profil Ma bibliothèque Métriques Alertes
+Paramètres
+Connexion
+Afficher l'article
+Connexion
+Jean Dessain
+[HTML] à partir de springer.com
+Cost of explainability in ai: An example with credit scoring models
+Auteurs
+Jean Dessain, Nora Bentaleb, Fabien Vinas
+Date de publication
+2023/7/26
+Livre
+World Conference on Explainable Artificial Intelligence
+Pages
+498-516
+Éditeur
+Springer Nature Switzerland
+Description
+This paper examines the cost of explainability in machine learning models for credit scoring. The analysis is conducted under the constraint of meeting the regulatory requirements of the European Central Bank (ECB), using a real-life dataset of over 50,000 credit exposures. We compare the statistical and financial performances of black-box models, such as XGBoost and neural networks, with inherently explainable models like logistic regression and GAMs. Notably, statistical performance does not necessarily correlate with financial performance. Our results reveal a difference of 15 to 20 basis points in annual return on investment between the best performing black-box model and the best performing inherently explainable model, as cost of explainability. We also find that the cost of explainability increases together with the risk appetite.
+To enhance the interpretability of explainable models, we apply isotonic …
+Nombre total de citations
+Cité 30 fois
+2022 2023 2024 2025 2026 1 3 6 16 4
+Articles Google Scholar
+Cost of explainability in ai: An example with credit scoring models
+J Dessain, N Bentaleb, F Vinas - World Conference on Explainable Artificial Intelligence, 2023
+Cité 30 fois Autres articles Les 2 versions
+Confidentialité Conditions Aide
+À propos de Google Scholar Aide sur la recherche

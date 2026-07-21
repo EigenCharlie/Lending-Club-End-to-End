@@ -1,0 +1,108 @@
+Model Distillation with SHAP Values
+Model Distillation with SHAP Values
+From Black Box to Glass Box
+
+                                   THE BLACK BOX                                                           SHAP (SHapley Additive exPlanations) values allow
+                y                                                               X                          us to decompose predictions of white-box and
+                                      (Teacher)
+                                                                                                           black-box machine learning (ML) models into
+                                     decision trees                                                        additive scores that explain the outcome.
+                                      neural nets
+                                                                                                           For more complex ML models, SHAP values
+                                                                                                           leverage interactions between features, allowing us
+                                                                                                           to represent complex relationships in a human-
+                      SHAP values                                                                          understandable form.
+                                    +1.42
+                                                                                                           Knowing the SHAP values of model predictions
+              +0.97                                                                                        allows us to perform distillation: building a simpler
+                                                                                                           model (the student) that approximates the teacher’s
+              -0.79                                                                                        predictive behavior.
+
+                           -0.38                                                                           This deck explores two approaches1:
+                                    +0.19
+                                                                                                                 •   A Linear model with binning;
+                                                                                                                 •   A Generalized Additive Model (GAM).
+                                +0.02                                 GLASS BOX
+                  -0.01
+                                                                       (Student)                           The new glass box model can be used for inference
+                                                                                                           without requiring the original black box model.
+
+1. These materials will become part of a chapter dedicated to SHAP values in Credit Risk, along with SHAP scorecards and other practical applications.
+  Model Distillation with SHAP Values
+  Approach 1: Binned SHAP Values with Logistic Regression
+
+                                                      With this approach, we bin raw features and replace
+                                                      each bin with its average SHAP contribution.
+
+                                                      This is conceptually similar to Weight of Evidence
+                                                      (WOE) used in scorecards. Because SHAP values are
+                                                      often expressed in log-odds units, this naturally
+    Teacher Model                                     produces a scorecard-like model structure.
+(Gradient-Boosted Tree)       SHAP Values
+                                                      We can fit this pipeline as follows:
+
+                                                      1. Train the Teacher model (e.g., Gradient-Boosted
+                                                         Decision Tree algorithm).
+       x1 … xi
+                                                      2. Compute SHAP values on the training data.
+                                                      3. Discretize features into bins and compute
+                                                         average SHAP value for each bin
+          𝜑! !"                                       4. Replace each feature with mapped average
+                                                         SHAP value and optionally create interactions.
+                                                      5. Train the Student model (Logistic Regression) on
+                                                         the transformed features.
+  Discretization and          Student Model           This pipeline distills a complex model into an
+  SHAP Averaging           (Logistic Regression)      interpretable logistic regression scorecard using
+                                                      SHAP values.
+  Model Distillation with SHAP Values
+  Approach 2: GAM Splines with Logistic Regression
+
+                                                     With this approach, we fit a Generalized Additive
+                                                     Model (GAM) for each feature so that each smooth
+                                                     function 𝑔! 𝑥! approximates its SHAP contribution
+                                                     𝜙"! . We then use these transformed features,
+                                                     optionally expanded with pairwise interactions, as
+                                                     inputs to a logistic regression model.
+    Teacher Model
+(Gradient-Boosted Tree)       SHAP Values            We can fit this pipeline as follows:
+
+                                                     1. Train the Teacher model (e.g., Gradient-Boosted
+                                                        Decision Tree algorithm).
+                                                     2. Compute SHAP values on the training data.
+                                                     3. Fit a GAM 𝑔! 𝑥! ≈ 𝜙"! for each feature.
+                                                     4. Transform data using these GAM predictions and
+                                                        create optional interaction terms.
+                                                     5. Train the Student model (Logistic Regression) on
+                                                        the transformed features.
+
+                                                     This pipeline distills the nonlinear behavior of the
+                                                     teacher model into a GAM-enhanced logistic
+ Generalized Additive         Student Model          regression, preserving the teacher’s predictive power
+ Model (GAM) Splines       (Logistic Regression)     while remaining interpretable.
+Model Distillation with SHAP Values
+Empirical Comparison of the Two Approaches
+
+
+                                                          Our baseline is a CatBoost teacher trained
+                                                          on a credit risk dataset achieving a Gini score
+                                                          of around 0.896 on the test set.
+
+                                                          When we distill it into a logistic regression
+                                                          using binned SHAP values, we retain around
+                                                          96%–97% of the teacher’s discriminatory
+                                                          power.
+
+                                                          SHAP-GAM distillation preserves almost all
+                                                          of the teacher’s performance, achieving up
+                                                          to 0.896 Gini, while keeping the model fully
+                                                          transparent and deployable as a scorecard.
+
+                                                          Both SHAP-binned and SHAP-GAM students
+                                                          approximate the teacher’s performance quite
+                                                          well, with GAM-based distillation achieving a
+                                                          99.9% retention rate of the teacher’s
+                                                          performance while remaining interpretable.
+
+
+
+1. Notebook with experiments is available here: GitHub.

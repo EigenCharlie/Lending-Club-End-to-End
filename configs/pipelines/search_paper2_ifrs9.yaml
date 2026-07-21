@@ -1,0 +1,32 @@
+schema_version: "2026-04-02.1"
+pipeline_family: search_paper2_ifrs9
+description: >
+  Búsqueda exhaustiva para Paper 2 / IFRS9: time series canónico congelado,
+  survival/LGD-EAD, PoC calibration y diagnósticos downstream sin tocar el
+  stack canónico.
+artifact_scope: search
+promotion_state: research_open
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: search_paper2_ifrs9_exhaustive
+papers_served: [paper2]
+allowed_step_groups:
+  - preflight
+  - core_ts
+  - paper2_survival
+  - core_ifrs9
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_data_pd
+  - core_conformal
+  - core_portfolio
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries:
+  - pipeline_matrix
+  - search_registry
+  - artifact_flow_registry

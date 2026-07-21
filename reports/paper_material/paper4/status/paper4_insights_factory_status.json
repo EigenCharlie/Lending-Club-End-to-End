@@ -1,0 +1,26 @@
+{
+  "schema_version": "2026-05-09.1",
+  "generated_at_utc": "2026-05-09T18:50:38.740090+00:00",
+  "n_signals": 11,
+  "signals_ready_for_mvp": [
+    "CRPTO champion and robust region",
+    "Uncertainty baselines and BMA",
+    "Alpha and Gamma policy dial",
+    "SICR and stage-cost overlays",
+    "Competing-risk ECL correction",
+    "TS -> ECL uncertainty and vNext intervals",
+    "SPO+ and CRPTO stability"
+  ],
+  "signals_diagnostic_or_blocked": [
+    "Causal rule and CATE portfolio gate",
+    "Causal OOT economic signal",
+    "RAPIDS insight factory segmentation and graph structure",
+    "Notebook/storytelling atlas"
+  ],
+  "primary_rule": "Insights Factory can feed Paper 4 only when each insight is mapped to a policy variable, gate, state component or validation slice.",
+  "tables": {
+    "signal_registry": "reports/paper_material/paper4/tables/paper4_table6_insights_factory_signal_registry.csv",
+    "research_lane_readiness": "reports/paper_material/paper4/tables/paper4_table7_research_lane_readiness.csv",
+    "join_contract": "reports/paper_material/paper4/tables/paper4_table8_insight_to_policy_join_contract.csv"
+  }
+}

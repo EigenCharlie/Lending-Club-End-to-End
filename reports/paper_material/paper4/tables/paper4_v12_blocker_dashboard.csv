@@ -1,0 +1,12 @@
+blocker_id,status_v12,current_diagnosis,next_action
+online_efficiency,resolved,v9 gate remains active for v12,future-period validation
+cvar_scale,near_resolved,v12 feasible=3 with MDCP caps,exact full universe or true column-generation duals
+mdcp_inside_solver,near_resolved,v12 optimal=3,future coverage calibration
+dla_adp,near_resolved,iterative fitted-value rollout implemented,formal Bellman optimality remains open
+spo_dfl,near_resolved,temporal regret surrogate implemented,differentiable SPO+/cvxpylayer remains open
+sample_paths,near_resolved,macro-calibrated common paths implemented,external macro/default calibration
+working_champion,resolved,v12_cvar_mdcp_colgen_relaxed_k24000_floor125000_cap360000,re-evaluate after v13
+ifrs9_contractual,data_blocked,proxy readiness only,servicing/DPD/cure/recovery/EAD/macro data
+causal_cate,theory_blocked,policy value remains blocked,"identification, overlap, sensitivity"
+fairness,data_blocked,proxy governance only,protected attributes or approved external protocol
+paper1_freeze,resolved,Paper Estrella untouched,continue Paper 4 only

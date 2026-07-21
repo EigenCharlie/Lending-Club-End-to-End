@@ -105,13 +105,6 @@ def test_gate_semantic_coherence_passes_with_consistent_thresholds_and_protocols
             "interval_champion": {"promotable": False},
             "final_interval_decision": {"status": "research_only"},
         },
-        "paper_grade_protocol_status": {
-            "pd_conformal": {"canonical_methodological_justification_pass": True},
-            "time_series": {
-                "decision": "research_only",
-                "interval_promotable": False,
-            },
-        },
         "storytelling_snapshot": {
             "headline_metrics": {"fairness_primary_threshold": 0.35},
             "time_series_interval_promotable": False,
@@ -130,7 +123,6 @@ def test_gate_semantic_coherence_passes_with_consistent_thresholds_and_protocols
     assert gate.passed is True
     assert gate.details["checks"]["operational_thresholds_ok"] is True
     assert gate.details["checks"]["threshold_role_separation_ok"] is True
-    assert gate.details["checks"]["time_series_protocol_ok"] is True
     assert gate.details["checks"]["storytelling_conformal_ok"] is True
 
 
@@ -152,13 +144,6 @@ def test_gate_semantic_coherence_fails_on_threshold_and_storytelling_mismatch() 
             "interval_champion": {"promotable": False},
             "final_interval_decision": {"status": "research_only"},
         },
-        "paper_grade_protocol_status": {
-            "pd_conformal": {"canonical_methodological_justification_pass": False},
-            "time_series": {
-                "decision": "promoted",
-                "interval_promotable": True,
-            },
-        },
         "storytelling_snapshot": {
             "headline_metrics": {"fairness_primary_threshold": 0.40},
             "time_series_interval_promotable": True,
@@ -176,8 +161,6 @@ def test_gate_semantic_coherence_fails_on_threshold_and_storytelling_mismatch() 
 
     assert gate.passed is False
     assert gate.details["checks"]["operational_thresholds_ok"] is False
-    assert gate.details["checks"]["time_series_protocol_ok"] is False
-    assert gate.details["checks"]["paper_pd_conformal_ok"] is False
 
 
 def test_gate_conformal_passes_with_statistical_warning() -> None:

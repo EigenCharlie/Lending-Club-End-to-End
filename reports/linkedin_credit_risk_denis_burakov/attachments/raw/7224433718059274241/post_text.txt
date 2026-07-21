@@ -1,0 +1,13 @@
+Fisher Scoring with Python ⤵
+⭐ GitHub repo: https://lnkd.in/dXNHuvcq
+When working with logistic regression in Python, we often encounter the limitation of not having standard errors and other inference-related measures when using scikit-learn. This typically necessitates switching to statsmodels for additional tests, leading to discrepancies between the two sets of results ❌
+Moreover, building logistic regression scorecards with Weight-of-Evidence (WOE) can be challenging. Model coefficients may flip signs unexpectedly, requiring various manual adjustments without being able to address the root cause 🔧
+To address these limitations and provide full interpretability of the model, I have developed the fisher-scoring package. This project combines the convenience of scikit-learn with the power of statsmodels for logistic regression, giving you full control of the model while leveraging the full range of Python's data science ecosystem 🐍
+Install with pip install fisher-scoring ⭐
+💻 Colab notebook: https://lnkd.in/dAd7jSYe
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore #LogisticRegression with Fisher scoring: https://lnkd.in/e-746FQW 💡
+▷ Explore #LogisticRegression approaches with #Python: https://lnkd.in/ebHdg-fB 💡
+▷ Explore more materials here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

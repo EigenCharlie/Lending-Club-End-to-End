@@ -5,7 +5,7 @@ src.evaluation.metrics.classification_metrics(), and patches the
 final_test_metrics block in model_comparison.json.
 
 Usage:
-    uv run python scripts/export_pr_auc_metrics.py
+    uv run python scripts/history/export_pr_auc_metrics.py
 """
 
 from __future__ import annotations

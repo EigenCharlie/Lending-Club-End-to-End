@@ -113,6 +113,6 @@
     "sign_coherence_path": "data/processed/ifrs9_sign_coherence.parquet"
   },
   "schema_version": "2026-03-30.1",
-  "generated_at_utc": "2026-03-30T22:27:48.464488+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T04:02:16.317409+00:00",
+  "run_tag": "canonical-audit-rebuild-2026-04-06-r2"
 }

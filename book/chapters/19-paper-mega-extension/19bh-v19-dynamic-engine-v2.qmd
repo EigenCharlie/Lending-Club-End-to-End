@@ -1,0 +1,75 @@
+---
+title: "v19 Dynamic Engine v2"
+page-layout: article
+---
+
+## Pregunta
+
+V19 pregunta si el motor dinámico de v15 aguanta una evaluación más exigente:
+más paths, horizonte 36 meses, sensibilidad de comité y comparación pareada
+contra challengers serios. La meta ya no es demostrar que el laboratorio existe,
+sino medir si los rankings sobreviven cuando el replay se vuelve más grande.
+
+## Qué intentamos
+
+La ola v19 reutiliza los policy books congelados, pero los vuelve a evaluar bajo
+64 sample paths internos y horizonte 36 meses. Cada política conserva la regla
+de no leakage: solo puede financiar préstamos disponibles hasta el mes de
+decisión. También se intenta unir contexto macro externo oficial vía FRED; en
+esta corrida el fetch falló, así que todos los claims quedan como calibración
+interna, no forecast externo.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v19_dynamic_state_schema.json` | contrato de estado v19 y horizontes |
+| `paper4_v19_sample_path_design.csv` | diseño de paths internos v2 |
+| `paper4_v19_sample_paths.parquet` | shocks comunes por path/mes |
+| `paper4_v19_dynamic_policy_trace.parquet` | traza mensual policy/path/month |
+| `paper4_v19_dynamic_policy_summary.csv` | ranking dinámico v19 |
+| `paper4_v19_horizon_sensitivity.csv` | sensibilidad 12/24/36 meses |
+| `paper4_v19_gate_sensitivity.csv` | comité base/strict/wealth/tail/relaxed |
+| `paper4_v19_policy_pairwise_common_path_ci.csv` | intervalos pareados |
+| `paper4_v19_path_family_sensitivity.csv` | stress por familia de path |
+| `paper4_v19_status.json` | status reproducible |
+
+## Resultado
+
+La corrida generó 61,824 filas de traza mensual: 14 policies, 64 paths y 36
+meses de horizonte. El guardrail de no leakage quedó perfecto
+(`no_temporal_leakage_min_rate_v19 = 1.0`).
+
+El resultado más útil no es un único ganador. Es la sensibilidad: con comité
+base y strict tail aparece `v13_spo_regret_audit_guarded` como mejor score; con
+wealth-first aparece `v13_fvi_capital_guarded`; con tail-first gana
+`paper1_economic_champion`. Eso confirma que Paper 4 necesita gobernanza de
+métricas, no solo ranking por wealth.
+
+## Qué mejoró
+
+V19 ya compara políticas bajo paths comunes más largos y deja claro qué cambia
+cuando el comité prioriza retorno, cola o robustez. También deja listo el
+artefacto de CI pareado para que ningún challenger se promueva solo por media.
+
+## Qué falló
+
+El fetch de FRED no quedó disponible desde el script, por lo que no hay claim de
+macro calibración externa. La página documenta el intento, pero la evidencia
+vigente sigue siendo `internal_calibration_not_external_forecast`.
+
+## Claim permitido
+
+Paper 4 puede decir que tiene un motor dinámico v2 con paths internos comunes,
+horizonte 36 meses, no-leakage y sensibilidad de comité.
+
+## Claim no permitido
+
+No puede decir que estos paths sean forecast macro externo ni validación
+productiva de performance futura.
+
+## Qué queda pendiente
+
+La siguiente frontera es empujar 128/256/512 paths cuando el manuscrito necesite
+intervalos más estrechos, y conectar el engine con DLA endógeno, CVaR y SPO como
+procesos mensuales dentro del mismo marco.

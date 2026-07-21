@@ -16,6 +16,7 @@ from src.models.pd_contract import (
     build_contract_payload,
     infer_model_feature_contract,
     load_contract,
+    resolve_calibrator_path,
     resolve_model_path,
     save_contract,
     validate_features_in_splits,
@@ -27,12 +28,20 @@ from src.models.pd_contract import (
 
 
 class TestPathResolution:
+    def test_resolve_model_path_prefers_upstream_search_pd_candidate(self, tmp_path, monkeypatch):
+        upstream_model = tmp_path / "models" / "search_pd" / "run-123" / "pd_candidate_model.cbm"
+        upstream_model.parent.mkdir(parents=True)
+        upstream_model.touch()
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("UPSTREAM_CANONICAL_RUN_TAG", "run-123")
+        assert resolve_model_path().resolve() == upstream_model.resolve()
+
     def test_resolve_model_path_finds_canonical(self, tmp_path, monkeypatch):
         model_file = tmp_path / "models" / "pd_canonical.cbm"
         model_file.parent.mkdir(parents=True)
         model_file.touch()
         monkeypatch.setattr("src.models.pd_contract.CANONICAL_MODEL_PATH", model_file)
-        assert resolve_model_path() == model_file
+        assert resolve_model_path().resolve() == model_file.resolve()
 
     def test_resolve_model_path_fallback(self, tmp_path, monkeypatch):
         # Canonical doesn't exist, but fallback does
@@ -77,6 +86,14 @@ class TestPathResolution:
         monkeypatch.setattr(mod, "resolve_calibrator_path", _no_cal)
         result = mod.resolve_calibrator_path()
         assert result is None
+
+    def test_resolve_calibrator_prefers_upstream_search_pd_candidate(self, tmp_path, monkeypatch):
+        upstream_cal = tmp_path / "models" / "search_pd" / "run-123" / "pd_candidate_calibrator.pkl"
+        upstream_cal.parent.mkdir(parents=True)
+        upstream_cal.touch()
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("UPSTREAM_CANONICAL_RUN_TAG", "run-123")
+        assert resolve_calibrator_path().resolve() == upstream_cal.resolve()
 
 
 # ---------------------------------------------------------------------------

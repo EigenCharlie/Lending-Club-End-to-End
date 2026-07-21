@@ -1,0 +1,59 @@
+{
+  "schema_version": "2026-04-05.2",
+  "run_label": "paper1_bound_pareto_nextwave_2026_05_25_r4__grade_cal_sqrt_a0090__portfolio_probe_50k",
+  "solver_backend": "cuopt",
+  "exact_solver_backend": "highs",
+  "start": {
+    "captured_at_utc": "2026-05-25T18:05:12.318202+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 56985572,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 1921.0,
+      "memory_free_mb": 8133.0,
+      "gpu_util_pct": 16.0,
+      "memory_util_pct": 1.0
+    }
+  },
+  "backend_validation": {
+    "validated_at_utc": "2026-05-25T18:05:10.622708+00:00",
+    "python": "/home/eigenlinux/miniforge3/envs/rapids/bin/python",
+    "expected_release": "26.02",
+    "cuopt": "26.02.00",
+    "cudf": "26.02.01",
+    "cupy": "14.0.1",
+    "pyomo": "6.10.0",
+    "loguru": "0.7.3"
+  },
+  "end": {
+    "captured_at_utc": "2026-05-25T18:38:46.011736+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 54626972,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 1870.0,
+      "memory_free_mb": 8184.0,
+      "gpu_util_pct": 1.0,
+      "memory_util_pct": 16.0
+    }
+  },
+  "gpu_summary": {
+    "available": true,
+    "sample_count": 1419,
+    "csv_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__grade_cal_sqrt_a0090__portfolio_probe_50k/gpu_samples.csv",
+    "peak_gpu_util": 61.0,
+    "avg_gpu_util": 2.4023960535588444,
+    "peak_memory_used_mb": 2026.0,
+    "avg_memory_used_mb": 1894.7491190979563,
+    "peak_power_draw_w": 159.22,
+    "avg_power_draw_w": 29.96479915433408
+  }
+}

@@ -1,0 +1,191 @@
+Logistic Regression: The Two Cultures | Denis Burakov | 15 comments
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Is it correct to call logistic regression a classifier? ⇩
+This question represents a focal point in #PredictiveModeling where the clash between the two cultures, as described by Leo Breiman in 2001, becomes obvious. The field of #MachineLearning arose somewhat independently of the field of #Statistics, and probabilistic modeling, the hallmark of statistics, has played a more modest role in the context of algorithmic modeling.
+The binary logistic regression model was developed primarily by David Cox (1958) and Strother Walker and David Duncan (1967). Logistic regression is deeply rooted in the concept of Maximum Likelihood Estimation (MLE), which was first advanced by the godfather of modern #Statistics, Ronald A. Fisher, in the 1920s ⇨ Fisher introduced MLE as a method for estimating the parameters of statistical models that best fit the observed data.
+As an early example of MLE, Fisher developed Linear Discriminant Analysis (LDA) in his 1936 paper "The Use of Multiple Measurements in Taxonomic Problems" 📑. The paper outlined a method for classifying observations into two or more classes based on a set of independent variables from the Iris dataset. Fisher's LDA did not produce probabilities, therefore by today’s terminology, Fisher’s method performed classification using MLE.
+Logistic regression, emerging three decades after Fisher's groundwork, optimizes the joint likelihood of inputs and labels through a linear model using MLE. The hallmark sigmoid function compresses logit outputs into a probability range (0 to 1), facilitating logistic regression's application in diverse fields like clinical diagnostics and credit scoring to discriminate risk. Classification, as has been outlined by F. Harrell, is only a part of logistic regression’s utility, which is achieved when we threshold probabilities ◍ to convert into binary outcomes ◑.
+While statisticians stress the probabilistic core of logistic regression, it can also be viewed as a technique capable of performing classification through modeling the posterior class distribution. This suggests that despite its focus on probability estimation and the subsequent optional label assignment, logistic regression shares the modeling objective for binary events seen in LDA, Naive Bayes (e.g., WOE), SVM, and other binary classification methodologies.
+Slide through the corresponding deck to this post to get a deeper insight into the arguments of the two cultures and share your thoughts in the comments ⬇️
+⚠ 𝐃𝐢𝐬𝐜𝐥𝐚𝐢𝐦𝐞𝐫: The work of eugenicists, which Ronald A. Fisher was a known member of, was often pervaded by prejudice against racial, ethnic and disabled groups. The online publication of this material for scholarly research purposes is not an endorsement of those views nor a promotion of eugenics in any way.
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+Explore more on #CreditRiskModeling, #Lending, and #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+171
+15 Comments
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+Simon Schwab (s²)
+2y
+Report this comment
+Logistic regression is not a hybrid method, this only adds to the confusion. It is a probability machine and it is only a classifier if it is misused as such.
+According to your slides ML paracticioners prioritize predictive accuracy. A common threshold is P=0.50, so classifying P=0.51 as disease and P=0.49 as absence of disease is accurate? Classification is the wrong goal in medicine (maybe not in all situations, but in most situations), and ML people have a hard time to understand this. Tendencies such as a probability is more accurate and honest.
+So I'm very much in line with Frank Harrell's teachings.
+Like
+Reply
+4 Reactions
+5 Reactions
+Adrian Olszewski
+2y
+Report this comment
+Denis Burakov You nailed a very important problem and went through it in an awesome way, very detailed! So much work and references - I absolutely love it! 👏 My view is that the debate could be ended in just seconds, if the #ml community left the well-settled statistical definitions as they are and called this concrete application the "logistic classifier". This would immediately show that:
+👍 the algorithm *uses* the regression output, is built on the top of it (yet it can be approached also via NN, the perceptron)
+👍 the two exist and have different applications, that LR is used for other tasks outside ML
+👍 it's the right time to stop denying daily work of thousands of statisticians who use the LR for other things than classification. In my presentation below I illustrated such a ridiculous situation I faced, where a data scientist was shocked and refused to help us because he could not understand how LR can be used for anything else outside ML For example, I've been using it on daily basis at work, but never for classification
+👍 the name "logistic classifier" is consistent with its purpose, so no need to play the "LR is a misnomer" tone
+https://www.slideshare.net/AdrianOlszewski1/logistic-regression-vs-logistic-classifier
+Like
+Reply
+6 Reactions
+7 Reactions
+Davit Bidzhoian
+2y
+Report this comment
+There are several studies comparing results of ML models and logistic regression models. I can't say definitely that ML models are more accurate in most cases. Approximately in a half of cases logistic regression was more accurate then ML models.
+From my point of view there is no problem concerning with threshold value as a classification rule. I researched the question of the best value for the threshold and I came to the conclusion that the best value is the mean of dependent binary variable.
+But I agree, logistic regression is rather used to get probability then classify object.
+Like
+Reply
+1 Reaction
+Awbath AlJaberi
+2y
+Report this comment
+Thanks for the detailed explanation, it is worth to mention that if the analyst need to reduce both bias and variance in parameter estimates, then the target estimation method could be the correct destination, this method could lead to more accurate and reliable results in statistical analysis. It could also improve the confidence intervals for the parameters and provide robustness in the presence of skewed distributions or outliers👌.
+This methodology is already incorporated into SAS statistical software for example.
+Overall, the target estimation method offers a systematic approach to improve the accuracy, reliability, and robustness of statistical analyses, particularly in the context of logistic regression models and other parametric situations.
+For more information please read this insightful paper
+"Target estimation for the logistic regression model" by Javier Cabrera,Vipul Devas &Luisa T. Fernholz
+Like
+Reply
+1 Reaction
+2 Reactions
+Alexandru Din
+Quant in Credit Risk at Deloitte
+2y
+Report this comment
+Nice thing to classify Logistic Regression as both a classification and regression mechanism because indeed is used for both. I like as well the Logistic Regression eXtreme Gradient Boosting you mentioned.
+Like
+Reply
+1 Reaction
+Gabriel Ryan, FRM
+2y
+Report this comment
+Great post. Thanks for sharing.
+Like
+Reply
+1 Reaction
+2 Reactions
+zach T.
+2y
+Report this comment
+the good ol' prediction vs. explanation paradigm also maps onto this Tal Yarkoni Jake Westfall
+Like
+Reply
+1 Reaction
+See more comments
+To view or add a comment, sign in
+10,502 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

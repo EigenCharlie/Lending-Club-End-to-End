@@ -1,0 +1,248 @@
+---
+title: "v8 Solvers, Selector and DLA"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v8_resolution_status.json")
+cvar = _csv("paper4_v8_cvar_bisection_frontier.csv")
+mdcp = _csv("paper4_v8_mdcp_family_cap_solver_summary.csv")
+selector = _csv("paper4_v8_selector_governance_results.csv")
+memo = _csv("paper4_v8_selector_committee_memo.csv")
+dla_summary = _csv("paper4_v8_dla_value_function_summary.csv")
+dla_trace = _csv("paper4_v8_dla_value_function_trace.csv")
+dla_comparison = _csv("paper4_v8_dla_vs_static_path_comparison.csv")
+claims = _csv("paper4_v8_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v8-solvers-question}
+
+V8 mueve tres piezas de diagnóstico hacia optimización real:
+
+- CVaR deja de ser una grilla arbitraria y se busca por bisección en el cap;
+- MDCP entra como caps por familia dentro del LP, no solo como penalización
+  global;
+- DLA compara una policy mensual con proxy de función de valor contra una
+  referencia estática bajo el mismo marco de transición.
+
+La formulación CVaR sigue la lógica de Rockafellar y Uryasev: con escenarios
+finitos, CVaR puede representarse con una variable de umbral y excesos lineales
+(<https://sites.math.washington.edu/~rtr/papers/rtr179-CVaR1.pdf>).
+
+## Status solver v8
+
+```{python}
+#| label: tbl-paper4-v8-solvers-status
+#| tbl-cap: "Status v8 para solvers, selector y DLA"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "cvar_bisection_feasible_count": status.get("cvar_bisection_feasible_count"),
+    "cvar_bisection_non_dominated_count": status.get("cvar_bisection_non_dominated_count"),
+    "mdcp_family_cap_optimal_count": status.get("mdcp_family_cap_optimal_count"),
+    "mdcp_family_gate_count": status.get("mdcp_family_gate_count"),
+    "selector_promote_count": status.get("selector_promote_count"),
+    "dla_value_function_implemented": status.get("dla_value_function_implemented"),
+    "dla_value_delta_vs_static": status.get("dla_value_delta_vs_static"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## CVaR bisection
+
+```{python}
+#| label: tbl-paper4-v8-cvar-bisection
+#| tbl-cap: "CVaR bisection frontier v8"
+
+_cols(
+    cvar.head(24),
+    [
+        "policy_id",
+        "solver_status",
+        "bisection_floor",
+        "bisection_iteration",
+        "tested_cvar_cap",
+        "feasible_v8",
+        "non_dominated_v8",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "scenario_loss_cvar90",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v8",
+    ],
+)
+```
+
+El objetivo no es forzar que cada punto sea factible. Los infeasible son parte
+del resultado: delimitan el punto donde retorno mínimo y cola máxima no pueden
+coexistir en el pool actual. La frontera v8 debe leerse como `return_floor`
+contra `tested_cvar_cap`, con puntos no dominados para no confundir grilla con
+Pareto real.
+
+## MDCP family caps
+
+```{python}
+#| label: tbl-paper4-v8-mdcp-family-caps
+#| tbl-cap: "MDCP family-cap solver v8"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "risk_tolerance",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "share_grade_dplus",
+        "share_dti_q3",
+        "share_score_low",
+        "share_income_q5",
+        "share_period_2018h1",
+        "mdcp_family_gate_v8",
+        "auditability_score_v8",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+    ],
+)
+```
+
+La lectura es distinta a v7. En v7 MDCP era disciplina gradual; en v8 el solver
+recibe restricciones por familia. Eso permite saber si el pool de préstamos
+puede sostener simultáneamente budget, PD cap, qhat cap y composición por
+source. Si la variante estricta falla o sacrifica demasiado retorno, eso no es
+un error: es información sobre la forma del feasible set.
+
+## Selector governance
+
+```{python}
+#| label: tbl-paper4-v8-selector-governance
+#| tbl-cap: "Selector governance results v8"
+
+_cols(
+    selector.head(30),
+    [
+        "policy_id",
+        "lane",
+        "solver_ok",
+        "online_source_month_min",
+        "online_width",
+        "online_gate_pass",
+        "online_efficiency_pass_0p95",
+        "ifrs9_readiness",
+        "auditability_score_v8",
+        "selector_decision_v8",
+        "primary_blocker_v8",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v8-selector-memo
+#| tbl-cap: "Committee memo thresholds v8"
+
+memo
+```
+
+El selector no cambia el CRPTO/Paper_CRPTO externo. En Paper 4 sí puede crear candidatos
+de trabajo, pero la promoción final sigue deshabilitada por diseño. Si online
+o IFRS9 fallan, el selector debe decir `review` o `park`, aunque el retorno sea
+atractivo.
+
+## DLA value function proxy
+
+```{python}
+#| label: tbl-paper4-v8-dla-summary
+#| tbl-cap: "DLA value-function summary v8"
+
+dla_summary
+```
+
+```{python}
+#| label: tbl-paper4-v8-dla-comparison
+#| tbl-cap: "DLA value-function proxy versus static monthly reference"
+
+dla_comparison
+```
+
+```{python}
+#| label: tbl-paper4-v8-dla-trace
+#| tbl-cap: "DLA trace v8"
+
+_cols(
+    dla_trace,
+    [
+        "policy_id",
+        "month_idx",
+        "calendar_month",
+        "cash_end",
+        "principal_in",
+        "interest_in",
+        "realized_loss",
+        "recovery_in",
+        "expected_loss",
+        "capital_used",
+        "outstanding_balance_proxy",
+        "macro_state_v8",
+        "state_value_proxy_v8",
+        "decision_scope",
+    ],
+)
+```
+
+En términos SDAM, v8 ya tiene una estructura legible:
+
+```text
+S_t = cash, outstanding, ECL, capital, macro/coverage state
+x_t = loans funded in month t
+W_{t+1} = repayment, prepayment, default, recovery and macro shock
+S^M = transition over cash, outstanding, losses and recoveries
+X^pi = value-function-proxy monthly funding policy
+```
+
+La pregunta abierta es si ese proxy realmente mejora el valor de estado frente
+a una referencia estática. El delta no se interpreta como performance futura;
+se interpreta como señal para seguir o rediseñar la aproximación ADP.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v8-solvers-artifacts
+#| tbl-cap: "V8 claim-artifact matrix: solvers and DLA"
+
+_cols(
+    claims[claims["quarto_page"].eq("19as-v8-solvers-selector-dla.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```

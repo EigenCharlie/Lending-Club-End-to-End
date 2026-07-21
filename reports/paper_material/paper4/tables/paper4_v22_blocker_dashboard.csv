@@ -1,0 +1,11 @@
+blocker_id,status_v22,current_diagnosis,next_action
+dynamic_engine_v2,resolved,"v19 dynamic trace, horizons and path-family sensitivity exist",expand to 128/256/512 only when manuscript needs tighter intervals
+sample_paths_v2,near_resolved_with_plateau,v19 internal paths include vintage/cohort/default-dependence/LGD/prepayment and optional FRED context,external forecast validation remains outside static dataset
+dla_endogenous_solver,near_resolved_with_plateau,v20 endogenous monthly greedy DLA approximation implemented,exact Bellman/ADP proof remains future method work
+cvar_full_universe,near_resolved_with_plateau,v20 preserves strict/committee/relaxed restricted-master evidence and certificates,no full-universe exact optimality claim
+spo_dfl,dependency_blocked,v20 CatBoost/sklearn regret surrogate and oracle diagnostics implemented,formal differentiable SPO+ blocked by cvxpy/cvxpylayers/torch environment
+champion_decomposition,resolved,"v20 overlap, selected-vs-avoided and decision memo exist","case studies are audit narratives, not causal explanations"
+ifrs9_contractual,data_blocked,v21 field audit and SICR sensitivity exist,contractual IFRS9 blocked by missing servicing/DPD/cure/recovery/prepayment/EAD/macros
+cate_policy_value,theory_blocked,v21 balance/overlap/falsification/sensitivity diagnostics exist,accepted-loan selection/reject-inference remain unresolved
+fair_lending,prohibited_claim,v21 proxy governance and no-claim flags exist,no protected attributes or approved external protocol
+paper1_freeze,resolved,promotion JSON remains protected,continue Paper 4 working-only champions

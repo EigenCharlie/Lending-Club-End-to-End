@@ -1,0 +1,146 @@
+source_asset_id: 7392821942728273920_external_09
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/lgd/lgd_as_a_function_of_dr.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/lgd/lgd_as_a_function_of_dr.pdf
+source_type: github
+
+Loss Given Default as a Function of the Default Rate
+
+                     The Frye-Jacobs Loss Given Default Model
+
+
+                                 Andrija Djurovic
+
+
+
+
+                       www.linkedin.com/in/andrija-djurovic
+
+
+  Andrija Djurovic               LGD as a Function of the DR    1/6
+The Frye-Jacobs LGD - Assumptions and the Functional
+Form
+
+
+   A study by Frye and Jacobs predicts Loss Given Default (LGD) as a
+   function of the default rate (DR).
+   The LGD function relates to asymptotic DR or Point-in-Time
+   Probability of Default (PiT PD) and Point-in-Time (PiT) LGD under
+   certain assumptions.
+   Main assumptions of the LGD function:
+         the Expected Loss (EL) and the DR (PiT PD) are co-monotonic;
+         EL and DR (PiT PD) follow a Vasicek two-parameter distribution;
+         correlation parameter (ρ) is shared between DR and EL.
+
+
+
+    Andrija Djurovic        LGD as a Function of the DR                    2/6
+The Frye-Jacobs LGD - Assumptions and the Functional
+Form cont.
+The Frye-Jacobs LGD function has the following form:
+
+                                   Φ Φ−1 (cDR) − k
+                                                  
+                            cLGD =
+                                        cDR
+
+with k being the Risk Index given by the following expression:
+
+                                 Φ−1 (PD) − Φ−1 (EL)
+                            k=         √
+                                         1−ρ
+
+where:
+     cDR denotes conditional default rate (PiT PD);
+     PD represents TTC PD;
+     EL is the average loss rate; and
+     ρ represents the asset correlation shared between DR and EL.
+
+         Andrija Djurovic       LGD as a Function of the DR         3/6
+Simulation Setup
+The simulation aims to generate competing predictions for the tail LGD (98th percentile)
+utilizing the LGD function and linear regression as predictors. To give linear regression an
+advantage in this contest, the data-generating process is assumed to follow a linear model
+with known values of the intercept (a) and slope (b).
+For the following assumed values: TTC DR = 0.03, ρ = 0.10, σ 2 = 0.20, a = 0.50,
+b = 2.3, and number of obligors n = 1, 000, the simulation of a single year of data
+involves the following steps:
+  1   Simulate the value of the systemic factor z by drawing a random number from the
+      standard normal distribution.
+  2   Given the TTC DR, ρ, and z from step 1, simulate the PiT PD based on the
+      Vasicek distribution.
+  3   Simulate the number of defaults D from the binomial distribution for a given n and
+      simulated PiT PD.
+  4   Simulate conditional LGD cLGD assuming the linear model of the form
+      a + b · PiT PD.
+  5   Given the cLGD, simulate LGD by drawing the value from the normal distribution
+      with the mean cLGD and standard deviation √σD .
+The above process is repeated ten times, simulating a dataset for T = 10 years.
+       Andrija Djurovic            LGD as a Function of the DR                            4/6
+Simulation Setup cont.
+The process described in the previous slide is simulated N = 10, 000 times.
+The LGD function and LGD linear regression model are estimated for each simulated dataset.
+The elements of the LGD function are calculated as follows: parameter ρ is estimated by
+maximizing the log-likelihood of the Vasicek probability density function, TTC DR is calculated
+as an average of the simulated T default rates, and the expected loss (EL) is calculated as an
+average of the product of the LGD and PiT PD.
+The LGD of the linear model is calculated based on the selected values of coefficients a and b and
+the TTC DR.
+Deriving the LGD function and LGD linear regression distributions based on the N = 10, 000
+repetitions, the final step is to compare the root mean square error of these two distributions
+calculated against the known 98th percentile of the LGD given by the following formula:
+
+
+                               LGD98th percentile = a + b · PD98th percentile
+
+where PD98th percentile is defined as:
+
+                                                                √                           
+                                             Φ−1 (TTC PD) +        ρ · Φ−1 (98th percentile)
+                 PD98th percentile = Φ                           √
+                                                                   1−ρ
+
+        Andrija Djurovic                     LGD as a Function of the DR                         5/6
+Simulation Results
+                                                             Distribution of the Estimated 98th Percentile of the Conditional LGD
+                                                                         LGD Function    LGD Regression     True LGD: 72.35%
+
+
+                            12.5%
+
+                                                                                                                                              LGD function RMSE: 7.26%
+                                                                                                                                           LGD regression RMSE: 10.06%
+
+
+
+
+                            10.0%
+Percentage of simulations
+
+
+
+
+                            7.5%
+
+
+
+
+                            5.0%
+
+
+
+
+                            2.5%
+
+
+
+
+                            0.0%
+
+                                    40%                60%                         80%                     100%                     120%                         140%
+                                                                                         Simulated LGD
+
+
+
+
+                                    Andrija Djurovic                     LGD as a Function of the DR                                                                     6/6

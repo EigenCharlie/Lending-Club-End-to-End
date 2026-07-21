@@ -1,0 +1,159 @@
+Scorecarding with Naïve Bayes | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Edited
+Report this post
+How to Build a Credit Scorecard Using Naïve Bayes? 🎲
+This text continues the well-received series on Weight of Evidence (WOE), a beloved tool of many risk model builders around the world 🌎
+Discover the history and application of WOE, tracing back to Alan Turing and his statistical assistant, I.J. Good, who conceptualized WOE as a log-likelihood ratio. This post demystifies Good's simplified WOE formula, not commonly applied in #CreditRisk, to perform inference and construct scorecards. This text offers a step-by-step journey through scorecard creation with Naïve Bayes, illustrated for clear understanding 💡
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the use of Weight-of-Evidence (WOE) estimators for PD models here: https://lnkd.in/dsbbHi-M 💡
+▷ Discover a related post on Credit Risk Modeling with Naïve Bayes here: https://lnkd.in/dy6P2jzu 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+Read more to explore scorecarding with Naïve Bayes ⬇️
+Scorecarding with Naïve Bayes
+Denis Burakov on LinkedIn
+117
+5 Comments
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+Denis Burakov
+2y
+Report this comment
+For those interested in the technicalities between the classical and Good's Bayesian formulas for Weight of Evidence (WOE), I invite you to explore this worked-through example ⬇️
+https://docs.google.com/spreadsheets/d/14BabLDtJL917JF7bIZXXFwOcVynEKBX_NzRDoPqTv70/edit?usp=sharing
+Like
+Reply
+3 Reactions
+4 Reactions
+ANKIT JAIN,CQF,EPAT
+2y
+Report this comment
+Hey Denis. Thanks for explaining how Naive Bayes' can be used with WOE value.
+Could you please tell me why we introduced BIAS in our calculation. What's the logic?
+Like
+Reply
+1 Reaction
+2 Reactions
+René Naarmann
+2y
+Report this comment
+Mikael Ling maybe of interest?!
+Like
+Reply
+1 Reaction
+Roman Matyash
+2y
+Report this comment
+Fascinating insights into leveraging Naïve Bayes for credit scorecard construction! 🌟
+Like
+Reply
+1 Reaction
+2 Reactions
+See more comments
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

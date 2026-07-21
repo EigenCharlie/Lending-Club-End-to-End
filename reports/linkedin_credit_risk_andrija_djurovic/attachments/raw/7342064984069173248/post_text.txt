@@ -1,0 +1,6 @@
+Our paper, “Drifts, Shifts and Instabilities to Quantify Scorecard Model Risk,” co-authored with Alan Forrest, has been accepted for presentation at the Credit Scoring and Credit Control Conference XIX, hosted by the University of Edinburgh Business School and the UEBS Credit Research Centre.
+The paper explores Model Specification Drift as a response to Data Drift - an issue closely related to the well-known challenges of data and concept drift in model management. We propose this approach as a standard investigative tool for quantifying model risk.
+To support this aim, we have developed both R and Python libraries, which we use to illustrate the analysis presented. In the coming period, we plan to develop this work further and share more details on both the methodology and the software implementation.
+I invite those interested to attend the conference and our presentation. Although I won’t be attending in person, I am confident you will enjoy the insights and ideas presented by Alan Forrest.
+The link to the conference programme is in the comments, along with a recent short presentation summarising our work on this topic.
+Finally, a big thank you to Alan Forrest for his contributions, for generously sharing his ideas, and for the motivation he has given me to explore this and other related topics. I look forward to continuing our fruitful collaboration.

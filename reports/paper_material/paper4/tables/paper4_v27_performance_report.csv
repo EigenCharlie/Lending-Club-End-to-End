@@ -1,0 +1,3 @@
+run_id,n_paths,trace_rows,runtime_seconds,trace_parquet_mb,bottleneck
+v23_128,128,123648,971.274,12.071435,policy-path-month loan event replay
+v27_scaled,256,247296,1377.351821899414,23.313235,same replay; event cache remains next optimization

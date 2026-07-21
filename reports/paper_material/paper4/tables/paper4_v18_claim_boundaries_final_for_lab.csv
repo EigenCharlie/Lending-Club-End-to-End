@@ -1,0 +1,8 @@
+claim,allowed,artifact,boundary
+Paper 4 can compare monthly policy processes,True,paper4_v15_dynamic_policy_summary.csv,"internal replay, not production"
+Paper 4 can select a working champion,True,paper4_v18_working_champion.json,"Paper 4 only, no Paper Estrella promotion"
+Paper 4 has exact full-universe CVaR optimality,False,paper4_v16_cvar_full_or_colgen_frontier.csv,restricted master / diagnostic only
+Paper 4 has formal differentiable SPO+,False,paper4_v16_spo_dependency_blockers.csv,dependency/formalization blocked
+Paper 4 has contractual IFRS9 lifetime ECL,False,paper4_v17_ifrs9_proxy_panel_readiness.csv,servicing data absent
+Paper 4 has CATE policy value,False,paper4_v17_cate_gate_report.csv,identification blocked
+Paper 4 makes fair-lending legal claims,False,paper4_v17_fairness_proxy_only_protocol.csv,protected attributes/protocol absent

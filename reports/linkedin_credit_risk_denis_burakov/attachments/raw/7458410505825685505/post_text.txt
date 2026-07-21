@@ -1,0 +1,12 @@
+Why Brier Score Can Pick the Wrong Model (And How to Avoid It)
+Brier score, also known as mean probability score, is increasingly recommended for model selection in place of ranking metrics like Gini or AUC. Historically, its origins trace back to assessing the quality of weather forecasts.
+Take two logistic regression models on the same credit dataset:
+• Model A: max PD ~31%, Gini 56%
+• Model B: max PD ~96%, Gini 67%
+Both achieve a Brier score of 8.05%. Which one do you pick?
+With a maximum PD of 31%, Model A lacks the range to differentiate high-risk from low-risk borrowers, making it unsuitable for building rating scales. Model B has both the range and better ranking power, but Brier won't tell you that.
+By decomposing the Brier score using Frank Yates' method (1982), we can see that Brier score also contains a discrimination component:
+𝐶𝑜𝑣(𝑦, 𝑝) = 𝑦̄(1 − 𝑦̄) · (𝑝̄₁ − 𝑝̄₀)
+The discrimination reward in Brier is the base rate variance times how well the model separates average predictions between the two classes. Two models can land on the same Brier through completely different routes: one by ranking well, one by staying near the average event rate.
+If your task requires calibrated probabilities, measure calibration separately after ranking, since it is very easy to pick a wrong model relying only on Brier scores and ignoring model ranking ability.
+#DataScience #CreditRiskModeling #ModelSelection #Calibration

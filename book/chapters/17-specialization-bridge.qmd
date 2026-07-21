@@ -3,69 +3,72 @@ title: "Puente: De la Especialización a la Maestría"
 page-layout: article
 ---
 
-Este capítulo evita una ruptura artificial entre dos etapas académicas del proyecto. La especialización no queda como un prototipo aislado y la maestría no arranca desde cero: ambas comparten artefactos, lenguaje metodológico y trazabilidad.
+{{< include ../includes/_scientific-scope-contract.qmd >}}
 
-### Qué queda cerrado en la especialización
+## De la Especialización a la Maestría {#sec-bridge-specialization}
 
-El documento espejo archivado en `reports/history/tesis_especializacion.md`, junto con los artefactos vivos del proyecto, deja claro que la fase de especialización ya consolidó una columna vertebral defendible:
+La especialización dejó una base de ingeniería amplia: datos, modelos,
+artefactos, tests y documentación. La maestría no debe presentar esa procedencia
+como validación científica ya cerrada. Su aporte es permitir auditar qué
+hipótesis sobrevivieron, cuáles cambiaron de estimando y cuáles fueron retiradas.
 
-| Componente | Estado narrativo |
+### Qué queda como procedencia de la especialización
+
+| Componente histórico | Estado vigente |
 |---|---|
-| Dataset y split temporal | cerrados y trazables |
-| PD calibrada | consolidada |
-| Conformal PD/LGD/EAD | disponible con artefactos |
-| IFRS9 por escenarios | operativo como capa analítica |
-| Fairness y gobernanza | reportados explícitamente |
+| dataset y split temporal | reproducibles; replay retrospectivo con sesgo de madurez |
+| score PD calibrado | freeze local, no modelo seleccionado vigente |
+| endpoints conformales | intervalos predictivos de $Y$, no PD/LGD/EAD |
+| IFRS9 por escenarios | simulación mecánica; no ECL o staging contractual |
+| fairness y MRM | screening automatizado; no validación o aprobación independiente |
 
-: Cierre de especialización {#tbl-bridge-specialization}
+: Procedencia de la especialización y límites actuales. {#tbl-bridge-specialization}
 
-La tesis de especialización, entonces, no termina con “ideas prometedoras”, sino con evidencia suficiente para una defensa seria y un cierre técnico sólido.
+El snapshot preservado en @sec-specialization-snapshot sigue siendo útil para
+reconstruir decisiones y aprender de sus fallas. “Cerrado” significa entregable
+y trazable en su contexto académico original, no que sus claims downstream
+sigan vigentes.
 
-### Qué cambia al entrar a maestría
+### Qué cambia en la maestría
 
-La maestría no necesita rehacer el stack base. Lo que cambia es el nivel de ambición científica:
+La evolución central fue pasar de una narrativa de integración a una auditoría
+de interfaces:
 
-1. pasar de implementación aplicada a claims publicables;
-2. endurecer demostraciones, comparadores y threats to validity;
-3. separar el material en piezas autocontenidas tipo paper.
+1. declarar el target y el estimando antes de interpretar endpoints;
+2. separar construcción outcome-free de evaluación y selección;
+3. conservar resultados negativos y partial identification;
+4. asignar a cada paper su propio contrato y autoridad.
 
-| Elemento heredado | Valor real para la maestría |
-|---|---|
-| un solo dataset grande y conocido | permite comparar papers sin romper continuidad experimental |
-| siete disciplinas conectadas | vuelve defendible el claim de sistema integrado, no de mejora aislada |
-| artefactos congelados | evita que la maestría dependa de reconstruir evidencia desde cero |
-| companion Streamlit + libro Quarto | separa exploración viva de cristalización editorial |
-
-: Por qué la especialización sí entrega una base de maestría fuerte {#tbl-bridge-value}
-
-### Tres líneas de continuidad natural
-
-| Línea | Herencia desde especialización | Expansión en maestría |
+| Activo heredado | Valor actual | Límite |
 |---|---|---|
-| Predict-then-optimize | PD calibrada + CP + portafolio | Paper Estrella |
-| IFRS9 con incertidumbre | ECL, escenarios y SICR | Paper 2 |
-| Cobertura por subgrupo | Mondrian y backtesting | Paper 3 |
+| código y tests | reproducir transformaciones y failure modes | no prueban validez externa |
+| artefactos congelados | auditar historia y regresiones | labels runtime no son selección |
+| Quarto y Streamlit | documentar y explorar procedencia | no gobiernan el CRPTO externo |
+| corpus bibliográfico local | formular preguntas y comparadores | no prueba novedad global |
 
-: Continuidad temática especialización → maestría {#tbl-bridge-masters}
+: Valor del legado para la maestría. {#tbl-bridge-value}
 
-### Por qué este puente es defendible
+### Tres líneas con autoridades separadas
 
-El proyecto ya cuenta con señales de madurez poco comunes para un trabajo de transición:
+| Línea | Herencia útil | Estado actual |
+|---|---|---|
+| CRPTO/IJDS | interfaz predicción--cobertura--asignación | auditoría retrospectiva sin learner o policy seleccionados |
+| Paper 2 | código de ECL/SICR y sus errores de estimando | `parked_ifrs9`; nota metodológica negativa |
+| Paper 4 | simuladores, secuencia, PyEPO y stop rules | living lab; evidencia descriptiva/diagnóstica sin promoción |
 
-- una base amplia de pruebas automatizadas registradas en el proyecto;
-- `30` páginas Streamlit temáticas;
-- registro de campeón y semántica de thresholds congelados;
-- manifests de notebooks y artefactos reutilizables.
-
-Esto no elimina el trabajo futuro, pero sí cambia su naturaleza: el esfuerzo se desplaza desde “construir” hacia “formalizar, comparar y publicar”.
+: Continuidad temática sin colapsar los claims. {#tbl-bridge-masters}
 
 ### Regla editorial del puente
 
-La especialización conserva protagonismo como cierre defendible. La maestría aparece como continuidad orgánica, no como excusa para posponer el cierre. Ese equilibrio importa tanto para jurados como para directores:
-
-- lo ya construido tiene valor autónomo;
-- lo que sigue tiene una agenda clara y factible.
+El trabajo anterior conserva valor autónomo como sistema reproducible y caso de
+estudio. El trabajo de maestría agrega valor cuando corrige, limita o reestima;
+no cuando renombra artefactos históricos como resultados actuales. Cualquier
+claim nuevo exige estimando, datos, comparadores, protocolo, evidencia y stop
+rule propios.
 
 ### Conclusión
 
-El puente entre ambas etapas no es retórico. Está materializado en los mismos artefactos y en una arquitectura documental que ya soporta libro, companion y drafts de papers sin duplicar la lógica científica central.
+El puente defendible no es “el pipeline ya estaba validado y ahora solo falta
+publicarlo”. Es que existe suficiente procedencia para mostrar, con precisión,
+cómo evolucionó la teoría del proyecto y por qué retirar un claim también es un
+resultado científico útil.

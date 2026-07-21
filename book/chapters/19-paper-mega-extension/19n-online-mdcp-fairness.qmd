@@ -1,0 +1,64 @@
+---
+title: "Online Conformal MDCP And Source Governance"
+page-layout: article
+---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Online conformal
+
+La ola v9 busco retrospectivamente `1,010` reglas de ajuste sobre un mismo
+replay; `503` pasaron sus gates nominales y la regla de menor ancho fue
+seleccionada en esos mismos datos. V35 examino luego sus ultimos seis meses y
+sus grupos por source family sin refit ni exclusion durante el entrenamiento.
+Son slices post-seleccion y un diagnostico de fragilidad, no holdouts estrictos.
+La vista activa `paper4_v35_online_postselection_slices.csv` fija
+`strict_holdout=False` en cada fila; el archivo legacy cuyo nombre incluia
+`temporal_holdout` queda solo como procedencia historica.
+
+## MDCP y source governance
+
+MDCP/source coverage describe heterogeneidad retrospectiva de cobertura por
+familias: grade, month, period, state, income, DTI, score decile e
+intersecciones con soporte suficiente. Es un diagnóstico post-selección, no
+evidencia de robustez operacional ni de fair lending legal.
+
+## Fairness
+
+La fairness del Paper 4 queda como proxy governance only. Sin atributos
+protegidos o protocolo externo aprobado, no hay fair-lending legal claim.
+
+## Claim oficial
+
+Paper 4 puede defender que mide y gobierna fuentes debiles de cobertura. No
+puede afirmar cumplimiento legal de fair lending ni despliegue online real.
+
+## Auditoria post-cierre
+
+La auditoria cleaned/raw/diccionario del 2026-05-18 mantiene el claim legal de
+fair lending en falso: hay `addr_state`, `zip_code`, income, DTI, grade y
+purpose, pero no race, ethnicity, sex, age, surname, direccion completa ni
+Census tract. Eso permite source/geography governance, no BISG completo ni
+claim legal.
+
+Para online conformal, la misma auditoria autoriza solo un experimento acotado:
+un split prospectivo o leave-family-out con particiones y grupos definidos sin
+mirar outcomes, y con labels separados para calibración probabilística,
+conformalización, selección y evaluación final. Puede estratificarse por
+issue-month, grade, state, income/DTI bins y zip3. Los slices v35 existentes no
+satisfacen ese diseño y se conservan como limitacion.
+
+## Intake Angelopoulos para online/source
+
+Los repos de Angelopoulos no cambian el claim actual, pero sí ordenan la
+siguiente iteracion acotada:
+
+| Fuente | Uso permitido en Paper 4 | Stop rule |
+|---|---|---|
+| `conformal-risk` | implementar un gate CRC/LTT sobre una perdida monotónica como `V` o violacion | si no cambia append/park de una policy, no se promueve |
+| `conformal-time-series` | prototipar ACI, quantile tracking o PID conformal por `issue_month` | retrospectivo solamente; sin claim de deployment |
+| `Label Noise Robustness` [@einbinder2024_label_noise] | auditar si `default_flag`, charge-off y recovery timing son etiquetas ruidosas de perdida economica | se documenta como data-governance caveat |
+| `Gradient Equilibrium` [@angelopoulos2025_gradient_equilibrium] | futuro de actualizacion post-hoc bajo drift | park hasta tener split prospectivo |
+
+La frontera oficial se mantiene: online/source conformal es una limitacion
+productiva y una ruta experimental, no un resultado desplegado.

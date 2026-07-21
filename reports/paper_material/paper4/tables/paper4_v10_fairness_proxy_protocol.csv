@@ -1,0 +1,3 @@
+protocol_item,status_v10,legal_fair_lending_claim_allowed,allowed_scope_v10,required_to_unblock
+protected_attributes,not_available,False,proxy governance only,protected attributes or approved external proxy protocol
+proxy_segments,available,False,"stress by grade, DTI, income, state, period and score decile",committee-approved protected-class proxy design

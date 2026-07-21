@@ -1,0 +1,22 @@
+{
+  "schema_version": "2026-05-12.3",
+  "generated_at_utc": "2026-05-13T03:37:57.477124+00:00",
+  "selector_id": "paper4_selector_v2_ifrs9_tail_mdcp_fairness",
+  "mode": "diagnostic_no_promotion",
+  "weights": {
+    "score_net_ecl_v2": 0.35,
+    "score_ecl_v2": 0.15,
+    "score_tail_v2": 0.15,
+    "score_mdcp": 0.15,
+    "score_fairness": 0.1,
+    "score_auditability": 0.1
+  },
+  "gates": [
+    "all_bounds_hold",
+    "ab_pass_all",
+    "worst_source_coverage_alpha01 >= 0.80",
+    "max_abs_representation_gap <= 0.20"
+  ],
+  "promotion_json_created": false,
+  "paper1_champion_protected": true
+}

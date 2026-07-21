@@ -26,12 +26,26 @@ def test_registry_covers_all_streamlit_pages() -> None:
 
 def test_registry_blocks_expose_required_decisions() -> None:
     registry = yaml.safe_load(REGISTRY_PATH.read_text(encoding="utf-8"))
-    valid_decisions = {"already_in_quarto", "migrate_to_quarto", "keep_streamlit_only", "drop"}
-    valid_coverage = {"none", "partial", "full"}
+    valid_decisions = {
+        "already_in_quarto",
+        "migrate_to_quarto",
+        "keep_streamlit_only",
+        "retired",
+        "retired_absorbed",
+        "drop",
+    }
+    valid_coverage = {"none", "partial", "full", "retired"}
     valid_interaction = {"none", "light", "strong"}
-    valid_stability = {"stable", "exploratory"}
-    valid_dependency = {"can_crystallize", "interaction_required"}
-    valid_target_surfaces = {"quarto", "streamlit_lab", "docs_internal", "drop"}
+    valid_stability = {"stable", "exploratory", "retired"}
+    valid_dependency = {"can_crystallize", "interaction_required", "none"}
+    valid_target_surfaces = {
+        "quarto",
+        "streamlit_lab",
+        "docs_internal",
+        "history",
+        "drop",
+        "none",
+    }
 
     for entry in registry["pages"]:
         blocks = entry.get("blocks", [])

@@ -1,0 +1,1276 @@
+Explainable Credit Risk Models
+weight of
+evidence.
+weight of evidence
+   Origins
+   Factor Principle
+   Credit Scoring
+   WOE Scorecards
+Alan Turing (B. Cumberbatch)
+using weights of evidence to
+   crack the Enigma code
+
+     The Imitation Game
+   (2014, Graham Moore)
+The original scoring mechanism devised by Alan Turning was called Banburismus (named after
+an English town, Banbury), which relied on a computation of log factors (weights of evidence)
+
+
+
+
+                            A Banbury Sheet
+             The evidence in favour of particular hypotheses was
+             tallied using sheets of paper that were specially printed
+             in Banbury, a town about 30 miles from Bletchley.
+
+             Each hole on the Banbury sheet contributed to a
+             cumulative score, just like modern credit scorecards
+             add up WOE contributions.                                                      Bletchley Park, UK
+See Alan Turing's lost notes, found in the walls of Bletchley Park 70 years later (link).
+David Spiegelhalter, Making Algorithms Trustworthy: What Can Statistical Science Contribute to
+Transparency, Explanation and Validation?, NeurIPS 2018
+
+
+
+
+Making Algorithms Trustworthy: What Can Statistical Science Contribute to Transparency, Explanation and Validation? (link).
+"The theory is that the man died of heart failure, and the data is that he died in his bed”
+Example from A.M. Turing The Applications of Probability to Cryptography, 1941
+                                            Other         Heart
+                                           causes         failure
+
+                                                                          ① A priori    ⅕
+                                            ⅘               ⅕             odds of the
+                                                                            theory           ⅘
+                                                                                                                       A.M. Turing
+                                                                                A priori odds of the theory
+                                                                                (1/5) / (4/5) = 1/4 = 0.25
+
+
+                                                                     Else-
+                         In bed     Elsewhere               In bed   where
+
+                                                                                        ② Factor for the theory   ⅔
+                         ¼            ¾                       ⅔       ⅓                 on account of the data
+                                                                                        (odds)                        ¼
+                                                                                                        Factor in favor of the theory
+                                                                                                        (2/3) / (1/4) = 8/3 = 2.66
+
+   When we use Turing's decibans we get: log10(2.66) × 10 = 4.3
+   "We score 4.3 decibans in favour of the heart failure theory"
+                                                                                        ③ A posteriori odds of the theory
+   The log factor = Weight of Evidence (WOE)                                            0.25 × 2.66 = 0.67
+
+The Applications of Probability to Cryptography (link).
+Credit Scoring – Credit Card Usage
+Estimating probability of default with Weight of Evidence (WOE)
+                   ND                         D                   We are interested in the case of credit usage > 90%.
+               (Non-default)               (Default)              How likely is credit default given this evidence?
+                                                                  ---
+  900                 𝟗$                     𝟏$        100
+                        𝟏𝟎                     𝟏𝟎                 A priori odds of default are (1/10) / (9/10) = 0.11.
+
+                                                                  Factor is (4/5) / (1/10) = 8.0.
+
+                                                                  This factor means we have 8 bads for 1 good credit
+                                                                  when usage is > 90%.
+        ≤90%               >90%             ≤90%        >90%
+                                                                  A posteriori odds of default = 0.11 × 8.0 = 0.88.
+        𝟗$                 𝟏$                𝟏$          𝟒$       A posteriori p(default+) = 0.88 / (1 + 0.88) = 0.47.
+          𝟏𝟎                 𝟏𝟎                𝟓           𝟓
+
+         810                90                20             80   ---                                               WOE (natural log)
+
+        Credit usage                            Credit usage      Weight of Evidence (WOE) = log(8.0) = 2.0794.             80
+    1 in 10 defaults                         4 out 5 defaulted    Log (a priori) odds = log(0.11) = -2.2073.
+                                                                                                                           100
+     in >90% group                             in >90% group      Logit score = -2.2073 + 2.0794 = -0.128.           Log
+                                                                  Probability of default = σ(-0.128) = 0.4680.                   90
+        Probability of default | usage > 90%
+                                                                                                                                 900
+                 80   ÷(    80    +   90   ) = 47%
+                                                                              σ = exp(-0.128) / (1 + exp(-0.128))
+Credit Scoring – Credit Card Usage (continued)
+Two ways to derive weights of evidence using the Bayes’ theorem
+ 2x2 Contingency Table                       Variant 1 (classic)   Probability (rate)                              Variant 2 (shortcut)
+  Credit Usage   Default = 0   Default = 1                         Credit Usage            Default rate
+
+     ≤90%           810            20        810 + 20 = 830               ≤90%                2.4%             20 / 830 = 0.024
+
+     > 90%           90           100        90 + 80 = 170               > 90%                 47%             80 / 170 = 0.471
+
+     Total          900           100        900 + 100 = 1000            Total                 10%             100 / 1000 = 0.10
+
+
+                                                                   P(default | > 90%) = 0.471
+ Conditional Probability Table                                     P(no default | > 90%) = 1 − 0.471 = 0.529
+
+  Credit Usage   Default = 0   Default = 1
+                                                                   P in favor of default = 0.10
+      ≤90%          0.90          0.20                             P against default = 1 – 0.10 = 0.90
+                                             0.2 / 0.9 = 0.22
+
+     > 90%          0.10          0.80       0.8 / 0.1 = 8.0       (0.47 / 0.529) / (0.10 / 0.90) = 8.0
+                                                                       Odds (usage >90%)          Prior odds
+     Total          1.00          1.00                                                                                            I.J. Good
+
+                                                 WOE = log(8) = 2.07                                      WOE = log(8) = 2.07
+
+                                                                                                                            Real-world pipeline
+                                    credit usage >90% increases the odds of
+                                           default by a factor of 8x
+Naïve Bayes Classifier with WOE
+Using weights of evidence to build scorecards
+
+
+    data                                        Target-encoded
+                        Binning                                         Bin log odds
+                                                 default rate
+
+                                                                                                         Weight of               Logit score
+                                                                                                      Evidence (WOE)
+                                                                         Log odds of
+                                                                         average DR                  WOE = “distance”          Same as logistic
+                                                                                                    Between global and         regression with
+                                                                                                      local log-odds          coefficients of 1
+                                                                   Intercept / prior / bias
+
+
+
+   Target encoding for one categorical variable                              Log-odds = logit                   Weight of Evidence (WOE)
+
+
+Acquisition   Default   Acquisition   Default        Acquisition
+  channel      (D+)       channel      (D+)            channel
+
+
+  Branch         0        Branch         0                0
+
+  Online         1        Online         0                1
+
+ Partner         0       Partner        1/3              1/3
+                                                                      Logit transformation transforms
+ Partner         0                                       1/3          probabilities into odds and then
+                                                         1/3          takes the natural logarithm, which
+ Partner         1
+                                                                      creates additive scores in the log-        WOE can be seen as ”distance”
+                                                         1.3
+                                                                      odds space.                                of group risk from baseline risk
+                                                                                                                 level.
+Naïve Bayes Classifier with WOE (continued)
+Using weights of evidence to build scorecards
+
+                                                          The following parameters were used for the
+                                                          transformation of WOE scores into credit scores
+                                                          with points to double the odds (PDO) method:
+
+                                                          • PDO = 30 (each +30 points doubles the
+                                                            odds of good)
+                                                          • Target Score = 500
+                                                          • Odds = 20
+
+                                                          Within WOE-based scorecard, we assume all n
+                                                          features to be equally weighted (1/n) unlike in
+                                                          logistic regression
+
+                                                          The resulting WOE-based scorecard has the
+                                                          same properties as if we used Logistic
+                                                          Regression (LR) or a combination of WOE and
+                                                          LR since it’s the same underlying logit model
+
+
+
+
+Building credit scorecards using SAS and Python (link).
+FastWoe
+Fast Weight of Evidence (WOE) encoding and inference
+
+                                                FastWoe is a Python library for efficient Weight
+      !pip install fastwoe                      of Evidence (WOE) encoding of categorical
+      from fastwoe import FastWoe               features and statistical inference based on
+      X_woe = FastWoe().fit_transform(X)
+                                                scikit-learn’s TargetEncoder.
+
+                                                FastWoe provides numerical binning with
+                                                histograms, decision trees, and k-means from
+                                                FAISS (including GPU speed-up ⚡)
+
+                                                FastWoe provides classical detailed summary
+                                                tables for binned variables, including WOE
+                                                standard errors and Wald Z-scores from WOE.
+
+                                                It also implements a Naïve Bayes Classifier
+                                                with predict_proba and predict_ci methods
+                                                for quick interpretable modeling.
+
+
+
+FastWoe (GitHub repo).
+weight of   logistic
+evidence.   regression.
+logistic regression
+   Generative vs Discriminative
+   WOE + Logistic Regression
+   Case of equivalence of WOE,
+   OHE, and Target Encoding
+Generative and Discriminative Classifiers
+WOE = Generative (uses Bayes’ rule) | Logistic Regression = Discriminative (learns boundary)
+
+
+
+
+   Weight of Evidence is a generative algorithm as a
+   member of the Naïve Bayes’ family
+
+    WOE learns 𝑃 𝑋 ∣ 𝑌 → can reconstruct 𝑃 𝑌 ∣ 𝑋
+                                                                   A classifier is a discriminative
+    Generative: model the joint distribution, can generate data.   algorithm that separates points
+    Discriminative: separate classes given features.               to predict class membership given
+                                                                   features
+On Discriminative vs. Generative Classifiers (link, notebook).
+Generative and Discriminative Classifiers
+WOE + logistic regression for text classification
+
+  Weight of Evidence (WOE) can also be used
+  natural language processing tasks by tokenizing
+  text and calculating WOE to encode the log
+  likelihood ratios for each class (one-vs-rest)
+
+  • Generative step: WOE encodes the evidence
+    of each token for a class, essentially
+    summarizing log likelihood ratios.
+
+  • Discriminative step: WOE-encoded features
+    are fed into a classifier (logistic regression or
+    another discriminative model) to produce
+    final predictions.
+
+  This is a classic example of generative –
+  discriminative pair in machine learning models
+
+
+  Weight of Evidence is a powerful technique that can be used
+  across a multitude of tasks, including AI explainability
+
+
+From Human Explanation to Model Interpretability: A Framework Based on Weight of Evidence (link, notebook).
+Why combine WOE and Logistic Regression?
+Lessons from Spiegelhalter-Knill-Jones method
+
+  Using Weight of Evidence (WOE) as inputs
+  assumes that the variables are independent of
+  one another (within each outcome class), which
+  is unrealistic in many applied settings.
+
+  To allow for this the Spiegelhalter-Knill-Jones
+  (1984) method calculated "adjusted weights of
+  evidence," which are obtained by entering the
+  raw weights of evidence as independent
+  variables in a logistic regression equation.
+
+  Credit scorecards picked up this method
+  around 1980-1990s by moving from dummy                           Logistic regression fitted on WOE inputs can still be seen as
+  variables to WOE transformation for categorical                  Naive Bayes classifier, where each WOE term is re-weighted to
+  data.                                                            account for feature dependencies and maximize likelihood.
+
+  D. Hand (Hand & Henley, 1997) notes that                         According to D. Spiegelhalter, one of the authors of this system,
+  weight of evidence transformation was                            mentions that this approach also increases the calibration
+  becoming increasingly common in the 1990s.                       accuracy of scoring.
+
+
+Statistical and Knowledge-Based Approaches to Clinical Decision-Support Systems, with an Application in Gastroenterology (link).
+When WOE = Logistic Regression = Target Encoding
+Examples from univariate categorical analysis
+
+
+
+
+    Binary predictor and target (e.g., yes / no)                           More categories in predictor
+    When using a single categorical predictor, WOE, log                    For each category, WOE = category-specific log odds
+    odds, and logistic regression coefficients align                       minus the overall log odds. So, in the univariate case:
+    perfectly. Logistic regression simply shifts the log-                  Difference in WOEs = Log Odds Difference = Logistic
+                                                                           Regression Coefficient for each group
+    odds by the global intercept, and WOE captures the
+    difference from the overall average.
+Based on my research material “From WOE to Logistic Regression” (link, notebook).
+When WOE = Logistic Regression = Target Encoding
+Examples from univariate categorical analysis
+
+                                                 Average rate (y)
+                                                                                                       •   Each category’s WOE represents
+                                                                                                           its deviation from the overall
+                                                                                                           average.
+                                                       0.87
+
+                                                                                                       • Logistic regression coefficients
+  Encoded                                                                                                match these WOEs exactly in the
+  probabilities                                 Business/personal            Health/education/social     univariate case.
+  of class 1           Manufacturing
+                                                     services                        services
+                                                                                                       • Positive WOE → higher-than-
+                                                                                                         average risk
+                          0.81                         0.85                          0.92                (Health/Education/Social
+                                                                                                         Services).
+                                    Below average                                Above average
+                                                                                                       • Negative WOE → lower-than-
+                                            Convert to log odds and WOE                                  average risk (Manufacturing).
+
+                                       Δ=0.34                                                          • This holds only for univariate
+          Log odds        1.43                         1.77         Δ=1.05           2.48
+                                                                                                         categorical data (with many
+          Weight of                    Δ=0.34                                                            categories, intercept becomes a
+                                                                    Δ=1.05
+          Evidence*      -0.45                        -0.11                          0.61                combination of reference groups)
+
+
+         Logistic regression (MLE) coefficients: b0 (intercept) = 1.43, b1 = 0.34, b2 = 1.05 ✅
+Based on my research material “From WOE to Logistic Regression” (link, notebook).
+Pitfalls of using WOE with Logistic Regression
+Tips to avoid producing wrong models
+
+ Coefficient sign flips
+
+ Sometimes we face a situation when one of the
+ variables in WOE form flips its sign in the logistic
+ regression fit. Why does this happen?
+
+ Usually, it is caused by one of the predictors carrying
+ the same information as other variables, thus
+ “reversing” the correct relationship with the target
+ variable.
+
+ Some ways to mitigate this is:                            Coefficients without the extra feature
+
+ • perform more granular feature selection based on
+   Gini / IV → isolate and drop the problematic
+   feature and choose a better one                                                                  Sign flip
+
+                                                           Coefficients with the extra feature
+ • Perform more robust feature engineering to
+   identify the strongest signal in the data
+Pitfalls of using WOE with Logistic Regression (continued)
+Tips to avoid producing wrong models
+
+                                                                                      Intercept shift bias
+
+                                                                                      When using WOE predictors, depending on the
+                                                                                      dataset size, we can encounter a problem with a
+                                                                                      shift in the intercept value in logistic model*
+
+                                                                                      As we add more predictors, due to a joint
+                                                                                      optimization of intercept and feature weights
+                                                                                      with maximum likelihood, we can see that the
+                                                                                      resulting model’s intercept will veer away from
+                                                                                      the true value that we observe in univariate WOE
+                                                                                      binning summaries (correct by default)
+
+                                                                                      A practitioner needs to carefully examine the
+                                                                                      intercept value and perform corrections in case
+                                                                                      the baseline is incorrect → use prior prevalence
+                                                                                      correction or enforce the fixed value of intercept
+       For very small samples (n=100) ,we can see how adding more                     programmatically in case of deviations
+          predictors shifts the intercept from the true value (bias)
+
+
+
+*I owe this finding to Andrija Djurovic and Alan Forrest who identified this model risk and quantified it (link).
+Fisher Scoring
+Fisher Scoring with Python
+
+                                                                              The fisher-scoring package provides fast maximum
+      !pip install fisher-scoring                                             likelihood Python 🐍 implementations with standard
+      from fisher_scoring import LogisticRegression                           errors, confidence intervals, and rich summaries for:
+      LogisticRegression().fit(X, y)
+                                                                              Proportion modeling
+                                                                              • Logistic Regression
+                                                                              • Multinomial Logistic Regression
+
+                                                                              Imbalance and outliers
+                                                                              • Focal Loss Logistic Regression
+                                                                              • Robust Logistic Regression
+
+                                                                              Count data
+                                                                              • Poisson Regression
+                                                                              • Negative Binomial Regression
+
+                                                                              Integration with scikit-learn pipelines and works
+                                                                              seamlessly with FastWoe for WOE + Logistic Regression
+                                                                              pipelines with rich outputs 📝
+
+Fisher scoring with Python (GitHub repo), scikit-learn and statsmodels coefficients and standard errors’ comparison (notebook).
+weight of   logistic      ensemble
+evidence.   regression.   learning.
+ensemble learning
+   Link between WOE and ML
+   Bagging and WOE
+   estimators
+   WoeBoost
+WOE Link to Machine Learning
+WOE as tree weighting (P. Edwards)
+
+     Assume that we are using a decision tree to create bins based on the Gini impurity criterion. Each predictor is a
+     decision tree, whose bins are used to create weights of evidence.
+
+     • 𝝎𝒋 𝒙𝒋 is a WOE value and is a predictive model of P(Y=1) based only on WOE, i.e. a weak learner
+     • Here each 𝜷𝒋 represents a partial adjustment made to the WOE scores
+     • By summing up the outputs of weak learners we’re building a refined predictions
+
+
+         𝒚             𝒙𝟏        𝛚𝟏 𝒙𝟏             𝜷𝟏           𝒙𝟐       𝛚𝟐 𝒙𝟐         𝜷𝟐         𝒙𝟑        𝛚𝟑 𝒙𝟑          𝜷𝟑
+        0.99         -0.69         -0.03         -0.30        -1.30        4.18      -0.95       1.67       -1.44      -0.75
+        0.05         -0.90          0.03         -0.30         0.46       -2.45      -0.95       1.52        0.76      -0.75
+        0.01         -0.34         -0.03         -0.30         1.53       -4.19      -0.95       0.41        0.72      -0.75
+
+
+                            1st weak learner                           2nd weak learner                 3rd weak learner
+
+
+
+                                                        Cumulative evidence from all univariate models as
+                                                                    a sum product + intercept
+
+
+Material adapted from Paul Edwards’ SAS talk (link).
+WoeBoost
+A boosted scoring system
+
+                                                                          WoeBoost is a Python 🐍 package designed to bridge
+      !pip install woeboost
+                                                                          the gap between the predictive power of gradient
+      from woeboost import WoeBoostClassifier()                           boosting and the interpretability required in high-stakes
+      WoeBoostClassifier().fit(X, y)                                      domains such as finance, healthcare, and law.
+
+                                                                          It introduces an interpretable, evidence-driven
+                                                                          framework for scoring tasks, inspired by the principles
+                                                                          of Weight of Evidence (WOE) and the ideas of Alan M.
+                                                                          Turing.
+
+                                                                          • 🔍 Initialization: Starts with prior log odds,
+                                                                            representing baseline probabilities.
+                                                                          • 📈 Iterative Updates: Each boosting iteration
+                                                                            calculates residual per each binned feature and sums
+                                                                            residuals into total evidence (WOE), updating
+                                                                            predictions.
+                                                                          • 🔗 Evidence Accumulation: Combines evidence from
+   Natively handles categorical data, allows for monotonic constraints,     all iterations, producing a cumulative and
+    converges without a learning rate, fully interpretable scorecards       interpretable scoring model.
+
+
+WoeBoost: A Boosted Scoring System (link, GitHub repo).
+WoeBoost
+Exploring the WoeBoost algorithm                                 Added
+                                                              cumulatively
+                            Our initial
+                            prediction
+  Prior log odds                                                Evidence
+                            Evidence
+
+   What we know
+  about the world
+
+
+
+                         y − σ(Evidence)                     y − σ(Evidence)
+       Residuals
+      become WOE-                                                . . .
+         like
+
+                                                                Until
+                               Average residuals             convergence
+                              across histograms:         +
+If we add the residual      they become log factors
+to the initial                                               The final model
+                            x1    x2      x3   x4   x5
+log odds the formula                                         becomes
+becomes                                                      [Base log odds + Σ WOE]
+
+[Base log odds + WOE]                                        This formula is similar
+                                                             to the typical
+The same idea as in                                          boosting,
+standard WOE approach                                        but is based on
+                                                             the WOE-like increments
+                             ∑ LF per row to get WOE
+                             (assuming weights of 1)
+WoeBoost
+Visualizing iterative updates of WoeBoost
+
+
+
+
+          For numerical features, we can randomize binning strategy from numpy
+          histograms at each boosting iteration (e.g., rice, scott etc).
+
+          For this F-shaped synthetic dataset, we can see that eventually the
+          algorithm is able to model the data-generating process and produce the
+          boundaries of the original data shape.
+WoeBoost
+Partial dependence analysis in WoeBoost
+
+      Treatment of number of mortgages as a numerical feature   Treatment of number of mortgages as a categorical feature
+
+
+
+
+     WoeBoost’s performance can match CatBoost on credit datasets, yet, due to Python-only
+  implementation it can be slow on big data. With free-threaded Python it will be 3-5x faster.
+boosting.
+boosting
+   AdaBoost
+   Bagging and RF
+   Additive Logistic
+   Regression
+Regression vs. Classification
+The misunderstood link between logistic regression and classification
+
+In machine learning, regression usually refers to the
+task of predicting a numeric (continuous) target
+variable. However, the term can also describe a
+specific family of parametric models used for this
+purpose (e.g., linear regression, generalized linear
+models).
+
+Logistic regression is one such regression model, a
+Generalized Linear Model (GLM), that models the
+log-odds of the target class. Although it is a
+regression algorithm, it is widely used for
+classification tasks because its outputs can be
+interpreted as probabilities of belonging to a class,
+just like other classification algorithms.
+                                                        Many classification algorithms produce soft scores, continuous values
+In other words, logistic regression outputs a
+                                                        that can be interpreted as probabilities (e.g., logistic regression,
+continuous score between 0 and 1, which we can          gradient boosting). These scores are then converted into hard class
+interpret as a probability and then convert into some   labels by applying a decision threshold. Some algorithms, however,
+hard class decision (e.g., approve vs. decline).        only produce hard labels. This is why the general term is classification.
+
+
+Logistic Model Trees (link).
+AdaBoost
+Turning weak learners into a strong ensemble by reweighting mistakes
+
+
+
+
+                Developed by Yoav Freund and Robert Schapire (1996), AdaBoost introduced the
+                idea of boosting, turning weak learners into a strong ensemble by focusing on the
+                hardest-to-classify points and minimizing the exponential loss function.
+
+
+Game Theory, On-line Prediction and Boosting (link).
+Real AdaBoost
+Real AdaBoost can reach a strong classifier with fewer trees than AdaBoost
+
+
+
+
+Code example adapted based on Paul Edwards’ SAS talk on Real AdaBoost (link).
+Decision Trees, Bagging, and Random Forests
+“Random selection of features to split each node that compares favorably to Adaboost”
+
+                                               Random Forests, introduced by Leo Breiman in 2001, are
+                                               a powerful ensemble method that extends the idea of
+                                               bagging (1996). They build many decision trees on
+                                               bootstrapped samples of the training data and then
+                                               combine their predictions:
+
+                                               • Randomization: At each split, only a random subset of
+                                                 features is considered.
+                                               • Aggregation: Predictions from all trees are averaged
+                                                 (for regression) or combined by majority vote (for
+                                                 classification).
+                                               • Performance: Random Forests require minimal tuning,
+                                                 handle high-dimensional data well, and provide robust
+                                                 generalization.
+
+                                               Breiman described Random Forests as “the combination
+                                               of many unpruned decision trees, each constructed on a
+                                               random subset of the data and features, whose results are
+                                               averaged to form the final prediction.”
+
+
+Random Forests (link).
+Jerry Friedman is the statistician who changed machine learning with boosting paving the way
+to the most powerful algorithms on tabular data
+
+
+                                                             Jerry Friedman (1939-)
+
+                                                             One of the pioneers of modern machine learning and the
+                                                             mind behind Gradient Boosting Machines (GBM).
+                                                             His work introduced:
+
+                                                             • Gradient Boosting – a framework to build strong
+                                                               predictors by sequentially fitting weak learners to the
+                                                               negative gradient of a loss function.
+
+                                                             • LogitBoost – a special case of gradient boosting
+                                                               tailored to classification, where the model is fit to
+                                                               minimize the binomial log-likelihood.
+
+                                                             “Boosting can be viewed as gradient descent in function
+                                                             space.” – Friedman, Hastie & Tibshirani (2000)
+
+
+A highly recommended interview with Jerry Friedman (link).
+Additive Logistic Regression (aka LogitBoost)
+A statistical view of boosting
+ When asked about a statistical formulation of why
+ boosting works so well, Jerry Friedman responds:
+
+ “… when boosting came out much later,
+ Rob and Trevor and I tried to show what it was doing,
+ again from a statistical perspective… He [L. Breiman]
+ thought our formal development was correct, but he
+ didn’t think that was the reason that led to boosting’s
+ apparent spectacular performance. But I was
+ convinced that we had explained it. I think the
+ machine learners, the PAC learning people never
+ thought so, I don’t think they completely understood
+ the way we were looking at it.”
+
+ The paper, often cited as FHT 2000, introduced
+ boosting with logistic loss (binomial likelihood), which
+ later became known as LogitBoost. LogitBoost
+ became a reference implementation for most modern
+ boosted tree classifiers.
+
+Additive Logistic Regression: a Statistical View of Boosting (link).
+Additive Logistic Regression (aka LogitBoost)
+A statistical view of boosting
+
+           Applied Logistic Regression (2nd edition, 4.4)                     FHT 2000: Algorithm 3 (LogitBoost)
+
+
+
+
+                                                            Same formulation, same loss function, same iterative procedure, the
+                                                                   only difference being the non-parametric estimator
+                                                                                  (decision tree stumps)
+
+Applied Logistic Regression, 2nd edition (link).
+LogitBoost Implementation in Python
+From theory to code
+
+                                      import numpy as np
+                                      from sklearn.base import BaseEstimator, ClassifierMixin
+                                      from sklearn.tree import DecisionTreeRegressor
+                                      from sklearn.metrics import log_loss
+                                      from scipy.special import expit as sigmoid
+
+                                      class LogitBoost(BaseEstimator, ClassifierMixin):
+                                          def __init__(self, n_iter=100, learning_rate=1.0, max_depth=1):
+                                              self.n_iter = n_iter
+                                              self.learning_rate = learning_rate
+                                              self.max_depth = max_depth
+                                              self.predictors = []
+                                              self.loss_dict = []
+
+                                          def fit(self, X, y):
+                                              # Initialize weights
+                                              w = np.ones(X.shape[0]) / X.shape[0]
+                                              # Initialize predictions
+                                              F = np.zeros(X.shape[0])
+
+                                              for _ in range(self.n_iter):
+                                                  # Working response and weights
+                                                  p = sigmoid(F) # probability
+                                                  z = (y - p) / (p * (1 - p)) # working response
+                                                  w = p * (1 - p) # case weights
+
+                                                  # Fit a regressor (stump) to the working response
+                                                  tree = DecisionTreeRegressor(max_depth=self.max_depth)
+                                                  tree.fit(X, z, sample_weight=w)
+                                                  self.predictors.append(tree)
+
+                                                 # Update F
+                                                 F += self.learning_rate * tree.predict(X)
+                                                 return self
+
+
+
+
+Full Python example (link).
+logitboost.   xgboost.
+Loss functions
+For binary classification, we are optimizing log loss
+
+
+
+
+                            Log loss is negative Bernoulli log likelihood.
+                                    In ML models, we minimize loss.
+Log Loss Function (link).
+Loss functions
+Log loss penalizes false predictions for being too “far off” from ground truth
+
+                            Log loss calculation                  Ideally calibrated model
+
+                                                                              All 1s have ~0.99p
+
+
+
+
+                                                               All 0s have ~0.01p
+
+
+
+
+   Log loss penalizes confident wrong predictions much more heavily than less confident ones.
+    An ideally calibrated model assigns probabilities ~1 for positives and ~0 for negatives.
+
+Log Loss Function (link).
+Gradient Boosting – Gradient Boosted Decision Trees
+Fitting residuals iteratively with weak learners
+
+                                                                            GBDT are a gradient boosting implementation, where a
+                                                                            decision tree is used as a “weak learner”. This means
+                                                                            that although each individual tree may be only slightly
+                                                                            better than a random guess, a joint ensemble of such
+                                                                            trees will generate an accurate prediction.
+
+                                                                            GBDT models work sequentially: we start with an initial
+                                                                            prediction (e.g., log-odds of event rate for classification)
+                                                                            and work with residuals iteratively using regression
+                                                                            trees.
+
+                                                                            The idea is that each new tree is trying to predict the
+                                                                            residuals of a predecessor and, as a result, the sum of
+                                                                            predictions will approximate the observed outcome.
+
+                                                                            Instead of using gradient descent to estimate
+                                                                            parameters (e.g., linear weights in logistic regression),
+                                                                            we use gradient descent to estimate log-likelihood in a
+                                                                            functional space.
+
+
+Gradient Boosted Decision Trees [Guide]: a Conceptual Explanation (link).
+We Can Use Gradient Boosting with Any Regressor*
+Decision trees are not the only estimator in gradient boosting
+
+
+
+
+      The power of gradient boosting lies in the technology. The choice of base learner controls the model’s flexibility.
+
+
+* But trees are still most efficient.
+XGBoost – eXtreme Gradient Boosting
+The “secret sauce” of tabular ML
+
+
+
+
+                           Trees for tabular data: the secret sauce in machine learning
+
+How Does Extreme Gradient Boosting (XGBoost) Work? (link).
+How Does XGBoost Work?
+Diving into the details of the classification algorithm
+🍃 Leaf weights = log odds
+                                                                import numpy as np
+                                                                import xgboost as xgb
+
+     𝐺
+                                                                import re
+
+
+
+𝑤=−
+                                                                X = np.array([[0],[1],[2],[3],[4],[5]])
+                                                                y = np.array([0, 0, 1, 1, 0, 1]) # binary labels
+
+    𝐻+𝜆                                                         dtrain = xgb.DMatrix(X, label=y)
+
+                                                                params = {
+                                                                    "objective": "binary:logistic",
+                                                                    "eval_metric": "logloss",
+                                                                    "max_depth": 1,
+𝐺 = ' 𝑔- , 𝐻 = ' ℎ-                                                 "eta": 1.0,
+                                                                    "lambda": 0.0,
+                                                                    "min_child_weight": 0,
+                                                                    "gamma": 0.0
+                                                                }
+
+                                                                bst = xgb.train(params, dtrain, num_boost_round=1)
+
+                                                                dump = bst.get_dump(dump_format="text")
+=== XGBoost Tree Dump ===                                       print("=== XGBoost Tree Dump ===")
+0:[f0<2] yes=1,no=2,missing=2                                   print(dump[0])
+
+       1:leaf=-2                                                # Extract split rule using regex (e.g. "0:[f0<1.5]")
+       2:leaf=1                                                 m = re.search(r"\[f(\d+)<([\d\.]+)\]", dump[0])
+                                                                if m:
+                                                                    feature_idx = int(m.group(1))
+Parsed split: feature f0 < 2.0                                      threshold = float(m.group(2))
+                                                                    print(f"\nParsed split: feature f{feature_idx} < {threshold}")
+                                                                else:
+                                                                    raise ValueError("No split found in tree!")
+
+
+
+
+How Does Extreme Gradient Boosting (XGBoost) Work? (example).
+How Does XGBoost Work?
+Diving into the details of the classification algorithm
+🍃 Leaf weights = log odds
+                                                                          # --------------------------
+                                                                          # Manual gradient & hessian
+
+     𝐺
+                                                                          # --------------------------
+                                                                          y_pred = np.zeros_like(y, dtype=float) # first iteration raw score = 0
+
+𝑤=−
+                                                                          p = 1.0 / (1.0 + np.exp(-y_pred))      # sigmoid
+                                                                          g = p - y                              # gradient
+
+    𝐻+𝜆                                                                   h = p * (1.0 - p)                      # hessian
+
+                                                                          # Partition dataset using the actual split
+                                                                          left_idx = X[:, feature_idx] < threshold
+                                                                          right_idx = ~left_idx
+
+
+𝐺 = ' 𝑔- , 𝐻 = ' ℎ-              Note that for x>2 w is positive, while   def node_stats(idx):
+                                        for x≤2 w is negative                 return g[idx].sum(), h[idx].sum()
+
+                                                                          G_L, H_L = node_stats(left_idx)
+                                                                          G_R, H_R = node_stats(right_idx)
+
+                                                                          print("\nManual node stats:")
+                                                                          print(f"Left -> G={G_L:.3f}, H={H_L:.3f}")
+                                                                          print(f"Right -> G={G_R:.3f}, H={H_R:.3f}")
+=== XGBoost Tree Dump ===            Manual node stats:
+0:[f0<2] yes=1,no=2,missing=2        Left -> G=1.000, H=0.500             # --------------------------
+                                                                          # Manual leaf weights
+       1:leaf=-2                     Right -> G=-1.000, H=1.000           # --------------------------
+       2:leaf=1                                                           lam = params["lambda"]
+                                                                          w_L = -G_L / (H_L + lam)
+                                     Manual leaf weights:                 w_R = -G_R / (H_R + lam)
+Parsed split: feature f0 < 2.0       Left leaf weight: -2.000000
+                                                                          print("\nManual leaf weights:")
+                                     Right leaf weight: 1.000000          print(f"Left leaf weight: {w_L:.6f}")
+                                                                          print(f"Right leaf weight: {w_R:.6f}")
+
+
+
+
+How Does Extreme Gradient Boosting (XGBoost) Work? (example).
+Example of calculating XGBoost predictions
+How XGBoost combines tree contributions
+                                                                       In the Table below, we show a data sample for four customers:
+                                                            1
+
+
+
+
+                                                           2
+                                                                       We can manually reproduce the output by summing the leaf
+                                                                       weights and a base score. If not specified, XGBoost
+                                                                       calculates the base score automatically from data
+
+                                                           3
+
+
+
+
+What is an intuitive interpretation of the leaf values in XGBoost base learners? (link).
+Parsing XGBoost tree stumps
+Reading splits and leaf weights
+                                                                                                                                              Log odds
+
+
+
+
+Paul Edwards – Machine Learning in Retail Credit Risk: Algorithms, Infrastructure, and Alternative Data — Past, Present, and Future (link).
+Bias Variance Trade-off
+The holy quest of machine learning
+
+                   Underfitting                                Overfitting                                    Just right
+
+
+
+
+            Both train and test errors are high   Train loss is low while the test loss is high   Balance between underfitting and overfitting
+
+
+Bias variance trade-off decomposition (link).
+XGBoost – Hyperparameter Effects
+Regularization and probability calibration
+
+
+
+
+   XGBoost offers several parameters that allow to impose regularization constraints during training. They are
+   documented on a relatively high level, and their behavior is not so widely explained. Among these are:
+   • Gamma (𝛾): “pseudo-regularization” parameter influencing how XGBoost prunes tree branches to minimize
+     model complexity
+   • Alpha (α): L1 (Lasso) regularization parameter of leaf weights, helping the model to focus on a subset of leaf
+     weights
+   • Lambda (λ): L2 (Ridge) regularization parameter of leaf weights acting a smoothing mechanism to prevent large
+     leaf weights
+
+Capital One. Pitfalls of Incorrectly Tuned XGBoost Hyperparameters (link).
+Intercept in XGBoost models
+Understanding the base score
+
+   import numpy as np                                                          binary:logistic
+   import xgboost as xgb
+
+   # Set XGBoost parameters
+   params = dict(
+       objective="binary:logistic", max_depth=1, base_score=0.5,
+   )
+   params_log_raw = dict(
+       objective="binary:logitraw", max_depth=1, base_score=0.0, #logit(0.5)
+   )
+   def loglikelihood(preds, train_data):
+       eps = 1e-16
+       labels, preds = train_data.get_label(), 1.0 / (1.0 + np.exp(-preds))    binary:logitraw
+       grad, hess = preds - labels, preds * (1.0 - preds)
+       hess[hess < eps] = eps
+       return grad, hess
+
+   params_log_loss = dict(
+       max_depth=1, base_score=0.0, disable_default_eval_metric=1,
+   )
+
+   # Train the XGBoost model
+   num_rounds, base_score = 3, np.mean(y_train)
+
+   # Train with different parameter sets
+   xgb_clf = xgb.train(params, dtrain, num_rounds)                             log likelihood
+   xgb_clf_raw = xgb.train(params_log_raw, dtrain, num_rounds)
+   xgb_clf_ll = xgb.train(
+     params_log_loss, dtrain, num_rounds, obj=loglikelihood
+   )
+   # Visualize the first tree from each model
+   display(xgb.to_graphviz(xgb_clf, num_trees=0, rankdir="LR"))
+   display(xgb.to_graphviz(xgb_clf_raw, num_trees=0, rankdir="LR"))
+   display(xgb.to_graphviz(xgb_clf_ll, num_trees=0, rankdir="LR"))
+
+
+
+
+1. When you do a customized loss function, the built-in evaluation error assumes input is after logistic transformation (link).
+Constraining XGBoost models
+Imposing monotonicity on features
+
+
+
+      import xgboost as xgb
+
+      # Monotonic constraints: +1 means prediction
+      increases with feature,
+      # -1 means prediction decreases, 0 means no
+      constraint
+      mono_cst = "(1, -1, 0)" # for 3 features
+
+      clf = xgb.XGBClassifier(
+          objective="binary:logistic",
+          monotone_constraints=mono_cst,
+          n_estimators=50,
+          max_depth=3,
+      )
+
+      clf.fit(X_train, y_train)
+
+
+
+
+           Monotonic constraints allow to impose business logic on the direction of splits that GBDT model makes
+
+
+Paul Edwards – Machine Learning in Retail Credit Risk: Algorithms, Infrastructure, and Alternative Data — Past, Present, and Future (link).
+Constraining XGBoost models
+Controlling feature interactions
+
+
+
+      import xgboost as xgb
+
+      # Define interaction constraints: each feature
+      can only interact with itself
+      int_cst = [[i] for i in range(x_train.shape[1])]
+
+      # Train XGBoost classifier with constraints
+      clf = xgb.XGBClassifier(
+          objective="binary:logistic",
+          interaction_constraints=int_cst,
+          n_estimators=20,                                                                                                   Interaction constraints list:
+          max_depth=3,
+                                                                                                                             [['Education_Graduate',
+          # other parameters as needed...                                                                                    'Education_Not Graduate’],
+      )                                                                                                                      ['Self_Employed_No',
+                                                                                                                             'Self_Employed_Yes',
+                                                                                                                             'Self_Employed_nan’],
+      clf.fit(X_train, y_train)                                                                                              ['Property_Area_Rural',
+                                                                                                                             'Property_Area_Semiurban',
+                                                                                                                             'Property_Area_Urban']]
+
+
+
+
+                  Interaction constraints allow to impose limitations on which features can interact within a tree
+
+
+Paul Edwards – Machine Learning in Retail Credit Risk: Algorithms, Infrastructure, and Alternative Data — Past, Present, and Future (link).
+logitboost.   xgboost.   xbooster.
+xbooster
+Explainable boosted scoring
+
+
+
+                                             !pip install xbooster
+
+
+
+
+Medium articles (link 1, link 2), GitHub repo (GitHub repo).
+Can Gradient-Boosted Trees Produce Scorecards?
+A comparison of a standard scorecards with a boosted one
+
+
+
+
+Paul Edwards – Machine Learning in Retail Credit Risk: Algorithms, Infrastructure, and Alternative Data — Past, Present, and Future (link).
+Converting XGBoost Models to Scorecards
+First, we fit an XGBoost model and then build a scorecard
+
+                                              1                                                                         2
+    import numpy as np                            from xbooster.constructor import XGBScorecardConstructor
+    import xgboost as xgb
+                                                  # Set up the scorecard constructor
+    # Define best parameters                      scorecard_constructor = XGBScorecardConstructor(
+    best_params = dict(                               xgb_model,
+        n_estimators=100,                             X.loc[ix_train],
+        learning_rate=0.55,                           y.loc[ix_train],
+        max_depth=1,                              )
+        min_child_weight=10,
+        grow_policy="lossguide",                  # Construct the scorecard
+        early_stopping_rounds=5,                  xgb_scorecard = scorecard_constructor.construct_scorecard()
+    )
+                                                  # Create a scorecard with points
+    # Create an XGBoost model                     xgb_scorecard_with_points = scorecard_constructor.create_points(
+    xgb_model = xgb.XGBClassifier(                    pdo=50,            # Points to double odds
+        **best_params,                                target_points=600, # Points at target odds
+        random_state=62                               target_odds=50,    # Target odds (e.g., 50:1)
+    )                                             )
+
+    # Define evaluation set                       # Make predictions using the scorecard
+    evalset = [                                   credit_scores = scorecard_constructor.predict_score(X.loc[ix_test])
+        (X.loc[ix_train], y.loc[ix_train]),
+        (X.loc[ix_test], y.loc[ix_test]),
+    ]
+
+    # Fit the XGBoost model
+    xgb_model.fit(
+                                                   xbooster is a Python wrapper on top of XGBoost (+
+        X.loc[ix_train],                          CatBoost) and provides interpretability and scorecard
+        y.loc[ix_train],
+        eval_set=evalset,                         modeling functionality for stumps and GBDT models
+    )
+        verbose=False,
+                                                                   with tree depth > 1
+
+Explainable boosted scoring (link).
+Beyond Stumps: Interpreting Deeper Trees
+Calculating marginal contributions for splits with feature interactions
+  First condition (split component)
+      | Condition A: DPD < 98
+      |      (single-condition stats on full sample)                         Example of tree depth = 2 (2-way interaction)
+      |      L(θ2 | A) = 2.839   [Condition EventRate=0.2398, WOE=+1.0438]
+      v                                                                      Tree                        0                  0
+  Second condition (split component)
+                                                                             Node                        3                  3
+      | Condition B: Utilization < 0.6093
+      |      (single-condition stats on full sample)                         Feature in split          DPD              Utilization
+      |      L(θ2 | B) = 0.429   [Condition EventRate=0.0455, WOE=−0.8451]
+      v                                                                      Likelihood L(θ1∣x)        1.251              1.251
+  LEAF for two conditions, A ∧ B
+      L(θ1 | A ∧ B) = 1.251      [Split EventRate=0.1220, WOE=+0.2240]       Likelihood L(θ2∣x)        2.839              0.429
+
+                                                                             L(θ1∣x) / L(θ2∣x)    1.251/2.839=0.44   1.251/0429=2.91
+  • With stumps (depth=1), each tree is just a set of additive               WOE 1                    0.2240             0.2240
+    log-odds (easy to explain).                                              WOE 2                    1.04376            -0.845
+
+  • With deeper trees, each leaf corresponds to combinations of              WOE2 - WOE 1              -0.812             1.069
+    conditions (feature interactions).                                       e^(WOE2 - WOE1)      e^(-0.812)=0.44    e^(1.069)=2.91
+
+  • The odds in a node vs. global odds gives a likelihood ratio              Likelihood ratio is eWOE
+    → log(LR) = weight of evidence (WOE).                                    WOE 1 (in split) = interaction of conditions (same)
+                                                                             WOE 2 (in leaf) = individual condition (by feature)
+  • Relative importance of conditions in xbooster is measured
+    using likelihood ratios (split likelihood ratio θ1 vs leaf
+    likelihood ratio θ2).
+
+
+The exact details are documented in a working paper to be published.
+Global Explainability with xbooster
+xbooster explanations match TreeSHAP closely (but faster!)
+                      Depth of 1                             Depth of 3
+xbooster
+TreeSHAP
+Local Explainability with xbooster
+xbooster explanations match TreeSHAP closely (but faster!)
+                      Depth of 1                             Depth of 3
+xbooster
+TreeSHAP
+From XGBoost trees to logistic regression
+Tree leaves as embeddings
+
+                                                                             One common technique to convert a gradient-
+                                                                             boosted decision tree model to a linear model (with
+                                                                             non-linearly transformed inputs) is to use one-hot-
+                                                                             encoding for the boosted trees’ leaf indices.
+
+
+                                                                             The trick here for learning non-linear transformations
+                                                                             is to bin the feature and treat the bin index as a
+                                                                             categorical feature (He et al. 2014).
+
+
+                                                                             With this approach, we treat each individual tree as a
+                                                                             categorical feature that takes as value the index of
+                                                                             the leaf an instance ends up falling in.
+
+
+                                                                             This allows to linearize the boosted tree models and
+                                                                             even treat them in the credit scoring framework.
+
+
+
+
+Enhancing Robustness of Gradient-Boosted Decision Trees through One-Hot Encoding and Regularization (link).
+From XGBoost trees to logistic regression
+Tree leaves as embeddings
+
+
+    Bin ids of each boosted tree’s leaves 🍃
+                                                                                    One-hot encoded                 One-hot encoded
+                                                                                        tree 1                          tree 2
+
+
+
+
+                                                                                                                …
+
+
+
+
+                                                                                       Leaf indices are unique per tree but not across trees.
+                                                                                       We can convert each feature-index to a one-hot-
+Here we show an example of an output DataFrame, which contains leaf                    encoded representation (“dummies”)
+indices from the first ten boosting iterations
+
+
+
+Enhancing Robustness of Gradient-Boosted Decision Trees through One-Hot Encoding and Regularization (link).
+From XGBoost trees to logistic regression
+Tree leaves as weights of evidence
+
+   Alternatively, we can fit a Logistic Regression using the credit approach. Below you can see an example
+   of the leaf weights (classification margins or “XAddEvidence”, terminal nodes of decision trees) 🌿
+From XGBoost trees to logistic regression
+Tree leaves as weights of evidence
+
+   The values shown below, if divided by the learning rate, will look like WOE scores commonly used in
+   classical scorecard models of credit risk (with negated signs, bad to good) 🎲
+From XGBoost trees to logistic regression
+Tree leaves as weights of evidence
+
+               from sklearn.linear_model import LogisticRegression
+
+               # Get tree leaf features from the trained XGBoost model
+               dataframe_with_trees = scorecard_constructor.get_leafs(X.loc[ix_train])
+               feature_trees = dataframe_with_trees.columns
+
+               # Fit a logistic regression on the leaf values directly
+               xgboost_logreg = LogisticRegression(fit_intercept=True)
+               xgboost_logreg.fit(dataframe_with_trees, y.loc[ix_train])
+
+               print(xgboost_logreg.intercept_, xgboost_logreg.coef_)   # Print coefficients
+
+
+             Intercept
+
+                                                                                               Notice that all
+                                                                                               coefficients are positive
+                                                                                               and the intercept is
+                Tree
+                                                                                               negative.
+              (feature)
+               weights
+                                                                                               Exactly what you would
+                                                                                               see in a WOE Logistic
+                                                                                               Regression (bad / good)!
+CatBoost Scorecards
+Building scorecards with CatBoost in xbooster
+
+                                                                                                                             CatBoost fits
+    from catboost import CatBoostClassifier, Pool
+    from xbooster.constructor import (
+                                                                                                                             oblivious trees
+        CatBoostScorecardConstructor
+    )
+
+    # Create CatBoost Pool
+    pool = Pool(
+        data=X,
+        label=y,
+        cat_features=categorical_features,
+    )
+
+    # Initialize and train CatBoost model
+    model = CatBoostClassifier(
+        iterations=100,
+        allow_writing_files=False,
+        depth=3,                                                 CatBoost, developed by Yandex, has gained recognition for its ability to handle
+        learning_rate=0.1,
+        verbose=0,                                               categorical features efficiently and its robustness against overfitting. The use of
+        one_hot_max_size=9999, # Key for interpretability        oblivious (having the same level structure) trees and CTR handling of highly
+    )                                                            cardinal features (think > 100 unique categories) are unmatched. Also, unlike
+    model.fit(pool)
+                                                                 other gradient boosting algorithms, CatBoost employs ordered boosting,
+    constructor = CatBoostScorecardConstructor(model, pool)      which reduces the risk of overfitting.
+    # Construct the scorecard
+    scorecard = constructor.construct_scorecard()                Boosted scorecards, which combine the interpretability of traditional
+                                                                 scorecards with the accuracy of ML models, benefit significantly from
+    raw_scores = constructor.predict_score(X, method="raw")
+    woe_scores = constructor.predict_score(X, method="woe")      CatBoost’s features. The algorithm’s ability to handle categorical data natively
+    points_scores = constructor.predict_score(X, method="pdo")   means that scorecards can be developed with fewer preprocessing steps,
+                                                                 effectively preserving the patterns of the original data.
+
+Building explainable scorecards with CatBoost (link).
+Appendix
+The Two Cultures
+Leo Breiman’s view on statistical modeling
+
+
+
+
+                                             Leo Breiman (1925-2005)
+The Changing Role of Statistics in the Age of Computing: Why Statisticians Lost to AI and
+Machine Learning (according to J. Friedman)
+
+ Jerry Friedman makes a powerful point about how the computer
+ revolution reshaped statistics (2001). In the past, data collection
+ was costly, so statisticians focused on carefully designed
+ experiments.
+
+ • Data collection used to be expensive → careful experiment
+   design.
+
+ • The computer revolution made data cheap and abundant.
+
+ • Each 10× leap in tech forces us to rethink methods.
+
+ • We [statisticians] are no longer the only game in town.
+
+ Much earlier, in the 1950s, D.J. Finney wrote to R.A. Fisher about
+ computing. For Fisher, the computer should be a tool to check
+ whether approximations were accurate, not a substitute for
+ scientific thinking. He feared that if scientists simply handed data
+ over to machines, they risked becoming servants of the machine
+ rather than interpreters of their own hypotheses.
+
+The Role of Statistics in Data Revolution? (link).

@@ -1,0 +1,4 @@
+treatment_id,placebo_outcome,treated_mean,control_mean,absolute_difference,placebo_gate_pass
+high_rate_within_grade_v21,hash_even_loan_id,0.5001319725497096,0.49901060630045907,0.0011213662492505772,True
+high_rate_within_grade_v21,issue_month_even,0.5286380432869963,0.5736900427418078,0.04505199945481153,False
+high_rate_within_grade_v21,pseudo_random_outcome,0.5022435333450642,0.5005144847237613,0.0017290486213029643,True

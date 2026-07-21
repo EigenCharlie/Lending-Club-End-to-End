@@ -1,13 +1,13 @@
 {
   "mapie_diagnostics_available": true,
   "n": 276869,
-  "hsic_90": 0.00916718730444696,
+  "hsic_90": 0.007611054803624223,
   "hsic_n_subsample": 5000,
-  "ssc_90": 0.9241593527648355,
-  "mwi_90": 1.2086088208537584,
-  "cwc_90": 0.2457904138971736,
-  "empirical_coverage_global": 0.9241590788423406,
+  "ssc_90": 0.9293386788023259,
+  "mwi_90": 1.193742537952152,
+  "cwc_90": 0.2338229828547843,
+  "empirical_coverage_global": 0.9293384235866059,
   "schema_version": "2026-03-21.1",
-  "generated_at_utc": "2026-03-30T16:43:29.010713+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T14:39:36.308676+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07"
 }

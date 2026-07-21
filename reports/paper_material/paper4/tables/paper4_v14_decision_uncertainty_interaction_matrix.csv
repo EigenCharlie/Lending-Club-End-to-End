@@ -1,0 +1,133 @@
+decision_id,decision_name,uncertainty_id,powell_uncertainty_class,impact_code,impact_score,rationale
+D01,fund or reject a loan,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U02,exogenous_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U03,prognostic_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U04,inferential_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U06,model_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U07,transitional_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U10,algorithmic_instability,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D01,fund or reject a loan,U12,environmental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U02,exogenous_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U03,prognostic_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D02,choose funded set / allocation vector,U12,environmental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U05,experimental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U11,goal_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D03,select Paper 4 working champion,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U02,exogenous_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U03,prognostic_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U05,experimental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U06,model_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D04,set conformal alpha / recalibration rule,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U01,observational_errors,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U04,inferential_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U06,model_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U10,algorithmic_instability,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U11,goal_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D05,set MDCP source caps,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U02,exogenous_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D06,set CVaR/OCE cap and return floor,U12,environmental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U01,observational_errors,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U02,exogenous_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U10,algorithmic_instability,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D07,choose SICR / Stage 2 rule,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U07,transitional_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D08,choose value-function features,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U03,prognostic_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U06,model_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U08,implementation_uncertainty,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U09,communication_errors,N,0,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U11,goal_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D09,choose SPO/DFL training target,U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U05,experimental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U06,model_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U08,implementation_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U09,communication_errors,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U10,algorithmic_instability,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U11,goal_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D10,"approve, block, or qualify a claim",U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U01,observational_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U02,exogenous_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U03,prognostic_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U04,inferential_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U05,experimental_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U06,model_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U07,transitional_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U08,implementation_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U09,communication_errors,L,1,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U10,algorithmic_instability,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U11,goal_uncertainty,H,3,judgmental map of which uncertainty must be considered before exercising the decision
+D11,"continue, park, or kill an experiment lane",U12,environmental_uncertainty,L,1,judgmental map of which uncertainty must be considered before exercising the decision

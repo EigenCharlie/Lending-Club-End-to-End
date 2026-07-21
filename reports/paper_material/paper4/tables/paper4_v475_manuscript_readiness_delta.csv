@@ -1,0 +1,8 @@
+readiness_gate_v475,ready_v475,evidence_artifact_v475,claim_boundary_v475
+primary_tables_selected,True,paper4_v475_primary_table_selection.csv,draft selection only
+primary_figures_selected,True,paper4_v475_primary_figure_selection.csv,draft selection only
+selected_table_artifacts_exist,True,paper4_v475_primary_table_selection.csv,path existence only
+selected_figure_artifacts_exist,True,paper4_v475_primary_figure_selection.csv,path existence only
+captions_and_insertion_plan_created,False,paper4_v476_caption_and_insertion_plan.md,deferred to v476
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book promotion in v475
+final_tables_figures,False,future manuscript edit,selection is not final insertion

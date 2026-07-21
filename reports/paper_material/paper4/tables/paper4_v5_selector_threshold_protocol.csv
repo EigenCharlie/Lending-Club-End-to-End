@@ -1,0 +1,6 @@
+threshold_id,value,committee_rationale,statistical_rationale
+source_month_coverage_research,0.8,Minimum defended floor for small-cell research review; below this no candidate can leave park.,Acts as Wilson-style small-cell floor before requiring publication-level 0.90.
+source_month_coverage_publication,0.9,Publication-grade source-month floor matching conformal nominal target.,Requires all defended source-month cells to meet nominal coverage after pooling.
+mdcp_worst_source,0.8,Worst defended source must clear a minimum viability floor.,Conservative floor for sparse intersections; stricter 0.85 tested in sensitivity.
+fairness_proxy_gap,0.35,"Proxy concentration warning threshold, not protected-attribute fairness.",Above observed v4 range but low enough to flag concentration spikes.
+sample_path_prob_beats_paper1,0.5,A Paper 4 candidate must beat the frozen reference in a majority of paired paths.,Majority threshold only; publication version should require confidence interval support.

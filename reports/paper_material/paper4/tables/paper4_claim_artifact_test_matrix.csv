@@ -1,0 +1,11 @@
+priority,claim_status,artifact,quarto_page,test_guardrail,caveat
+P1 exact replay top-k,exact_limited_diagnostic,paper4_exact_limited_topk_allocations.parquet,19p-exact-replay-topk.qmd,test_paper4_v2_priority_artifacts_exist,"Exact inside candidate subset, not full 276k universe."
+P2 IFRS9 v2,diagnostic_lifetime_proxy,paper4_ifrs9_lifetime_ecl_grid.parquet,19q-ifrs9-v2-lifetime-ecl.qmd,test_paper4_v2_priority_artifacts_exist,Lifetime factor and SICR rules are proxies.
+P3 selector v2,diagnostic_no_promotion,paper4_selector_v2_results.csv,19q-ifrs9-v2-lifetime-ecl.qmd,test_paper4_v2_no_promotion,Ranks candidates only.
+P4 online conformal real,forward_only_interval_prototype,paper4_online_conformal_intervals.parquet,19r-online-conformal-real.qmd,test_paper4_v2_priority_artifacts_exist,"Rolling score intervals, not final online CP method."
+P5 regret-auditability replay,diagnostic_replay,paper4_regret_auditability_replay_v2.parquet,19s-regret-auditability-replay.qmd,test_paper4_v2_priority_artifacts_exist,Uses policy replay artifacts and diagnostic auditability score.
+P6 tail-risk solver prototype,selector_prototype,paper4_tail_risk_selector_results.csv,19v-tail-mdcp-causal-v2.qmd,test_paper4_v2_priority_artifacts_exist,"Constraint grid selector, not a full CVaR LP."
+P7 multi-period solver,toy_dynamic_policy,paper4_multi_period_solver_results.parquet,19t-multi-period-solver.qmd,test_paper4_v2_priority_artifacts_exist,Monthly policy switching toy.
+P8 MDCP formal,source_registry_and_worst_source_eval,paper4_mdcp_policy_eval_v2.csv,19v-tail-mdcp-causal-v2.qmd,test_paper4_v2_priority_artifacts_exist,"Formal source definitions, still proxy coverage."
+P9 CATE gated,gated_toy_value,paper4_cate_exact_topk_value.csv,19v-tail-mdcp-causal-v2.qmd,test_paper4_v2_priority_artifacts_exist,No causal promotion.
+P10 artifact browser/catalog,implemented,paper4_artifact_catalog.csv,19u-artifact-catalog-and-claims.qmd,test_paper4_v2_priority_artifacts_exist,Catalog only.

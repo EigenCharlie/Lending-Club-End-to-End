@@ -1,0 +1,32 @@
+schema_version: "2026-04-03.1"
+profile_name: search_conformal_reopen_exhaustive
+pipeline_family: search_conformal
+description: >
+  Reapertura exhaustiva del downstream conformal sobre el PD refinado, con
+  inner-search repetido sobre holdout temporal, confirmación OOT única y fase
+  opcional de calibrador+conformal si la policy actual no alcanza.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+defaults:
+  sampling_profile: champion64safe
+search_space:
+  conformal_reopen:
+    alpha_candidates_90: [0.09, 0.095, 0.10, 0.105, 0.11, 0.12]
+    alpha_candidates_95: [0.045, 0.05, 0.055, 0.06]
+    partition_candidates: [grade, score_decile_mondrian, grade_x_scoreband_mondrian]
+    partition_probability_sources: [calibrated, raw]
+    n_score_bins_candidates: [5, 10, 15, 20]
+    min_group_sizes: [100, 150, 250, 500, 1000]
+    fallback_modes: [grade_then_global, global_only]
+    score_scale_families:
+      [none, bernoulli_sqrt, bernoulli_sqrt_clipped_0.02, bernoulli_sqrt_clipped_0.05]
+    calibration_fractions: [0.25, 0.50, 0.75, 1.00]
+    tuning_holdout_ratios: [0.20, 0.25, 0.30]
+    inner_random_states: [42, 84, 126]
+    set_methods: [lac, margin]
+    set_partitions: [global, grade, score_decile_mondrian, grade_x_scoreband_mondrian]
+    phase2_calibration_candidates: [venn_abers, isotonic, platt, beta]
+    phase2_top_k_designs: 3

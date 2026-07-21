@@ -1,0 +1,8 @@
+package,available_v20,version,decision_v20,blocker_detail,formal_differentiable_spo_claim_allowed
+cvxpy,False,,formal_differentiable_spo_blocked,ImportError: numpy.core.multiarray failed to import,False
+cvxpylayers,False,,formal_differentiable_spo_blocked,ModuleNotFoundError,False
+torch,False,,formal_differentiable_spo_blocked,ModuleNotFoundError,False
+pyomo,True,6.10.0,usable_for_oracle_lp_route,,False
+highspy,True,installed,usable_for_oracle_lp_route,,False
+catboost,True,1.2.10,usable_for_regret_surrogate,,False
+sklearn,True,1.8.0,usable_for_regret_surrogate,,False

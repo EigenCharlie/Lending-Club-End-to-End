@@ -1,0 +1,9 @@
+requirement_v472,availability_v472,role_for_contractual_ifrs9_v472,contractual_claim_allowed_v472,claim_boundary_v472
+monthly_dpd,available_or_proxy,required_for_contractual_stage_trigger,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+forbearance_hardship,missing,required_for_ifrs9_stage_flags,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+default_timing,available_or_proxy,partially_available_proxy,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+cure_timing,missing,data_blocked,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+recovery_timing,missing,partially_available_proxy,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+prepayment_timing,missing,partially_available_proxy,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+ead_path,available_or_proxy,proxy_available,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process
+macro_scenarios,missing,context_available_if_v35_fetch_succeeded,False,field audit only; contractual IFRS9 requires monthly servicing panel and coherent macro scenario process

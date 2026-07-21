@@ -1,0 +1,6 @@
+powell_stage,readiness_v30,evidence
+framing,resolved,metrics/decisions/uncertainties carried from v14 and updated through v30
+base_model,near_resolved_with_plateau,dynamic replay and internal sample paths support evaluation but not forecast validation
+lookahead_model,near_resolved_with_plateau,"CVaR, ADP, SPO oracle-regret exist but exact claims remain bounded"
+implementation,lab_ready,"reproducible scripts, artifacts, Quarto and guardrails"
+claims,governed,contractual/legal/causal/exact-optimality claims blocked unless evidence exists

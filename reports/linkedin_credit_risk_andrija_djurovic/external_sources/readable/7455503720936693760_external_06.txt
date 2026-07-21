@@ -1,0 +1,166 @@
+source_asset_id: 7455503720936693760_external_06
+parent_activity_id: 7455503720936693760
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/model_dev_and_vld/cont_target_woe_equivalent.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/model_dev_and_vld/cont_target_woe_equivalent.pdf
+source_type: github
+
+     OLS Regression in IRB Credit Risk Modeling
+
+From Binary to Continuous: A WoE-Equivalent Encoding Method
+
+
+                              Andrija Djurovic
+
+
+
+
+                    www.linkedin.com/in/andrija-djurovic
+
+
+ Andrija Djurovic          A WoE-Equivalent Encoding Method   1/6
+OLS Regression and Encoding Methods
+
+   In IRB credit risk modeling, Ordinary Least Squares (OLS) regression is one of the most commonly used methods
+   for modeling Loss Given Default (LGD) and Exposure at Default (EAD) risk parameters.
+
+   When developing these models, practitioners often deal with a mix of numeric and categorical risk factors.
+   Although not a mandatory step, binning is usually used as part of the risk factor engineering process for OLS
+   regression.
+
+   After binning, practitioners must choose an appropriate encoding method to run the OLS regression. At this
+   stage, they typically draw a comparison with Probability of Default (PD) modeling, where Weight of Evidence
+   (WoE) is the predominant encoding method used in conjunction with binary logistic regression. Consequently, for
+   LGD and EAD modeling, practitioners often adopt a WoE-based approach adjusted for a continuous target.
+
+   When WoE encoding is used in PD modeling within logistic regression, the estimated coefficients have a specific
+   interpretation. The intercept represents the baseline default rate, while each WoE value of a risk factor,
+   multiplied by its corresponding estimated coefficient, provides an additional contribution to the overall default
+   rate. Since WoE is expressed in terms of log-odds, it naturally fits within the logistic regression framework.
+
+   Given the specific interpretation of coefficients in WoE logistic regression used for PD modeling, the question
+   arises whether the same interpretation and advantages of WoE encoding, when adjusted for a continuous target,
+   are preserved.
+
+   This presentation provides a brief overview of the two most commonly used encoding methods for OLS regression
+   in LGD and EAD modeling: WoE and mean target encoding. It also introduces an adjusted version of mean
+   target encoding that fully aligns with the interpretability of WoE encoding used in PD modeling with logistic
+   regression.
+
+
+
+     Andrija Djurovic                 A WoE-Equivalent Encoding Method                                           2/6
+WoE and Mean Target Encoding Methods
+WoE Encoding
+
+In LGD and EAD IRB modeling, practitioners often draw comparisons with the WoE encoding used in PD modeling. Consequently,
+one of the commonly applied methods is WoE encoding adjusted for a continuous target. The following formula presents the
+calculation of WoE values for bin i of a categorical risk factor:
+                                                                     
+                                                                       y¯i
+                                                        WoEi = ln
+                                                                       ȳ
+
+where y¯i denotes the average value of the target for bin i and ȳ is the average value of the target for the full sample.
+
+
+Mean Target Encoding
+
+Another commonly used encoding method is mean target encoding. In essence, this approach assigns to each bin of a risk factor
+the average value of the target within that bin. Following the notation from the formula above, mean target encoding assigns the
+value y¯i to bin i of the analyzed risk factor.
+
+
+Notes on Interpretation
+
+None of the above encoding methods provides an equivalent interpretation of the estimated coefficients from OLS regression to
+that of WoE in logistic regression.
+The WoE encoding adjusted for a continuous target reflects the deviation of the average target per bin from the overall target
+average, but on a logarithmic scale, which also directly affects the interpretation of the estimated intercept.
+Mean target encoding does not capture the additional contribution of a specific factor to the overall target mean, and its intercept
+therefore differs in interpretation from that of WoE logistic regression. However, the following slides will demonstrate that OLS
+regression with mean target encoding produces results equivalent to those obtained using an encoding method aligned with WoE in
+logistic regression.
+
+
+          Andrija Djurovic                     A WoE-Equivalent Encoding Method                                                  3/6
+Baseline-Adjusted Mean Target Encoding Method
+
+To adjust mean target encoding so that OLS estimates share the same interpretation as coefficients from WoE logistic
+regression, practitioners can simply subtract the overall sample mean of the target from the mean target value of each
+bin of the risk factor.
+
+The following table shows the results of baseline-adjusted mean target encoding applied in OLS regression. The
+simulation was performed using the dataset available at this link, assuming that the column lgd represents the target
+variable, while the risk factors used in the OLS regression are in columns rf_1, rf_2, and rf_3.
+
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)   0.3686     0.0104 35.4878        0
+## rf_1          0.5980     0.1368 4.3699         0
+## rf_2          0.5966     0.1460 4.0862         0
+## rf_3          0.7083     0.1242 5.7044         0
+
+Notes on Interpretation
+
+To confirm the interpretation of the estimated intercept from the table above with that from the WoE logistic regression,
+practitioners can calculate the average of the lgd column, which will yield the same value. Consequently, the product of
+the estimated coefficient for any risk factor and its corresponding value indicates the additional contribution to the mean
+of the target, equivalent to the interpretation in WoE logistic regression.
+
+
+
+
+          Andrija Djurovic                 A WoE-Equivalent Encoding Method                                             4/6
+Baseline-Adjusted Mean Target vs. Mean Target Encoding
+
+Although the baseline-adjusted mean target encoding fully aligns with the interpretation of coefficients from the WoE
+logistic regression, a model built using this encoding yields the same results as a model built using standard mean target
+encoding.
+The following tables present the OLS regression summaries estimated using both encoding methods.
+
+Baseline-Adjusted Mean Target Encoding
+
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)   0.3686     0.0104 35.4878        0
+## rf_1          0.5980     0.1368 4.3699         0
+## rf_2          0.5966     0.1460 4.0862         0
+## rf_3          0.7083     0.1242 5.7044         0
+
+
+Mean Target Encoding
+
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept) -0.3328      0.0656 -5.0726        0
+## rf_1          0.5980     0.1368 4.3699         0
+## rf_2          0.5966     0.1460 4.0862         0
+## rf_3          0.7083     0.1242 5.7044         0
+
+
+
+
+         Andrija Djurovic                  A WoE-Equivalent Encoding Method                                            5/6
+Baseline-Adjusted Mean Target vs. Mean Target Encoding
+cont.
+
+Comparison of the Models’ Outputs
+
+As a final step in comparing the two encoding methods, the following overview shows that the model outputs are
+equivalent.
+
+Sample of Model Output with Baseline-Adjusted Mean Target Encoding:
+##         1          2           3           4         5           6
+## 0.4140793 0.4140793 0.3095987 0.4140793 0.4140793 0.1733877
+
+Sample of Model Output with Mean Target Encoding:
+##         1          2          3          4      5         6
+## 0.4140793 0.4140793 0.3095987 0.4140793 0.4140793 0.1733877
+
+
+Discusion Points
+
+       What are the benefits of using one encoding method over the other?
+       How do these two encoding methods impact the analysis of risk factor importance?
+
+
+
+
+         Andrija Djurovic               A WoE-Equivalent Encoding Method                                         6/6

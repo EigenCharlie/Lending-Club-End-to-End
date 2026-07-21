@@ -1,0 +1,12 @@
+Integrating a new data source into a production scoring model usually means retraining from scratch. There's a better way.
+Ilia Ekhlakov's recent post showed a powerful use case for credit risk data science: fine-tuning on new features as they become available, not just new records. Works for XGBoost, LightGBM, and CatBoost models covered in 𝗑𝖻𝗈𝗈𝗌𝗍𝖾𝗋 package for ML scorecarding.
+For credit risk models incorporating new data sources like credit bureaus or alternative data providers, this unlocks two things:
+• Continue training with an expanded feature set
+• Refresh predictions on recent data cheaply
+Train a base CatBoost model, then pass it as 𝗂𝗇𝗂𝗍_𝗆𝗈𝖽𝖾𝗅 to a second fit on the wider feature set.
+𝗆𝗈𝖽𝖾𝗅𝟤 = 𝖢𝖺𝗍𝖡𝗈𝗈𝗌𝗍𝖢𝗅𝖺𝗌𝗌𝗂𝖿𝗂𝖾𝗋(**𝗉𝖺𝗋𝖺𝗆𝗌)
+𝗆𝗈𝖽𝖾𝗅𝟤.𝖿𝗂𝗍(𝖷_𝗇𝖾𝗐, 𝗒_𝗇𝖾𝗐, 𝗂𝗇𝗂𝗍_𝗆𝗈𝖽𝖾𝗅=𝗆𝗈𝖽𝖾𝗅𝟣)
+Original trees are frozen while new trees split on both old and new features. With SHAP-based scorecards you can trace how points redistribute: feature scores shift as the scorecard scaling adjusts to the larger set.
+This is now supported in 𝗑𝖻𝗈𝗈𝗌𝗍𝖾𝗋 v0.2.8 with helpers for all three libraries and SHAP-based score tracking across base and fine-tuned trees.
+Ilia's post: https://lnkd.in/ds4bSxWU
+#DataScience #CreditScoring #MachineLearning #GBDT

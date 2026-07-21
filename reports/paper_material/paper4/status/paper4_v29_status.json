@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.29",
+  "generated_at_utc": "2026-05-15T00:58:32.364552+00:00",
+  "phase": "v29_ifrs9_causal_fairness_source_upgrade",
+  "external_macro_context_status_v29": "fetch_failed",
+  "sample_path_rows_v29": 17664,
+  "ifrs9_contractual_claim_allowed": false,
+  "ifrs9_cashflow_panel_rows_v29": 582660,
+  "causal_policy_value_allowed": false,
+  "causal_balance_rows_v29": 7,
+  "fair_lending_legal_claim": false,
+  "source_governance_rows_v29": 1244,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "macro context/sample paths, IFRS9 proxy, causal diagnostics and source governance only",
+  "runtime_seconds": 24.011
+}

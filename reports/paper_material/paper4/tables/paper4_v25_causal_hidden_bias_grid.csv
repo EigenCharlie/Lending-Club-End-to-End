@@ -1,0 +1,7 @@
+hidden_bias_shift_pp,default_effect_after_shift,sensitivity_pass,claim_boundary
+1,-0.025227609456682697,True,diagnostic hidden-bias grid; not identification proof
+2,-0.0352276094566827,False,diagnostic hidden-bias grid; not identification proof
+3,-0.045227609456682694,False,diagnostic hidden-bias grid; not identification proof
+5,-0.0652276094566827,False,diagnostic hidden-bias grid; not identification proof
+7,-0.0852276094566827,False,diagnostic hidden-bias grid; not identification proof
+10,-0.1152276094566827,False,diagnostic hidden-bias grid; not identification proof

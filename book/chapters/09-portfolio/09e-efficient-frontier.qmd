@@ -1,68 +1,46 @@
-## Frontera Eficiente de Robustez {#sec-efficient-frontier}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-Las secciones anteriores presentan la formulacion del portafolio robusto y la seleccion de la politica champion. Esta seccion analiza la **frontera de Pareto** que emerge al explorar exhaustivamente el espacio de configuraciones, cuantificando el trade-off entre retorno esperado, proteccion ante el peor caso y costo de la robustez.
+## Frontera Histórica de Sensibilidad {#sec-efficient-frontier}
 
-### Espacio de busqueda
+La grilla local varió tolerancia al riesgo, parámetros llamados `gamma` y
+`uncertainty_aversion`, y modos de policy. Su frontera resume compromisos
+**condicionados** al score, endpoints, universo de candidatos y outcomes ya
+observados. No es una frontera eficiente poblacional ni una selección vigente.
 
-El script `scripts/optimize_portfolio_tradeoff.py` evalua una grilla tridimensional de configuraciones:
+### Precio de robustez
 
-- **Tolerancia al riesgo** ($\bar{PD}$): 9 niveles de 0.05 a 0.20.
-- **Aversion a la incertidumbre** ($\lambda$): 7 niveles de 0.0 a 3.0.
-- **Modos de politica**: 7 modos $\times$ multiples combinaciones de $\gamma$, `delta_cap_quantile` y `tail_focus_quantile`.
-
-En total, el barrido exhaustivo evalua hasta **6,941 configuraciones de politica** (dependiendo del perfil de grilla seleccionado). Para cada configuracion, se resuelve el LP completo con HiGHS y se computan las metricas de robustez.
-
-### Curva de Price of Robustness
-
-El Price of Robustness (PoR) mide la fraccion de retorno que el portafolio sacrifica por proteccion:
+Para una regla $p$ y su comparador nominal local se calculó:
 
 $$
-\text{PoR}(\%) = \frac{R_{\text{baseline}} - R_{\text{robusto}}}{|R_{\text{baseline}}|} \times 100
+\operatorname{PoR}(p)=
+\frac{R_{\mathrm{nominal}}-R_p}{|R_{\mathrm{nominal}}|}\times100.
 $$ {#eq-price-of-robustness}
 
-La curva de PoR en funcion de $\gamma$ tiene forma convexa: robustez marginal es barata (primeros puntos base de proteccion cuestan poco retorno), pero la proteccion total ($\gamma = 1.0$) es desproporcionadamente costosa. El champion seleccionado en @sec-policy-selection opera en la zona de bajo costo marginal con un PoR de solo -2.58%.
+Aquí $R$ denota el payoff terminal estilizado del código legacy. El signo y la
+magnitud dependen del comparador y de ese estimando. El
+commit histórico que corrigió el signo fue metodológicamente necesario, pero
+el readout sigue siendo descriptivo y ex post.
 
-### Frontera de Pareto
+### Cómo leer los puntos congelados
 
-La frontera de Pareto se define como el conjunto de politicas donde no es posible mejorar una metrica sin empeorar otra. En nuestro contexto, las metricas son:
+| Punto legacy | Qué muestra | Qué no muestra |
+|---|---|---|
+| `economic` | máximo payoff ex post estilizado dentro del grid histórico | policy óptima fuera de muestra |
+| `theorem_tight` | sensibilidad de `V` y `gamma_cp` a otra coordenada | teorema para PD o selected set |
+| `balanced` | alternativa cercana en el grid | preferencia de un comité real |
 
-1. **Retorno realizado** (maximizar): retorno *ex-post* con defaults reales del OOT.
-2. **Reduccion de PD en peor caso** (maximizar): diferencia en PD ponderada bajo el escenario $\overline{PD}_i$.
-3. **Breadth score** (maximizar): diversificacion del portafolio respecto al baseline.
+: Lectura permitida de la frontera local. {#tbl-frontier-example}
 
-La @tbl-frontier-example muestra las politicas Pareto-dominantes a lo largo de la frontera:
+La cardinalidad histórica de una región o el hecho de que varias reglas pasen
+un bound calculado sobre el mismo OOT no elimina selección ni identifica los
+outcomes no resueltos. El CRPTO vigente sustituyó esta promoción por una
+auditoría de diseño: reporta familias completas, separa desarrollo outcome-free
+del outcome join y construye bounds de identificación parcial.
 
-| Zona de la frontera | PoR (%) | Reduccion worst-PD (bps) | Breadth | Perfil |
-|---------------------|---------|--------------------------|---------|--------|
-| Agresiva | 0 -- -1% | 0 -- 200 | $> 0.98$ | Casi identico al baseline |
-| Balanceada | -1% -- -5% | 200 -- 900 | 0.93 -- 0.98 | Trade-off optimo |
-| Conservadora | -5% -- -15% | 900 -- 2,000 | 0.85 -- 0.93 | Proteccion fuerte |
-| Extrema | $< -15\%$ | $> 2,000$ | $< 0.85$ | Portafolio colapsado |
+### Uso permitido
 
-: Zonas de la frontera de robustez. {#tbl-frontier-example}
-
-El champion actual ($\gamma = 0.10$, $\lambda = 0.10$, PoR = -2.58%, ~903 bps de reduccion) se ubica firmemente en la **zona balanceada**, donde el costo marginal de la robustez es bajo y la diversificacion del portafolio se mantiene alta.
-
-### Dimensiones del trade-off
-
-El analisis de la frontera revela tres dimensiones del trade-off:
-
-1. **Retorno vs proteccion**: la curva clasica de PoR. Mayor $\gamma$ protege mas pero cuesta mas retorno.
-2. **Volumen vs conservadurismo**: tolerancias al riesgo mas bajas ($\bar{PD} = 0.06$) rechazan mas prestamos, reduciendo el volumen financiado. El piso de utilizacion de presupuesto (`min_budget_utilization = 0.05`) evita soluciones degeneradas a niveles estrictos de riesgo.
-3. **Granularidad del ajuste**: las politicas `segment_*` son mas selectivas que `blended_uncertainty` global, penalizando solo donde la incertidumbre relativa es alta. Esto permite mayor robustez sin sacrificio excesivo de retorno.
-
-::: {.callout-note}
-## Frontera como herramienta de gobernanza
-La frontera de robustez no solo es un resultado analitico --- es una herramienta de decision para el comite de riesgo. Permite comunicar explicitamente: "por cada punto porcentual adicional de proteccion, el portafolio sacrifica $X de retorno". Esto transforma la decision de nivel de robustez en una decision economica cuantificable, no una eleccion subjetiva.
-:::
-
-### Conexion con el pipeline completo
-
-Los artefactos generados por la frontera alimentan multiples componentes downstream:
-
-- **`portfolio_robustness_frontier.parquet`**: todas las configuraciones evaluadas con sus metricas.
-- **`portfolio_robustness_summary.parquet`**: resumen por nivel de tolerancia al riesgo (mejor robusto vs baseline).
-- **`champion_portfolio_policy.json`**: la politica promovida tras pasar el test A/B (@sec-ab-no-regression).
-- **`portfolio_research_policy.json`**: las cuatro alternativas de investigacion (@tbl-research-alternatives).
-
-Estos artefactos son consumidos por el dashboard Streamlit para visualizacion interactiva, por el reporte MRM para validacion regulatoria, y por la simulacion A/B retroactiva (`scripts/simulate_ab_test.py`) para evaluar robustez en condiciones mas realistas.
+La frontera sirve para enseñar sensibilidad, reproducir decisiones pasadas y
+diseñar un protocolo futuro. No debe alimentar ECL, SICR, deployment o un claim
+de “retorno garantizado”. Una reapertura requeriría fijar comparador, pérdida,
+familia y regla de selección antes de observar el set final, y evaluar la
+policy elegida en evidencia independiente.

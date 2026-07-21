@@ -1,0 +1,5 @@
+method,confidence_level,empirical_coverage,mean_set_size,pct_empty,pct_single,pct_ambiguous,n,decision_eligibility_proxy,coverage_gap_to_90,promotion_allowed,status
+lac,0.8,0.80968,1.07718,0.0,92.282,7.718,50000,0.92282,0.09032000000000007,False,blocked_comparator
+lac,0.85,0.84646,1.22364,0.0,77.636,22.364,50000,0.7763599999999999,0.05354000000000003,False,blocked_comparator
+lac,0.9,0.8735,1.35998,0.0,64.002,35.998,50000,0.64002,0.026499999999999968,False,blocked_comparator
+lac,0.95,0.91534,1.5732,0.0,42.68,57.32,50000,0.42679999999999996,-0.01534000000000002,False,blocked_comparator

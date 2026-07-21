@@ -8,7 +8,7 @@ Default costs:
   fp_cost = 0.12 (rejecting a good borrower → foregone ~12% interest)
 
 Usage:
-    uv run python scripts/update_cost_matrix_threshold.py
+    uv run python scripts/history/update_cost_matrix_threshold.py
 """
 
 from __future__ import annotations

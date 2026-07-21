@@ -1,18 +1,22 @@
 ---
 title: "Predicción Conformal e Incertidumbre"
 page-layout: article
-close_takeaway: "La predicción conformal Mondrian transforma una estimación puntual de PD en un intervalo con garantía formal de cobertura (92.57% @ 90%), sin supuestos distribucionales. La cobertura se verifica por grupo (grade), por período temporal y contra tests estadísticos (Kupiec, Christoffersen)."
-close_connects: "Los intervalos conformales se convierten en conjuntos de incertidumbre box para la optimización robusta (@sec-robust-portfolio), en señal SICR para IFRS9 (@sec-sicr-signal), y en bandas de sensibilidad para provisiones (@sec-sensitivity-stress)."
-close_reuse: "Esta capa es el puente metodológico central del proyecto: conecta predicción (Parte II) con decisión (portafolio) y accountability (IFRS9), y es el tema central de los tres papers de investigación (Parte IV)."
 ---
 
-El modelo PD champion produce una estimación puntual calibrada — pero una estimación puntual, por precisa que sea, no captura la **incertidumbre** inherente a la predicción. En riesgo crediticio, ignorar la incertidumbre tiene consecuencias directas: provisiones subestimadas, portafolios frágiles y decisiones que colapsan ante escenarios adversos.
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-La **predicción conformal** (Conformal Prediction, CP) resuelve este problema con una garantía formal: dado un nivel de confianza $1-\alpha$, los intervalos conformal cubren el valor verdadero con probabilidad al menos $1-\alpha$, **sin supuestos distribucionales** [@vovk2005]. Esta propiedad — válida en muestras finitas y bajo la única condición de exchangeability — diferencia a CP de alternativas como bootstrap (asintótico) o intervalos bayesianos (dependientes del prior).
+El modelo PD histórico produce un score calibrado. La capa conformal construye
+endpoints con residuos contra el outcome binario y debe evaluarse respecto de
+ese mismo objeto.
+
+La **predicción conformal** controla cobertura del futuro $Y$ en muestra finita
+bajo intercambiabilidad [@vovk2005]. “Distribution-free” no significa
+assumption-free: ni el shift temporal ni la selección posterior de modelos o
+policies quedan cubiertos por el teorema básico.
 
 ```{python}
 #| label: tbl-conformal-overview
-#| tbl-cap: "Métricas de cobertura conformal del modelo champion (test OOT)"
+#| tbl-cap: "Métricas históricas de cobertura del artefacto local (test OOT)"
 
 import sys
 from pathlib import Path
@@ -40,35 +44,50 @@ overview = [
 pd.DataFrame(overview)
 ```
 
-::: {.column-page}
-![Cobertura conformal observada por grade del portafolio, usada para verificar validez útil a nivel de negocio.](../../assets/figures/editorial/conformal_coverage_by_grade.png){#fig-conformal-coverage-grade fig-alt="Cobertura conformal por grade de riesgo en el portafolio Lending Club."}
-:::
+![Cobertura binaria observada por grade en el artefacto histórico.](../../assets/figures/editorial/conformal_coverage_by_grade.png){#fig-conformal-coverage-grade fig-alt="Cobertura empírica del resultado binario por grade en el test temporal Lending Club."}
 
-::: {.column-page}
 ![Trade-off entre cobertura objetivo e intervalo promedio para variantes global y Mondrian del pipeline.](../../assets/figures/editorial/conformal_width_vs_target.png){#fig-conformal-width-tradeoff fig-alt="Relación entre cobertura objetivo y ancho promedio de los intervalos conformales."}
-:::
 
-Las figuras @fig-conformal-coverage-grade y @fig-conformal-width-tradeoff anticipan el argumento del capítulo completo: la validez relevante para riesgo no es solo marginal, sino también segmentada y económicamente usable.
+Las figuras @fig-conformal-coverage-grade y @fig-conformal-width-tradeoff
+permiten auditar geometría y heterogeneidad. No prueban que los endpoints sean
+PD ni que resulten económicamente utilizables.
 
-| Chequeo operativo | Qué valida | Por qué importa |
+| Chequeo diagnóstico | Qué describe | Por qué importa |
 |---|---|---|
-| cobertura global | que el intervalo cumple la promesa promedio | evita vender una banda que luce precisa pero falla masivamente |
-| cobertura mínima por grupo | que los segmentos más delicados no queden desprotegidos | impide que un promedio global esconda problemas en grades concretos |
-| ancho promedio | que la incertidumbre siga siendo utilizable | un intervalo demasiado ancho puede ser correcto pero inútil |
-| alertas de backtesting | si la cobertura aguanta mejor el paso del tiempo | es la parte prudencial de conformal, no solo la parte estadística |
+| cobertura global | frecuencia empírica de $Y$ dentro del intervalo | contrasta el target nominal bajo transporte temporal |
+| cobertura mínima por grupo | heterogeneidad descriptiva entre grades | evita que el promedio esconda fallos locales |
+| ancho promedio | geometría de los endpoints | detecta intervalos triviales o poco discriminantes |
+| alertas de backtesting | estabilidad descriptiva en el tiempo | señala shift; no restaura intercambiabilidad |
 
-: Checklist editorial de validez conformal en el pipeline {#tbl-conformal-checklist}
+: Checklist editorial de diagnóstico conformal en el pipeline {#tbl-conformal-checklist}
 
-Este capítulo documenta la implementación completa de CP en el pipeline: desde los fundamentos teóricos de split conformal, pasando por la extensión Mondrian que garantiza cobertura por grupo (grade), hasta el benchmark de variantes, el backtesting temporal y la extensión a LGD/EAD.
+Este capítulo documenta el contrato teórico, la implementación histórica y sus
+límites: split conformal, calibración por grupos, benchmarks, backtesting
+temporal y extensiones con targets distintos como LGD/EAD.
 
 ```{=html}
 <div class="chapter-landing-grid">
   <div class="chapter-card"><h4><a href="07a-split-conformal-basics.html">24. Split Conformal</a></h4><p>Garantía finita, API MAPIE y scores de no conformidad.</p></div>
-  <div class="chapter-card"><h4><a href="07b-mondrian-group-conditional.html">25. Mondrian</a></h4><p>Cobertura por grade y validez útil por grupo.</p></div>
-  <div class="chapter-card"><h4><a href="07c-cqr-variants-benchmark.html">26. Variantes</a></h4><p>Benchmark de variantes, selección y trade-offs.</p></div>
-  <div class="chapter-card"><h4><a href="07d-backtest-monitoring.html">27. Monitoreo</a></h4><p>Backtest mensual, alertas y lectura prudencial.</p></div>
-  <div class="chapter-card"><h4><a href="07e-lgd-ead-conformal.html">28. LGD / EAD</a></h4><p>Extensión conformal fuera de PD y promoción del carril.</p></div>
+  <div class="chapter-card"><h4><a href="07b-mondrian-group-conditional.html">Mondrian</a></h4><p>Contrato por grade bajo intercambio dentro del grupo.</p></div>
+  <div class="chapter-card"><h4><a href="07c-cqr-variants-benchmark.html">Variantes</a></h4><p>Benchmark descriptivo y trade-offs sin promoción.</p></div>
+  <div class="chapter-card"><h4><a href="07d-backtest-monitoring.html">27. Monitoreo</a></h4><p>Backtest mensual, alertas y diagnóstico de transporte.</p></div>
+  <div class="chapter-card"><h4><a href="07e-lgd-ead-conformal.html">28. LGD / EAD</a></h4><p>Prototipos históricos y requisitos antes de cualquier extensión.</p></div>
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+Con labels binarios, la capa conformal produce intervalos predictivos para
+$Y$. La cobertura finita exige intercambiabilidad y no cubre PD latente.
+
+## Esto conecta con…
+
+Portafolio, SICR y ECL son experimentos downstream con estimandos propios; no
+heredan automáticamente cobertura conformal.
+
+## Dónde se reutiliza esta señal o artefacto
+
+El contrato de estimando, geometría y transporte permite leer críticamente
+Paper 2, Paper 4 y el CRPTO externo.
+:::

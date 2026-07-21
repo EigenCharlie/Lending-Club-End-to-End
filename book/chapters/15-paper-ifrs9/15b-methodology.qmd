@@ -1,66 +1,104 @@
 ## Metodología {#sec-p2-methodology}
 
-La metodología reutiliza el stack productivo del proyecto y lo reorganiza en clave de paper. El objetivo es mostrar que IFRS9 no es una “aplicación lateral”, sino una consecuencia natural del pipeline de riesgo ya construido.
+La metodología es una auditoría de estimandos y linaje. No vuelve a ejecutar
+búsquedas ni reestima resultados históricos. El
+[contrato de claims](../../../reports/paper_material/paper2/paper2_claim_contract.yml)
+define el stop rule: la evidencia existente se clasifica; solo datos
+longitudinales nuevos pueden reabrir una evaluación IFRS 9.
 
-### Componentes del pipeline
+### Unidad de análisis y objetos
 
-La arquitectura del Paper 2 se organiza en cinco capas que reflejan la lógica operativa de un sistema de provisiones IFRS 9: primero se necesita una probabilidad de default confiable (PD calibrada), luego se cuantifica cuánto confiar en esa probabilidad (incertidumbre conformal), después se proyecta el impacto económico bajo distintos escenarios macro (escenarios IFRS 9), se evalúa la sensibilidad de las provisiones a parámetros prudenciales (sensibilidad), y finalmente se enriquece el mecanismo de detección de deterioro crediticio con información de incertidumbre (SICR conformal). El orden no es arbitrario: cada capa consume el output de la anterior, y eliminar una capa intermedia rompe la cadena de trazabilidad que un auditor necesita para defender las provisiones ante un comité de riesgos.
+Sea $Y_i\in\{0,1\}$ el estado terminal de un préstamo resuelto y sea
+$\widehat p_i$ el score producido con sus covariables de originación. La capa
+histórica calcula residuos $|Y_i-\widehat p_i|$ y construye endpoints
+$I_i^Y=[\ell_i,u_i]$. Bajo un protocolo split válido, el evento objetivo para
+una futura observación binaria sería
 
-| Capa | Artefacto principal | Rol |
+El evento de cobertura es
+
+$$
+Y_i\in I_i^Y.
+$$
+
+No es el evento $p_i\in I_i^Y$. En este freeze, la reutilización de labels entre
+calibración probabilística y conformalización limita el cálculo a cobertura
+empírica retrospectiva. Si $c_i\geq 0$ fuera conocido y medible al
+predecir, multiplicar endpoints preservaría el evento para la pérdida realizada
+$c_iY_i$; no produciría por ello una confianza para la pérdida esperada
+$c_i p_i$. Staging, horizontes lifetime y parámetros inciertos añaden otras
+transformaciones que requieren sus propios contratos.
+
+### Capas auditadas
+
+::: {#tbl-p2-method}
+
+| Capa histórica | Objeto observable | Uso permitido ahora | Inferencia bloqueada |
+|---|---|---|---|
+| Score de default | Ranking/probabilidad calibrada para el target terminal declarado | Diagnóstico predictivo | PD regulatoria actual a 12 meses |
+| Intervalo residual | Evento de cobertura de $Y$ binaria; empírico en el freeze | Geometría, cobertura y ancho retrospectivos | Cota de PD individual o garantía split activa |
+| Regla de stage | Transformación retrospectiva de proxies y estado final | Auditoría de leakage | SICR a una fecha de reporte |
+| Escenarios | Multiplicadores exógenos en funciones de software | Sensibilidad algebraica | Escenario macro gobernado |
+| Salida monetaria | Producto de supuestos y transformaciones heterogéneas | Prueba de integración | ECL contable o banda de provisión |
+
+Capas del prototipo y frontera de inferencia.
+:::
+
+### Protocolo de auditoría
+
+El protocolo aplica cinco verificaciones:
+
+1. **Estimando**: identifica target, horizonte y evento cubierto por cada
+   artefacto.
+2. **Disponibilidad temporal**: pregunta si cada variable existía a la fecha de
+   decisión que pretende representar.
+3. **Separación de muestras**: comprueba si modelos, intervalos y reglas fueron
+   seleccionados sin outcomes del test final.
+4. **Consistencia downstream**: exige que `low`, `point` y `high` pertenezcan al
+   mismo estimador central antes de interpretar un rango.
+5. **Promoción**: bloquea lenguaje prudencial cuando un status es diagnóstico,
+   fallido, no oficial o no reproducible por el runner declarado.
+
+### Escenarios congelados como pruebas mecánicas
+
+Los cuatro escenarios existentes se conservan únicamente como inputs de una
+prueba de sensibilidad del código.
+
+::: {#tbl-p2-scenarios}
+
+| Escenario | Operación del prototipo | Lectura permitida |
 |---|---|---|
-| PD calibrada | `data/processed/model_comparison.json` | probabilidad puntual defendible |
-| Incertidumbre | `models/conformal_policy_status.json` | bandas low/point/high |
-| Escenarios IFRS9 | `data/processed/ifrs9_scenario_summary.parquet` | provisiones por severidad macro |
-| Sensibilidad | `data/processed/ifrs9_sensitivity_grid.parquet` | stress sobre PD, LGD y tasa |
-| SICR | `scripts/run_sicr_conformal.py` + artefactos asociados | trigger enriquecido por ancho |
+| Baseline | Aplica el conjunto de multiplicadores de referencia | Punto de comparación algebraico |
+| Mild stress | Incrementa supuestos declarados | Prueba de monotonicidad local |
+| Adverse | Incrementa varios supuestos simultáneamente | Stress estilizado |
+| Severe | Lleva los multiplicadores al extremo declarado | Stress estilizado, no forecast |
 
-: Capas metodológicas del Paper 2 {#tbl-p2-method}
+Rol metodológico de los escenarios históricos.
+:::
 
-### Fórmula central
+Una variación monotónica de la salida ante estos inputs demuestra que el
+software responde a ellos. No demuestra plausibilidad de los escenarios,
+calibración macroeconómica ni exactitud contable.
 
-La pérdida esperada por préstamo y escenario se resume como:
+### Auditoría del staging retrospectivo
 
-$$
-\mathrm{ECL}_{i,s}^{(h)}=\mathrm{PD}_{i,s}^{(h)}\times \mathrm{LGD}_{i,s}\times \mathrm{EAD}_{i,s}\times \mathrm{DF}_{i,s},
-\qquad h \in \{\text{low},\text{point},\text{high}\}
-$$
+El código deriva DPD parcialmente desde `loan_status` terminal y usa como “PD de
+originación” tasas históricas por grade/vintage. El score llamado “actual” se
+calcula con información de originación, no con una nueva observación del mismo
+préstamo. En consecuencia, la diferencia entre ambos no representa un cambio de
+riesgo observado desde reconocimiento inicial.
 
-La novedad práctica está en que `PD^(h)` ya no es únicamente puntual. El horizonte `high` define una lectura prudencial, mientras `low` marca un piso de incertidumbre.
+La evaluación histórica de una regla de ancho usa default terminal como outcome
+y busca el umbral con esos mismos outcomes. Ese ejercicio puede describir una
+asociación retrospectiva, pero no estima un trigger SICR ni su desempeño fuera
+de muestra.
 
-Operativamente, producir tres estimaciones de ECL en lugar de una cambia la naturaleza de la conversación con el regulador. El `ECL_point` es la mejor estimación disponible --- lo que el banco reportaría en ausencia de incertidumbre. El `ECL_high` cuantifica cuánto podrían costar las provisiones si la PD del modelo subestima el riesgo real dentro de la banda conformal al 90%; es la cifra que un regulador prudencial pedirá en un escenario de estrés. El `ECL_low` marca el piso: aun en el escenario más favorable para el modelo, las provisiones no pueden ser menores que esta cifra. La distancia entre `ECL_high` y `ECL_low` es una medida directa de cuánta incertidumbre del modelo se propaga a las decisiones de capital. Cuando esa distancia es pequeña, la provisión puntual es defendible; cuando es grande, el banco necesita colchones de capital adicionales o una revisión del modelo.
+### Decisión de retención
 
-### Escenarios congelados
+- **Promote**: ninguna cifra prudencial.
+- **Append**: definición exacta del objeto binario y pruebas mecánicas de
+  monotonicidad.
+- **Park**: staging, ECL, survival monetizado y sensibilidad temporal.
+- **Archive**: grids, comparadores y tablas históricas seleccionados sobre test.
 
-El artefacto `ifrs9_scenario_summary.parquet` reporta cuatro escenarios:
-
-| Escenario | `pd_mult` | `lgd_mult` | `discount_rate` |
-|---|---:|---:|---:|
-| baseline | 1.0172 | 1.00 | 0.05 |
-| mild_stress | 1.1697 | 1.05 | 0.06 |
-| adverse | 1.3223 | 1.12 | 0.07 |
-| severe | 1.5766 | 1.20 | 0.08 |
-
-: Escenarios del Paper 2 {#tbl-p2-scenarios}
-
-### Trigger SICR con incertidumbre
-
-El capítulo de SICR mostró una regla complementaria basada en ancho conformal. Conceptualmente:
-
-$$
-\mathrm{Stage2}_i=\mathbb{1}\left[\Delta \widehat{PD}_i>\theta_{PD}\;\lor\;(w_i>t \wedge \Delta \widehat{PD}_i \ge 0)\right]
-$$
-
-Esto permite capturar deterioro potencial aun cuando la PD puntual no cruce el umbral absoluto clásico.
-
-Para ilustrar con un ejemplo concreto: considérese un préstamo Grade C cuya PD puntual es 0.14, justo por debajo de un umbral SICR clásico de $\theta_{PD} = 0.15$. Bajo la regla tradicional, este préstamo permanecería en Stage 1 con provisión a 12 meses. Sin embargo, si el intervalo conformal para este préstamo es [0.08, 0.22] --- un ancho de 0.14 que supera el umbral $t$ --- la regla conformal complementaria lo reclasifica a Stage 2, exigiendo provisión a vida completa. La intuición es que el modelo tiene alta incertidumbre sobre este préstamo: aunque su mejor estimación es 0.14, el extremo superior del intervalo (0.22) sugiere que podría estar significativamente deteriorado. Ignorar esta señal sería equivalente a tratar como iguales a dos préstamos con la misma PD puntual pero incertidumbre radicalmente distinta --- exactamente la clase de error que IFRS 9 buscaba corregir al introducir el concepto de incremento significativo de riesgo.
-
-### Protocolo de evaluación
-
-El paper reporta:
-
-1. ECL agregado por escenario;
-2. composición de stages;
-3. efecto del trigger SICR conformal;
-4. sensibilidad a parámetros prudenciales y extensiones con riesgos competitivos.
-
-Estas cuatro dimensiones de evaluación responden a preguntas distintas pero complementarias. La primera (ECL por escenario) mide el impacto bruto de la incertidumbre macro sobre las provisiones --- responde a "¿cuánto más debe provisionar el banco si la economía se deteriora?". La segunda (composición de stages) evalúa si la clasificación del portafolio es razonable: una proporción excesiva de préstamos en Stage 2 sugiere un trigger demasiado sensible, mientras que una proporción demasiado baja indica que el sistema no está capturando deterioro. La tercera (trigger SICR conformal) cuantifica directamente la contribución del ancho conformal a la detección de deterioro: ¿cuántos préstamos adicionales reclasifica la señal de incertidumbre, y cuál es el costo en provisiones adicionales? La cuarta (sensibilidad) es la más relevante para gobernanza: muestra cómo las provisiones cambian ante variaciones en PD, LGD y tasa de descuento, lo cual permite al comité de riesgos evaluar si el sistema es estable o si pequeños cambios en los supuestos producen variaciones desproporcionadas en el capital requerido.
+Esta clasificación evita que regenerar un artefacto se confunda con cerrar la
+brecha científica.

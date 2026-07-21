@@ -1,0 +1,145 @@
+Designing AI Underwriters
+Report this article
+Denis Burakov
+Denis Burakov
+Published Mar 25, 2025
++ Follow
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As borrower profiles evolve and regulatory expectations grow, traditional scoring models, including those based on transactional mining patterns, remain essential, but often fall short when addressing edge cases and adapting in real time.
+With the advent of large language models (LLMs), financial institutions can now deploy multi-agent AI systems, where each agent specializes in a specific task. One agent might pull key financial details from applications, another might check whether decisions follow policy, and a third might finalize the recommendation. Throughout this process, a human underwriter provides human-in-the-loop oversight.
+Not only does this collaborative framework accelerate decision-making but it also improves consistency, transparency, and adaptability across the underwriting pipeline as illustrated in the diagram below.
+Simplified decision tree used by AI Underwriters to assess applications based on risk thresholds.
+So what is an AI Underwriter? At its core, it’s an assistant that learns decision patterns from past loan data and applies lending policies to help evaluate new applicants. Like human underwriters, these agents benefit from structured onboarding and continuous exposure to new cases.
+AI Underwriter Assistants
+Before AI underwriting systems can operate effectively, they must be trained just like human underwriters. Human expertise develops through reviewing past cases and gaining hands-on experience before making independent decisions. Similarly, AI-based underwriting assistants require structured onboarding, typically delivered through prompt-based instructions, after which they begin to learn decision-making patterns from historical data aligned with real-world lending policies. Over time, these agents can refine their logic, improve accuracy, and operate within established compliance frameworks.
+OpenAI's Assistants API allows users to create AI-powered underwriting systems capable of handling multiple risk assessment tasks simultaneously. Previously, coordinating multiple OpenAI Assistants to collaborate on a task was difficult. However, last years' improvements in the Assistants API, along with the introduction of the Agents SDK, have opened new possibilities for building more modular, intelligent, and context-aware systems.
+In our workflow, we leverage the Assistants API specifically for nuanced, narrative-driven analysis, where each assistant brings domain-specific reasoning.
+In this example, we use two AI underwriting assistants:
+Underwriter – Analyzes past loan applications and prepares key financial insights.
+Decision Maker – Uses these insights, along with credit scores from a scoring model, to make final approval decisions.
+To train and evaluate these assistants, we use two datasets:
+Training Set (700 records with credit history)
+Test Set (100 records without credit history) + a model-generated credit score
+The diagram below illustrates our workflow.
+Recommended by LinkedIn
+AI-driven Credit Scoring and Risk Assessment
+Dr. Mythili A.G
+2 years ago
+Power of Technology in Credit Underwriting
+Nageen Kommu
+3 years ago
+Deal document knowledge shouldn't live in anyone's head
+J. Andrew Damico
+1 month ago
+Multi-agent workflow for AI Underwriters and Decision Makers.
+The interaction between Underwriter and Decision Maker is structured as follows:
+The underwriter introduces themselves and summarizes their role. The decision-maker introduces themselves and clarifies their expectations.
+The underwriter highlights key insights from the data analysis. The decision-maker uses the insights from the underwriting report, analyzes credit scores, and makes final decisions.
+Below we show how the underwriting flow begins:
+Introduction of the AI Underwriting Team
+This conversation continues to produce an auditable log. After the AI Underwriters complete their review and save their decisions to a file, we evaluate their performance against historical outcomes.
+While the results are not deterministic, thoughtful prompt engineering enables the assistants to produce relatively consistent outputs. In this case, we observed:
+Assistant approval rate: 78%
+Historical approval rate: 79%
+Matched approvals (true positives): 63%
+These results indicate that the assistant aligns closely with historical patterns, though its slightly more conservative approach may warrant further investigation into prompt refinements. Overall, the system shows strong promise as a reliable decision-support tool in real-world underwriting scenarios.
+📁 Git repo
+💻 Notebook
+Concluding remarks
+As financial institutions navigate increasing complexity in credit decisioning, AI-enabled, human-in-the-loop underwriting frameworks are emerging as a promising way forward. With borrower profiles evolving and regulatory scrutiny rising, traditional and transaction-based scoring models remain instrumental but often fall short in handling edge cases or adapting to trends. By embedding large language models into multi-agent workflows, institutions can automate routine risk assessments while preserving expert judgment where it matters most.
+References
+James Wilson and Paul R. Daugherty. The Secret to Successful AI-Driven Process Redesign. Harvard Business Review, January–February 2025.
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+34
+6 Comments
+Anggi Permana Harianja
+1y
+Report this comment
+That's interesting, but I think the hope for GenAI to be useful in credit underwriting isn't primarily on Assistant; rather, it's on how GenAI, through the usage of RAG, can understand tabular data.
+This is just my two cents and I def. can be wrong here.
+Like
+Reply
+2 Reactions
+3 Reactions
+Prof. Hernan Huwyler, MBA CPA CAIO
+1y
+Report this comment
+Strog point, Denis. Predictive risk models make tradicional risk assessments obsolete, ineffective and costly. I'm a big fan of your work and communication skills. Keep moving forward! We need your ideas in the risk management community!
+Like
+Reply
+3 Reactions
+4 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles

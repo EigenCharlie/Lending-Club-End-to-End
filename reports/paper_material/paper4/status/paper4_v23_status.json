@@ -1,0 +1,19 @@
+{
+  "schema_version": "2026-05-14.23",
+  "generated_at_utc": "2026-05-14T22:06:09.471730+00:00",
+  "phase": "v23_dynamic_scale_and_paths",
+  "dynamic_policy_count_v23": 14,
+  "dynamic_path_count_v23": 128,
+  "horizon_months_v23": 36,
+  "dynamic_trace_rows_v23": 123648,
+  "no_temporal_leakage_min_rate_v23": 1.0,
+  "reference_policy_id_v23": "paper1_economic_champion",
+  "external_macro_context_status_v23": "fetch_failed",
+  "ranking_stability_rows_v23": 1,
+  "performance_report_rows_v23": 2,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "128-path internal replay and sample paths v3; no external forecast claim",
+  "runtime_seconds": 971.274
+}

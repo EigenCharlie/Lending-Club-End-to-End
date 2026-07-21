@@ -1,0 +1,3 @@
+reference_id,url,use_v21,claim_boundary
+cfpb_proxy_methodology,https://github.com/cfpb/proxy-methodology,methodological boundary reference only,do not infer protected classes without data/protocol approval
+cfpb_fair_lending,https://www.consumerfinance.gov/compliance/compliance-resources/other-applicable-requirements/fair-lending/,legal/compliance boundary reference,Paper 4 makes no fair-lending legal claim

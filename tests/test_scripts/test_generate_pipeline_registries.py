@@ -14,6 +14,13 @@ def test_pipeline_topology_resolves_legacy_aliases() -> None:
     assert pipeline_topology.resolve_pipeline_family("challenger_promotion") == "search_pd"
 
 
+def test_pipeline_topology_knows_search_paper2_ifrs9_default_profile() -> None:
+    assert (
+        pipeline_topology.default_profile_for_family("search_paper2_ifrs9")
+        == "search_paper2_ifrs9_exhaustive"
+    )
+
+
 def test_generate_pipeline_registries_writes_json_snapshots(tmp_path, monkeypatch) -> None:
     registry_dir = tmp_path / "configs" / "pipeline_registry"
     out_dir = tmp_path / "models" / "pipeline_registry"

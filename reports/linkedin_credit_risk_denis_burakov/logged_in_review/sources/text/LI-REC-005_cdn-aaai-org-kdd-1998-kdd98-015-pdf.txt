@@ -1,0 +1,340 @@
+From: KDD-98 Proceedings. Copyright © 1998, AAAI (www.aaai.org). All rights reserved.
+                       Interpretable Boosted Naïve Bayes Classification
+                               Greg Ridgeway, David Madigan, Thomas Richardson
+                                                        Department of Statistics
+                                                 Box 354322, University of Washington
+                                                        Seattle, WA 98195-4322
+                                                {greg, madigan, tsr}@stat.washington.edu
+
+                                                            John O'Kane
+                                                       Department of Orthopedics
+                                                   Sports Medicine Clinic, Box 354060
+                                                        University of Washington
+                                                        Seattle, WA 98195-4060
+                                                       jokane@u.washington.edu
+
+                          Abstract                                                                            Boosting
+  Voting methods such as boosting and bagging provide
+  substantial improvements in classification performance in             Boosting describes a general voting method for learning
+  many problem domains. However, the resulting predictions              from a sequence of models. Observations poorly modeled
+  can prove inscrutable to end-users. This is especially                by Ht receive greater weight for learning Ht+1. The final
+  problematic in domains such as medicine, where end-user               boosted model is a combination of the predictions from
+  acceptance often depends on the ability of a classifier to            each Ht where each Ht is weighted according to the
+  explain its reasoning. Here we propose a variant of the
+  boosted naïve Bayes classifier that facilitates explanations          quality of its classification of the training data. Freund
+  while retaining predictive performance.                               and Schapire [1995] presented a boosting algorithm that
+                                                                        empirically has yielded reduction in bias, variance, and
+                                                                        misclassification rates with a variety of base classifiers
+                      Introduction                                      and problem settings. The AdaBoost (adaptive boosting)
+Efforts to develop classifiers with strong discrimination               algorithm of Freund and Schapire involves the following
+power using voting methods have marginalized the                        steps.
+importance of comprehensibility. Bauer and Kohavi                          The data for this problem take on the form (X,Y)i where
+[1998] state that “for learning tasks where                             Yi{0,1}. Initialize the weight of each observation
+comprehensibility is not crucial, voting methods are                    to wi(1)  N1 . For t in 1 to T do the following…
+extremely useful.” However, as many authors have
+pointed out, problem domains, such as credit approval and               1.    Using the weights, learn model Ht(xi) : X                        [0,1].
+                                                                              Compute  t   wi( t ) y i  H i( t ) ( xi ) as the error for Ht.
+                                                                                                       N
+medical diagnosis, do require interpretable as well as                  2.
+accurate classification methods. For instance, Swartout                                                i 1
+
+[1983] commented that “trust in a system is developed not                                        t
+                                                                        3.    Let  t                     and update the weights of the
+only by the quality of the results but also by clear                                        1 t
+description of how they were derived. … In addition to
+                                                                              observations as wi( t 1)  wi( t )  t
+                                                                                                                         1 yi  H t ( xi )
+providing diagnoses or prescriptions, a consultant                                                                    . This scheme
+program must be able to explain what it is doing and why                      increases the weights of observations poorly
+it is doing it.” In this note we present a boosted naïve                      predicted by Ht.
+Bayes classifier with both competitive discrimination                   4.    Normalize w(t+1) so that they sum to one.
+ability and transparent reasoning.
+   The next section provides a very brief introduction to                 To classify a new observation Freund and Schapire
+boosting. Then we describe our proposed boosted,                        suggest combining the classifiers as:
+                                                                                                                                  T
+interpretable naïve Bayes classifier while the last section
+                                                                                                                                 (log ) H ( x)1
+                                                                                                                                               t        t
+
+                                                                         H ( x)                              where r ( x) 
+examines its performance empirically.                                                            1                               t 1
+                                                                                           T                                             T
+                                                                                                                                                             .
+Copyright © 1998, American Association for Artificial
+                                                                                    1    t2 r ( x ) 1                                (log )    1
+                                                                                                                                                    t
+                                                                                          t 1                                          t 1
+Intelligence (www.aaai.org). All rights reserved.
+                                                                             Boosting            the    naïve      Bayes         classifier              involves
+substituting in the above algorithm Ht = Pt(Y=1|X) where                                                                                                                 P ( Y 1| X )
+                                                                                                                                                                    log t                 1 
+                                                                                                                            (log  ) 1  2 1  e
+                                                                                                                                 T
+
+                                                                                                                                                                                             .
+estimation of Pt(Y=1|X) assumes that                                                                                                                                     Pt ( Y 0| X )
+
+
+
+                                                                       
+                                                                                                                                                      t
+
+        Pt(Y=1|X)  Pt(Y=1)Pt(X1|Y=1) Pt (Xd|Y=1).                                                                                                                                               
+                                                                                                                                 t 1
+
+
+
+
+The boosted naïve Bayes classifier has proven effective –                                    Substituting the Taylor approximation to the sigmoid
+                                                                                                                12  14 x  481 x 3  Ox 5  up to the linear
+see, for example, Bauer and Kohavi [1998]. Elkan’s                                                        1
+                                                                                             function
+application of boosted naïve Bayes won first place out of                                               1 ex                                 
+45 entries in the data mining competition KDD'97 (Elkan
+                                                                                             term produces a linear combination of the log-odds from
+[1997]). However, while the regular naïve Bayes
+                                                                                             each boosted naïve Bayes classifier:
+approach leads to elegant and effective explanations (see,
+for example, Madigan, et al [1996] and Becker, et al                                                          T
+                                                                                                                                                 Pt (Y  1 | X )
+[1997]), the AdaBoost-ed version destroys this feature.                                                    ( log ) log P (Y  0 | X ) .
+                                                                                                              t 1
+                                                                                                                      1
+                                                                                                                      2       t
+                                                                                                                                 1
+
+                                                                                                                                                  t
+
+
+                                                                                                The linear approximation to the sigmoid function is
+         Boosting and Weights of Evidence                                                    exact at 0 and loses precision as the argument moves
+                                                                                             away from 0. On the probability scale, the two functions
+Under the naïve Bayes assumption, writing the log-odds
+                                                                                             agree at P(Y=1|X) = ½. This is precisely the point where
+in favor of Y=1 we obtain the following:
+                                                                                             classification is the most in doubt. On the probability
+      P (Y  1 | X )                            P( X | Y  1)
+                          log P(Y  1)   log
+                                                                   d
+                                                                                         j
+                                                                                             interval [0.25, 0.75] the absolute error of the
+log
+      P(Y  0 | X )            P (Y  0)        P ( X | Y  0)     j 1                  j
+                                                                                             approximation is less than 0.025. In the region near the
+                                                                                             extremes the approximation preserves the sign of the
+                          w   w (X )
+                                         d
+
+                                   0                j          j
+                                                                                             AdaBoost combined hypothesis. Although the probability
+                                         j 1                                                estimates will differ in this case, both methods will make
+                                                                                             the same classification.
+The wj are the weights of evidence described by Good
+                                                                                                Finally, to help maintain some probabilistic
+[1965]. A positive wj(Xj) indicates that the state of Xj is
+                                                                                             interpretation of the final model and to remove some of
+evidence in favor of the hypothesis that Y=1. A negative
+                                                                                             the effect of the number of boosting iterations, we
+                                                                                             normalize the classifier weights 12 log 1  . Intuitively,
+weight is evidence for Y=0. Spiegelhalter and Knill-Jones
+[1984] advocate the use of weights of evidence                                                                                                                       t
+
+
+extensively in medical diagnosis and propose evidence                                        each probability model casts a log-odds vote for or
+balance sheets as a means of viewing the reasoning                                           against classification into Y=1 where each models’ vote is
+                                                                                             weighted according to its quality. So letting  t 
+                                                                                                                                                                                            log 1
+process of the naïve Bayes classifier. Madigan, et al                                                                                                                                          t
+                                                                                                                                                                                              log 1
+[1996] and Becker, et al [1997] develop this idea further.                                                                                                                                          t
+
+
+   In what follows, we derive a “boosted weight of                                           and assuming a naïve Bayes model for Pt(Y=1|X), a
+evidence” that the explanation facilities of Madigan, et al                                  boosted estimate for the log-odds in favor of Y=1 is:
+[1996] and Becker, et al [1997] can use directly.
+                                                                                                         Pt (Y  1)                                       Pt ( X j | Y  1)
+                                                                                              log P (Y  0)   log P ( X | Y  0)
+                                                                                              T                                         d   T
+   Writing the AdaBoost combined classifiers, H(x), in the                                           t                                                t
+                                                                                              t 1                                   j 1 t 1
+form of a log-odds simplifies the combination procedure.                                                  t                                                t    j
+
+
+                                T                                                                         boosted prior weight of evidence 
+      log
+              H ( x)
+                         log   t2 r ( x )1
+            1  H ( x)
+                                                                                                                          d
+                               t 1
+                                                                                                                           boosted weight of evidence from X
+                                                                                                                          j 1
+                                                                                                                                                                                                     j
+
+
+                          (1  2r ( x)) log 
+                                                        T
+
+                                                                           t
+                                                        t 1                                 This again is just a naïve Bayes classifier where the
+                                                                                             estimates of the weights of evidence have been biased by
+                           (log  )(1  2P (Y  1 | X ))
+                               T
+
+
+                              t 1
+                                                t                      t                     boosting. The sigmoid function transforms the boosted
+                                                                                             log-odds to a boosted predicted probability as
+Using the fact that
+                                                                                             P(Y  1 | X ) 
+                                                                                                                              1
+                                                                                  1
+                                                                                                                                         .
+                                                                P (Y 1| X )
+                                                            log t                                                   1  exp( log odds)
+Pt (Y  1 | X )                          1 e
+                          1                                     Pt ( Y 0| X )
+
+                    1   P ( Y 0| X )
+                         P (Y 1| X )
+                                                                                  
+we can rewrite the log-odds of the combined classifiers as
+a function of the log-odds of each Pt(•):
+                     Performance                              boosting iterations.      Table 2 compares the mis-
+                                                              classification rates of the three methods. Both boosting
+The substantial changes to the classifier combination step    methods demonstrate marginal absolute improvements in
+proposed in the previous section may have produced a          misclassification rate for most of the datasets. However,
+voting method with different discrimination properties. In    the most important result from Table 2 is that boosted
+this section we show empirically on five datasets that the    weight of evidence naïve Bayes almost perfectly matches
+misclassification rates for this new method are               the performance of the AdaBoost method.
+comparable to those generated by the AdaBoost                    We have also examined aspects of the performance of
+algorithm. We note that each one of these datasets            the boosted weight of evidence naïve Bayes classifier that
+concerns a problem domain where human understanding           go beyond just misclassification rate. The so-called “Brier
+of the machine reasoning process is likely to be important.   Score” is a proper scoring rule that considers both
+                                                              discrimination ability and calibration:
+
+                            N      Predictors    Positive              B  N1  ( y i  Pˆ (Yi  1)) 2
+                                                 cases
+ Knee diagnosis             99     26            44%          Yates [1982] and Spiegelhalter [1986] provide an
+ Diabetes                   768    8             35%          extensive discussion of this scoring rule that has its roots
+ Credit approval            690    15            44%          in meteorology. Table 3 indicates that boosting generally
+ Coronary artery disease    303    13            44%          decreases the mean Brier score and again the boosted
+                                                              weight of evidence naïve Bayes classifier is competitive.
+ Breast tumors              699    9             34%
+        Table 1 : Datasets used for comparison
+                                                                                       Naïve        AdaBoost   Weight of
+                                                                                       Bayes                   evidence
+   In a retrospective study, O’Kane, et al [1998] use the
+weight of evidence boosted naïve Bayes classifier to            Knee diagnosis         0.107          0.108      0.103
+diagnose candidates for knee surgery at a sports medicine                             (0.040)        (0.038)    (0.036)
+clinic. They present boosted parameter estimates and            Diabetes               0.170          0.164      0.164
+example evidence balance sheets that physicians can                                   (0.010)        (0.011)    (0.011)
+easily interpret and utilize in diagnosis. A prospective        Credit approval        0.127          0.112      0.113
+study is in progress. The remaining datasets are from the                             (0.020)        (0.012)    (0.012)
+UCI repository (Merz and Murphy [1998]).                        Coronary artery        0.135          0.132      0.130
+                                                                disease               (0.020)        (0.016)    (0.021)
+                                                                Breast tumors          0.035          0.035      0.034
+                    Naïve         AdaBoost      Weight of                             (0.009)        (0.009)    (0.009)
+                    Bayes                       evidence
+ Knee diagnosis      14.0%         13.8%          13.4%           Table 3: Mean Brier score (standard deviation)
+                     (5.0%)        (5.5%)         (5.7%)
+ Diabetes            25.0%         24.4%          24.4%         When a probabilistic prediction model assigns, e.g., a
+                     (2.0%)        (2.5%)         (2.6%)      30% probability to a positive outcome, one would like
+ Credit approval     16.8%         15.5%          15.5%       30% of such cases to actually have a positive outcome.
+                     (2.0%)        (2.1%)         (2.1%)      Various authors have proposed calibration scores and
+ Coronary artery     18.4%         18.3%          18.3%       plots that attempt to represent this property. Calibration
+ disease             (3.0%)        (3.2%)         (3.3%)      plots (Copas [1983]) show whether probabilistic
+                                                              predictions are calibrated. Figure 1 displays an example
+ Breast tumors        3.9%          3.8%           3.8%
+                                                              calibration plot for a random split of the data. The
+                     (1.0%)        (1.0%)         (1.0%)
+                                                              perfectly calibrated predictor will have a straight line.
+ Table 2: Misclassification rates (standard deviation)        Across the five datasets, the plots generally show that the
+                                                              boosting methods provide improved calibration, but the
+   For each dataset we created 100 training sets randomly     two boosting methods are indistinguishable.
+composed of two-thirds of the data. Then we compared
+the misclassification rate of naïve Bayes, AdaBoost naïve
+Bayes, and the proposed boosted weight of evidence
+naïve Bayes on the remaining one-third of the cases
+comprising the test set. Cross-validation on the training
+data yielded an estimate of the optimal number of
+                       1.0
+                                                                                      Madigan, David, Mosurski K., and Almond, R.G. [1996]
+                                                                         WoE
+                                                                                      Explanation in Belief Networks. Journal of
+                                                                                      Computational and Graphical Statistics, 6, 160-181.
+                       0.8
+Observed probability
+
+
+
+
+                                                                                      Merz, C.J., & Murphy, P.M. [1998]. UCI Repository of
+                       0.6
+
+
+
+
+                                                                                      machine learning databases. Irvine, CA: University of
+                                   Naive                                              California, Department of Information and Computer
+                                   Bayes
+                       0.4
+
+
+
+
+                                                                                      Science.
+                                                                                      http://www.ics.uci.edu/~mlearn/MLRepository.html
+                                                       AdaBoost
+                       0.2
+
+
+
+
+                                                                                      O’Kane, John, Ridgeway, G., Madigan, D. [1998]. In
+                                                                                      submission.
+                       0.0
+
+
+
+
+                                                                                      Spiegelhalter, D.J. and Knill-Jones, R.P. [1984] Statistical
+                             0.0           0.2       0.4        0.6       0.8   1.0
+                                                                                      and Knowledge-based Approaches to Clinical Decision-
+                                                 Predicted probability
+                                                                                      support Systems, with an Application in Gastroenterology
+                       Figure 1: Example calibration plots (credit data)              (with discussion). Journal of the Royal Statistical Society
+                                                                                      (Series A), 147, 35-77.
+  Further research may show that boosting smoothes
+                                                                                      Spiegelhalter, David J. [1986] Probabilistic Prediction in
+predictions in such a way that improves their calibration.
+                                                                                      Patient Management and Clinical Trials. Statistics in
+                                                                                      Medicine, 5, 421-433.
+                                                  Summary                             Swartout, W. [1983] XPLAIN: A system for creating and
+The proposed boosting by weight of evidence method                                    explaining expert consulting programs. Artificial
+offers an easily interpretable model with discrimination                              Intelligence, 21, 285-325.
+power equivalent to that of AdaBoost. More importantly,                               Yates,    J.F.   [1982]   External  correspondence:
+this shows that voting methods do not necessarily have to                             decomposition of the mean probability score.
+dispense with interpretability in order to obtain                                     Organisational Behaviour and Human Performance, 30,
+classification strength.                                                              132-156.
+
+                                            Acknowledgements
+A grant from the National Science Foundation supported
+this work (DMS 9704573).
+
+
+                                                 References
+Bauer, E. and Kohavi, R. [1998] An Empirical
+Comparison of Voting Classification Algorithms:
+Bagging, Boosting, and Variants. Machine Learning, vv,
+1-33.
+Becker, B., Kohavi, R., Sommerfield, D. [1997]
+Visualizing the Simple Bayesian Classifier. KDD 1997
+Workshop on Issues in the Integration of Data Mining
+and Data Visualization.
+Copas, J.B. [1983]. Plotting p against x. Applied
+Statistics, 32, 25-31.
+Elkan, C. [1997]. Boosting and Naïve Bayes Learning.
+Technical Report No. CS97-557, September 1997, UCSD.
+Good, I. J. [1965] The Estimation of Probabilities: An
+Essay on Modern Bayesian Methods, MIT Press.

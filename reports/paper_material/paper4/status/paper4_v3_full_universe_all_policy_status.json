@@ -1,0 +1,324 @@
+{
+  "schema_version": "2026-05-13.1",
+  "generated_at_utc": "2026-05-13T15:50:38.634875+00:00",
+  "started_at_utc": "2026-05-13T14:42:03.750341+00:00",
+  "mode": "full_universe_exact_all_frozen_policies_no_promotion",
+  "candidate_pool_n": 276869,
+  "target_policy_count": 45,
+  "completed_policy_count": 45,
+  "paper1_champion_protected": true,
+  "paper4_final_promotion_created": false,
+  "promotion_json_created": false,
+  "time_limit_seconds_per_solve": 300,
+  "solve_log": [
+    {
+      "policy_id": "paper1_economic_champion",
+      "status": "reused_checkpoint"
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p45_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "reused_checkpoint"
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p45_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 81.76624348299993,
+      "n_funded": 336,
+      "full_realized_return": 171493.05187548406
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p45_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 84.2719186559998,
+      "n_funded": 332,
+      "full_realized_return": 166360.37821864535
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p50_u0p05_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 85.18081403399992,
+      "n_funded": 335,
+      "full_realized_return": 168381.42095406866
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p50_u0p00_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 83.83281327500026,
+      "n_funded": 336,
+      "full_realized_return": 165867.5409080903
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p45_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 86.17823905000023,
+      "n_funded": 337,
+      "full_realized_return": 166448.48070384935
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p45_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 86.61027118200036,
+      "n_funded": 337,
+      "full_realized_return": 163342.47551604442
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p50_u0p10_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 86.09853432699947,
+      "n_funded": 338,
+      "full_realized_return": 170034.72155780336
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 84.68004155500057,
+      "n_funded": 343,
+      "full_realized_return": 164567.66854109085
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p45_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 90.52981617600017,
+      "n_funded": 331,
+      "full_realized_return": 163880.8018592057
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 82.6027745320007,
+      "n_funded": 344,
+      "full_realized_return": 167824.31213211964
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p50_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 84.76917461100038,
+      "n_funded": 335,
+      "full_realized_return": 161885.39992733212
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 87.82950100899961,
+      "n_funded": 342,
+      "full_realized_return": 163425.09219159797
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p45_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 85.83417791300053,
+      "n_funded": 342,
+      "full_realized_return": 161139.9777815046
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 90.87373168399972,
+      "n_funded": 340,
+      "full_realized_return": 160892.80931547802
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p50_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 87.90404579599999,
+      "n_funded": 337,
+      "full_realized_return": 161131.5998006576
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p45_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 86.28077657300037,
+      "n_funded": 340,
+      "full_realized_return": 161501.33216824324
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p45_u0p05_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 87.74022984700059,
+      "n_funded": 338,
+      "full_realized_return": 173167.29097774794
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p45_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 89.16778736200013,
+      "n_funded": 338,
+      "full_realized_return": 161122.88786385013
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p50_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 85.8788177839997,
+      "n_funded": 337,
+      "full_realized_return": 161686.85551018076
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p55_u0p10_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 87.93012617400018,
+      "n_funded": 345,
+      "full_realized_return": 170546.9707702814
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 88.65816003800046,
+      "n_funded": 341,
+      "full_realized_return": 159970.1421115353
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p45_u0p00_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 90.89331253099954,
+      "n_funded": 336,
+      "full_realized_return": 173772.954578085
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p55_u0p05_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 88.37788225400072,
+      "n_funded": 337,
+      "full_realized_return": 160858.51906735598
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p45_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 91.77897483499964,
+      "n_funded": 338,
+      "full_realized_return": 160661.3170293993
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p45_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 95.19223266999961,
+      "n_funded": 339,
+      "full_realized_return": 159234.29351148574
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 99.31779834400004,
+      "n_funded": 343,
+      "full_realized_return": 158862.2766722592
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p50_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 99.17584107300081,
+      "n_funded": 338,
+      "full_realized_return": 159739.1079976787
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 103.97296647199983,
+      "n_funded": 344,
+      "full_realized_return": 160230.13582575176
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p50_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 106.24202897099985,
+      "n_funded": 341,
+      "full_realized_return": 161875.0721309776
+    },
+    {
+      "policy_id": "crpto_rt0p175_g0p55_u0p00_alpha0p01_conservative_proxy_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 98.11232803999974,
+      "n_funded": 336,
+      "full_realized_return": 159301.51328728814
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 102.74809658200047,
+      "n_funded": 343,
+      "full_realized_return": 157771.10324584515
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 98.50642010199954,
+      "n_funded": 343,
+      "full_realized_return": 157485.99601203215
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p45_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 105.03858057799971,
+      "n_funded": 339,
+      "full_realized_return": 160927.05411445047
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p50_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 103.13721082199936,
+      "n_funded": 343,
+      "full_realized_return": 157596.30251013962
+    },
+    {
+      "policy_id": "crpto_rt0p170_g0p55_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 102.9157063749999,
+      "n_funded": 338,
+      "full_realized_return": 160754.18284622632
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p55_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 103.58399320999979,
+      "n_funded": 340,
+      "full_realized_return": 157284.96087456733
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p50_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 104.10992358800013,
+      "n_funded": 337,
+      "full_realized_return": 160371.7703367272
+    },
+    {
+      "policy_id": "crpto_rt0p165_g0p55_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 103.48146985299991,
+      "n_funded": 340,
+      "full_realized_return": 158664.95309527701
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 87.92567941499874,
+      "n_funded": 342,
+      "full_realized_return": 156688.45547937287
+    },
+    {
+      "policy_id": "crpto_rt0p160_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 90.9374624359989,
+      "n_funded": 344,
+      "full_realized_return": 157702.26800928486
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p55_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 92.23660860400014,
+      "n_funded": 339,
+      "full_realized_return": 154950.19657837506
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p50_u0p00_alpha0p01_forced_incumbent_neighbors_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 101.74397494700133,
+      "n_funded": 341,
+      "full_realized_return": 158133.33171330846
+    },
+    {
+      "policy_id": "crpto_rt0p155_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+      "status": "TerminationCondition.optimal",
+      "elapsed_seconds": 98.59994917800032,
+      "n_funded": 344,
+      "full_realized_return": 157596.0136379414
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+---
+title: "Policy-Loan Matrix"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _pq(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_parquet(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+matrix = _pq("paper4_policy_loan_matrix.parquet")
+evidence = _pq("paper4_policy_loan_level_evidence.parquet")
+composition = _csv("paper4_policy_funded_set_composition.csv")
+status = _json("paper4_extended_lanes_status.json")
+```
+
+## Pregunta {#sec-paper4-policy-loan-question}
+
+El MVP inicial tenía una limitación clara: la evidencia loan-level exacta solo
+existía para el champion del CRPTO/Paper_CRPTO externo. Esta página responde el siguiente
+paso:
+
+> ¿Podemos construir una matriz `policy_id × loan_id` que permita evaluar IFRS9,
+> replay mensual, fairness, MDCP y CATE por policy, sin tocar el champion?
+
+La respuesta es sí, con una salvedad importante: el champion usa el funded set
+exacto del CRPTO/Paper_CRPTO externo; las demás policies usan una reconstrucción
+diagnóstica `policy-implied greedy proxy`.
+
+::: {.callout-warning}
+## Caveat central
+
+El run bound-aware guardó métricas agregadas para las 45 policies, pero no
+guardó los vectores completos de asignación. Por eso esta matriz es sparse y
+diagnóstica. Sirve para experimentar Paper 4; no reemplaza un rerun exacto del
+solver.
+:::
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-policy-loan-status
+#| tbl-cap: "Estado de la reconstrucción policy-loan"
+
+pd.DataFrame(
+    [
+        {"item": "phase", "value": status.get("phase", "")},
+        {"item": "n_policies", "value": status.get("n_policies", "")},
+        {"item": "n_policy_loan_rows", "value": status.get("n_policy_loan_rows", "")},
+        {"item": "paper1_champion_protected", "value": status.get("paper1_champion_protected", "")},
+        {"item": "caveat", "value": status.get("reconstruction_caveat", "")},
+    ]
+)
+```
+
+```{python}
+#| label: tbl-paper4-policy-loan-shapes
+#| tbl-cap: "Tablas policy-loan generadas"
+
+pd.DataFrame(
+    [
+        {"artifact": "paper4_policy_loan_matrix.parquet", "rows": len(matrix), "columns": len(matrix.columns)},
+        {"artifact": "paper4_policy_loan_level_evidence.parquet", "rows": len(evidence), "columns": len(evidence.columns)},
+        {"artifact": "paper4_policy_funded_set_composition.csv", "rows": len(composition), "columns": len(composition.columns)},
+    ]
+)
+```
+
+## Resultado
+
+La matriz es sparse: contiene préstamos fondeados por cada policy, no todos los
+pares posibles `policy × loan`. Eso mantiene el artifact liviano y enfocado en
+evidencia de decisión.
+
+```{python}
+#| label: tbl-paper4-policy-loan-methods
+#| tbl-cap: "Método de reconstrucción por policy"
+
+if not matrix.empty:
+    matrix.groupby(["policy_id", "reconstruction_method"], as_index=False).agg(
+        funded_loans=("loan_id", "nunique"),
+        funded_exposure=("funded_exposure", "sum"),
+        champion_exact=("is_champion_exact", "max"),
+    ).sort_values(["champion_exact", "funded_exposure"], ascending=[False, False]).head(12)
+else:
+    matrix
+```
+
+```{python}
+#| label: tbl-paper4-policy-loan-evidence-head
+#| tbl-cap: "Muestra de evidencia loan-level por policy"
+
+cols = [
+    "policy_id",
+    "loan_id",
+    "period",
+    "original_grade",
+    "funded_exposure",
+    "portfolio_weight",
+    "pd_point",
+    "pd_high_alpha01",
+    "effective_pd_alpha01",
+    "miscovered_alpha01",
+    "reconstruction_method",
+]
+evidence[cols].head(15) if not evidence.empty else evidence
+```
+
+La composición queda lista para lectura por periodo y grade:
+
+```{python}
+#| label: tbl-paper4-policy-funded-composition
+#| tbl-cap: "Composición funded-set por policy, periodo y grade"
+
+composition.head(15) if not composition.empty else composition
+```
+
+## Interpretación
+
+Este artifact desbloquea casi todo Paper 4:
+
+- IFRS9 por préstamo y policy.
+- replay mensual para las 45 policies.
+- MDCP por grade/period/source.
+- fairness proxy por distribución de exposición.
+- CATE toy value por funded set.
+- sample-path bootstrap usando meses comunes.
+
+Lo importante es que el artifact no se presenta como verdad final del solver.
+Es una capa de laboratorio. Si alguna señal sale fuerte, el siguiente paso es
+rerun exacto con asignaciones persistidas.
+
+## Next Step
+
+La mejora futura es abrir un modo exacto:
+
+```text
+PAPER4_EXACT_REPLAY=1 python scripts/papers/build_paper4_extended_experiments.py
+```
+
+Ese modo debería rerresolver las 45 policies, guardar allocations completas y
+comparar proxy vs exacto. Mientras tanto, todos los claims basados en esta
+matriz deben llevar el status `diagnostic` o `proxy`.

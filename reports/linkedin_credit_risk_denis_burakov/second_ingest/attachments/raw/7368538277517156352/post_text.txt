@@ -1,0 +1,8 @@
+While XGBoost and LightGBM get most of the attention, CatBoost quietly solves some of the toughest tabular problems.
+In this new Medium article, I share lessons learned from using CatBoost in real-world risk modeling projects:
+• Explainability
+• Built-in feature statistics and selection
+• Text & embeddings support
+• CatBoost with MLflow in SageMaker
+📘 Read it here → https://lnkd.in/dCnwZ3tj
+#DataScience #MachineLearning #CatBoost #Python #ExplainableAI

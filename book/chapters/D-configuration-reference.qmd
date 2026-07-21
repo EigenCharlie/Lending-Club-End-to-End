@@ -3,45 +3,51 @@ title: "Referencia de Configuración"
 page-layout: article
 ---
 
-El proyecto ya no depende de “parámetros escondidos en notebooks”. La capa `configs/` concentra las decisiones declarativas que gobiernan modelado, conformal, fairness, optimización y perfiles de ejecución.
+{{< include ../includes/_scientific-scope-contract.qmd >}}
+
+Los YAML de `configs/` reproducen configuraciones históricas de ejecución. No
+seleccionan políticas para CRPTO, Paper 2 o Paper 4, ni confieren autoridad
+científica, operacional, prudencial o legal. La autoridad vigente está en
+`SESSION_STATE.md` y en los contratos específicos de cada paper.
 
 ### Configuraciones clave
 
 | Archivo | Función |
 |---|---|
-| `configs/pd_model.yaml` | configuración base del modelo PD |
-| `configs/pd_model.paper_grade_final.yaml` | perfil del run canónico de papers |
-| `configs/conformal_policy.yaml` | metas y thresholds de cobertura |
-| `configs/fairness_policy.yaml` | límites de fairness y política de evaluación |
-| `configs/mrm_policy.yaml` | reglas de gobernanza y validación |
-| `configs/optimization.yaml` | parámetros de portafolio robusto |
+| `configs/pd_model.yaml` | configuración histórica del score de clase 1 etiquetado PD |
+| `configs/conformal_policy.yaml` | metas y thresholds internos de cobertura histórica |
+| `configs/fairness_policy.yaml` | checks históricos por grupos/proxies; no fair-lending |
+| `configs/mrm_policy.yaml` | controles internos legacy; no validación independiente |
+| `configs/optimization.yaml` | parámetros de experimentos de portafolio estilizado |
 | `configs/time_series.yaml` | forecasting y escenarios temporales |
 
 : Núcleo de configuración declarativa {#tbl-config-core}
 
-### Perfiles de ejecución
+### Perfiles históricos de ejecución
 
-La carpeta `configs/run_profiles/` empaqueta modos de trabajo completos, por ejemplo:
+La carpeta `configs/profiles/` empaqueta modos de trabajo completos, por ejemplo:
 
 - `canonical_operational.yaml`
-- `paper_grade_final.yaml`
-- `insights_factory_canonical.yaml`
-- `overnight_full.yaml`
+- `canonical_confirmatory_full.yaml`
+- `paper1_e2e_default.yaml`
+- `search_pd_default.yaml`
 
-Esta separación es valiosa porque desacopla:
+Esta separación permite auditar por separado:
 
 1. la lógica del pipeline,
-2. la política de validación,
+2. los controles internos de evaluación,
 3. el contexto de ejecución.
 
-### Convención recomendada
+### Convención de reproducibilidad
 
 Una configuración útil en este proyecto debería responder tres preguntas sin ambigüedad:
 
 - qué método se está usando;
 - con qué thresholds o constraints;
-- bajo qué perfil narrativo u operacional corre.
+- bajo qué perfil narrativo o de ejecución corre.
 
 ### Relación con el libro
 
-Muchos capítulos del libro citan resultados ya consolidados. Este anexo recuerda que esos resultados no nacen de magia editorial: nacen de YAML y JSON concretos, versionados y trazables. Esa disciplina es parte central de la madurez técnica del proyecto.
+Muchos capítulos citan resultados históricos. Este anexo permite rastrearlos a
+YAML y JSON versionados; esa trazabilidad reproduce una corrida, pero no vuelve
+vigente su selección ni transporta garantías entre targets o papers.

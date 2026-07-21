@@ -1,0 +1,70 @@
+---
+title: "v24 DLA, CVaR and SPO Upgrade"
+page-layout: article
+---
+
+## Pregunta
+
+V24 pregunta si podemos mejorar los tres carriles técnicos más prometedores:
+DLA/ADP, CVaR/OCE y SPO/DFL, sin fingir que ya tenemos optimalidad Bellman,
+full-universe CVaR exacto o SPO+ diferenciable.
+
+## Qué intentamos
+
+Se implementaron cuatro policies ADP-rollout aproximadas con estado, decisión,
+post-decision state, reward y transición declarados. También se formalizó el
+diagnóstico CVaR con pricing log, frontier no dominada y certificado práctico de
+infeasibilidad strict. SPO se reforzó por la ruta oracle-regret no diferenciable,
+manteniendo `cvxpy/cvxpylayers/torch` como dependency blocker.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v24_adp_value_coefficients.csv` | pesos de value function proxy |
+| `paper4_v24_dla_adp_decisions.parquet` | decisiones loan-level ADP |
+| `paper4_v24_dla_adp_dynamic_summary.csv` | desempeño dinámico ADP |
+| `paper4_v24_cvar_column_generation_log.csv` | pricing heuristic |
+| `paper4_v24_cvar_frontier_non_dominated.csv` | frontera CVaR/OCE diagnostic |
+| `paper4_v24_cvar_infeasibility_certificate_formalized.csv` | certificado strict |
+| `paper4_v24_spo_temporal_oracle_regret.csv` | regret temporal SPO-like |
+| `paper4_v24_committee_profile_memos.csv` | memos por perfil de comité |
+| `paper4_v24_status.json` | status reproducible |
+
+## Resultado
+
+Las 4 policies ADP se simularon bajo 128 paths y produjeron 35,328 filas de
+trace. Ninguna se promueve automáticamente: varias tienen wealth razonable, pero
+fallan gates de pérdida p95 por exposición alta. Esto es útil: el DLA endógeno
+ya existe, pero todavía necesita restricciones de riesgo más fuertes.
+
+Los memos de comité muestran el trade-off real: perfiles wealth/ecl/balanced
+pueden preferir challengers MDCP/CVaR, pero tail-first retiene
+`paper1_economic_champion`. Por eso v24 no cambia champion.
+
+## Qué mejoró
+
+Paper 4 ya no depende solo de adapters: tiene policies ADP construidas desde el
+pool mensual. CVaR strict queda mejor explicado y SPO queda más defendible como
+oracle-regret surrogate.
+
+## Qué falló
+
+No hay Bellman exacto. No hay full-universe CVaR exacto. No hay SPO+
+diferenciable. El error ABI de `cvxpy` con NumPy 2.x sigue siendo blocker.
+
+## Claim permitido
+
+Paper 4 puede decir que implementa ADP-rollout aproximado, CVaR
+restricted-master diagnostics y SPO-like oracle-regret comparables en el
+laboratorio.
+
+## Claim no permitido
+
+No puede reclamar optimalidad dinámica exacta, certificado matemático full LP o
+SPO+ diferenciable formal.
+
+## Qué queda pendiente
+
+Mejorar risk constraints dentro de ADP, pricing de CVaR más cercano a column
+generation real y entorno aislado para intentar `cvxpylayers`.

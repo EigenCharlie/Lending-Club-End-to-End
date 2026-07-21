@@ -1,5 +1,12 @@
 # Reproducibility Runbook
 
+> **RUNTIME REPRODUCIBILITY SCOPE (2026-07-20).** This runbook rebuilds the
+> historical local pipeline. Names such as `canonical`, `champion`, `winner`,
+> `official`, `operational` and `promoted` below are interface/provenance labels
+> from that freeze; they do not select a current CRPTO learner or policy and do
+> not validate PD intervals, IFRS9/ECL/SICR, fairness or deployment. Consult
+> `SESSION_STATE.md` before interpreting any rebuilt artifact.
+
 Step-by-step guide to reproduce the entire project from a fresh clone.
 
 ## Prerequisites
@@ -42,10 +49,41 @@ uv run streamlit run streamlit_app/app.py
 Notes:
 - Canonical full rebuild: `uv run dvc repro` or `scripts/run_canonical_rebuild.py` (`core_canonical`).
 - PD/challenger search: `scripts/run_champion_search.py` (`search_pd` by default).
-- Final paper-grade run: `scripts/run_paper_grade_final.py` (`paper1_e2e`).
+- Paper 2 IFRS9 search: `scripts/search/run_paper2_ifrs9_search.py` (`search_paper2_ifrs9`).
 - Insight-factory complement: `scripts/run_insights_factory.py --profile canonical|research` (`research_labs`).
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` are compatibility entrypoints only.
 - Canonical standalone causal runner: `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate`.
+
+## Historical Paper / Thesis Closure (2026-04-05)
+
+The reproducible April freeze carries two legacy layers that must not be
+confused with current paper claims:
+
+- **Runtime base labeled canonical/operational**: the monotonic confirmatory stack `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`
+- **Historical stack labeled final/promoted**: the same upstream score/governance base plus the conformal reopen selection and economic `portfolio_bound_aware` closure
+
+Historical portfolio parameters selected in that freeze:
+
+- `risk_tolerance=0.175`
+- `policy_mode=blended_uncertainty`
+- `gamma=0.45`
+- `uncertainty_aversion=0.10`
+
+Runtime provenance artifacts:
+
+- `models/final_project_promotion.json`
+- `data/processed/final_project_summary.parquet`
+- `models/champion_portfolio_policy.json`
+- `models/champion_registry.json`
+
+Historical reconstruction rules (not current scientific authorization):
+
+- the monotonic run is the upstream base for reproducing the local stack;
+- `rank1_score_decile_raw_bins5_mgs100` records the conformal choice made by the legacy reopen procedure;
+- `grade Mondrian` records an interpretable comparator, not a current regulatory baseline;
+- the `276k` mini-grid and its `45/45` label were reused during selection and
+  do not establish a final untouched evaluation or current robust region;
+- none of these labels selects a learner or policy for external CRPTO.
 
 ## Step-by-Step Pipeline
 
@@ -59,15 +97,15 @@ If you want to run individual stages:
 | 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers/Beta) + `models/decision_threshold.json` |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
-| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
+| 7 | `uv run python scripts/validate_conformal_policy.py` | Historical automated checks + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
 | 8 | `uv run python scripts/benchmark_conformal_variants.py` | Variant selector + `conformal_temporal_diagnostics.parquet` |
 | 9 | `uv run python scripts/benchmark_pd_set_prediction.py` | Binary classification-set benchmark (`pd_set_prediction_status.json`) |
 | 10 | `uv run python scripts/analyze_pd_rare_event_calibration.py` | Rare-event calibration audit (`pd_rare_event_calibration_status.json`) |
 | 11 | `uv run python scripts/export_conformal_method_registry.py` | Canonical method/library registry (`conformal_method_registry.json`) |
 | 12 | `uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml` | Challenger feature selection + monotonic constraints spec |
-| 13 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Fairness gate using threshold artifact (`fairness_audit_status.json`) |
+| 13 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Proxy-group disparity checks using a threshold artifact (`fairness_audit_status.json`); not legal fairness validation |
 | 14 | `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` | `estimate -> simulate -> validate -> backtest` in `.venv-causal` |
-| 15 | `uv run python scripts/run_ifrs9_sensitivity.py` | ECL scenarios |
+| 15 | `uv run python scripts/run_ifrs9_sensitivity.py` | Mechanical IFRS9-labeled sensitivity outputs; not identified ECL |
 | 16 | `uv run python scripts/optimize_portfolio.py` | LP/MILP allocation |
 | 17 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
 
@@ -82,7 +120,11 @@ Compatibility note:
   `fairness_audit_status.json.primary_threshold` and `fairness_decision_policy.json.global_threshold`
   are threshold operativo de aprobación/fairness.
 
-## Conformal Promotion Gate (2026-02-27 / 2026-03-13)
+## Historical Conformal Selector Semantics (2026-02-27 / 2026-03-13)
+
+The names below describe how the frozen automation routed artifacts. A `PASS`,
+`promotion`, or `operational` field is not a current scientific promotion,
+independent model validation, or deployment authorization.
 
 - `scripts/validate_conformal_policy.py` remains **strict** for model-risk policy (`overall_pass` still includes Kupiec/Christoffersen).
 - `models/conformal_policy_status.json` now also emits:
@@ -97,7 +139,7 @@ Compatibility note:
   and `critical_alerts == 0`.
 - This compensated band is an explicit internal policy rule, not a library default and not a
   claim that `1.20` or `1.22` are universal literature cutoffs.
-- `scripts/run_comparison.py` is the **promotion gate** and now treats Kupiec/Christoffersen as non-blocking diagnostics.
+- `scripts/run_comparison.py` was the internal **promotion gate** and treats Kupiec/Christoffersen as non-blocking diagnostics.
 - `scripts/run_comparison.py` now includes a blocking `artifact_coherence` gate:
   critical status artifacts must carry consistent `schema_version`, `generated_at_utc`, and `run_tag`.
 - Blocking conformal checks in promotion are: `coverage_90`, `coverage_95`, `min_group_coverage_90`, `winkler_90`, `critical_alerts`.
@@ -107,7 +149,9 @@ Compatibility note:
 
 ## Threshold Semantics
 
-Two separate thresholds coexist in this project. Confusing them leads to incorrect fairness or approval interpretations.
+Two separate historical thresholds coexist in this project. Confusing them
+changes the software result; neither one is a currently selected external
+decision rule.
 
 **`pd_internal_selected_threshold` = 0.05**
 Artifact: `models/threshold_semantics.json`, `models/decision_threshold.json`.
@@ -115,24 +159,31 @@ Internal screening/search — selects candidates for portfolio optimization. NOT
 
 **`fairness_primary_threshold` / `decision_policy_global_threshold` = 0.35**
 Artifact: `models/fairness_decision_policy.json`, `models/threshold_semantics.json`.
-Operational approval/fairness threshold. Used in fairness audit and business narratives.
+Historical threshold operativo for approval/proxy-group diagnostics in the
+runtime schema.
 
 Rules:
 
-- Fairness metrics (DPD, EOD) must always be computed at the **operational threshold (0.35)**, not the internal threshold.
-- The internal threshold is only for candidate universe generation in portfolio optimization.
-- `models/threshold_semantics.json` is the canonical source of truth for both values.
+- To reproduce the historical proxy-group outputs, DPD and EOD use the
+  **threshold operativo (0.35)**, not the threshold interno.
+- The threshold interno was used for candidate-universe generation in the
+  historical portfolio experiment.
+- `models/threshold_semantics.json` is the runtime source for those two stored
+  values; it does not select a current policy.
 
-## LGD/EAD Conformal (Promoted 2026-03-16)
+## LGD/EAD Conformal — Historical Selector Record (2026-03-16)
 
-- Promoted variant: `direct_adaptive_grade_temporal`
+- Variant labeled promoted by the local selector: `direct_adaptive_grade_temporal`
 - Coverage 90%: 0.9052, Min grade coverage: 0.9047, Avg width: 0.4951, Bias: -0.090
 - Artifact: `models/conformal_lgd_ead_status.json` (`promoted: true`)
-- Other variants: all fail `overall_pass` due to coverage_90 < target or min_grade_coverage < threshold.
+- Other variants failed that selector's `overall_pass` rule. These stored labels
+  do not establish validated LGD/EAD endpoints, ECL, or a downstream decision
+  policy.
 
-## Official Rerun Profile (Core)
+## Historical Core Rerun Profile
 
-Use this profile for frozen operational reruns that should be stable and resumable on workstation resources:
+Use this profile only to reproduce the frozen local runtime on workstation
+resources:
 
 ```bash
 bash scripts/start_long_run.sh canonical-<run_tag> \
@@ -142,11 +193,15 @@ bash scripts/monitor_long_run.sh <run_tag>
 ```
 
 Notes:
-- Official / canonical / champion tags require baseline. If no baseline flag is passed, launcher resolves default from `configs/baselines/canonical_operational_baseline.json` and then falls back to the legacy core registry.
+- Tags containing official / canonical / champion require a baseline as a
+  software invariant. Those strings do not confer current scientific authority.
+  If no baseline flag is passed, the launcher resolves
+  `configs/baselines/canonical_operational_baseline.json` and then falls back to
+  the legacy core registry.
 - `reports/history/project_audit_snapshot.json` is historical context only; do not treat it as the live baseline snapshot.
 - Launcher defaults are `--resume`, `--sampling-profile full`, and baseline snapshot refresh on resume.
 
-Official baseline freeze workflow:
+Historical baseline-freeze workflow:
 
 ```bash
 uv run python scripts/freeze_core_baseline.py \
@@ -170,14 +225,97 @@ bash scripts/start_long_run.sh <run_tag> --resume \
   --no-rapids --no-notebooks --stop-on-optional-failure
 ```
 
-## Time Series Operational Semantics
+## Exhaustive Search Wave 2026-04
 
-The time-series lane is governed by a single status contract:
+Pipeline-first exhaustive search lanes now split into:
+- `search_pd` for blockwise / constrained-threshold monotonic challenger work
+- `search_paper2_ifrs9` for survival / PoC / IFRS9 search
+- `search_conformal` for strictness-oriented Mondrian / CQR tuning
+
+Suggested launch commands:
+
+```bash
+uv run python scripts/search/run_pd_search.py \
+  --run-tag pd-blockwise-exhaustive-2026-04 \
+  --pipeline-profile search_pd_blockwise_exhaustive \
+  --sampling-profile mega64plus \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+
+uv run python scripts/search/run_paper2_ifrs9_search.py \
+  --run-tag paper2-ifrs9-exhaustive-2026-04 \
+  --pipeline-profile search_paper2_ifrs9_exhaustive \
+  --sampling-profile mega64safe \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+
+uv run python scripts/search/run_conformal_search.py \
+  --run-tag conformal-strict-exhaustive-2026-04 \
+  --pipeline-profile search_conformal_exhaustive \
+  --sampling-profile champion64safe \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+```
+
+Conformal reopen workflow over the refined PD candidate:
+
+```bash
+uv run python scripts/search/run_conformal_reopen_search.py \
+  --run-tag conformal-reopen-2026-04 \
+  --pipeline-profile search_conformal_reopen_exhaustive \
+  --upstream-canonical-run-tag pd-hpo-local-2026-04-03-1325
+```
+
+This workflow performs:
+- repeated inner search on calibration holdout only,
+- single OOT confirmation under namespace,
+- set-prediction sidecar benchmark,
+- optional phase-2 calibrator search (`venn_abers`, `isotonic`, `platt`, `beta`) if phase 1 still fails policy.
+
+Historical bound-aware portfolio search on top of the selected conformal candidate:
+
+1. `5k` corrected shortlist run to prove an `alpha=0.01` exact passer exists;
+2. `25k` hybrid run (GPU frontier + exact CPU) to confirm the region is not a subset artifact;
+3. `276k` full-OOT mini-grid used to select and describe the economic candidate;
+   because this evidence was reused, it did not certify a final region.
+
+Important lesson:
+- the failed wide `5k` refinement did **not** show that `alpha01-safe` was impossible;
+- it exposed a shortlist bug where return/PoR ranking was done before exact bound ranking;
+- historical promotion artifacts encode the corrected shortlist logic and preserve the selection provenance;
+- `grade` and `score_decile_mondrian` are legacy candidates with distinct roles
+  in that procedure, not two current winners or regulatory baselines.
+
+Monitoring:
+
+```bash
+uv run python scripts/monitor_pipeline_eta.py --run-tag <run_tag>
+bash scripts/monitor_long_run.sh
+```
+
+Local HPO refinement on top of the best blockwise challenger:
+
+```bash
+uv run python scripts/search/run_pd_hpo_local.py \
+  --run-tag pd-hpo-local-2026-04 \
+  --base-search-run-tag pd-blockwise-exhaustive-2026-04-02-0940 \
+  --hpo-n-trials 120 \
+  --sampling-profile mega64plus \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+```
+
+## Time-Series Historical Runtime Semantics
+
+The time-series lane used the following status artifacts:
 - canonical status artifact: `models/time_series_status.json`
 - experimental / research status artifact: `models/time_series_research_status.json`
+- vNext redesign research artifact: `models/time_series_vnext_status.json`
+- vNext policy decision artifact: `models/time_series_policy_review.json`
 
 End-to-end producer:
 - `scripts/forecast_default_rates.py`
+- `scripts/run_time_series_vnext.py` for the enriched redesign lane
 
 Core outputs:
 - `data/processed/ts_forecasts.parquet`
@@ -185,36 +323,61 @@ Core outputs:
 - `data/processed/ts_panel_forecasts.parquet`
 - `models/time_series_status.json`
 
-The canonical status separates:
+The runtime status separates:
 - `point_champion`
 - `interval_champion`
 - `warnings`
 - `final_interval_decision`
 
-Operational meaning:
-- `point_champion.promotable=true` means the point forecast can be treated as the official operational forecast.
-- `interval_champion.promotable=true` means the interval layer is also officially validated.
-- `final_interval_decision.status=research_only` means interval outputs still exist and are published, but they remain diagnostic/research evidence rather than a promoted interval policy.
-- `final_interval_decision.status=promoted` means the interval layer passed the same governed selection logic and is part of the official forecast contract.
+Historical field meaning:
+
+- `point_champion.promotable=true` records that the local selector admitted the
+  point candidate under its encoded thresholds.
+- `interval_champion.promotable=true` records the analogous internal routing
+  result for the interval candidate.
+- `final_interval_decision.status=research_only` kept interval outputs in the
+  exploratory lane.
+- `final_interval_decision.status=promoted` would have changed the historical
+  runtime route; it would not, by itself, constitute independent validation or
+  an official operational forecast.
 
 Artifact flow:
 
-| Artifact | Produced by | Main consumers | If `research_only` | If `promoted` |
-|----------|-------------|----------------|--------------------|---------------|
-| `models/time_series_status.json` | `scripts/forecast_default_rates.py` | `export_storytelling_snapshot.py`, `generate_paper_grade_protocol.py`, `build_champion_search_bundle.py`, `update_champion_registry.py`, Streamlit | Canonical point forecast stays official; interval layer is reported with warning | Point + interval layers become fully official |
-| `data/processed/ts_forecasts.parquet` | `scripts/forecast_default_rates.py` | Streamlit, MLflow logging | Forecasts visible and usable, but interval interpretation stays diagnostic | Forecasts and their intervals are both official |
-| `data/processed/ts_ifrs9_scenarios.parquet` | `scripts/forecast_default_rates.py` | `run_ifrs9_sensitivity.py`, Streamlit, MLflow logging | Scenarios remain useful, but interval-backed uncertainty is not promoted | Scenarios inherit an officially validated interval layer |
-| `data/processed/ts_panel_forecasts.parquet` | `scripts/forecast_default_rates.py` | Streamlit deploy bundle, architecture views | Bottom-up/panel outputs remain analytical support | Bottom-up/panel outputs sit on top of a promoted TS contract |
-| `models/time_series_research_status.json` | `scripts/forecast_default_rates.py --config configs/time_series_v2.yaml` | research review only | Experimental evidence without canonical overwrite | Not used once the canonical lane has already passed |
+| Artifact | Produced by | Main consumers | Current audited reading |
+|----------|-------------|----------------|-------------------------|
+| `models/time_series_status.json` | `scripts/forecast_default_rates.py` | export, registry and UI code | Reproducible selector snapshot; no current operational authority |
+| `data/processed/ts_forecasts.parquet` | `scripts/forecast_default_rates.py` | UI and MLflow logging | Retrospective vintage-replay output, not prospective forecast validation |
+| `data/processed/ts_ifrs9_scenarios.parquet` | `scripts/forecast_default_rates.py` | sensitivity code and UI | Mechanical scenario scaling, not IFRS 9 identification or approval |
+| `data/processed/ts_panel_forecasts.parquet` | `scripts/forecast_default_rates.py` | UI bundle and architecture views | Descriptive bottom-up support only |
+| `models/time_series_research_status.json` | `scripts/forecast_default_rates.py --config configs/time_series_v2.yaml` | research review | Experimental comparison with no canonical overwrite |
 
-Current project interpretation:
-- canonical point forecast is official
-- canonical interval forecast is not promotable yet
-- therefore the lane is operationally useful, but its interval layer remains `research_only`
+Current audited interpretation:
 
-Promotion rule of thumb:
-- do not promote because a challenger is more sophisticated
-- promote only if the interval challenger beats the canonical lane under the governed policy and then updates `models/time_series_status.json`
+- all forecast outputs are retrospective artifacts from a historical runtime;
+- `AutoARIMA` was the locally selected point candidate, not a currently
+  authorized production forecast;
+- the interval lane failed its own historical promotion route and remains
+  diagnostic;
+- the `vNext` run dated 2026-04-02 recorded
+  `maintain_canonical_keep_vnext_research`, a software decision rather than an
+  external validation opinion;
+- neither a selector status nor an interval check transports validity into ECL,
+  SICR, staging, or an operational policy.
+
+Archival posture:
+
+| Component | Archival posture | Current claim boundary |
+|----------|------------------|-----|
+| Locally selected point candidate | preserve | Historical comparator result only |
+| IFRS9-labeled temporal overlay | preserve as sensitivity | Mechanical scaling; no accounting claim |
+| Interval layer | preserve as diagnostic | Observed replay diagnostics; no validated interval contract |
+| Enriched internal data contract | research only | Benchmarking input, not a population or target validation |
+| `MAPIE_ENBPI` / adaptive challengers | research only | Historical candidate comparisons on reused evidence |
+| Joint sample paths (`gaussian_copula`, `schaake_shuffle`) | research only | Scenario-generation experiments, not a decision guarantee |
+| vNext TS-to-ECL translation | preserve as research support | Numerical transformation only; no ECL identification |
+
+Reference closeout:
+- `docs/TIME_SERIES_VNEXT_DECISION_2026-04-02.md`
 
 ## Optional: Platform Layer (dbt + Feast)
 

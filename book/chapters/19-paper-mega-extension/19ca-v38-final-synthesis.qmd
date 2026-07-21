@@ -1,0 +1,108 @@
+---
+title: "Current Paper 4 Synthesis"
+page-layout: article
+---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Verdad actual
+
+La sintesis vigente despues de auditar v38 y v39/PyEPO es simple:
+
+- El CRPTO IJDS activo es una auditoria retrospectiva de identificacion. No
+  selecciona learner, ventana residual, taxonomia, gamma, ruler, coordenada,
+  cap, comparador o policy.
+- Los artefactos locales previos de CRPTO son procedencia legacy y no definen la
+  superficie externa actual.
+- Paper 4 conserva un laboratorio secuencial exploratorio, no un protocolo de
+  seleccion o despliegue.
+- El capitulo Quarto contiene solo evidencia acotada y claim-safe.
+- El notebook vivo contiene las olas, pendientes, bloqueos e iteraciones.
+
+## Sintesis paper-facing
+
+Si Paper 4 se extrae como manuscrito completo, el cuerpo debe ser corto:
+tesis, arquitectura, claims permitidos y contribuciones. El detalle de cleanup,
+Lab 4, metricas binder y la auditoria negativa de Paper 2 pertenece al registro
+apendice renderizado en `19cb-v38-appendix-registers.qmd`.
+
+| Bloque | Superficie paper-facing | Evidencia |
+| --- | --- | --- |
+| Tesis | Paper 4 como governed sequential credit decision analytics | [propuesta 19a](19a-proposal-and-scope.qmd) |
+| Arquitectura | external CRPTO identification contract -> negative IFRS9/SICR audit -> tail diagnostic -> source governance -> dynamic stress -> parked lanes | [tabla de arquitectura](../../../reports/paper_material/paper4/tables/paper4_one_page_architecture_2026-05-18.csv) |
+| Claims | allowed/prohibited claims con fronteras verificables | [fronteras vigentes](../../../reports/paper_material/paper4/tables/paper4_current_claim_boundaries.csv) |
+| Evidencia acotada | F03/F04/F05/F06/F11/F12/F13 con sus fronteras | [hallazgos vigentes](../../../reports/paper_material/paper4/tables/paper4_current_official_findings.csv) |
+| Appendices | cleanup, Lab 4, metricas binder, negative Paper 2 audit | [registro 19cb](19cb-v38-appendix-registers.qmd) |
+
+Esta separacion evita que la prosa procedural del laboratorio opaque el paper.
+El cuerpo cuenta la contribucion; los appendices sostienen trazabilidad.
+
+## Taxonomia canonica de estados
+
+Para que Paper 4 no parezca una coleccion de parches, todo hallazgo debe usar
+una taxonomia corta y estable. La
+[tabla canonica de estados](../../../reports/paper_material/paper4/tables/paper4_status_taxonomy_2026-05-18.csv)
+conserva los codigos; esta pagina solo muestra la lectura paper-facing.
+
+| Estado | Uso editorial | Regla |
+| --- | --- | --- |
+| `official` | claim estable para cuerpo o sintesis | requiere artefacto retenido y guardrail |
+| `official_with_caveat` / `official_with_boundary` | claim estable cuyo limite es parte del resultado | no citar sin la frase de frontera |
+| `bounded_experiment` / `diagnostic_only` | experimento util pero acotado | appendix; no seleccion ni claim causal/regulatorio |
+| `diagnostic_negative_audit` | evidencia de por que un estimando o protocolo no esta identificado | conservar como failure analysis; nunca como resultado positivo o monetario |
+| `append` / `append_strong` | evidencia de soporte | appendix fuerte o respuesta de reviewer |
+| `proxy_only` | source/fairness/governance sin atributos protegidos | no fair-lending legal claim |
+| `rollout_only` / `isolated_prototype` | simulacion o prototipo fuera del pipeline principal | no Bellman optimality ni superioridad DFL |
+| `park` / `context` / `supersede_near_term` | idea util, bloqueada o absorbida | no reabrir sin datos, prueba formal o revision externa |
+| `parked_non_citable` | artefacto historico conservado solo como procedencia | no citar cifras ni reactivar claims sin protocolo nuevo |
+
+: Taxonomia minima para Paper 4 {#tbl-paper4-status-taxonomy}
+
+## Hallazgos oficiales
+
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is a reproducible sequential-decision living lab, not a policy-selection or deployment protocol. | official | index.qmd |
+| F02 | The active external CRPTO IJDS paper is a retrospective identification audit with no selected learner, comparator or policy. | external_contract | 19ca-v38-final-synthesis.qmd |
+| F03 | The v31 implementation materialized 512 internally generated paths and 494592 policy-month-path rows. | descriptive_artifact | 19t-multi-period-solver.qmd |
+| F04 | The preselected CVaR configuration records a conditional tail-loss/wealth tradeoff in one internal simulator. | diagnostic_only | 19i-regret-auditability-frontier.qmd |
+| F05 | The v35 six-month and source-family views are post-selection slices, not strict holdouts. | diagnostic_only | 19n-online-mdcp-fairness.qmd |
+| F06 | PyEPO is retained as a descriptive teacher-cost benchmark on sampled top-k menus. | diagnostic_only | 19cc-v39-pyepo-real-suite.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | Paper 4 retains the former IFRS9/SICR lane only as a negative readiness-and-estimand audit; it does not identify PD, ECL, SICR or staging. | diagnostic_negative_audit | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked; the high-rate-within-grade result is an observational, noncausal sensitivity. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park, diagnostic-negative-audit or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Archived Paper 2 artifacts are retained only as non-citable provenance and a negative estimand audit. | diagnostic_negative_audit | 19ca-v38-final-synthesis.qmd |
+| F14 | A legacy-root calibrated model outperformed an origin-time FICO proxy in an archived OOT diagnostic. | append | 19cb-v38-appendix-registers.qmd |
+
+## Claims y prohibiciones
+
+| claim | allowed | boundary | current_quarto_page |
+| --- | --- | --- | --- |
+| Paper 4 defines a governed sequential decision analytics lab. | True | Architecture and artifact-backed exploratory lab claim only. | index.qmd |
+| The active external CRPTO IJDS paper is an identification audit with no selected learner or policy. | True | External context only; local legacy artifacts cannot define current CRPTO claims. | 19ca-v38-final-synthesis.qmd |
+| The v31 artifact materializes paired processes under one internal simulator. | True | Execution and provenance only; not forecast validity or external robustness. | 19t-multi-period-solver.qmd |
+| The preselected CVaR configuration dominates externally. | False | Conditional simulator diagnostic only; no external probability or policy selection. | 19i-regret-auditability-frontier.qmd |
+| The v35 online-conformal views are strict or independent holdouts. | False | Post-selection slices without refit or prospective evaluation. | 19n-online-mdcp-fairness.qmd |
+| Paper 4 outcome endpoints or mechanical scenario calculations identify PD, ECL, SICR, staging or allowance uncertainty. | False | Binary-outcome coverage and software arithmetic cannot be relabelled as accounting estimands. | 19b-current-assets-and-gaps.qmd |
+| Paper 4 retains archived Paper 2 artifacts only as a negative estimand audit. | True | Non-citable provenance only; no prudential, threshold or monetary inference. | 19ca-v38-final-synthesis.qmd |
+| Paper 2 remains a required near-term standalone publication. | False | Paper 2 is parked unless stronger contractual servicing and macro scenario data appear. | 19ca-v38-final-synthesis.qmd |
+| A legacy-root calibrated model improves over an origin-time FICO proxy in an archived diagnostic. | True | Historical appendix only; no inference about current CRPTO or legal fair lending. | 19cb-v38-appendix-registers.qmd |
+| PyEPO is executable as a top-k teacher-cost benchmark. | True | Descriptive teacher-regret only; no realized loss, matched-class attribution or independent inference. | 19cc-v39-pyepo-real-suite.qmd |
+| PyEPO establishes current CRPTO policy performance or selected-set coverage. | False | The legacy candidate diagnostic is separate from sampled PyEPO decisions and current CRPTO. | 19cc-v39-pyepo-real-suite.qmd |
+| CATE policy value is ready for decision selection. | False | Causal diagnostics only; no policy-value claim. | 19b-current-assets-and-gaps.qmd |
+| Fair-lending legal claim is supported. | False | Proxy/source governance only; no protected-attribute legal claim. | 19n-online-mdcp-fairness.qmd |
+
+## Donde quedo el detalle
+
+El detalle operativo ya no vive en esta sintesis. Queda separado en
+`19cb-v38-appendix-registers.qmd`, con registros de cleanup, auditoria de datos,
+cierre frontier, auditoria negativa de Paper 2, metricas crediticias, Lab 4 y stop rules.
+
+La decision editorial es tratar Paper 4 como arquitectura academica de decision
+secuencial gobernada, no como sistema de seleccion, IFRS9 contractual,
+fair-lending, causalidad o despliegue. CRPTO permanece externo y autocontenido;
+Paper 4 conserva la frontera entre laboratorio, diagnostico, apendice y claims
+prohibidos.

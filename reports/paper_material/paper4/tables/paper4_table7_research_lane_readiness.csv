@@ -1,0 +1,8 @@
+block,usable_now_as,requires_new_run,not_ready_for,paper4_next_artifact
+Uncertainty / conformal baselines,base uncertainty justification,no,replacing score_decile_mondrian without selector,paper4_uncertainty_source_manifest.csv
+IFRS9 advanced overlays,ECL/stage/tail diagnostics,derived policy grid,new IFRS9-aware champion,policy_ifrs9_ecl_grid.parquet
+Temporal / TS,monthly replay and stress state,yes for online conformal,forward interval promotion,monthly_policy_replay.parquet
+SPO+ / DFL,regret-auditability comparator,yes for online DFL,replacing CRPTO champion,paper4_regret_auditability_frontier.csv
+Causal / CATE,intervention hypothesis and blocked gate,yes,central objective or champion selector,causal_identification_report.md
+RAPIDS insight factory,scale and candidate segment discovery,only if segments enter gates,automatic MDCP/fairness source labels,paper4_candidate_regime_labels.parquet
+Notebook/storytelling outputs,appendix and communication atlas,no,metric source without artifact,paper4_evidence_atlas.csv

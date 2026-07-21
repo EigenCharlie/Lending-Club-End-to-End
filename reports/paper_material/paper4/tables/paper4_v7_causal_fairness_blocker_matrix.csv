@@ -1,0 +1,4 @@
+lane,current_result_v7,evidence,required_to_unblock,promotion_allowed
+CATE policy value,blocked,v6 CATE intervals cross zero / observational treatment remains sensitive,"stable sensitivity, clean outcome, overlap and falsification package",False
+high_rate_within_grade causal dossier,research_usable_not_policy_value,balance/placebo improved in prior waves but hidden-bias sensitivity still material,formal sensitivity threshold and outcome-specific falsification,False
+fairness,proxy_governance_only,protected attributes are not available in Lending Club artifacts,externally approved protected-attribute or proxy protocol,False

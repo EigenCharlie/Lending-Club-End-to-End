@@ -1,20 +1,24 @@
 {
   "artifact_namespace": "",
   "selected_partition": "grade",
-  "selected_alpha_used_90": 0.085,
-  "selected_min_group_size": 200,
+  "selected_partition_probability_source": "calibrated",
+  "selected_n_score_bins": 10,
+  "selected_fallback_mode": "global_only",
+  "selected_alpha_used_90": 0.08,
+  "selected_alpha_used_95": 0.05,
+  "selected_min_group_size": 100,
   "selected_scaled_scores": true,
+  "selected_score_scale_family": "bernoulli_sqrt",
   "group_factors_after_shrinkback": {
-    "A": 1.2,
-    "B": 1.05,
-    "G": 1.05
+    "A": 1.2
   },
   "temporal_factors_after_shrinkback": {
     "A|vintage=2017Q4": 1.2
   },
   "width_attribution_path": "data/processed/pd_conformal_width_attribution.parquet",
   "shrinkback_path": "data/processed/conformal_shrinkback_report.parquet",
+  "evaluation_scope": "test",
   "schema_version": "2026-03-13.1",
-  "generated_at_utc": "2026-03-30T16:43:05.840934+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T14:39:05.118560+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07"
 }

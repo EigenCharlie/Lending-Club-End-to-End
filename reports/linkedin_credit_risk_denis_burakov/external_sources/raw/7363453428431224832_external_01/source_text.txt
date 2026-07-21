@@ -1,0 +1,241 @@
+Measuring Calibration Accuracy of Modern PD Models
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Measuring Calibration Accuracy of Modern PD Models
+Report this article
+Denis Burakov
+Denis Burakov
+Published Sep 17, 2022
++ Follow
+Key dimensions of probability of default (PD) credit risk models’ quality are discriminatory power 🔮 and calibration accuracy 📏. The first dimension measures the model’s ability to correctly order customers based on their default risk while the second one assesses how accurately the model's predicted PDs fare against observed default rates (ODRs).
+Discriminatory power of PD models is commonly measured via the Gini coefficient (also known in the literature and practice as Accuracy Ratio or Somers’ D), which has become a market standard for scoring models. This metric has a convenient visual representation (through a ROC or CAP curve) that allows model developers and end users to see the impact of scoring models on default identification. As an example, a model with considerable discrimination ability can capture 80% of defaults based on 20% of the riskiest customers (van der Burgt 2008).
+Unlike discriminatory power, calibration of PD models is difficult to measure with a single yardstick. Scoring rules such as Brier score or a logarithmic scoring rule (commonly known as Log-loss or Cross-entropy) can be viewed as calibration accuracy golden standards (Harrell 2008). Both metrics are optimized when the predicted PDs are identical to ODRs, but they cannot be interpreted without additional context (what can a Brier score of 10% really tell us about accuracy?). Beyond that, Brier score for defaulted and non-defaulted customers can differ per classifier which introduces further complexity (for a practical example, please see Merćep et al. 2020).
+In what follows I explain the concept of Expected Calibration Error (ECE) and provide examples based on simulated data (based on the code from Fonseca and Lopes 2017) using several parametric calibration approaches.
+Expected Calibration Error
+In a more recent strand of calibration literature developed within the neural networks applications (Naeni et al. 2015, Guo et al. 2017), a new metric for evaluating calibration accuracy has gained traction, Expected Calibration Error (ECE), including its derivations and extensions. This metric has several advantages compared to proper scoring rules: it’s simple to calculate, easy to visualize, and straightforward to explain to a non-technical audience. Among the downsides are well-known problems related to binning schemes such as selection of an optimal number of bins, unequal bin sizes among other problems linked to data dispersion (Nixon et al. 2020, Pan et al. 2020).
+To compute ECE, PDs in the calibration sample are partitioned into m equally spaced bins, and the weighted average of the difference between the bin’s ODR and the bin’s PD is computed, where the weights are based on the proportion of customers in the corresponding bin:
+ECE is frequently reported as the main calibration accuracy metric in recent literature on calibration in various machine learning applications (Laves et al. 2019, Ovadia et al. 2019, Garcin and Stéphan 2021, Rajaraman et al. 2021).
+Data and calibration methods
+Let’s take a closer look at the ECE metric in action based on a simulated dataset with 10,000 examples, which is further split into train (80%) and test (20%) sets. For illustration purposes, we will use calibration diagrams (also known as reliability diagrams) since they are closely linked to the concept of ECE.
+We compare the following (parametric) calibration models:
+Logit calibration (also known as the "sigmoid" model suggested by Platt 2000)
+Non-linear least squares calibration
+Robust logit calibration (a variant of the "sigmoid" model, see Tasche 2013 for more details)
+The following diagram displays the outputs from the calibration models:
+As can be seen from the diagram above, all calibration methods achieve a relatively good accuracy on the test set based on the calibration plots with 10 bins of equal width. In certain applications, it is also possible to scope the analysis to a different linear space if calibration in a certain sub-range is of particular interest to a developer (a good example based on a quantile distribution is provided in Sigrist and Leuenberger 2022).
+Calibration metrics
+Let's look at a summary of calibration metrics for our example:
+Based on reported Brier scores, all calibration methods produce nearly the same outcome which does not differ significantly from the baseline.
+In the second column we can observe that among the three methods Logit calibration achieves the lowest ECE. Compared to the baseline, this is a 77% lift in accuracy that can be considered a noticeable improvement. If we look only at Brier score, the improvement would amount only to 1.5% which may seem trivial. The last column reports Maximum Calibration Error (MCE) which measures maximum discrepancy between ODRs and PDs. Here we observe that Robust logit calibration method produces the smallest MCE which comes from lower sub-ranges of the calibration plot.
+Concluding remarks
+The use of common metrics in measuring calibration accuracy for PD models brings benefits of interpretability that allow model developers to identify potential sources of miscalibration in order to further improve the predictive performance of credit risk models. With new calibration frameworks becoming readily available (e.g., netcal) coupled with advances in machine learning techniques used in risk differentiation, having a common metric such as ECE for analyzing calibration accuracy of probabilistic classifiers used in PD models can allow practitioners to develop more explainable and accurate credit risk solutions 🚀.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in my GitHub. You can play around with the data in the Google Colab notebook.
+All views expressed are my own.
+References
+Alexandari, A., Kundaje, A., & Shrikumar, A. (2019). Maximum likelihood with bias-corrected calibration is hard-to-beat at label shift adaptation. In arXiv [cs.LG]. http://arxiv.org/abs/1901.06852
+Fonseca, P. G., & Lopes, H. D. (2017). Calibration of machine learning classifiers for probability of default modelling. In arXiv [econ.EM]. http://arxiv.org/abs/1710.08901
+Garcin, M., & Stéphan, S. (2021). Credit scoring using neural networks and SURE posterior probability calibration. In arXiv [q-fin.ST]. http://arxiv.org/abs/2107.07206
+Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). On calibration of modern neural networks. In arXiv [cs.LG]. http://arxiv.org/abs/1706.04599
+Harrell, F. (2017). Damage Caused by Classification Accuracy and Other Discontinuous Improper Accuracy Scoring Rules. https://hbiostat.org/blog/post/class-damage/
+Huber L. (2020). Neural Network Calibration using PyTorch. https://towardsdatascience.com/neural-network-calibration-using-pytorch-c44b7221a61
+Laves, M.-H., Ihler, S., Kortmann, K.-P., & Ortmaier, T. (2019). Well-calibrated model uncertainty with temperature scaling for dropout variational inference. In arXiv [cs.LG]. http://arxiv.org/abs/1909.13550
+Merćep, A., Mrčela, L., Birov, M., & Kostanjčar, Z. (2020). Deep neural networks for behavioral credit rating. Entropy (Basel, Switzerland), 23(1), 27. https://doi.org/10.3390/e23010027
+Naeini, M. P., Cooper, G. F., & Hauskrecht, M. (2015). Obtaining well calibrated probabilities using Bayesian Binning. Proceedings of the AAAI Conference on Artificial Intelligence. AAAI Conference on Artificial Intelligence, 2015, 2901–2907.
+Nixon, J., Dusenberry, M., Jerfel, G., Nguyen, T., Liu, J., Zhang, L., & Tran, D. (2019). Measuring calibration in deep learning. In arXiv [cs.LG]. http://arxiv.org/abs/1904.01685
+Ovadia, Y., Fertig, E., Ren, J., Nado, Z., Sculley, D., Nowozin, S., Dillon, J. V., Lakshminarayanan, B., & Snoek, J. (2019). Can you trust your model’s uncertainty? Evaluating predictive uncertainty under dataset shift. In arXiv [stat.ML]. http://arxiv.org/abs/1906.02530
+Pan, F., Ao, X., Tang, P., Lu, M., Liu, D., Xiao, L., & He, Q. (2020). Field-aware calibration: A simple and empirically strong method for reliable probabilistic predictions. Proceedings of The Web Conference 2020.
+Platt J.C. (2000). Probabilities for SV Machines. In P.J. Bartlett, B. Schoelkopf, D. Schuurmans, and A.J. Smola, editors, Advances in Large-Margin Classifiers, pages 61–74. MIT Press Cambridge, 2000.
+Rajaraman, S., Ganesan, P., & Antani, S. (2021). Does deep learning model calibration improve performance in class-imbalanced medical image classification? In arXiv [cs.LG]. http://arxiv.org/abs/2110.00918
+Sigrist, F., & Leuenberger, N. (2022). Machine learning for corporate default risk: Multi-period prediction, frailty correlation, loan portfolios, and tail probabilities. European Journal of Operational Research. https://doi.org/10.1016/j.ejor.2022.06.035
+Tasche, D. (2013). The art of probability-of-default curve calibration. The Journal of Credit Risk, 9(4), 63–103. https://doi.org/10.21314/jcr.2013.169
+van der Burgt, M. (2008). Calibrating low-default portfolios, using the cumulative accuracy profile. The Journal of Risk Model Validation, 1(4), 17–33. https://doi.org/10.21314/jrmv.2008.016
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+30
+1 Comment
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Show more
+See all articles
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Recruitment & HR
+Customer Experience
+Real Estate
+Marketing
+Sales
+Retail & Merchandising
+Science
+Supply Chain Management
+Future Of Work
+Consulting
+Writing
+Economics
+Artificial Intelligence
+Employee Experience
+Workplace Trends
+Fundraising
+Networking
+Corporate Social Responsibility
+Negotiation
+Communication
+Engineering
+Hospitality & Tourism
+Business Strategy
+Change Management
+Organizational Culture
+Design
+Innovation
+Event Planning
+Training & Development
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language

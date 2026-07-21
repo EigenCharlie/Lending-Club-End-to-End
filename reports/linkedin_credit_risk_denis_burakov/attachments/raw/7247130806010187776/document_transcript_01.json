@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "Dataset A Data points and model decision boundaries",
+    "Dataset A Boosting iterations for Decision Tree",
+    "Dataset A Boosting iterations for Linear Model",
+    "Dataset A Boosting iterations for Neural Network",
+    "Dataset B Data points and model decision boundaries",
+    "Dataset B Boosting iterations for Decision Tree",
+    "Dataset B Boosting iterations for Linear Model",
+    "Dataset B Boosting iterations for Neural Network",
+    "Dataset C Data points and model decision boundaries",
+    "Dataset C Boosting iterations for Decision Tree",
+    "Dataset C Boosting iterations for Linear Model",
+    "Dataset C Boosting iterations for Neural Network",
+    "Appendix Notebook"
+  ]
+}

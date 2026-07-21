@@ -1,59 +1,119 @@
-## Discusion {#sec-p2-discussion}
+## Discusión {#sec-p2-discussion}
 
-El Paper 2 muestra que IFRS9 puede funcionar como el caso de uso mas convincente para incertidumbre conformal en finanzas aplicadas. La razon es simple: alli la incertidumbre afecta dinero, provision y gobernanza a la vez.
+Paper 2 no queda descartado: cambia de producto científico. La evidencia actual
+es adecuada para una auditoría de transporte de estimandos, pero insuficiente
+para un paper de provisión. Esta frontera explícita es más informativa que
+actualizar números dentro de un diseño que seguiría sin representar fechas de
+reporte.
 
-### Implicaciones para bancos y reguladores {#sec-p2-policy}
+### Implicaciones de gobernanza, no de política {#sec-p2-policy}
 
-Los resultados del Paper 2 tienen implicaciones directas para dos audiencias institucionales. Para los bancos, el pipeline propuesto ofrece un mecanismo cuantitativo para responder a una pregunta que actualmente se resuelve con juicio experto: cuanto podrian variar las provisiones si la incertidumbre del modelo fuera explicitamente reconocida. La banda ECL --- que en nuestros resultados alcanza hasta \$336M en el escenario adverso frente a \$47.5M en el optimista --- no es un ejercicio academico: es exactamente el tipo de informacion que los equipos de finanzas y riesgo necesitan para calibrar *overlays* prudenciales y buffers de capital.
+La lección para model risk management es que cada columna downstream debe
+heredar el significado del objeto upstream, no su nombre. Un endpoint llamado
+`pd_high` sigue siendo parte de un intervalo para $Y$ si fue calibrado con
+residuos binarios. Una salida llamada `ecl_high` sigue siendo una transformación
+de ese endpoint si no existe un estimando de PD o pérdida esperada que la
+respalde.
 
-Para los reguladores, la transparencia del enfoque conformal responde directamente a las preocupaciones del BCE sobre la calidad de los modelos IFRS 9 [@ecb2024]. Un supervisor puede verificar la cobertura empirica del intervalo conformal sobre datos out-of-time, examinar el trigger SICR conformal como senal complementaria a los indicadores tradicionales, y evaluar la sensibilidad de las provisiones ante multiples dimensiones de incertidumbre de forma sistematica. Esta trazabilidad es sustancialmente superior a la que ofrecen los *overlays* ad hoc que muchas instituciones aplican actualmente.
+Por ello, un gate de promoción debe verificar al menos target, horizonte,
+unidad temporal, información disponible, partición de selección y status del
+artefacto. Trazabilidad de software sin trazabilidad del estimando no basta para
+una decisión prudencial.
 
-### Senal SICR conformal versus triggers tradicionales {#sec-p2-sicr-comparison}
+### Por qué la comparación no valida SICR {#sec-p2-sicr-comparison}
 
-La comparacion entre el trigger SICR conformal y los indicadores tradicionales basados en DPD merece atencion especial. Los triggers basados en dias de mora son inherentemente reactivos: detectan deterioro solo despues de que el prestatario ha dejado de pagar durante un periodo significativo. El trigger conformal, en cambio, opera sobre la incertidumbre del modelo en el momento de la evaluacion: un prestamo cuyo intervalo conformal se ensancha significativamente esta senalando que el modelo tiene menos confianza en su estimacion, lo cual puede anticipar deterioro antes de que se manifieste en mora.
+El default terminal es un outcome relevante para riesgo, pero no es una etiqueta
+de “verdadero Stage 2”. Un préstamo puede experimentar un incremento
+significativo y no incumplir; también puede incumplir sin que una señal disponible
+en una fecha anterior hubiera identificado SICR. Colapsar ambos conceptos hace
+que precision, recall y costos respondan a una tarea distinta.
 
-Nuestros resultados muestran que el umbral optimo $t^* = 0.30$ captura el 75.8% de los defaults que los triggers tradicionales no detectan, con un costo asociado en ECL adicional de \$56.6M. Esta cifra debe interpretarse en contexto: el analisis de costo de misclasificacion por etapa (vease @sec-stage-cost) revela que los falsos positivos dominan el costo total (\$66M) frente a los falsos negativos (\$6.3M) cuando el peso relativo de los FN es $w_{FN} = 5.0$. Esto sugiere que, en la configuracion actual, el trigger conformal anade valor como senal complementaria pero no como reemplazo del trigger por PD, dado que la combinacion produce mejor cobertura de deteccion sin un incremento desproporcionado de falsos positivos.
+El ancho del intervalo binario tampoco identifica cambio temporal: puede variar
+por clipping, prevalencia y geometría residual aun cuando no exista una segunda
+medición del préstamo. Antes de evaluar una señal adicional se necesita un panel
+as-of y una regla predeclarada en una muestra de validación separada.
 
 ### Conclusiones principales
 
-1. El pipeline produce ECL por escenario con trazabilidad suficiente para analisis prudencial.
-2. El ancho conformal es una senal util para enriquecer SICR, no solo una metrica tecnica.
-3. La sensibilidad del sistema a escenario, threshold y metodo de supervivencia justifica una politica explicita de gobernanza.
+1. La capa conformal actual predice el resultado binario observado; no estima un
+   intervalo de PD individual.
+2. Las transformaciones monetarias y de staging son pruebas de integración del
+   software, no evidencia contable.
+3. El archivo resuelto y terminal no permite evaluar deterioro temprano.
+4. Paper 2 permanece `parked_ifrs9` hasta satisfacer íntegramente su
+   [contrato de claims](../../../reports/paper_material/paper2/paper2_claim_contract.yml).
 
 ### Limitaciones {#sec-p2-limitations}
 
-El Paper 2 opera bajo varias restricciones que condicionan la generalizabilidad de sus conclusiones:
+- **Constructo**: resultado terminal, PD a 12 meses, PD lifetime, SICR y ECL son
+  objetos distintos.
+- **Temporalidad**: no existe una fila préstamo-fecha-de-reporte con variables
+  point-in-time.
+- **Selección de población**: conservar solo préstamos resueltos induce
+  diferencias de madurez y censura, especialmente en vintages recientes y
+  plazos largos.
+- **Leakage**: el estado final participa en la derivación retrospectiva de DPD y
+  Stage 3.
+- **Selección estadística**: reglas y comparadores usan outcomes de la muestra
+  presentada como test.
+- **Dependencia**: PD, LGD, EAD, prepago, escenarios y stage no se modelan como
+  un sistema conjunto de incertidumbre.
+- **Contabilidad**: faltan cash flows contractuales, EIR y revisión experta del
+  contrato IFRS 9.
+- **Validez externa**: Lending Club no representa por sí solo una cartera
+  bancaria regulada.
 
-- **Portafolio unico**: Lending Club es un portafolio de prestamos personales no garantizados. Las carteras hipotecarias, de tarjetas de credito o de credito corporativo presentan dinamicas de default, LGD y prepago sustancialmente diferentes, lo cual impide extrapolar directamente los umbrales y magnitudes economicas obtenidos.
-- **Dataset estatico**: los datos cubren el periodo 2007--2020 y no se actualizan. Un banco que implemente este enfoque enfrentaria la necesidad de recalibrar tanto el modelo base como los intervalos conformales de forma periodica.
-- **Staging simplificado**: la implementacion actual utiliza una regla de staging basada en umbrales de PD y ancho conformal, sin incorporar senales cualitativas (reestructuracion, forbearance, cambio de rating externo) ni la logica de *cure* que permite transitar de Stage 2 de vuelta a Stage 1. En una implementacion bancaria completa, el trigger conformal seria un insumo mas dentro de un marco de decision multi-criterio.
-- **Un solo escenario macroeconomico simplificado**: aunque el pipeline soporta multiples escenarios, los pesos asignados a cada uno (baseline, adverso, optimista) se fijan de forma exogena. Un sistema productivo requeriria un proceso de gobernanza para la definicion y ponderacion de escenarios consistente con la practica regulatoria local.
-- **Persistencia temporal en PD residual**: aunque el champion PD esta bien calibrado en promedio y la capa conformal cierra operativamente, persisten desviaciones por cohortes que todavia merecen explicacion analitica. El proyecto incluso ejecuto una lane `shadow` de recalibracion ligera para probar si un remapeo post-hoc sencillo podia corregir esa persistencia, pero el resultado final fue `keep_current_calibrator`: los sidecars ligeros empeoraron el balance entre gap, estabilidad temporal y ECE. Esto acota bien la limitacion restante: no parece faltar una correccion mecanica simple del calibrador, sino una lectura temporal mas fina de cohortes y slices antes de justificar una nueva intervencion metodologica.
+### Condiciones antes de cualquier uso institucional {#sec-p2-adoption}
 
-### Ruta de adopcion practica {#sec-p2-adoption}
+No existe una ruta de implementación basada en los artefactos actuales. Una
+evaluación futura debe empezar por la unidad préstamo-fecha-de-reporte, congelar
+la información disponible, definir outcomes a 12 meses y lifetime con censura,
+reconstruir PD original/actual comparables y reservar un test temporal final.
 
-Para que una institucion financiera adopte el enfoque propuesto, necesitaria implementar cinco pasos secuenciales. Primero, contar con un modelo de PD calibrado cuya probabilidad pueda interpretarse como PD regulatoria --- requisito que ya cumplen la mayoria de los modelos IRB. Segundo, reservar un conjunto de calibracion temporal para generar intervalos conformales, lo cual implica una particion adicional de los datos que muchos bancos no realizan actualmente. Tercero, integrar el calculo de bandas conformales en el pipeline de produccion de ECL, lo cual requiere modificaciones en los sistemas de calculo de provisiones. Cuarto, definir e implementar la regla SICR conformal como senal complementaria, incluyendo el umbral de ancho y su logica de combinacion con los triggers existentes. Quinto, establecer un proceso de monitoreo que verifique periodicamente la cobertura empirica de los intervalos y dispare recalibracion cuando la cobertura caiga por debajo del nivel objetivo.
+Solo después tendría sentido comparar una regla adicional contra una política
+SICR predeclarada. Cualquier claim de conformidad o uso requiere además revisión
+humana contable y regulatoria; ninguna métrica de ML sustituye esa validación.
 
 ### Threats to validity
 
-- Lending Club no es un banco regulado ni una cartera IFRS9 real.
-- La regla SICR conformal aun debe contrastarse con politicas expertas mas ricas.
-- La integracion de forecasting temporal y competing risks sigue en modo analitico, no productivo pleno.
+La auditoría se basa en código y artefactos existentes y no ejecuta una nueva
+estimación. Esto permite diagnosticar incompatibilidades lógicas y de linaje,
+pero no cuantifica cómo cambiarían resultados bajo un dataset longitudinal. La
+clasificación `parked` es una decisión de alcance, no evidencia de que una futura
+metodología bien especificada deba fallar.
 
 ### Trabajo futuro {#sec-p2-future}
 
-Las extensiones mas naturales del Paper 2 se orientan en cuatro direcciones. Primero, la incorporacion de conformal prediction dinamica [@gibbs2021aci] permitiria ajustar los intervalos ante distribution shift sin necesidad de recalibrar el modelo completo, lo cual es especialmente relevante en contextos de crisis macroeconomica donde la estacionariedad se rompe. Segundo, una lectura mas rica de la persistencia temporal por cohortes en la capa PD permitiria entender mejor por que algunas desviaciones residuales sobreviven incluso cuando la calibracion global es buena; esa linea hoy parece mas prometedora que insistir en nuevos remapeos ligeros del calibrador. Tercero, la integracion multi-escenario con ponderacion probabilistica --- donde cada escenario macro produce un conjunto de intervalos conformales distinto --- enriqueceria el analisis prudencial y facilitaria la comunicacion con los reguladores. Cuarto, la extension del enfoque conformal a los otros componentes de ECL (LGD y EAD) produciria una cuantificacion de incertidumbre completa sobre la provision, lo cual es una demanda creciente de la supervision bancaria.
+El trabajo se reabre únicamente si una nueva iteración puede cambiar un claim:
+
+1. panel as-of con targets y censura declarados;
+2. estimación separada de PD, LGD, EAD y competing risks;
+3. método de incertidumbre cuyo objeto sea PD, pérdida esperada o riesgo
+   decisional explícito;
+4. regla SICR validada fuera de la muestra usada para diseñarla;
+5. escenarios macro con fuente, fecha, ponderación y status oficial;
+6. artefactos inmutables, esquemas únicos y generación automática de tablas.
+
+No se abrirán nuevas búsquedas de umbral, alpha sweeps ni comparadores mientras
+esas condiciones permanezcan ausentes.
 
 ### Reproducibility appendix
 
-Los resultados se apoyan en artefactos ya existentes:
+La superficie activa queda gobernada por:
 
-- `data/processed/ifrs9_scenario_summary.parquet`
-- `data/processed/ifrs9_sensitivity_grid.parquet`
-- `data/processed/cif_ecl_impact.parquet`
-- `data/processed/stage_misclassification_cost.parquet`
-- `data/processed/ts_ecl_intervals.parquet`
+- `reports/paper_material/paper2/paper2_claim_contract.yml`;
+- `models/conformal_policy_status.json` para el objeto binario;
+- `models/ifrs9_diagnostics_status.json` para el estado diagnóstico;
+- `models/time_series_status.json` para bloquear promoción temporal;
+- tests documentales que impiden reintroducir claims retirados.
 
-### Conclusion {#sec-p2-conclusion}
+Los parquets históricos de escenarios, grids y sensibilidad permanecen como
+proveniencia; no son tablas de resultados activas.
 
-La contribucion mas defendible del paper es que convierte IFRS9 en un pipeline cuantitativo gobernable, donde provision, incertidumbre y senal de deterioro pueden discutirse con evidencia compartida. En un contexto donde los reguladores exigen cada vez mayor transparencia en los modelos de riesgo crediticio y donde las provisiones ECL representan magnitudes materiales en los estados financieros, la capacidad de cuantificar la incertidumbre de esas provisiones con garantias formales de cobertura constituye un avance operativamente relevante. Esa es una propuesta mucho mas valiosa que un ejercicio aislado de lifetime PD.
+### Conclusión {#sec-p2-conclusion}
+
+La contribución defendible de Paper 2 es demostrar por qué una cadena
+computacional coherente puede seguir siendo científicamente incoherente si cambia
+de estimando sin declararlo. Separar $Y$, PD, pérdida esperada, staging y decisión
+convierte el prototipo en una auditoría útil y fija una base verificable para una
+futura investigación IFRS 9.

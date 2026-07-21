@@ -1,0 +1,35 @@
+{
+  "schema_version": "2026-05-13.2",
+  "generated_at_utc": "2026-05-13T17:40:13.694247+00:00",
+  "phase": "v4_eleven_open_priorities",
+  "mode": "paper4_working_champions_allowed_paper1_frozen",
+  "paper1_frozen_reference_policy": "paper1_economic_champion",
+  "paper1_artifacts_modified": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_created": true,
+  "priorities_completed": 11,
+  "local_grid_policy_count": 100,
+  "local_candidate_pool_n": 12000,
+  "online_best_method": "source_aware_guarded",
+  "paper4_working_champion_policy_id": "paper4_v4_local_rt0p1725_g0p475_u0p075",
+  "generated_artifacts": [
+    "paper4_challenger_local_search.csv",
+    "paper4_online_conformal_v4_method_summary.csv",
+    "paper4_ifrs9_v4_contractual_policy_summary.csv",
+    "paper4_cvar_oce_v4_constraint_frontier.csv",
+    "paper4_selector_v4_results.csv",
+    "paper4_sdam_v4_dynamic_solver_summary.csv",
+    "paper4_causal_high_rate_v4_dossier.csv",
+    "paper4_fairness_v4_proxy_strategy.csv",
+    "paper4_mdcp_v4_source_coverage.csv",
+    "paper4_regret_auditability_v4_frontier.csv",
+    "paper4_common_sample_path_pairwise_ci.csv"
+  ],
+  "generated_figures": [
+    "paper4_v4_local_search_return_heatmap.png",
+    "paper4_v4_online_worst_cell_coverage.png",
+    "paper4_v4_cvar_constraint_frontier.png",
+    "paper4_v4_regret_auditability_frontier.png",
+    "paper4_v4_common_sample_path_ci.png"
+  ]
+}

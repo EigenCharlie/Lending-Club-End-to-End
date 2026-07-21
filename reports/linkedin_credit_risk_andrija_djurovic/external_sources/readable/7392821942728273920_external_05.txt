@@ -1,0 +1,136 @@
+source_asset_id: 7392821942728273920_external_05
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/model_dev_and_vld/fli_ols.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/model_dev_and_vld/fli_ols.pdf
+source_type: github
+
+                   IFRS9 Forward-Looking Modeling
+
+                    Do We Use OLS Regression Efficiently?
+
+
+                              Andrija Djurovic
+
+
+
+
+                    www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic             IFRS9 FLI and OLS Regression   1/6
+IFRS9 Regulatory Requirement and Practical
+Implementation
+
+
+   With the introduction of IFRS9, one of the requirements practitioners had to address was
+   the inclusion of reasonable and supportable information that is available without undue cost
+   or effort when measuring expected credit losses.
+   Also, related to measuring expected credit losses, several regulatory paragraphs emphasized
+   the importance of incorporating this reasonable and supportable information in recognizing
+   lifetime expected credit losses.
+   After several years of implementing IFRS9, the most common approach observed in practice
+   quantifies the macroeconomic environment’s effect on a bank’s risk parameters, usually
+   aggregated at the segment level. For instance, practitioners calculate the default rate at the
+   segment level and regress it against macroeconomic indicators.
+   In addition to the choice of modeling level, various model designs appear in practice, with
+   most of them using the Ordinary Least Squares (OLS) method as the estimation technique.
+
+
+
+
+    Andrija Djurovic              IFRS9 FLI and OLS Regression                                 2/6
+IFRS9 Regulatory Requirement and Practical
+Implementation cont.
+   Among the most frequently used approaches, practitioners select:
+
+         OLS regression in the form of the target variable against macroeconomic indicators
+         (with or without time lags);
+         OLS regression, including macroeconomic indicators and an autoregressive term of
+         the target;
+         Two-step error correction models;
+         Principal Component Analysis (PCA) combined with OLS regression;
+         OLS regression with various transformations of the target variable, such as logit or
+         probit.
+
+   As seen above, this list of model designs is not exhaustive. In practice, various
+   combinations of transformations and methods may be used - most of which rely on OLS as
+   the estimation method. However, each design and its combinations present specific
+   challenges when applied to IFRS9 forward-looking (FLI) modeling.
+
+   In IFRS9 FLI modeling, model design plays a critical role - arguably even more so than in
+   other credit risk exercises.
+
+   Given the importance of model design, this presentation aims to challenge the efficient use
+   of the OLS estimation method in the context of IFRS9 forward-looking modeling.
+
+    Andrija Djurovic             IFRS9 FLI and OLS Regression                               3/6
+IFRS9 Forward-Looking Modeling Principles
+
+When developing FLI models, practitioners usually adhere to certain principles. The following list
+outlines some of the most commonly applied ones:
+
+      The model should convey a clear and coherent narrative.
+      The model should capture all relevant historical events significantly impacting the target
+      variable.
+      The model should incorporate key events that are not reflected in macroeconomic forecasts.
+      The model should balance the impact of the economy with other factors, such as internal
+      changes or regulatory shifts.
+      The statistical techniques used to develop the model should be straightforward and
+      interpretable yet robust enough to capture key historical patterns and forward-looking
+      assumptions.
+      The relationship between model variables should remain reasonably stable over time.
+      The model’s forecasting performance must be tested on an out-of-time sample.
+      Expert input should have a controlled influence on model outcomes to minimize potential
+      bias.
+
+The above principles often lead to specific challenges that practitioners encounter during
+modeling. While there isn’t always a one-to-one correspondence between principles and challenges,
+they are closely related and can often be meaningfully linked. The following slide summarizes some
+of these key challenges and proposes possible approaches within the OLS regression framework.
+
+
+       Andrija Djurovic              IFRS9 FLI and OLS Regression                               4/6
+IFRS9 Forward-Looking Modeling Challenges and OLS
+Regression
+
+
+One of the most critical aspects of developing FLI models is model design. Too often,
+practitioners emphasize the statistical method rather than how the model is structured. Achieving
+the right balance between statistical rigor and a design integrating expert input (business insights)
+is crucial for developing a successful FLI model. The following list highlights some common
+challenges practitioners face during this process and potential enhancements to the standard OLS
+regression approach to help address them.
+   1         Challenge: Low ratio between the number of observations and the available
+             predictors.
+             Approach: OLS model averaging approach, blockwise model design.
+   2         Challenge: Incorporating expert input regarding the expected macroeconomic
+             indicators.
+             Approach: OLS model averaging approach, blockwise model design, PCA + OLS
+             regression, supervised macroeconomic index, constrained OLS regression.
+
+
+
+
+        Andrija Djurovic              IFRS9 FLI and OLS Regression                                 5/6
+IFRS9 Forward-Looking Modeling Challenges and OLS
+Regression cont.
+
+   3        Challenge: Asymmetric or opposing impacts of macroeconomic indicators under
+            different economic conditions or when specific indicator thresholds are reached.
+            Approach: Constrained OLS regression, threshold OLS regression, supervised
+            macroeconomic index.
+   4        Challenge: Balancing the impact of macroeconomic indicators and other predictors.
+            Approach: Constrained OLS regression.
+   5        Challenge: Ensuring a stable model and reliable forecasts.
+            Approach: Constrained OLS regression.
+   6        Challenge: Meeting statistical criteria for model selection.
+            Approach: Simulation-based analysis of violations or limitations in OLS regression
+            assumptions.
+
+Practitioners should bear in mind that the above approaches are not mutually exclusive and are
+intended only as suggestions for addressing specific challenges. Furthermore, the list is not
+exhaustive; practitioners may encounter other challenges in real-world applications and adopt
+alternative solutions.
+
+
+       Andrija Djurovic             IFRS9 FLI and OLS Regression                                 6/6

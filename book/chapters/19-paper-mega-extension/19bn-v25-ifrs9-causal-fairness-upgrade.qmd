@@ -1,0 +1,66 @@
+---
+title: "v25 IFRS9, Causal and Fairness Upgrade"
+page-layout: article
+---
+
+## Pregunta
+
+V25 pregunta cuánto podemos mejorar los carriles bloqueados sin romper los
+límites de claim: IFRS9 contractual, CATE policy value y fair-lending legal
+claim.
+
+## Qué intentamos
+
+Se construyó un panel mensual IFRS9-inspired usando campos locales disponibles:
+loan status, pagos, recoveries, installment, term, EAD/LGD proxy y eventos
+hash-estables de default/prepayment/recovery timing. En causalidad se añadió
+propensity trimming/IPW, balance y sensitivity grid. En fairness se amplió source
+governance con celdas e intersecciones y pooling para bajo soporte.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v25_ifrs9_proxy_cashflow_panel.parquet` | panel mensual ECL/cashflow proxy |
+| `paper4_v25_ifrs9_proxy_policy_summary.csv` | resumen IFRS9-inspired por policy |
+| `paper4_v25_ifrs9_sicr_sensitivity.csv` | sensibilidad SICR |
+| `paper4_v25_causal_balance_trim_ipw.csv` | balance trimming/IPW |
+| `paper4_v25_causal_outcome_sensitivity.csv` | outcomes default/return proxy |
+| `paper4_v25_causal_hidden_bias_grid.csv` | sensibilidad a sesgo oculto |
+| `paper4_v25_cate_gate_report.csv` | gates CATE |
+| `paper4_v25_source_governance_diagnostics.csv` | source governance |
+| `paper4_v25_no_legal_claim_flags.csv` | no-claim flags |
+| `paper4_v25_status.json` | status reproducible |
+
+## Resultado
+
+El panel IFRS9 proxy tiene 194,220 filas. Eso mejora muchísimo la trazabilidad
+de ECL proxy, default/prepayment/recovery timing y SICR sensitivity, pero no
+desbloquea IFRS9 contractual. El CATE tampoco se desbloquea: aunque el overlap
+trimmed es alto, el balance máximo sigue alrededor de 0.365 y la identificación
+continúa bloqueada por accepted-loan selection y reject-inference. Fairness se
+mantiene como source governance, con 1,244 filas de diagnóstico.
+
+## Qué mejoró
+
+Los bloqueos ahora tienen más evidencia y mejor granularidad. IFRS9 proxy es
+más útil, CATE tiene mejor dossier, y fairness/source governance tiene pooling
+explícito.
+
+## Qué falló
+
+No aparecieron datos nuevos de servicing contractual, protected attributes ni
+identificación causal. Esos claims siguen cerrados.
+
+## Claim permitido
+
+ECL/SICR proxy, causal diagnostics y source governance por grupos observables.
+
+## Claim no permitido
+
+IFRS9 contractual, CATE policy value y fair-lending legal compliance.
+
+## Qué queda pendiente
+
+Reabrir solo si aparecen servicing mensual real, diseño causal nuevo o protocolo
+externo aprobado para protected attributes/proxies.

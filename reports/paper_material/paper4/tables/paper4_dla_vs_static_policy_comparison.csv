@@ -1,0 +1,3 @@
+strategy,months,total_net_return_after_ecl,ending_budget,mean_coverage_online_90,delta_vs_static_champion
+dynamic_monthly_top8,33,63999.37265052829,1063999.3726505286,0.9714971139971139,15432.333170467951
+static_paper1_champion,32,48567.03948006034,,,0.0

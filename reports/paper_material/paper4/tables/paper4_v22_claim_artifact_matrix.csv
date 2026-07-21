@@ -1,0 +1,10 @@
+claim,allowed,artifact,quarto_page,claim_boundary_v22,no_claim_contractual_ifrs9,no_claim_cate_policy_value,no_claim_fair_lending_legal,artifact_exists
+Paper 4 can evaluate policies as monthly dynamic processes,True,paper4_v19_dynamic_policy_summary.csv,19bh-v19-dynamic-engine-v2.qmd,"internal replay, not deployment",False,False,False,True
+Paper 4 has calibrated internal common sample paths,True,paper4_v19_sample_paths.parquet,19bh-v19-dynamic-engine-v2.qmd,"internal calibration, not forecast",False,False,False,True
+Paper 4 has endogenous DLA approximations,True,paper4_v20_endogenous_dla_policy_summary.csv,19bi-v20-dla-cvar-spo-resolution.qmd,"approximate monthly greedy DLA, not Bellman proof",False,False,False,True
+Paper 4 has exact full-universe CVaR optimality,False,paper4_v20_cvar_oce_frontier_v2.csv,19bi-v20-dla-cvar-spo-resolution.qmd,restricted-master/diagnostic evidence only,False,False,False,True
+Paper 4 has formal differentiable SPO+,False,paper4_v20_spo_dependency_blockers.csv,19bi-v20-dla-cvar-spo-resolution.qmd,decision-regret surrogate only unless dependencies pass,False,False,False,True
+Paper 4 can select a working lab champion,True,paper4_v22_working_champion.json,19bk-v22-academic-synthesis.qmd,Paper 4 only; no Paper Estrella promotion,False,False,False,True
+Paper 4 has contractual IFRS9 lifetime ECL,False,paper4_v21_ifrs9_readiness_matrix.csv,19bj-v21-ifrs9-causal-fairness-gates.qmd,servicing data blockers remain,True,False,False,True
+Paper 4 has CATE policy value,False,paper4_v21_cate_gate_report.csv,19bj-v21-ifrs9-causal-fairness-gates.qmd,identification/reject-inference blocked,False,True,False,True
+Paper 4 makes fair-lending legal claims,False,paper4_v21_no_legal_claim_flags.csv,19bj-v21-ifrs9-causal-fairness-gates.qmd,protected attributes/protocol absent,False,False,True,True

@@ -1,0 +1,7 @@
+Developing risk models on AWS can be expensive.
+But there’s a better way. ☁️
+I first heard about LocalStack at EuroPython 2023. It is a powerful tool that lets you run AWS services locally with zero cloud cost.
+In this piece, I walk you through a practical machine learning deployment pattern using LocalStack and AWS SAM.
+👉 Read here: https://lnkd.in/dZv-YGxx
+I’m also putting together a small guide on 𝘊𝘳𝘦𝘥𝘪𝘵 𝘙𝘪𝘴𝘬 𝘔𝘰𝘥𝘦𝘭𝘪𝘯𝘨 𝘰𝘯 𝘈𝘞𝘚, building on this work and covering a few common patterns and how to implement them efficiently.
+#AWS #DataScience #Cloud #MachineLearning #Serverless

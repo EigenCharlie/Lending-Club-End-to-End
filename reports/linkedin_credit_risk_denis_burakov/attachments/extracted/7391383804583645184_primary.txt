@@ -1,0 +1,212 @@
+     Multiclass Weight of Evidence
+                                                         No default (Y=0)
+                                                         UTP default (Y=1)
+             -1.56
+                                                         DPD default (Y=2)
+Card usage
+                                          +1.07
+> 50%
+
+                                              +1.50
+
+
+
+
+                     -1.0
+
+
+  Channel:                                        +2.0
+  Online
+
+                     -1.0
+                            4%
+
+
+
+                      Weight of Evidence (WOE)
+Multiclass Weight of Evidence (WOE)
+Binary Problem with Simple Hypotheses
+
+Weight of Evidence (WOE) is a statistical technique
+widely used in credit scoring and other banking data                                                                      Hypotheses
+                                                                                            Evidence
+science use cases.                                                                                                Default         No Default         Row Sum
+                                                                                               (X)
+                                                                                                                   (Y=1)            (Y=0)
+In the binary case, we compare two hypotheses (e.g.
+                                                                                       Delinquent > 5 days          80                 100              180
+Default vs No Default) by calculating a likelihood ratio
+or log likelihood ratio (WOE).                                                         Delinquent ≤ 5 days          20                 500              520
+
+Using likelihood ratios and WOE, we can say how                                        Column Sum                   100                600              700
+much evidence from our data increases or decreases
+the belief in the hypothesis (e.g., default), and when
+                                                                                                                          Hypotheses              Likelihood ratio
+combined with prior odds (e.g., sample default rate)                                        Evidence
+                                                                                                                  Default         No Default        P(X=j | Y=1)
+we obtain the probability of default (PD).                                                     (X)
+                                                                                                                   (Y=1)            (Y=0)         ÷ P(X=j | Y=0)1
+
+In the example, we see that having 5+ days of                                          Delinquent > 5 days         0.80                0.167           4.80
+delinquency increases the odds of default almost 5
+times (WOE = +1.6).                                                                    Delinquent ≤ 5 days         0.20                0.833           0.24
+
+                                                                                       Column Sum                  1.00                1.00              -
+The problem is straightforward when we consider only
+two classes but quickly becomes non-trivial when we                                                  𝑃 𝑋 = 𝑗 𝑦 = 1)                            𝑃 𝑋=𝑗    𝑦 = 1)
+have more than two classes, yet the governing                                                  𝐿𝑅𝑗 =                          𝑊𝑂𝐸𝑗 = 𝑙𝑜𝑔
+                                                                                                     𝑃 𝑋 = 𝑗 𝑦 = 0)                            𝑃 𝑋=𝑗    𝑦 = 0)
+principle remains the same, as we show next.
+                                                                                                       Likelihood Ratio                  Weight of Evidence
+1. P(X = j ∣Y): likelihood of observing this evidence in group j given each outcome.
+Multiclass with Simple Hypotheses
+Multiclass Weight of Evidence (WOE)
+Multiclass Problem Formulation with Simple Hypotheses
+
+Now imagine that we wanted to look at different
+                                                                                                                              Hypotheses
+types of default, Days Past Due (DPD) and Unlikely                                       Evidence
+                                                                                                                                                              Row Sum
+to Pay (UTP) through a similar lens1.                                                       (X)                DPD Default    UTP Default     No Default
+                                                                                                                 (Y=2)          (Y=1)           (Y=0)
+In a multiclass setting, we can’t directly compare all                           Delinquent > 5 days               50              30             100           180
+three at once with a single ratio. Instead, we must
+choose a reference hypothesis and compute                                        Delinquent ≤ 5 days                5              15             500           520
+pairwise likelihood ratios against it.
+                                                                                 Column Sum                        55              45             600           700
+ Multiclass LR with Simple Hypotheses
+
+        LR2∣0                    LR1∣0                    LR0∣0                                                    Conditional probabilities, P(X | Y)     How to get a
+                                                                                         Evidence
+                                                                                                               DPD Default    UTP Default     No Default    likelihood
+                                                                                            (X)
+  P(X=j | Y=2)             P(X=j | Y=1)             P(X=j | Y=0)
+                                                                                                                 (Y=2)          (Y=1)           (Y=0)          ratio?
+  P(X=j | Y=0)             P(X=j | Y=0)             P(X=j | Y=0)
+                                                                                 Delinquent > 5 days               0.91           0.67            0.17           -
+
+                                                                                 Delinquent ≤ 5 days               0.09           0.33            0.83           -
+For instance, if:
+  • 𝑃(𝑋 > 5 ∣ 𝐷𝑃𝐷) = 0.91                                                        Column Sum                        1.00           1.00            1.00           -
+  • 𝑃(𝑋 > 5 ∣ 𝑁𝑜 𝐷𝑒𝑓𝑎𝑢𝑙𝑡) = 0.17
+then 𝐿𝑅 = 0.91/0.17 = 5.4, 𝑊𝑂𝐸 = +1.69.                                                          𝑃 𝑋 = 𝑗 𝑦 = 𝑖)                             𝑃 𝑋 = 𝑗 𝑦 = 𝑖)
+                                                                                       𝐿𝑅𝑖,𝑗|𝑟 =                             𝑊𝑂𝐸𝑖,𝑗|𝑟 = 𝑙𝑜𝑔
+                                                                                                 𝑃 𝑋 = 𝑗 𝑦 = 𝑟)                             𝑃 𝑋 = 𝑗 𝑦 = 𝑟)
+This means that odds of DPD default are 5.4 times higher
+than no default with a more than 5 days delinquency.                                            Likelihood Ratio                         Weight of Evidence
+1. This example will become part of a chapter dedicated to Logistic Regression with applications in Credit Risk.
+Multiclass Weight of Evidence (WOE)
+Multiclass Inference with Simple Hypotheses
+                                     Hypotheses                             Using the simple hypotheses, we can derive posterior
+       Evidence             DPD           UTP          No                   odds by multiplying prior odds by a corresponding
+                                                                 Row Sum
+          (X)             Default       Default      Default                pairwise likelihood ratio (LR):
+                           (Y=2)         (Y=1)        (Y=0)
+Delinquent > 5 days         50            30           100         180      DPD Default
+                                                                            • Prior Odds2∣0 = 55 / 600 ≈ 0.09
+Delinquent ≤ 5 days          5            15           500         520      • LR2∣0 = 0.91 / 0.17 ≈ 5.5
+Row sum                     55            45           600         700      • Posterior Odds2∣0 = 0.09 × 5.5 = 0.50
+
+Prior Oddsreference        0.09          0.08          1.00         -       UTP Default
+                                                                            • Prior Odds1∣0 = 45 / 600 = 0.08
+                                                                            • LR1∣0 = 0.67 / 0.17 ≈ 4.0
+                                                                            • Posterior Odds1∣0 = 0.07 × 4.0 ≈ 0.30
+                         Conditional probabilities, P(X | Y)
+      Evidence
+                                                                   LR2∣0    No Default
+         (X)          DPD Default   UTP Default     No Default
+                        (Y=2)         (Y=1)           (Y=0)                 • Prior Odds0∣0 = 600 / 600 = 1.0
+                                                                            • LR0∣0 = 0.17 / 0.17 = 1.0
+Delinquent > 5 days      0.91           0.67           0.17        5.40
+                                                                            • Posterior Odds0∣0 = 1.0 × 1.0 = 1.0
+Delinquent ≤ 5 days      0.09           0.33           0.83        0.11
+                                                                            To calculate the PD for DPD events given delinquency
+Column Sum               1.00           1.00           1.00             -   of more than 5 days, we can use the Bayes’ theorem:
+𝑃𝑜𝑠𝑡𝑒𝑟𝑖𝑜𝑟 𝑂𝑑𝑑𝑠: 𝑂𝑖 (𝐸) = 𝑂𝑖 × 𝐿𝑅𝑖|"
+                                                                            PDDPD = 0.50 / (0.50 + 0.30 + 1.0) = 28%
+𝑃𝑜𝑠𝑡𝑒𝑟𝑖𝑜𝑟 𝐿𝑜𝑔 𝑂𝑑𝑑𝑠: 𝑙𝑜𝑔𝑂𝑖(𝐸) = 𝑙𝑜𝑔(𝑂𝑖) + 𝑊𝑂𝐸𝑖|0(𝐸)
+Multiclass with Simple-vs-Composite
+             Hypotheses
+Multiclass Weight of Evidence (WOE)
+Multiclass Problem Formulation with Simple-vs-Composite Hypotheses
+
+Continuing our example with the types of default,                                                                                     Hypotheses
+Days Past Due (DPD) and Unlikely to Pay (UTP), we                                         Evidence
+                                                                                                                                                                              Row Sum
+can use a different formulation to derive likelihood                                         (X)                    DPD Default       UTP Default         No Default
+ratios and weights of evidence (WOE).                                                                                 (Y=2)             (Y=1)               (Y=0)
+                                                                                  Delinquent > 5 days                    50                  30                50                 180
+Here, we are only interested in only one hypothesis,
+ignore the alternative (composite, e.g., not DPD).                                Delinquent ≤ 5 days                     5                  15                200                520
+The key idea is that now we work with row sums to                                 Column Sum                             55                  45                600                700
+calculate LRs. This is based on the Odds form of the
+Bayes’ Theorem as formulated by I.J. Good1.
+                                                                                                                        Conditional probabilities, P(Y | X)
+ Multiclass LR with Composite Hypotheses                                                  Evidence
+                                                                                                                    DPD Default       UTP Default         No Default          Row Sum
+                                                                                             (X)
+       LR2∣¬2                     LR1∣¬1                  LR0∣¬0                                                      (Y=2)             (Y=1)               (Y=0)
+                  Odds
+                                                                                  Delinquent > 5 days                   0.28               0.17               0.56               1.00
+  P(Y=2 | X=j)             P(Y=1 | X=j)             P(Y=0 | X=j)
+                                                                                  Delinquent ≤ 5 days                   0.01               0.03               0.96               1.00
+   P(Y≠2 |X=j)              P(Y≠1 |X=j)             P(Y≠0 |X=j)
+                                                                                  Column Sum                              -                   -                  -                  -
+                  Odds
+      P(Y=2)                   P(Y=1)                   P(Y=0)
+                                                                                   𝑂(𝐻|𝐸) 𝑃(𝐸|𝐻)                    As I.J. Good notes, the same odds-form Bayes formula applies whether
+      P(Y≠2)                   P(Y≠1)                   P(Y≠0)                           =                          the hypotheses are simple (a single, fully specified case) or composite
+                                                                                    𝑂(𝐻)       "
+                                                                                           𝑃(𝐸|𝐻)                   (composed of multiple simple hypotheses). When we focus on one
+                                                                                                                    hypothesis H, the general formula derived from the Bayes’ Theorem
+                                                                                  Posterior odds Likelihood ratio   gives us the essential quantity for inference, posterior odds O(H|E).
+
+1. I.J. Good. Good Thinking: The Foundations of Probability and Its Applications. University of Minnesota Press, 1983.
+Multiclass Weight of Evidence (WOE)
+Multiclass Inference with Simple-vs-Composite Hypotheses
+                                                Hypotheses                            To calculate likelihood ratios, we need to divide odds of
+         Evidence                    DPD              UTP        No                   Y | X by the prior Y, which gives us an odds ratio
+                                                                           Row Sum
+            (X)                    Default          Default    Default
+                                    (Y=2)            (Y=1)      (Y=0)                 DPD Default
+Delinquent > 5 days                     50             30       100          180      • Prior Odds2∣¬2 = 0.08 / 0.92 ≈ 0.09
+                                                                                      • LR2∣¬2 = (0.28 / (1 − 0.28)) / 0.09 ≈ 4.51
+Delinquent ≤ 5 days                     5              15       500          520      • Posterior Odds2∣¬2 = 0.09 × 4.51 ≈ 0.39
+Row sum                                 55             45       600          700
+                                                                                      UTP Default
+P(Y)1                                0.08             0.06      0.86        1.00      • Prior Odds1∣¬1 = 0.06 / 0.94 ≈ 0.07
+                                                                                      • LR1∣¬1 = (0.17 / (1 − 0.17)) / 0.07 = 2.91
+1 − P(Y)                             0.92             0.94      0.14          -
+                                                                                      • Posterior Odds1∣¬1 = 0.07 × 2.91 = 0.20
+Prior Oddscomposite                  0.09             0.07       6.0          -
+                                                                                      No Default
+                                                                                      • Prior Odds0∣¬0 = 0.86 / 0.14 ≈ 6.0
+                                  Conditional probabilities, P(Y | X)                 • LR0∣¬0 = (0.56 / (1 − 0.56)) / 6.0 ≈ 0.21
+        Evidence
+                                                                              LR      • Posterior Odds0∣¬0 = 6.14 × 0.21 = 1.25
+           (X)              DPD Default         UTP Default   No Default
+                              (Y=2)               (Y=1)         (Y=0)
+                                                                                      To calculate the PD for DPD events given delinquency
+Delinquent > 5 days               0.28               0.17        0.56        1.00
+                                                                                      of more than 5 days, we can use odds to probability
+Delinquent ≤ 5 days               0.01               0.03        0.96        1.00     formula:
+
+Column Sum                          -                  -          -               -   PDDPD = 0.39 / (1 + 0.39) = 28%
+1. For example, DPD prior probability is 55 / 700 = 0.08.
+Multiclass Weight of Evidence (WOE)
+Wrap-Up
+
+
+Some open questions:
+
+• What is the connection between multiclass likelihood ratios / WOE and multinomial
+  logistic regression?
+
+• How can we derive posterior class predictions using multiclass LR / WOE?
+
+• Can target encoding be viewed as a practical way to compute multiclass likelihood
+  ratios?
+
+I’ll explore these questions (and more) in the next chapter:
+
+📘 Logistic Regression: From Maximum Likelihood to Machine Learning

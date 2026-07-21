@@ -1,0 +1,9 @@
+readiness_gate_v477,ready_v477,evidence_artifact_v477,claim_boundary_v477
+visual_package_mapped_to_sections,True,paper4_v477_visual_section_delta.csv,manuscript delta only
+asset_callout_roles_assigned,True,paper4_v477_visual_asset_manuscript_map.csv,callout map only
+blocker_caveats_preserved,True,paper4_v477_blocker_visual_caveat_map.csv,blockers remain open
+caption_revision_queue_created,True,paper4_v477_caption_revision_queue.csv,revision queue only
+captions_final,False,future_caption_editing,no final captions in v477
+assets_inserted_into_quarto,False,book sources unchanged,no Quarto/book promotion in v477
+submission_ready,False,future venue and manuscript edit,not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

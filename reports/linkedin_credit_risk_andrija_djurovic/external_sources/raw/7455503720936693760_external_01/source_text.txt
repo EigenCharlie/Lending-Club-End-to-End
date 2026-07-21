@@ -1,0 +1,374 @@
+GitHub - andrija-djurovic/adsfcr: Applied Data Science for Credit Risk · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+andrija-djurovic
+/
+adsfcr
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+58
+Star
+215
+Code
+Issues
+0
+Pull requests
+0
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+andrija-djurovic/adsfcr
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+NameName
+Last commit message
+Last commit date
+Latest commit
+History
+624 Commits
+624 Commits
+bgrd
+bgrd
+concentration_risk
+concentration_risk
+effective_interest_rate
+effective_interest_rate
+figures
+figures
+ldp
+ldp
+lgd
+lgd
+loan_repayment_plan
+loan_repayment_plan
+model_dev_and_vld
+model_dev_and_vld
+mrm
+mrm
+ols
+ols
+risk_quantification
+risk_quantification
+vasicek_distribution
+vasicek_distribution
+README.md
+README.md
+View all files
+Repository files navigation
+README
+Applied Data Science for Credit Risk
+This repository is dedicated to my books 📕 𝐀𝐩𝐩𝐥𝐢𝐞𝐝 𝐃𝐚𝐭𝐚 𝐒𝐜𝐢𝐞𝐧𝐜𝐞 𝐟𝐨𝐫 𝐂𝐫𝐞𝐝𝐢𝐭 𝐑𝐢𝐬𝐤: 𝐀 𝐏𝐫𝐚𝐜𝐭𝐢𝐜𝐚𝐥 𝐆𝐮𝐢𝐝𝐞 𝐢𝐧 𝐑 𝐚𝐧𝐝 𝐏𝐲𝐭𝐡𝐨𝐧 and 📕 𝐏𝐫𝐨𝐛𝐚𝐛𝐢𝐥𝐢𝐭𝐲 𝐨𝐟 𝐃𝐞𝐟𝐚𝐮𝐥𝐭 𝐑𝐚𝐭𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐥𝐢𝐧𝐠 𝐰𝐢𝐭𝐡 𝐑: 𝐂𝐨𝐦𝐩𝐫𝐞𝐡𝐞𝐧𝐬𝐢𝐯𝐞 𝐨𝐯𝐞𝐫𝐯𝐢𝐞𝐰 𝐨𝐟 𝐭𝐡𝐞 𝐦𝐨𝐝𝐞𝐥𝐢𝐧𝐠 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐞𝐬, 𝐩𝐫𝐢𝐧𝐜𝐢𝐩𝐥𝐞𝐬, 𝐚𝐧𝐝 𝐝𝐞𝐬𝐢𝐠𝐧𝐬, as well as other topics related to credit risk modeling. It will be regularly updated with GitHub pages, slides, and PDF documents covering various modeling subjects.
+The motivation behind writing these books and creating the repository stems from the observed gap between academic literature, industry practices, and the evolving landscape of data science. While there's been a notable increase in literature on credit risk modeling, discrepancies persist. The evolution of data science has led to significant automation in processes. Still, it has also brought the risk of overreliance on pre-programmed procedures, sometimes leading to the misuse of statistical methods.
+Moreover, many practitioners entering credit risk modeling often overlook fundamental principles, hindering their professional development. Hence, the repository aims to serve as a centralized hub for continuous education and consolidating essential concepts.
+The repository and books will encompass practical examples utilizing both R and Python.
+The material in this repository is compiled in the Working Notes, accessible through this link.
+As the repository evolves, the 📕 Working Notes will be updated whenever new content becomes available.
+Please follow the citation format provided below to cite this GitHub repository for your references, research, or academic work.
+When citing within your text, use the author's last name along with the publication year, like this:
+(Djurovic, 2025).
+In your bibliography or reference list, use the following citation style:
+Djurovic, Andrija. (2025). Applied Data Science for Credit Risk.
+GitHub. https://github.com/andrija-djurovic/adsfcr (Accessed: yyyy-mm-dd))
+Or use the following BibTeX entry:
+@misc{djurovicadsfcr,
+title = {Applied Data Science for Credit Risk},
+author = {Andrija Djurovic},
+publisher = {\url{https://github.com/andrija-djurovic/adsfcr}},
+year = {2025},
+note = {Accessed: yyyy-mm-dd}
+}
+Please note that each book has its own proposed reference format.
+Below are links providing an overview of the repository's main topics, which include summaries from the books and insights gleaned from practical experience.
+The Vasicek Distribution (Probability of Default Models):
+The Functional Form and Parameters Estimation Methods (pdf, presentation)
+Shiny Application for Estimating the Parameters of the Vasicek Distribution
+Asset Correlation Estimation - Maximum Likelihood: Analytical vs Numerical Optimization Approach (pdf, presentation)
+The Logistic Vasicek Distribution (pdf, presentation)
+Asset Correlation Estimation - Maximum Likelihood: Normal vs Logistic Vasicek Distribution (pdf, presentation)
+Asset Correlation Estimators and Bias Quantification (pdf, presentation)
+The Vasicek PD Model and Transition Matrices - Optimization of the Systemic Factor Z (pdf, presentation)
+Loss Given Default:
+Loss Given Default as a Function of the Default Rate (pdf, presentation)
+The Vasicek LGD Model - The Functional Form and Parameters Estimation Method (pdf, presentation)
+The Vasicek LGD Model - Simulating the Distribution of the Parameters (pdf, presentation)
+The Vasicek LGD Model - The Bias Quantification of the Sensitivity Parameter (pdf, presentation)
+Enhancing IRB LGD Modeling with Survival Analysis - A Framework for Extrapolating Incomplete Recoveries (pdf, presentation)
+Component-Based IRB LGD Models - Evaluating Calibration of Probability of Cure Models (pdf, presentation)
+Low Default Portfolios:
+Likelihood Approaches to Low Default Portfolios - Andrija Djurovic's Adjustment of Alan Forrest's Method to the Multi-Year Period Design: PD Domain Search Approach (pdf, presentation)
+R code (functions)
+Python code (functions)
+Likelihood Approaches to Low Default Portfolios - Andrija Djurovic's Adjustment of Alan Forrest's Method to the Multi-Year Period Design: PD Optimization Approach (pdf, presentation)
+R code (functions)
+Python code (functions)
+Estimating Probabilities of Default for Low Default Portfolios - Pluto-Tasche Approach (pdf, presentation)
+R code (functions)
+Python code (functions)
+Conservative Estimation of Default Probabilities - Benjamin-Cathcart-Ryan Approach (pdf, presentation)
+Simulation dataset
+R code (data & functions)
+Python code (data & functions)
+Benchmarking Low Default Portfolios to Third Party Ratings - Distance-Based Tendency Testing (pdf, presentation, R & Python code)
+Benchmarking Low Default Portfolios to Third Party Ratings - Distance-Based Deviation Testing (pdf, presentation, R & Python code)
+Measuring Concentration Risk:
+Measuring Concentration Risk - A Partial Portfolio Approach (pdf, presentation, R & Python code)
+Simulation dataset
+On Testing the Concentration in the Rating Grades - The Initial and Periodic PD Model Validation (pdf, presentation)
+Model Risk Management:
+Model Shift and Model Risk Management (pdf, presentation)
+The Instability of WoE Encoding in PD Modeling (pdf, presentation)
+The Instability of Mean Target Encoding in LGD and EAD Modeling (pdf, presentation)
+Discriminatory Power Shortfalls in IRB Credit Risk Models - Risk-Weighted Assets Impact Analysis (pdf, presentation)
+The Economic Value of Credit Rating Systems - Quantifying the Benefits of Improving an Internal Credit Rating System (pdf, presentation)
+Heterogeneity Testing in IRB Credit Risk Models - Regulatory Requirements, Methods, Challenges, and Considerations (pdf, presentation)
+Enhancement of Heterogeneity Testing for IRB Models - Statistical Power Analysis (pdf, presentation, R & Python code)
+Enhancement of Heterogeneity Testing for IRB Models - Analysis of the Disruption of Monotonicity in the Rating Scale (pdf, presentation)
+Heterogeneity and Homogeneity Testing in IRB LGD/EAD Models - Is the Mann–Whitney U Test Compliant with Regulatory Requirements? (pdf, presentation)
+Heterogeneity Testing in IRB Models - When the P-Value > 50% is Informative (pdf, presentation)
+Heterogeneity Shortfalls in IRB Credit Risk Models - Risk-Weighted Assets Impact Analysis (pdf, presentation)
+Heterogeneity Shortfalls in IRB Credit Risk Models - Portfolio Returns Impact Analysis (pdf, presentation)
+Rethinking Representativeness Analysis in IRB Modeling - Classifier Two-Sample Test (pdf, presentation)
+Somers’ D for Discriminatory Power in LGD and EAD Models - Dyx or Dxy? (pdf, presentation)
+Somers’ D in LGD and EAD Modeling - Impact of Input Binning on Discriminatory Power (pdf, presentation)
+Somers’ D in LGD and EAD Modeling - Impact of Conservatism on Discriminatory Power (pdf, presentation)
+Model Development and Validation:
+Common Inconsistencies in Probability of Default Modeling (pdf, presentation)
+WoE Regression for PD Modeling - Intercept Estimation Uncertainty (pdf, presentation)
+OLS Regression in IRB Credit Risk Modeling - From Binary to Continuous: A WoE-Equivalent Encoding Method (pdf, presentation)
+IRB PD Periodic Model Validation - Quantitative Testing Procedures (pdf, presentation)
+IRB Model Validation - Technical Aspects of Automated Reports (pdf,R & Python code)
+Validation of Credit Risk Models - Does the P-value Provides Sufficient Insight? (pdf, presentation)
+Validation of Credit Risk Models - On Favorable P-values in Statistical Tests (pdf, presentation)
+Margin of Conservatism Type C in PD Modeling - Central Tendency Uncertainty in the Presence of Autocorrelation (pdf, presentation)
+Time Series Analysis in Credit Risk Modeling - OLS vs Yule-Walker Estimator for Autoregressive Coefficients (pdf, presentation)
+Hypothesis Testing in Credit Risk - A Visual Approach for Deeper Understanding (pdf, presentation)
+The Model-Based Heterogeneity Testing (pdf, presentation)
+Risk-Weighted Assets as a Function of Probability of Default (pdf, presentation)
+Statistical Approach to Third Party Ratings Treatment - Modeling Third Party Ratings Adjustment (pdf, presentation)
+Principal Component Analysis for IFRS9 Forward-Looking Modeling (pdf, presentation, R & Python code)
+IFRS9 Forward-Looking Modeling - Supervised Macroeconomic Index (pdf, presentation)
+Supervised Macroeconomic Index for IFRS9 Forward-Looking Modeling - The R Package smi (pdf, manual, R code)
+Supervised Macroeconomic Index for IFRS9 Forward-Looking Modeling - The Python Package smi (pdf, manual, Python code)
+IFRS9 Forward-Looking Modeling and Stationarity Testing - How Reliable Is the Augmented Dickey-Fuller Test? (pdf, presentation)
+IFRS9 Forward-Looking Modeling - OLS Regression and Predictor Importance (pdf, presentation, R & Python code)
+IFRS9 Forward-Looking Modeling - Do We Use OLS Regression Efficiently? (pdf, presentation)
+IFRS9 Forward-Looking Modeling - Dynamic Regression Models and Estimation Uncertainty (pdf, presentation)
+IFRS9 Forward-Looking Modeling - Recursive Regressions in Practice (pdf, presentation)
+Bootstrap Hypothesis Tests (html, GitHub page)
+Bootstrap Hypothesis Tests (pdf, presentation)
+Statistical Binning of Numeric Risk Factors - PD Modeling (pdf, presentation)
+Statistical Binning of Categorical Risk Factors - PD Modeling (pdf, presentation)
+Statistical Binning and Model Validation - How the Choice of Binning Algorithm Influences Model Validation (pdf, presentation, R & Python code)
+Hosmer-Lemeshow VS Z-score Test on Portfolio Level (html, GitHub slides)
+Hosmer-Lemeshow VS Z-score Test on Portfolio Level (pdf, presentation)
+Power Play: Probability of Default Predictive Ability Testing (pdf, presentation)
+Nested Dummy Encoding (pdf, presentation)
+Marginal Information Value (pdf, presentation)
+Scorecard Scaling (pdf, presentation)
+Level Importance of Risk Factors in PD Modeling - WoE Regression and Scorecard Scaling (pdf, presentation)
+Risk Factor Engineering in PD Models - Tree-Based Interactions (pdf, presentation)
+Risk Quantification and Backtesting:
+Calibration of Discrete PD Rating Scale - From Segment Default Averages to Grade-Level Estimates (pdf, presentation, R & Python code)
+A Model-Based Approach to Discrete PD Rating Scale Calibration - Logistic Regression Intercept Optimization (pdf, presentation)
+Quantification of MoC Type C in PD Models - Statistical Challenges in Reconciling Regulatory Requirements (pdf, presentation)
+Quantification of MoC Type C in PD Models - On the Aggregate Effect of Regulatory Requirements on Conservatism Levels (pdf, presentation)
+Backtesting PD Models - The Two-Sided Exact Binomial Test (pdf, presentation, R & Python code)
+Backtesting PD Models - On the Reliability of the Multi-Period Normal Test (pdf, presentation)
+The Binomial Tests for PD Model Validation - The Independent and Correlated Binomial Distributions (pdf, presentation)
+Backtesting PD Models - The Multi-Period Average Testing (pdf, presentation, R & Python code)
+Business-Guided Regression Designs:
+Blockwise (modular) Model Designs:
+Staged Blocks (pdf, presentation, R & Python code)
+Embedded Blocks (pdf, presentation, R & Python code)
+Ensemble Blocks (pdf, presentation, R & Python code)
+Constrained Threshold Logistic Regression:
+Statistical Approach to Third Party Ratings Treatment (pdf, presentation, R & Python code)
+OLS Regression:
+Encoding Categorical Risk Factors in IRB LGD and EAD Models - A Comparison of Ordinal, One-Hot and Nested Dummy Approaches in Linear Regression (pdf, presentation)
+Encoding Categorical Risk Factors in IRB LGD and EAD Models - A Comparison of the Target-Based Encoding Methods (pdf, presentation)
+Consequences of Violating the Normality Assumption for OLS Regression (pdf, R & Python code)
+Consequences of Heteroscedasticity for OLS Regression (pdf, R & Python code)
+Consequences of Multicollinearity for OLS Regression (pdf, R & Python code)
+Consequences of Autocorrelation for OLS Regression (pdf, R & Python code)
+Effective Interest Rate:
+Effective Interest Rate (html, R & Python code)
+Effective Interest Rate (pdf, R & Python code)
+Loan Repayment Plan:
+Loan Repayment Plan (html, R & Python code)
+Loan Repayment Plan (pdf, R & Python code)
+About
+Applied Data Science for Credit Risk
+leanpub.com/adsfcr
+Resources
+Readme
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+215
+stars
+Watchers
+14
+watching
+Forks
+58
+forks
+Report repository
+Releases
+No releases published
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page.
+Uh oh!
+There was an error while loading. Please reload this page.
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page.
+Languages
+HTML
+88.8%
+JavaScript
+10.9%
+Other
+0.3%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

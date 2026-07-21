@@ -1,0 +1,307 @@
+---
+title: "Roadmap Técnico"
+page-layout: article
+---
+
+## Roadmap de implementación de Paper 4 {#sec-paper4-roadmap}
+
+Paper 4 debe implementarse por fases, pero no como carrera hacia publicación.
+La regla de fondo es: primero construir memoria técnica y experimentos
+reproducibles; luego diagnósticos sobre policies congeladas; después selectors
+explícitos; y solo mucho más adelante nuevos solvers/champions si la evidencia
+lo justifica.
+
+### Fases recomendadas
+
+::: {#tbl-paper4-roadmap}
+
+| Fase | Nombre | Qué implementa | Output | Gate |
+|---|---|---|---|---|
+| -1 | Operating model de laboratorio vivo | bitácora, ledger, failure log, decision records y convenciones de runs | `paper4_experiment_ledger.qmd`, `paper4_failure_log.qmd`, `paper4_decision_records/` | cada sesión deja memoria útil |
+| 0 | Congelar fuentes | confirma champions Papers 1--3, IFRS9, causal/TS status | `paper4_source_manifest.qmd` | no contradice promotion actual |
+| 0.25 | Modelo SDAM/UMF | define `S_t`, `x_t`, `W_{t+1}`, `S^M`, `S_t^x` y clases de política | `paper4_sequential_decision_schema.json`, `paper4_policy_class_registry.csv` | todo claim mapea a un elemento del modelo o queda como future work |
+| 0.5 | Registry Insights Factory | mapea research-only a rol, gate, join y siguiente artefacto | `paper4_insights_factory_status.json`, tablas 6--8 | cada señal tiene uso end-to-end o queda bloqueada |
+| 1 | IFRS9 policy eval | policy × ECL × scenario × stage | `policy_ifrs9_ecl_grid.parquet` | todas las policies trazables |
+| 2 | Net return diagnostics | retorno robusto neto de ECL/provisión | `net_return_after_ecl_table.csv` | no reoptimiza |
+| 3 | Tail/satisficing diagnostics | OCE/CVaR + thresholds | `tail_risk_policy_eval.parquet`, `satisficing_policy_grid.parquet` | separa diagnóstico de selector |
+| 4 | Paper 4 MVP report | reporte integrado sin nuevo champion | `paper4_mvp_report.qmd` | reproduce y renderiza |
+| 5 | Selector IFRS9-aware | ranking explícito de policies congeladas | `ifrs9_aware_policy_selector.json` | pesos/gates declarados |
+| 6 | Temporal replay | metrics por mes/periodo | `monthly_policy_replay.parquet` | drift/coverage reportados |
+| 7 | Online conformal prototype | rolling quantiles + coverage regret | `online_conformal_coverage_regret.parquet` | mejora cobertura sin intervalos inútiles |
+| 8 | Multi-period optimizer | estado, transición, budget, provisión | `multi_period_crpto_policy.json` | garantía definida por periodo/política |
+| 9 | MDCP/fairness layer | worst-source coverage + fairness constraints | `mdcp_source_coverage_report.parquet`, `fairness_constrained_policy_eval.parquet` | alcance legal/proxy claro |
+| 10 | Causal layer | CATE/policy value con identificación | `causal_identification_report.md`, `cate_policy_value_by_segment.parquet` | sensitivity y overlap pasan |
+| 11 | Integrated champion | nuevo Paper 4 champion | `paper4_final_promotion.json` | run tag, DVC/MLflow/tests |
+
+Roadmap por fases para Paper 4.
+:::
+
+### Snapshot implementado del laboratorio
+
+El primer corte del roadmap ya quedó implementado como infraestructura, no como
+publicación. La capa actual cubre fases -1 a 4 en modo diagnóstico y ya tiene
+un segundo corte v2 que avanza fases 5 a 10 como prototipos controlados:
+
+::: {#tbl-paper4-roadmap-implemented-snapshot}
+
+| Bloque | Estado | Artifact principal | Caveat |
+|---|---|---|---|
+| Memoria viva | implementado | `reports/paper_material/paper4/notes/` | las notas explican decisiones; los claims requieren artifacts |
+| Source manifest | implementado | `paper4_table0_source_manifest.csv` | consume CRPTO/Paper_CRPTO externo, no lo reemplaza |
+| SDAM schema | implementado | `paper4_sequential_decision_schema.json` | es contrato conceptual, no prueba optimalidad dinámica |
+| Policy class registry | implementado | `paper4_policy_class_registry.csv` | mezcla policies congeladas y lanes planeadas |
+| IFRS9/ECL overlay | implementado como diagnóstico | `paper4_table1_policy_ecl_scenario.csv` | escala sensibilidad ECL; no es selector full loan-level |
+| Net return after ECL | implementado como diagnóstico | `paper4_table2_net_return_after_ecl.csv` | ranking auxiliar, no promoción |
+| Tail/satisficing | implementado como diagnóstico | `paper4_table3_*`, `paper4_table4_*` | no entra aún al solver |
+| Evidence tables | implementado | `paper4_loan_level_policy_evidence.parquet`, `paper4_policy_level_evidence.parquet`, `paper4_monthly_replay.parquet` | loan-level actual corresponde al champion/funded-set proxy |
+| Regret-auditability | implementado como seed | `paper4_regret_auditability_frontier.csv` | necesita replay amplio para claim fuerte |
+| Exact-limited top-k | implementado como diagnóstico v2 | `paper4_exact_limited_topk_policy_eval.csv` | exacto dentro de subset; falta full-universe |
+| IFRS9 v2 + selector | implementado como diagnóstico v2 | `paper4_ifrs9_v2_policy_summary.csv`, `paper4_selector_v2_results.csv` | lifetime/SICR proxy; no promoción |
+| Online conformal | implementado como replay forward-only | `paper4_online_conformal_coverage_regret_v2.csv` | rolling intervals, no método online final |
+| Regret-auditability v2 | implementado como replay mensual | `paper4_regret_auditability_pareto_v2.csv` | oracle retrospectivo |
+| Tail / OCE / CVaR | implementado como selector prototype | `paper4_oce_cvar_constraint_grid.csv` | no es CVaR LP |
+| Multi-period solver | implementado como DLA toy v2 | `paper4_multi_period_policy_path.csv` | no modela cartera viva |
+| MDCP / CATE gated | implementado como diagnóstico v2 | `paper4_mdcp_worst_source_frontier.csv`, `paper4_cate_exact_topk_value.csv` | MDCP y causalidad siguen gated |
+| Claim matrix | implementado | `paper4_claim_artifact_test_matrix.csv` | registra claims; no valida calidad por sí sola |
+| Promotion | bloqueado por diseño | no existe `paper4_final_promotion.json` | correcto para esta fase |
+
+Snapshot actual del laboratorio vivo Paper 4.
+:::
+
+### Artefactos mínimos de la fase MVP
+
+La primera versión implementable debería producir:
+
+```text
+reports/paper_material/paper4/
+  notes/
+    paper4_experiment_ledger.qmd
+    paper4_failure_log.qmd
+    paper4_learning_log.qmd
+    paper4_direction_changes.qmd
+    paper4_decision_records/
+  tables/
+    paper4_table0_source_manifest.csv
+    paper4_table1_policy_ecl_scenario.csv
+    paper4_table2_net_return_after_ecl.csv
+    paper4_table3_tail_risk_oce_cvar_by_policy.csv
+    paper4_table4_satisficing_screen.csv
+    paper4_table5_temporal_replay_summary.csv
+    paper4_table6_insights_factory_signal_registry.csv
+    paper4_table7_research_lane_readiness.csv
+    paper4_table8_insight_to_policy_join_contract.csv
+    paper4_table9_policy_class_registry.csv
+    paper4_table10_policy_pairwise_differences.csv
+    paper4_loan_level_policy_evidence.parquet
+    paper4_policy_level_evidence.parquet
+    paper4_monthly_replay.parquet
+    online_conformal_coverage_regret.parquet
+    mdcp_source_coverage_report.parquet
+    fairness_constrained_policy_eval.parquet
+    paper4_regret_auditability_frontier.csv
+  figures/
+    paper4_fig4_regret_auditability_frontier.png
+  status/
+    paper4_sequential_decision_schema.json
+    paper4_post_decision_state_schema.json
+    paper4_insights_factory_status.json
+    paper4_mvp_status.json
+    paper4_artifact_registry.json
+```
+
+Ese MVP no debe producir `paper4_final_promotion.json`. Ese archivo solo nace si
+hay selector o solver nuevo.
+
+### Artefactos completos de una versión extendida
+
+Si el MVP tiene señal, Paper 4 podría crecer hacia un paquete mucho más amplio.
+La lista completa no debe ejecutarse de una vez; sirve como mapa para no perder
+ninguna pieza de la visión integrada.
+
+::: {#tbl-paper4-full-artifacts}
+
+| Artefacto futuro | Para qué sirve | Reutiliza qué | Cambia dirección |
+|---|---|---|---|
+| `paper4_experiment_ledger.qmd` | bitácora viva de hipótesis, runs, resultados y próximos pasos | Quarto + Codex sessions | No, preserva memoria |
+| `paper4_failure_log.qmd` | registra intentos fallidos y por qué fallaron | experiments + render logs + metrics | No, evita repetir callejones sin salida |
+| `paper4_direction_changes.qmd` | documenta pivotes técnicos y conceptuales | decision records | No, explica la evolución |
+| `paper4_learning_log.qmd` | notas de conceptos aprendidos: Powell, online CP, IFRS9, causal, etc. | lecturas + experimentos | No, convierte el side project en formación |
+| `paper4_sequential_decision_schema.json` | declara `R_t`, `I_t`, `B_t`, `x_t`, `W_{t+1}` y `S^M` | Powell SDAM + chapters 19a/19c | No, es modelado |
+| `paper4_policy_class_registry.csv` | clasifica cada policy como PFA/CFA/VFA/DLA y declara objetivo offline/online | CRPTO policies + roadmap | No, ordena decisiones |
+| `paper4_post_decision_state_schema.json` | define `S_t^x` después de aprobar/fondear y antes de observar outcomes | funded set + ECL/stage/capital | No, habilita multi-period futuro |
+| `paper4_policy_sample_path_eval.parquet` | evalúa policies sobre meses/escenarios/bootstrap paths comunes | monthly replay + stress grids | No, mejora evaluación |
+| `paper4_policy_pairwise_differences.csv` | compara policies con diferencias pareadas y errores estándar | sample-path eval | No, soporta ranking diagnóstico |
+| `policy_ifrs9_ecl_grid.parquet` | ECL y stage mix por policy CRPTO | Paper 2 + robust region | Sí, si entra al selector |
+| `ifrs9_aware_crpto_champion.json` | champion seleccionado con costo contable | final promotion + IFRS9 artifacts | Sí |
+| `net_return_after_ecl_table.csv` | retorno robusto después de provisión | Table 0 + ECL scenarios | Sí |
+| `alpha_gamma_ecl_frontier.csv` | curva alpha → Gamma_CP → ECL → funded set | alpha sweep + sensitivity grid | complementa o cambia según uso |
+| `policy_time_ecl_state_grid.parquet` | forecasts, stage mix y ECL temporal por policy | TS status + ECL + CRPTO policies | Sí, si entra al selector |
+| `online_conformal_coverage_regret.parquet` | miscoverage acumulada por mes/horizonte/segmento | TS vNext + conformal artifacts | Sí |
+| `monthly_policy_replay.parquet` | reevalúa policies por ciclo mensual | CRPTO policies + originaciones temporales | Sí |
+| `multi_period_crpto_policy.json` | política dinámica con estado, transición y budget | portfolio solver + IFRS9 state | Sí |
+| `tail_risk_aware_search_results.parquet` | search con OCE/CVaR como objetivo o constraint | A12 + optimizer | Sí |
+| `satisficing_policy_grid.parquet` | policies contra umbrales de comité | A13 + CRPTO region | Sí |
+| `mdcp_source_coverage_report.parquet` | cobertura peor fuente/régimen/segmento | conformal + source metadata | Sí |
+| `fairness_constrained_policy_eval.parquet` | disparidad y constraints por grupo | fairness audit + funded set | Sí |
+| `cate_policy_value_by_segment.parquet` | valor causal por segmento/funded set | CATE lane actual | Sí |
+| `causal_identification_report.md` | overlap, balance y sensibilidad | causal scripts | Sí |
+| `paper4_release_manifest.qmd` | claim → artifact → test de la extensión | estilo 14n/14o | No, es documental |
+
+Artefactos completos para una versión extendida de Paper 4.
+:::
+
+### Criterios de promoción
+
+::: {#tbl-paper4-promotion-gates}
+
+| Gate | Criterio |
+|---|---|
+| Living-lab memory | cada experimento deja hipótesis, run, resultado, interpretación y decisión `keep/promote/park/kill` |
+| Source sync | no contradice `models/final_project_promotion.json` ni champions Papers 2/3 |
+| SDAM model gate | cada claim mapea a `R_t`, `I_t`, `B_t`, `x_t`, `W_{t+1}`, `S^M`, `C_t` o `X^\pi`; lo demás queda como future work |
+| Artifact ownership | outputs grandes en DVC, summaries en Git |
+| Family separation | PD, conformal, CRPTO, IFRS9, tail, temporal, causal y fairness no se mezclan sin selector |
+| No silent champion change | cualquier nuevo champion requiere promotion JSON propio |
+| Sample-path gate | comparaciones de políticas usan meses/escenarios/bootstrap paths comunes cuando sea posible |
+| Temporal gate | online/TS solo promueve si cobertura por horizonte y forward coherence pasan |
+| Causal gate | CATE solo central si identificación, overlap y sensitivity están documentados |
+| Fairness gate | protected/proxy scope declarado antes de constraints |
+| Insights gate | cada output research-only debe mapear a `R_t`, `I_t`, `B_t`, `x_t`, `W_{t+1}`, `S^M`, `C_t` o `X^\pi` antes de afectar decisión |
+| Theoretical gate | cualquier bound multi-period/MDCP no contradice el bound one-shot |
+| Reproducibility | Quarto render, tests, DVC status, MLflow lineage |
+
+Gates mínimos de promoción.
+:::
+
+### Runs que sí habría que abrir
+
+::: {#tbl-paper4-run-plan}
+
+| Run | Perfil sugerido | Duración esperada | Riesgo | Prioridad |
+|---|---|---:|---|---|
+| `paper4_mvp_policy_eval` | consume artifacts | baja-media | bajo | alta |
+| `paper4_tail_satisficing_eval` | consume artifacts | baja | bajo | alta |
+| `paper4_temporal_replay` | research | media | medio | media |
+| `paper4_online_conformal_proto` | research | media-alta | medio | media |
+| `paper4_ifrs9_aware_selector` | search/paper4 | media | medio-alto | media |
+| `paper4_multi_period_solver` | research/search | alta | alto | baja-media |
+| `paper4_causal_policy_value` | research | alta | alto | baja-media |
+| `paper4_mdcp_fairness` | research | media-alta | medio-alto | baja-media |
+
+Plan de runs futuros.
+:::
+
+### Riesgos de integración
+
+::: {#tbl-paper4-integration-risks}
+
+| Riesgo | Por qué importa | Mitigación |
+|---|---|---|
+| Paper demasiado grande | IFRS9, CRPTO, CATE, TS, fairness y MDCP son comunidades distintas | tratar Paper 4 como programa de implementación antes que manuscrito corto |
+| Confundir diagnóstico con optimización | ECL/CVaR/CATE pueden estar reportados sin afectar el champion | declarar si cada métrica es diagnóstico, selector, objective o constraint |
+| Overclaim causal | CATE sin identificación fuerte invita rechazo | exigir causal proof package antes de volverlo central |
+| Overclaim online | un backtest temporal puede verse bueno sin intervalos forward útiles | pedir rolling/forward protocol, coverage regret y status de promoción |
+| Volver dinámico un bound estático | el bound actual es para asignación fija | definir garantía por periodo, promedio temporal o política completa |
+| Usar CVaR/OCE sin reoptimizar | reportar tail risk no significa que el solver lo controle | separar diagnóstico A12 de `tail_risk_aware_search_results` |
+| Fairness sin atributos defendibles | proxies no equivalen a protected attributes | declarar alcance proxy y buscar datos/partner si se quiere constraint formal |
+| Mezclar leaderboards | AUC, ECL, retorno, CATE y fairness no son comparables directamente | usar familias métricas y selector explícito |
+| Reabrir champion sin protocolo | cambiaría la historia oficial del CRPTO/Paper_CRPTO externo | exigir run tag, DVC/MLflow sync y promotion JSON nuevo |
+
+Riesgos de integración de Paper 4.
+:::
+
+### Guardrails documentales
+
+Paper 4 necesitaría sus propios tests documentales:
+
+- `test_paper4_source_manifest_exists`
+- `test_paper4_experiment_ledger_exists`
+- `test_paper4_failure_log_accepts_negative_results`
+- `test_paper4_sdam_schema_exists`
+- `test_paper4_policy_classes_declared`
+- `test_paper4_post_decision_state_declared`
+- `test_paper4_sample_path_eval_declares_offline_or_online`
+- `test_paper4_mvp_artifacts_exist`
+- `test_paper4_does_not_override_paper1_champion`
+- `test_paper4_family_metrics_are_separated`
+- `test_paper4_promotion_requires_run_tag`
+- `test_paper4_causal_claim_requires_identification_report`
+- `test_paper4_temporal_claim_requires_coverage_regret`
+
+La filosofía es la misma del CRPTO/Paper_CRPTO externo: si una frase aparece en Quarto,
+debe tener artefacto o debe declararse como propuesta/future work.
+
+### Qué se puede hacer primero
+
+La secuencia más práctica sería:
+
+1. **Crear el operating model de laboratorio vivo**: ledger, failure log,
+   learning log y decision records.
+2. **Crear `paper4_source_manifest.qmd`** desde los artifacts existentes.
+3. **Crear el schema SDAM y registry de clases de política** para fijar
+   `S_t`, `x_t`, `W_{t+1}`, `S^M`, `S_t^x` y PFA/CFA/VFA/DLA.
+4. **Regenerar el registry de Insights Factory** con
+   `uv run python scripts/papers/build_paper4_insight_registry.py`.
+5. **Construir policy × ECL × scenario** para las policies de la región robusta
+   del CRPTO/Paper_CRPTO externo.
+6. **Calcular net return after ECL** sin reoptimizar.
+7. **Extender A12/A13 a policy grid**: OCE/CVaR y satisficing por policy.
+8. **Evaluar por sample paths comunes** para obtener diferencias pareadas.
+9. **Crear un reporte MVP** con una tabla de ranking diagnóstico.
+10. **Decidir si vale abrir selector IFRS9-aware**, pero sin obligación de
+    convertirlo en publicación.
+
+Eso ya sería útil porque podría revelar una de tres cosas:
+
+- el champion económico sigue siendo fuerte después de ECL/tail risk;
+- otro punto de la región robusta se vuelve preferible contablemente;
+- la región robusta completa es estable también bajo criterios IFRS9/tail.
+
+Cualquiera de los tres resultados fortalecería el proyecto sin comprometer el
+CRPTO/Paper_CRPTO externo actual.
+
+### Paquete de decisión MVP
+
+El primer entregable de Paper 4 debería leerse como un memo técnico de comité,
+no como una promoción automática. Una estructura útil sería:
+
+::: {#tbl-paper4-mvp-decision-pack}
+
+| Sección del memo | Pregunta que responde | Tipo de evidencia |
+|---|---|---|
+| Source manifest | ¿qué verdad canónica estoy usando? | paths, hashes, run tags |
+| Policy universe | ¿qué policies estoy comparando? | champion + robust region + comparadores |
+| Accounting overlay | ¿qué cambia al mirar ECL/provisión? | policy × scenario × stage |
+| Economic overlay | ¿qué cambia al descontar ECL? | net return after ECL |
+| Tail overlay | ¿qué pasa en cola adversa? | OCE/CVaR/expected shortfall |
+| Committee overlay | ¿qué policies cumplen thresholds mínimos? | satisficing margins |
+| Temporal overlay | ¿el resultado se concentra en un periodo? | replay descriptivo |
+| Governance overlay | ¿hay riesgos de fairness/MRM/reproducibilidad? | guardrails |
+| Decision readout | ¿hay señal para abrir selector nuevo? | recomendación no-promocional |
+
+Paquete MVP de decisión para Paper 4.
+:::
+
+### Cuándo detenerse
+
+Hay tres señales para no seguir escalando todavía:
+
+1. Si `net_return_after_ecl` no cambia nada material, Paper 4 debe quedar como
+   capítulo de tesis/MVP, no como nuevo paper urgente.
+2. Si los intervalos temporales siguen fallando cobertura, no se debe vender
+   online conformal ni multi-period como claim.
+3. Si CATE no tiene identificación defendible, debe quedarse como carril futuro,
+   no como contribución central.
+
+### Resultado ideal
+
+El resultado ideal de Paper 4 no es una tabla con un número más alto. Es un
+paquete que permita decir:
+
+> Tenemos una política crediticia robusta que conserva la trazabilidad conformal
+> del CRPTO/Paper_CRPTO externo, internaliza provisión IFRS9, controla cola de pérdida,
+> cumple umbrales de comité, se evalúa a través del tiempo y deja una ruta clara
+> para incorporar causalidad cuando la identificación sea defendible.
+
+Ese sería un aporte mucho más grande que un paper aislado: sería la arquitectura
+de decisión completa del proyecto.

@@ -1,10 +1,12 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Fundamentos de ML y Estadística {#sec-ml-foundations}
 
 ### Métricas de Discriminación
 
 Las métricas de discriminación evalúan qué tan bien un modelo separa defaults de no-defaults.
 
-**AUC-ROC** (Area Under the Receiver Operating Characteristic Curve): Mide la probabilidad de que el modelo asigne un score más alto a un default positivo seleccionado al azar que a un negativo seleccionado al azar. Rango: 0.5 (aleatorio) a 1.0 (perfecto). En credit scoring, AUC > 0.70 se considera aceptable para producción.
+**AUC-ROC** (Area Under the Receiver Operating Characteristic Curve): Mide la probabilidad de que el modelo asigne un score más alto a un default positivo seleccionado al azar que a un negativo seleccionado al azar. Rango: 0.5 (aleatorio) a 1.0 (perfecto). Umbrales como AUC > 0.70 son heurísticas históricas de discriminación, no criterios suficientes de producción o despliegue.
 
 **Gini**: Transformación lineal del AUC: $\text{Gini} = 2 \times \text{AUC} - 1$. Rango: 0 (aleatorio) a 1 (perfecto). Es la métrica más utilizada en la industria bancaria europea.
 
@@ -12,7 +14,12 @@ Las métricas de discriminación evalúan qué tan bien un modelo separa default
 
 **PR-AUC** (Area Under the Precision-Recall Curve): Especialmente relevante para datasets desbalanceados. En Lending Club, con ~20% de default rate, PR-AUC complementa al AUC-ROC capturando el rendimiento sobre la clase minoritaria (o mayoritaria en riesgo).
 
-En credit scoring, estas métricas de discriminación tienen umbrales prácticos que conviene conocer. Un AUC de 0.70 se considera el mínimo aceptable para un modelo de producción en retail banking; por debajo de eso, el modelo no separa suficientemente bien a los buenos y malos prestatarios para justificar decisiones automatizadas. Un AUC de 0.75-0.80 es típico para modelos bien calibrados con datos ricos (incluidos datos de buró), y valores por encima de 0.85 suelen indicar leakage o variables no disponibles en producción. El Gini amplifica las diferencias: un modelo con AUC 0.70 tiene Gini 0.40, mientras que uno con AUC 0.75 tiene Gini 0.50 --- una ganancia de 5 puntos de AUC se traduce en 10 puntos de Gini, lo que facilita la comunicación con comités de riesgo acostumbrados a la escala Gini. Pero ni AUC ni Gini dicen nada sobre calibración: un modelo que ordena perfectamente puede asignar PD=0.50 a un grupo donde solo el 5% defaultea, lo cual destruye cualquier cálculo de provisiones.
+En credit scoring suelen circular bandas heurísticas de AUC/Gini, pero no son
+umbrales regulatorios universales ni autorizan decisiones automatizadas. Su
+interpretación depende de población, horizonte, prevalencia y comparadores. El
+Gini amplifica linealmente las diferencias: un modelo con AUC 0.70 tiene Gini
+0.40, mientras que uno con AUC 0.75 tiene Gini 0.50. Ni AUC ni Gini evalúan
+calibración, validez de una PD, provisiones o valor de una policy.
 
 ### Métricas de Calibración
 
@@ -30,9 +37,12 @@ Rango: 0 (perfecto) a 1 (peor caso). Para un dataset con 20% default rate, un mo
 
 $$
 \text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|
-$$ {#eq-ece}
+$$ {#eq-ece-foundations}
 
-Un ECE < 0.01 indica calibración excelente. Nuestro modelo calibrado con Venn-Abers logra ECE = 0.006.
+Un ECE bajo describe menor discrepancia agregada bajo el binning y la muestra
+de evaluación declarados; no tiene un umbral universal de excelencia. El
+snapshot histórico con Venn-Abers reportó ECE cercano a 0.006, cifra diagnóstica
+que no valida por sí sola PD individual, ECL o despliegue.
 
 **D² Brier**: Análogo al R² para el Brier Score, mide la mejora relativa del modelo sobre un predictor naive (frecuencia marginal).
 
@@ -47,15 +57,22 @@ Un ECE < 0.01 indica calibración excelente. Nuestro modelo calibrado con Venn-A
 3. **Ordered boosting**: Reduce el overfitting al usar subconjuntos de datos históricos para calcular los target statistics de cada observación.
 
 ::: {.callout-note}
-## ¿Por qué CatBoost y no XGBoost o LightGBM?
-En credit scoring con datos tabulares, CatBoost ofrece: (1) mejor calibración out-of-the-box gracias al ordered boosting, (2) manejo transparente de categorías sin preprocesamiento manual, y (3) menor sensibilidad a hiperparámetros. Estudios comparativos recientes en credit scoring [@ayari2026; @lessmann2015] confirman que los tres frameworks logran AUC comparable, pero CatBoost simplifica el pipeline de features y reduce el riesgo de data leakage por target encoding incorrecto.
+## ¿Por qué se exploró CatBoost?
+En el pipeline histórico, CatBoost ofrecía manejo nativo de categorías, ordered
+boosting y una ruta compacta de preprocesamiento. La calibración y la
+sensibilidad a hiperparámetros deben medirse en cada diseño; no son ventajas
+universales *out of the box*. Los benchmarks citados motivan la comparación
+entre familias, pero no seleccionan un modelo vigente [@ayari2026;
+@lessmann2015].
 :::
 
 ### Optimización de Hiperparámetros (HPO)
 
 **Optuna** es un framework de optimización de hiperparámetros basado en Tree-structured Parzen Estimator (TPE). A diferencia de grid search o random search, TPE modela la distribución de hiperparámetros condicional a su rendimiento y muestrea nuevos candidatos de las regiones más prometedoras.
 
-En este proyecto, Optuna ejecuta 320 trials para el espacio de CatBoost, optimizando profundidad, learning rate, regularización L2, bagging temperature y otros hiperparámetros. La métrica objetivo es AUC validado sobre el split temporal de validación.
+En una corrida histórica del proyecto, Optuna ejecutó 320 trials para el espacio
+de CatBoost con AUC sobre un split temporal de validación. Esa búsqueda se
+conserva como procedencia y no constituye una selección vigente.
 
 ### Calibración de Probabilidades
 
@@ -63,7 +80,7 @@ Un modelo de clasificación produce scores que no necesariamente son probabilida
 
 - **Platt Scaling**: Ajusta una regresión logística sobre los scores del modelo para producir probabilidades calibradas. Supone una relación sigmoide entre score y probabilidad.
 - **Isotonic Regression**: Ajuste no paramétrico monótono. Más flexible que Platt pero propenso a overfitting con pocas muestras.
-- **Venn-Abers**: Produce intervalos de probabilidad con garantías de validez multiprobabilística. Es el método más conservador y el seleccionado en este proyecto por su robustez temporal.
+- **Venn-Abers**: Produce pares multiprobabilísticos bajo su contrato metodológico. Fue el calibrador retenido en un snapshot histórico; esa etiqueta no demuestra robustez temporal ni selección vigente.
 
 ### Weight of Evidence (WOE) e Information Value (IV)
 

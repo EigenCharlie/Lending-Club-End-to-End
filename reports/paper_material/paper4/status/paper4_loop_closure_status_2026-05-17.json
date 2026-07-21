@@ -1,0 +1,40 @@
+{
+  "accepted_outcome_rows": 14,
+  "claim_boundary": "closure/export only; no Paper 4 final promotion and no Paper Estrella champion replacement",
+  "deleted_artifact_rows": 326,
+  "generated_at_utc": "2026-05-18T01:20:37Z",
+  "outcome_decision": "accept",
+  "paper4_final_promotion_created": false,
+  "paper4_patched_chapters": [
+    "book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd",
+    "book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd",
+    "book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd",
+    "book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd"
+  ],
+  "paper_estrella_champion_reopened": false,
+  "paper_estrella_exports": [
+    "F03_dynamic_stress",
+    "F04_cvar_caveat",
+    "F05_online_caveat",
+    "SDAM_framing"
+  ],
+  "paper_estrella_updated_chapters": [
+    "book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd",
+    "book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd"
+  ],
+  "patch_scope": "four_chapter_bounded_patch",
+  "patched_chapters": [
+    "book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd",
+    "book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd",
+    "book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd",
+    "book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd",
+    "book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd",
+    "book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd"
+  ],
+  "phase": "paper4_loop_closure_accept_and_export",
+  "removed_guardrail_tests": 38,
+  "removed_living_notebook_blocks": 37,
+  "retired_version_max": 526,
+  "retired_version_min": 490,
+  "schema_version": "2026-05-17.loop_closure"
+}

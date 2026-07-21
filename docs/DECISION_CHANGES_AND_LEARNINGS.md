@@ -1,5 +1,5 @@
 # Decision Changes and Learnings Log
-Version: 2026-03-31
+Version: 2026-07-20
 
 This file stores project history: decision changes, mistakes, inconsistencies, and practical learnings.
 Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUSTIFICATION.md`.
@@ -10,6 +10,7 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 
 | Date | Topic | Before | After | Why | Evidence |
 |------|-------|--------|-------|-----|----------|
+| 2026-07-20 | Cross-project claim reconciliation | Local `champion`, binary conformal endpoints, Paper 2 ECL/SICR and Paper 4 simulations were narrated as one promotable chain | External CRPTO is a no-selection identification audit; Paper 2 is `parked_ifrs9`; Paper 4 is a bounded living lab; the book treats local winners as historical provenance | Endpoint/maturity, estimand transport, post-selection and comparator audits invalidated the unified promotion narrative | `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`, `docs/research/crpto_external_contract_2026-07-20.yml` |
 | 2026-02-20 | PD architecture comparison | `y_prob_cb_default` and `y_prob_cb_tuned` were effectively equal in export path | Default and tuned predictions are generated and stored independently | Avoid false "no improvement" conclusions | `scripts/train_pd_model.py`, `tests/test_models/test_pd_model.py` |
 | 2026-02-20 | Feature contract source | Runtime relied on legacy static subset (11 features) | Runtime resolves feature sets from `feature_config.pkl` and persists contract | Recover predictive signal from full engineered feature set | `src/models/pd_model.py`, `configs/pd_model.yaml`, `models/pd_model_contract.json` |
 | 2026-02-20 | Calibration policy | Fixed narrative said "Platt selected" | Temporal multi-metric selection policy between Platt/Isotonic | Better OOT probability quality and less narrative drift | `scripts/train_pd_model.py`, `data/processed/model_comparison.json` |

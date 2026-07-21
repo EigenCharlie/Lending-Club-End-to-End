@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio",
+    "Evaluating Calibration Accuracy Calibration metrics after undersampling with 50/50 imbalance ratio PROBLEM STATEMENT When training on balanced samples (50/50) for rare events, predictions must be corrected to population prevalence pt. DATA & SPLIT Real banking dataset ( 10% default rate); stratified 70/30 train/test. Balanced training sample via undersampling to 50/50. CALIBRATION VARIANTS Uncorrected: train on original data. Weighted (King-Zeng): class/sample weights: w0 = 1 pt 1 ps , w1 = pt ps Prior-corrected (King-Zeng §4.1): corr 0 = orig 0 log(1 pt pt ps 1 ps ) CALIBRATION VARIANTS (CONT.) Logistic recalibration (Platt): p = (az + b), (x) = 1 1 + e x Isotonic calibration: non-parametric mapping with CalibratedClassifierCV (prefit). Venn-Abers: inductive split, probabilistic intervals. EVALUATION METRICS Metrics: Brier, Log loss, AUC; ECE, MCE & CE. Brier = 1 n n i = 1 (pi yi)2 LogLoss = 1 n n i = 1 [yilog(pi) + (1 yi)log(1 pi)] ECE = M m = 1 |Bm| n |acc(Bm) conf(Bm)| MCE = max m |acc(Bm ) conf(Bm)| CE = 1 n n i = 1 |pi yi| Reference: King, G., & Zeng, L. (2001). Logistic regression in rare events data. Political Analysis, 9(2), 137-163."
+  ]
+}

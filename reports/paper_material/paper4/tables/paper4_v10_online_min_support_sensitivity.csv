@@ -1,0 +1,10 @@
+online_method_v9,min_support,policy_month_defended_min,source_month_defended_min,avg_width_loan,policy_month_cells,source_month_cells,defended_policy_month_cells,defended_source_month_cells,gate_source80_policy90_width95
+v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,5,0.9,0.8,0.9342434494753106,3220,65792,2328,13853,True
+v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,8,0.9,0.875,0.9342434494753106,3220,65792,2185,5511,True
+v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,10,0.9,0.9,0.9342434494753106,3220,65792,1628,2988,True
+v9_tail_guard_dti_q5_only_m0.965_d0.120_t0.060,5,0.9,0.8,0.9450022305805179,3220,65792,2328,13853,True
+v9_tail_guard_dti_q5_only_m0.965_d0.120_t0.060,8,0.9,0.875,0.9450022305805179,3220,65792,2185,5511,True
+v9_tail_guard_dti_q5_only_m0.965_d0.120_t0.060,10,0.9,0.9,0.9450022305805179,3220,65792,1628,2988,True
+v9_reference_v8_best,5,0.9,0.8,0.9543797192776867,3220,65792,2328,13853,False
+v9_reference_v8_best,8,0.9,0.875,0.9543797192776867,3220,65792,2185,5511,False
+v9_reference_v8_best,10,0.9,0.9,0.9543797192776867,3220,65792,1628,2988,False

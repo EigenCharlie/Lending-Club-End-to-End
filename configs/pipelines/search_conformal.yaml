@@ -8,7 +8,7 @@ promotion_state: research_open
 writes_canonical_artifacts: false
 upstream_required: true
 default_profile: search_conformal_default
-papers_served: [paper1, paper3]
+papers_served: [paper4, conformal_core]
 allowed_step_groups:
   - preflight
   - core_conformal

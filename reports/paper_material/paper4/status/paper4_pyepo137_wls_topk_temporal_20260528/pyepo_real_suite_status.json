@@ -1,0 +1,427 @@
+{
+  "schema_version": "2026-05-26.1",
+  "generated_at_utc": "2026-05-28T21:30:17.204419+00:00",
+  "run_tag": "paper4_pyepo137_wls_topk_temporal_20260528",
+  "mode": "temporal",
+  "config": {
+    "n_items": 50,
+    "budget": 15,
+    "selection_rate": 0.3,
+    "n_train_instances": 1600,
+    "n_test_instances": 80,
+    "epochs": 75,
+    "seeds": 10,
+    "batch_size": 32,
+    "lr": 0.001,
+    "feature_set": "full",
+    "feature_names": [
+      "loan_amnt",
+      "int_rate",
+      "annual_inc",
+      "dti",
+      "fico_range_low",
+      "open_acc",
+      "revol_bal",
+      "revol_util",
+      "total_acc",
+      "installment",
+      "emp_length",
+      "pub_rec",
+      "delinq_2yrs",
+      "inq_last_6mths",
+      "mths_since_last_delinq"
+    ],
+    "methods": [
+      "spo_plus",
+      "rfyl",
+      "pfyl_mul",
+      "pairwise_ltr",
+      "cave"
+    ],
+    "include_crpto": true,
+    "lgd": 0.4,
+    "torch_num_threads": 4
+  },
+  "data": {
+    "train_rows": 1346311,
+    "test_rows": 276869,
+    "conformal_rows": 276869,
+    "cost_definition": "calibrated_pd * LGD - int_rate",
+    "use_calibrated_pd": true,
+    "standard_oracle_backend": "exact_topk_numpy_lexicographic",
+    "cave_oracle_backend": "gurobi_binary_optDatasetConstrs"
+  },
+  "versions": {
+    "pyepo": "1.3.7",
+    "gurobipy": "13.0.2",
+    "torch": "2.10.0",
+    "ortools": "9.10.4067",
+    "numpy": "2.4.3",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "catboost": "1.2.10",
+    "mapie": "1.3.0",
+    "venn-abers": "1.5.1",
+    "cuda_available": "True",
+    "torch_cuda": "12.8"
+  },
+  "pyepo_validation": {
+    "expected": "1.3.7",
+    "actual": "1.3.7",
+    "ok": true,
+    "docs_note": "Public docs may be labeled 1.3.8; this suite pins executable PyPI 1.3.7."
+  },
+  "cave_status": {
+    "available": true,
+    "reason": "gurobipy imports and solves a minimal binary model",
+    "gurobi_version": "13.0.2",
+    "license_note": "Found a gurobi.lic candidate in a default/project-visible location.",
+    "main_suite_included": true,
+    "license_file_candidate_count": 2
+  },
+  "source_log": [
+    "Elmachtoub and Grigas (2021/2022), Smart predict, then optimize",
+    "Mandi, Stuckey, Guns (2020), Smart predict-and-optimize for combinatorial optimization",
+    "Vlastelica et al. (2019), Differentiation of blackbox combinatorial solvers",
+    "Sahoo et al. (2022), Backpropagation through combinatorial algorithms",
+    "Berthet et al. (2020), Learning with differentiable perturbed optimizers",
+    "Dalle et al. (2022), Learning with Combinatorial Optimization Layers",
+    "Mulamba et al. (2021), Contrastive losses and solution caching",
+    "Mandi et al. (2022), Decision-focused learning through the lens of learning to rank",
+    "Niepert et al. (2021) and Minervini et al. (2023), implicit MLE and perturbation gradients",
+    "Gupta and Huang (2024), Decision-Focused Learning with Directional Gradients",
+    "Schutte, Postek, Yorke-Smith (2023), Robust losses for DFL",
+    "Tang and Khalil (2024), CaVE"
+  ],
+  "runtime_seconds": 2377.626832485199,
+  "results": {
+    "summary": [
+      {
+        "method": "spo_plus",
+        "method_display": "SPO+",
+        "mean_regret": 0.061835402,
+        "std_regret": 0.0338028894,
+        "median_regret": 0.0581223667,
+        "q25_regret": 0.0371038914,
+        "q75_regret": 0.081050152,
+        "min_regret": 0.0,
+        "max_regret": 0.284635108,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": 61.0718119243,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 7898727.0,
+        "wilcoxon_vs_two_stage_pvalue": 0.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "rfyl",
+        "method_display": "RFYL",
+        "mean_regret": 0.0714477125,
+        "std_regret": 0.0389106162,
+        "median_regret": 0.0653685816,
+        "q25_regret": 0.0428790413,
+        "q75_regret": 0.0936926426,
+        "min_regret": 0.0,
+        "max_regret": 0.2968005836,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": 55.0204269208,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 7824499.0,
+        "wilcoxon_vs_two_stage_pvalue": 0.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "cave",
+        "method_display": "CaVE",
+        "mean_regret": 0.0722844528,
+        "std_regret": 0.0401676482,
+        "median_regret": 0.0663828151,
+        "q25_regret": 0.0433034943,
+        "q75_regret": 0.0941857919,
+        "min_regret": 0.0,
+        "max_regret": 0.3411408234,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": 54.4936610024,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 7787506.0,
+        "wilcoxon_vs_two_stage_pvalue": 0.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "pairwise_ltr",
+        "method_display": "Pairwise LTR",
+        "mean_regret": 0.1019610969,
+        "std_regret": 0.0501978972,
+        "median_regret": 0.0945730153,
+        "q25_regret": 0.0656155022,
+        "q75_regret": 0.1320061162,
+        "min_regret": 0.0,
+        "max_regret": 0.3640810242,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": 35.8108688329,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 6972323.0,
+        "wilcoxon_vs_two_stage_pvalue": 0.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "two_stage",
+        "method_display": "Two-stage Ridge",
+        "mean_regret": 0.1588448004,
+        "std_regret": 0.0690559441,
+        "median_regret": 0.149510026,
+        "q25_regret": 0.10920412,
+        "q75_regret": 0.1998511683,
+        "min_regret": 0.0070466287,
+        "max_regret": 0.4699963368,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": 0.0,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": null,
+        "wilcoxon_vs_two_stage_pvalue": null,
+        "wilcoxon_alternative": "baseline",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "pfyl_mul",
+        "method_display": "PFYL-Mul",
+        "mean_regret": 0.3881303747,
+        "std_regret": 0.1253694357,
+        "median_regret": 0.3741091026,
+        "q25_regret": 0.2973970301,
+        "q75_regret": 0.4648008444,
+        "min_regret": 0.0555133056,
+        "max_regret": 0.8997161081,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": -144.3456583555,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 16165.5,
+        "wilcoxon_vs_two_stage_pvalue": 1.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "crpto_robust",
+        "method_display": "CRPTO robust",
+        "mean_regret": 0.5156464261,
+        "std_regret": 0.1746959563,
+        "median_regret": 0.5092624067,
+        "q25_regret": 0.3849288682,
+        "q75_regret": 0.6331595173,
+        "min_regret": 0.0692099482,
+        "max_regret": 1.1516845394,
+        "n_observations": 4000,
+        "improvement_vs_two_stage_pct": -224.6227906768,
+        "auditability_score": 3.0,
+        "wilcoxon_vs_two_stage_statistic": 4117.0,
+        "wilcoxon_vs_two_stage_pvalue": 1.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": 0.9293384236,
+        "coverage_95": 0.9623395902,
+        "avg_width_90": 0.7641557153,
+        "min_grade_coverage_90": 0.900350942
+      }
+    ],
+    "n_regret_rows": 28000,
+    "n_loss_rows": 3750
+  },
+  "acceptance_checks": {
+    "smoke_gate_passed": true,
+    "nonnegative_regret_tolerance": true,
+    "min_regret": 0.0,
+    "required_methods_present": true,
+    "required_methods": [
+      "cave",
+      "crpto_robust",
+      "pairwise_ltr",
+      "pfyl_mul",
+      "rfyl",
+      "spo_plus",
+      "two_stage"
+    ],
+    "observed_methods": [
+      "cave",
+      "crpto_robust",
+      "pairwise_ltr",
+      "pfyl_mul",
+      "rfyl",
+      "spo_plus",
+      "two_stage"
+    ],
+    "spo_plus_improvement_required": false,
+    "spo_plus_improves_two_stage": true,
+    "spo_plus_reproduction_gate_passed": null,
+    "spo_plus_improvement_vs_two_stage_pct": 61.071811924299126,
+    "use_calibrated_pd": true,
+    "pyepo_version_ok": true
+  },
+  "artifacts": {
+    "data/processed/pyepo_real_suite_regrets.parquet": "b0a75e6576067390494e764aa430966794f53252928be116e009a77aa61fab99",
+    "data/processed/pyepo_real_suite_losses.parquet": "fa3f1e0f7ce048735530dd8804ac39d889578447cde203273fd4d40827d9aa10",
+    "reports/paper_material/paper4/tables/pyepo_real_suite_summary.csv": "90cd236a67d4c909ad226b379dcba0e26ea8b44f6eff869d4914bf3f47870897",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.pdf": "c9c768afbeb0aa9f8e49f2c152194bd2178d59c23b9e6503ed0b108acecc15e4",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.png": "200d07b4e134c004f5f3440c5f376e7d33846ba5d805e256c75f4731963dbe64",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.pdf": "52f90cd66df9c64fe10d3c7ce2fd95971b5130588bc5f49f7054d673c06fae55",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.png": "eaad059e0381f33d11d80671a221181b5a274ba3e998c1d0a8fe734970784a25",
+    "reports/paper_material/figures_publication/pyepo_real_suite_temporal_stability.pdf": "76ab8b8a7f94d52dffafe090a39179dd934846b54e06e11abdc97672652c40ae",
+    "reports/paper_material/figures_publication/pyepo_real_suite_temporal_stability.png": "67c30a78e099c24ee03c9789fb6bc03e4357d73324c6ce5edd64a3fc4d0ffe68"
+  },
+  "extra_meta": {
+    "periods": {
+      "2018H1": {
+        "n_loans": 110839,
+        "default_rate": 0.2446160647425545,
+        "coverage": {
+          "coverage_90": 0.9241332022122177,
+          "coverage_95": 0.9567390539431067,
+          "avg_width_90": 0.7736045566964981,
+          "min_grade_coverage_90": 0.9122800421115957
+        }
+      },
+      "2018H2": {
+        "n_loans": 86339,
+        "default_rate": 0.2329654038151936,
+        "coverage": {
+          "coverage_90": 0.9252481497353455,
+          "coverage_95": 0.9619638865402657,
+          "avg_width_90": 0.7630066387419394,
+          "min_grade_coverage_90": 0.8856735276136132
+        }
+      },
+      "2019H1": {
+        "n_loans": 50245,
+        "default_rate": 0.20766245397551994,
+        "coverage": {
+          "coverage_90": 0.9289680565230372,
+          "coverage_95": 0.9653696885262215,
+          "avg_width_90": 0.7552477330234719,
+          "min_grade_coverage_90": 0.8125
+        }
+      },
+      "2019H2": {
+        "n_loans": 25160,
+        "default_rate": 0.12444356120826709,
+        "coverage": {
+          "coverage_90": 0.9562798092209857,
+          "coverage_95": 0.9763513513513513,
+          "avg_width_90": 0.7547660886391421,
+          "min_grade_coverage_90": 0.9410148908486338
+        }
+      },
+      "2020": {
+        "n_loans": 4286,
+        "default_rate": 0.013532431171255249,
+        "coverage": {
+          "coverage_90": 0.9925338310779281,
+          "coverage_95": 0.9969668688754083,
+          "avg_width_90": 0.7024978930191653,
+          "min_grade_coverage_90": 0.9886892880904857
+        }
+      }
+    },
+    "method_meta_by_seed": {
+      "42": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06736446917057037,
+          "max_shift": 0.21126872301101685,
+          "mean_shift": 0.10801766067743301,
+          "positive_min_cost": 9.99942421913147e-05
+        }
+      },
+      "1042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06826872378587723,
+          "max_shift": 0.20457357168197632,
+          "mean_shift": 0.10801833868026733,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "2042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06360116600990295,
+          "max_shift": 0.21184299886226654,
+          "mean_shift": 0.10788393765687943,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "3042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06668322533369064,
+          "max_shift": 0.22601045668125153,
+          "mean_shift": 0.10736307501792908,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "4042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06457357108592987,
+          "max_shift": 0.22601045668125153,
+          "mean_shift": 0.10792206972837448,
+          "positive_min_cost": 9.99942421913147e-05
+        }
+      },
+      "5042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06319854408502579,
+          "max_shift": 0.21184299886226654,
+          "mean_shift": 0.10689534991979599,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "6042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.061732321977615356,
+          "max_shift": 0.2018430083990097,
+          "mean_shift": 0.10800401866436005,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "7042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06651026010513306,
+          "max_shift": 0.21276871860027313,
+          "mean_shift": 0.10796697437763214,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "8042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.05992957949638367,
+          "max_shift": 0.20282694697380066,
+          "mean_shift": 0.10738939046859741,
+          "positive_min_cost": 0.00010000169277191162
+        }
+      },
+      "9042": {
+        "pfyl_mul_shift": {
+          "min_shift": 0.06759854406118393,
+          "max_shift": 0.2094961702823639,
+          "mean_shift": 0.10786876082420349,
+          "positive_min_cost": 9.99942421913147e-05
+        }
+      }
+    }
+  }
+}

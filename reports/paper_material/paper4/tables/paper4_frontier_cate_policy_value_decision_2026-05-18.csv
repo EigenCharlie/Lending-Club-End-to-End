@@ -1,0 +1,23 @@
+metric,value,gate
+aipw_ate_high_rate_within_grade,0.007132460071951008,diagnostic_only
+overlap_share_10_90,0.28376190476190477,>=0.80 for diagnostic stability
+placebo_aipw_ate,-0.002224884036393829,should be small relative to observed effect
+heterogeneity_groups_with_support,18.0,>=4 for useful appendix table
+heterogeneity_group,0.027330350564229458,supported subgroup diagnostic
+heterogeneity_group,0.05804995775935903,supported subgroup diagnostic
+heterogeneity_group,0.10362270051332523,supported subgroup diagnostic
+heterogeneity_group,0.13651781220677958,supported subgroup diagnostic
+heterogeneity_group,0.14725837228825267,supported subgroup diagnostic
+heterogeneity_group,0.18422342296014435,supported subgroup diagnostic
+heterogeneity_group,0.10095080642970321,supported subgroup diagnostic
+heterogeneity_group,0.09173387656560202,supported subgroup diagnostic
+heterogeneity_group,0.08814799841311086,supported subgroup diagnostic
+heterogeneity_group,0.05545650039281922,supported subgroup diagnostic
+heterogeneity_group,0.09927172482882582,supported subgroup diagnostic
+heterogeneity_group,0.09067232364757818,supported subgroup diagnostic
+heterogeneity_group,0.07931244152879355,supported subgroup diagnostic
+heterogeneity_group,0.07020101266656832,supported subgroup diagnostic
+heterogeneity_group,0.059866900616617286,supported subgroup diagnostic
+heterogeneity_group,0.07363563868453941,supported subgroup diagnostic
+heterogeneity_group,0.08815744154408237,supported subgroup diagnostic
+heterogeneity_group,0.11862748839409908,supported subgroup diagnostic

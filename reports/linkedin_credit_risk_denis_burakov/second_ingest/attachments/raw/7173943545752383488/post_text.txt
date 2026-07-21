@@ -1,0 +1,10 @@
+Additive Logistic Regression 🧩
+What happens if you try to boost a logistic regression model?
+This post dives into Additive Logistic Regression or LogitBoost (Logistic Boosting), an algorithm that integrates seamlessly with the framework of gradient-boosted trees for classification. 🌳 It works similarly to the logistic regression framework we know and helps to boost model performance 🚀
+Discover the origins and application of LogitBoost in a practical scenario, illustrated with a #Python 🐍 example in a #CreditScoring 💳 context. Slide through our deck to see how this method unfolds step by step ⬇️
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the mechanics of gradient boosting utilized in #GBDT models: https://lnkd.in/edwQq2Rq 💡
+▷ Discover a related post on the mechanics of #LogisticRegression: https://lnkd.in/ebHdg-fB 💡
+▷ Discover a related post on the Log Loss function utilized by #GBDT models for classification: https://lnkd.in/dGSxaKAS 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬

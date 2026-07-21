@@ -1,0 +1,64 @@
+schema_version: "2026-07-20.1"
+paper_id: paper2_ifrs9
+title: "Paper 2 — auditoría diagnóstica IFRS9-inspired"
+status: parked_ifrs9
+decision: park
+claim_target: >-
+  Auditar qué objeto estadístico produce la capa conformal binaria, qué
+  transformaciones downstream no preservan su interpretación y qué contrato de
+  datos sería necesario para evaluar staging y ECL bajo IFRS 9.
+evidence_gate: >-
+  Paper 2 solo puede salir del estado parked_ifrs9 cuando una nueva evidencia
+  satisfaga todos los requisitos de unpark y pase una evaluación final temporal
+  no utilizada para seleccionar modelos, umbrales ni reglas contables.
+artifact_sink: >-
+  Nota metodológica y superficies diagnósticas del libro; los resultados
+  históricos de provisión y SICR permanecen fuera de los claims activos.
+stop_rule: >-
+  No reestimar umbrales, bandas monetarias ni comparadores con el archivo actual.
+  Reabrir únicamente con un nuevo contrato longitudinal o con una demostración
+  formal que cambie el estimando defendible.
+
+allowed_now:
+  - "Describir el pipeline como prototipo retrospectivo IFRS9-inspired, no como implementación IFRS 9."
+  - "Auditar la cobertura y la geometría de un intervalo para el resultado binario observado Y."
+  - "Reportar sensibilidades algebraicas a multiplicadores declarados como propiedades mecánicas del software."
+  - "Usar competing risks para explicar por qué el prepago debe modelarse explícitamente, sin promover magnitudes de reserva."
+  - "Documentar fallas de estimando, horizonte, temporalidad, selección y linaje de artefactos."
+  - "Especificar los datos, particiones y gates requeridos para una futura evaluación IFRS 9."
+
+forbidden_now:
+  - "Interpretar los endpoints del intervalo binario como cotas de una PD individual latente."
+  - "Llamar intervalo conformal de ECL a una transformación de endpoints que cubren Y."
+  - "Afirmar cobertura formal para ECL, provisiones, capital, staging o decisiones seleccionadas."
+  - "Presentar el ancho del intervalo binario como incertidumbre epistémica o como señal SICR validada."
+  - "Equiparar default terminal con necesidad verdadera de Stage 2 o detección temprana."
+  - "Seleccionar o recomendar umbrales con outcomes del conjunto final de prueba."
+  - "Promover cifras históricas de SICR, bandas monetarias, alpha sweeps o comparadores como resultados prudenciales."
+  - "Afirmar dominancia sobre BMA u otro comparador calibrado y evaluado en la misma muestra."
+  - "Recomendar adopción bancaria, overlays, buffers de capital o política regulatoria."
+  - "Describir los artefactos actuales como evidencia contable, contractual o lista para producción."
+
+unpark_requirements:
+  - "Unidad longitudinal préstamo-fecha-de-reporte con identificador y fecha as-of auditables."
+  - "Features disponibles en la fecha de reporte y exclusión verificable de loan_status, default_flag y variables posteriores."
+  - "Targets separados de default a 12 meses y lifetime, con ventanas de observación, censura y madurez explícitas."
+  - "PD de originación y PD actual estimadas con la misma definición, horizonte y escala de calibración."
+  - "DPD, cure, forbearance, reestructuración y estado credit-impaired observados a la fecha de reporte."
+  - "Cash flows contractuales, EIR, EAD, LGD, recuperaciones y prepago con linaje point-in-time."
+  - "Escenarios macroeconómicos y ponderaciones con fuente, fecha y gobernanza declaradas."
+  - "Particiones temporales separadas para entrenamiento, calibración de PD, calibración conformal, validación de regla y test final."
+  - "Método de incertidumbre cuyo estimando sea PD, pérdida esperada o riesgo decisional explícito; cobertura de Y no basta."
+  - "Definición de SICR evaluable que no use default futuro como etiqueta sustituta de Stage 2."
+  - "Un único estimador central de ECL compartido por low, point y high, con dependencia conjunta documentada."
+  - "Artefactos con hash, run_tag, generated_at, esquema único y gate que bloquee estados diagnostic o failed."
+  - "Revisión contable/regulatoria humana antes de cualquier claim de conformidad, adopción o uso prudencial."
+
+governed_surfaces:
+  - "book/chapters/15-paper-ifrs9/index.qmd"
+  - "book/chapters/15-paper-ifrs9/15a-introduction.qmd"
+  - "book/chapters/15-paper-ifrs9/15b-methodology.qmd"
+  - "book/chapters/15-paper-ifrs9/15c-results.qmd"
+  - "book/chapters/15-paper-ifrs9/15d-discussion.qmd"
+  - "book/chapters/10-ifrs9-governance/10a-ecl-calculation.qmd"
+  - "book/chapters/10-ifrs9-governance/10c-sicr-conformal-signal.qmd"

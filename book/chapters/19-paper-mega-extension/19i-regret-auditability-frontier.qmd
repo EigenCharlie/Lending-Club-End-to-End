@@ -1,0 +1,32 @@
+---
+title: "Regret Auditability Frontier"
+page-layout: article
+---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Lectura oficial de la frontera
+
+La frontera regret-auditability organiza una tension central: una policy puede
+ganar en retorno o cola, pero perder en auditabilidad, cobertura o claim safety.
+Por eso Paper 4 no promueve candidates solo por una metrica.
+
+## Resultado consolidado
+
+En 512 rutas generadas por un simulador interno, una configuracion CVaR
+preseleccionada redujo el proxy de perdida de cola. Su diferencia media de
+wealth frente a la referencia legacy fue `-691.34`, y la supero en `244/512`
+rutas. Esta es una descripcion condicional al simulador y a la seleccion previa,
+no una probabilidad externa ni una validacion independiente.
+
+## Claims permitidos
+
+- El replay interno documenta un tradeoff entre cola y wealth.
+- Un committee profile puede hacer visibles preferencias distintas.
+- La frontera es una herramienta diagnostica, no una regla de seleccion.
+
+## Claims no permitidos
+
+- No hay full-universe exact CVaR optimality.
+- No hay dominancia externa ni seleccion de policy por CVaR.
+- No se debe mezclar relaxed/committee caps con strict feasibility.

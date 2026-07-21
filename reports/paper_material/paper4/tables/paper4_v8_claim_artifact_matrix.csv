@@ -1,0 +1,14 @@
+priority,claim_status,artifact,quarto_page,caveat
+Literature registry,implemented_primary_source_mapping,paper4_v8_literature_to_method_registry.csv,19ar-v8-method-foundations-and-online.qmd,"primary sources inform method design, not publication claims"
+Online efficiency frontier,implemented_micro_iteration,paper4_v8_online_efficiency_frontier.csv,19ar-v8-method-foundations-and-online.qmd,promotion still blocked if width > 0.95
+Online breakpoint report,implemented_breakpoint_diagnostic,paper4_v8_online_breakpoint_report.csv,19ar-v8-method-foundations-and-online.qmd,shows closest pass/fail boundary
+CVaR bisection frontier,implemented_active_cap_search,paper4_v8_cvar_bisection_frontier.csv,19as-v8-solvers-selector-dla.qmd,"top-k/local-pool, not full-universe decomposition"
+MDCP family-cap solver,implemented_family_caps_inside_lp,paper4_v8_mdcp_family_cap_solver_summary.csv,19as-v8-solvers-selector-dla.qmd,family caps are governance proxies
+Selector governance v8,implemented_committee_memo,paper4_v8_selector_governance_results.csv,19as-v8-solvers-selector-dla.qmd,no final promotion JSON
+DLA value-function proxy,implemented_dynamic_vs_static_comparison,paper4_v8_dla_value_function_summary.csv,19as-v8-solvers-selector-dla.qmd,not Bellman-optimal ADP
+Causal dossier v8,implemented_stronger_blocker_dossier,paper4_v8_causal_dossier.csv,19at-v8-causal-fairness-hybrids-dashboard.qmd,CATE policy value remains blocked
+Fairness protocol v8,implemented_permanent_proxy_only_protocol,paper4_v8_fairness_permanent_proxy_protocol.csv,19at-v8-causal-fairness-hybrids-dashboard.qmd,no fair-lending legal claim
+DFL surrogate v8,implemented_transparent_decision_loss_surrogate,paper4_v8_dfl_surrogate_training.csv,19at-v8-causal-fairness-hybrids-dashboard.qmd,not neural SPO+/DFL
+Blocker dashboard,implemented_live_blocker_dashboard,paper4_v8_blocker_dashboard.csv,19au-v8-results-and-pending.qmd,"status is living-lab, not final publication decision"
+Change report v6-v7-v8,implemented_automated_change_report,paper4_v8_v6_v7_change_report.csv,19au-v8-results-and-pending.qmd,compares status JSONs only
+V8 status,implemented_living_lab_status,paper4_v8_resolution_status.json,19au-v8-results-and-pending.qmd,Paper Estrella frozen

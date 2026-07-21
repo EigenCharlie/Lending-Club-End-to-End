@@ -7,9 +7,9 @@ for both HTML (interactive) and PDF (static, vector) output.
 
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
-import numpy as np
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------------
 # Project palette

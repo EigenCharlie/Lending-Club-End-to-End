@@ -1,0 +1,8 @@
+Quantifying uncertainty with WOE
+Weight of Evidence (WOE) is a cornerstone of credit risk modeling, powering millions of bank decision engines worldwide. Celebrated for its interpretability and historical ties to early AI theorists, WOE has stood the test of time. Yet despite its widespread use, a clear and accepted method for quantifying its uncertainty has long been the missing puzzle piece – until now.
+This paper fills the gap by connecting WOE with the standard errors in logistic regression. In practical terms, this allows risk practitioners to quantify the uncertainty of WOE using familiar, well-established statistical tools.
+𝗧𝗟;𝗗𝗥: FastWoe is a blazing-fast Python package for WOE encoding and inference, and uncertainty quantification 🚀. In addition to standard outputs like summary statistics, Gini, and Information Value (IV), FastWoe offers an interpretability platform for uncertainty estimation, WOE-based classification rules, and WOE-driven explanations.
+Check it out ⤵
+GitHub repo: https://lnkd.in/dFgQAEWG
+If you want to learn more about the history of WOE and its originators → https://lnkd.in/dPYBzzYi
+#CreditRiskModeling #DataScience #Scorecards

@@ -1,0 +1,8 @@
+evidence_block,metric,value,decision,claim_boundary
+raw_enriched_sicr,estimand_valid,False,diagnostic_negative_audit,Terminal outcomes and snapshot servicing fields do not identify report-date SICR or staging.
+raw_enriched_sicr,historical_trigger_metrics_citable,False,diagnostic_negative_audit,Legacy lift share threshold and monetary outputs are removed from the active claim surface.
+v36_readiness,loan_report_date_unit_available,False,diagnostic_negative_audit,Without loan-report-date observations no PD ECL SICR or staging estimand is identified.
+v472_requirement_audit,missing_named_requirements,loan_report_date_unit;forbearance_hardship;cure_timing;recovery_timing;prepayment_timing;macro_scenarios,diagnostic_negative_audit,Monthly servicing panel staging labels and coherent macro scenarios remain required.
+v4_input_quality,binary_terminal_outcome_only,True,diagnostic_negative_audit,Observed binary Y is not a conditional PD or report-date deterioration label.
+v4_policy_summary,mechanical_scenario_values_citable,False,diagnostic_negative_audit,Scenario arithmetic is a software sensitivity and not an ECL or allowance estimate.
+v36_sensitivity,production_ifrs9_staging_claim_allowed,False,diagnostic_negative_audit,No IFRS9 staging threshold or monetary claim is allowed.

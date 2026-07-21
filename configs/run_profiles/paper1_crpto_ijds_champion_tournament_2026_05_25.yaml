@@ -1,0 +1,252 @@
+schema_version: "2026-05-25.1"
+profile_name: paper1_crpto_ijds_champion_tournament_2026_05_25
+paper: CRPTO
+target_venue: IJDS
+objective: >
+  Run a predeclared champion-reopen tournament for CRPTO. The search target is
+  not best AUC; it is a complete calibrated-PD -> conformal -> robust-LP
+  trade-off that can beat or materially improve the frozen economic champion
+  under IJDS reproducibility standards.
+
+execution_mode: search_tournament
+execution_modes_supported: [search_tournament, informs_lockdown]
+
+solver_policy:
+  frontier_backend: cuopt
+  exact_backend_primary: highs
+  exact_backend_shadow: gurobi
+  use_cuopt_in_informs: false
+
+run_root_default: paper1_crpto_ijds_tournament_2026_05_25_r1
+log_dir: reports/run_logs
+scratch_root_template: "${HOME}/scratch/lending-club-runs/{run_root}"
+
+champion:
+  selection_path: models/portfolio_bound_aware/rank1_alpha01_bound_aware_276k_full_2026-04-05-1734/portfolio_bound_aware_selection.json
+  realized_total_return: 170464.5429284627
+  alpha01_weighted_miscoverage_V: 0.03645
+  alpha01_gamma_cp: 0.18591
+  alpha01_violation: 0
+  alpha01_empirical_coverage_funded: 0.9433
+  policy:
+    policy_mode: blended_uncertainty
+    risk_tolerance: 0.175
+    gamma: 0.45
+    uncertainty_aversion: 0.1
+
+environments:
+  main:
+    name: .venv
+    python: .venv/bin/python
+    role: PD, Optuna, MAPIE, conformal, HiGHS exact, Pyomo
+  rapids:
+    name: rapids
+    role: cuOpt broad frontier
+    required_versions:
+      rapids: "26.04"
+      cuopt: "26.04"
+      cudf: "26.04"
+      cuml: "26.04"
+      cuda_version: "13.1"
+    serious_run_gate: audit_crpto_reopen_env.rapids_ok_for_serious_cuopt == true
+
+anti_cherry_pick:
+  predeclared_files:
+    - predeclared_candidate_registry.json
+    - phase_gate_status.json
+    - selection_rule.json
+    - negative_results_registry.csv
+  rules:
+    - every lane declared before downstream portfolio search
+    - every failure, skip, fallback, and parked idea logged with reason
+    - one uniform selection rule per phase
+    - no late champion candidate after seeing portfolio results
+    - full-universe confirmation only after finalist freeze
+
+candidate_lanes:
+  incumbent_replay:
+    role: comparator
+    can_replace_champion: false
+  external_pd_finalists:
+    role: main challengers
+    candidates:
+      canonical_4:
+        pd_run_tag: regret_auditability_pd_canonical_4_2026_05_23
+        status: promising_calibration_and_downstream_mixed
+      bureau_behavior_15:
+        pd_run_tag: regret_auditability_pd_bureau_behavior_15_2026_05_21
+        status: best_recent_auc_brier_but_group_conformal_issue
+      affordability_rate_5:
+        pd_run_tag: regret_auditability_pd_affordability_rate_5_2026_05_23
+        status: useful_governance_affordability_ablation
+  governance_aware_pd_hpo:
+    role: controlled_hpo_around_finalists
+    base_candidates: [canonical_4, bureau_behavior_15, affordability_rate_5]
+    initial_trials_per_lane: 80
+    max_trials_per_lane_without_downstream_signal: 120
+    catboost_features:
+      monotone_constraints: required_for_core_economic_features
+      feature_weights: allowed_for_affordability_capacity_features
+      first_feature_use_penalties: allowed_for_governance_costly_or_unstable_features
+      posterior_sampling_langevin: diagnostic_only_until_reproducible_cpu_path
+    optuna:
+      storage: sqlite_or_rdb_per_lane
+      sampler: tpe_or_nsga_if_multiobjective
+      pruner: median_or_successive_halving
+      seed_replay_top_k: 3
+      objective_components:
+        - auc
+        - brier
+        - ece
+        - monotonicity_audit
+        - conformal_width_proxy
+        - portfolio_feasibility_proxy
+
+calibration_conformal:
+  primary_script: scripts/search/run_conformal_reopen_search.py
+  existing_profile: configs/profiles/search_conformal_reopen_decision_wide.yaml
+  partitions:
+    primary: [score_decile_mondrian, grade, grade_x_scoreband_mondrian]
+    conditional_if_enough_n: [vintage_x_scoreband]
+    appendix_only: [source_or_geography_proxy]
+  calibrators: [venn_abers, isotonic, platt, beta]
+  mapie_role:
+    use_for: [calibration_metrics, risk_control_sidecar, BinaryClassificationController_smoke]
+    not_for: replacing_project_mondrian_without_smoke_and_memo
+  gates:
+    coverage_90_min: 0.90
+    coverage_95_min: 0.95
+    min_group_coverage_90_min: 0.90
+    avg_width_90_max: 0.86
+    critical_alerts_max: 0
+    total_alerts_max: 2
+
+portfolio:
+  primary_script: scripts/search/run_portfolio_bound_aware_search.py
+  solver_backend: cuopt
+  exact_solver_backend: highs
+  execution_mode_behavior:
+    search_tournament:
+      allow_frontier_cuopt: true
+      allow_exact_cuopt: false
+    informs_lockdown:
+      allow_frontier_cuopt: false
+      allow_exact_cuopt: false
+  cuopt:
+    batch_size_default: 16
+    methods_to_smoke: [Concurrent, PDLP, Barrier]
+    dual_postsolve_default: 0
+    fallback_solver: highs
+    one_gpu_process_at_a_time: true
+    ladder:
+      fallback_highs_frontier: true
+      stall_timeout_min: 30
+      auto_demote_on_stall: true
+      attempts:
+        - {method: Concurrent, batch_size: 16}
+        - {method: Concurrent, batch_size: 8}
+        - {method: PDLP, batch_size: 16}
+        - {method: Barrier, batch_size: 4}
+        - {method: Concurrent, batch_size: 1}
+  waves:
+    smoke_25k:
+      max_candidates: 25000
+      shortlist_top_k: 120
+      alpha_grid: [0.01]
+    medium_50k_75k:
+      max_candidates: [50000, 75000]
+      shortlist_top_k: 240
+      alpha_grid: [0.01, 0.03, 0.10]
+    frontier_100k_150k:
+      max_candidates: [100000, 150000]
+      shortlist_top_k: 320
+      alpha_grid: [0.01, 0.02, 0.03, 0.05, 0.10]
+    full_confirmation:
+      max_candidates: 0
+      shortlist_top_k: 500
+      alpha_grid: [0.01, 0.02, 0.03, 0.05, 0.10, 0.15, 0.20]
+  grids:
+    risk: [0.165, 0.170, 0.175, 0.180, 0.185, 0.190, 0.195, 0.200]
+    gamma: [0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600]
+    uncertainty_aversion: [0.0, 0.05, 0.10, 0.15, 0.20, 0.25]
+    policy_modes:
+      - blended_uncertainty
+      - capped_blended_uncertainty
+      - tail_blended_uncertainty
+      - segment_tail_blended_uncertainty
+      - segment_relative_tail_blended_uncertainty
+
+exact_tournament:
+  mode: pass1_pass2
+  pass1_alpha_gate:
+    alpha: 0.01
+    evaluate_all_shortlist: true
+  pass2_full_alpha_grid:
+    enabled: true
+    include_pass1_survivors: true
+    include_bucket_quota_even_if_fail: true
+    bucket_min_quota:
+      return_global: 8
+      bound_proxy: 8
+      family_guardrail: 6
+      conservative_region: 6
+      forced_incumbent_region: 8
+  seeds: [42, 84, 126]
+  alpha_grid: [0.01, 0.02, 0.03, 0.05, 0.10, 0.15, 0.20]
+  workers: 4
+  time_limit_sec: 180
+  threads_per_worker: 1
+  checkpoint_every: 32
+  shadow_check_top_k: 20
+  solver_agreement_tolerance:
+    realized_total_return_abs: 250.0
+    weighted_miscoverage_V_abs: 0.002
+    gamma_cp_abs: 0.005
+
+selection_rules:
+  pd_phase:
+    rank_by: constrained_multi_metric_score
+    advance:
+      - best_calibrated_pd_per_candidate_family
+      - best_governance_light_candidate_if_within_tolerance
+      - best_downstream_proxy_candidate
+  conformal_phase:
+    rank_by: coverage_width_group_decision_proxy_score
+    advance_top_k_per_pd: 2
+  portfolio_phase:
+    rank_by:
+      - alpha01_exact_pass desc
+      - alpha01_violation asc
+      - realized_total_return desc
+      - alpha01_weighted_miscoverage_V asc
+      - alpha01_gamma_cp asc
+      - alpha01_empirical_coverage_funded desc
+  final_replacement_gate:
+    alpha01_exact_pass: true
+    alpha01_violation: 0
+    realized_total_return_min: 170464.5429284627
+    alpha01_weighted_miscoverage_V_max: 0.03645
+    alpha01_gamma_cp_max: 0.18591
+    coverage_tolerance_vs_champion: -0.01
+    requires_nested_or_prospective_confirmation: true
+
+theory_and_robustness:
+  implement_now:
+    - funded_set_mondrian_refinement
+    - decision_aware_conformal_selector_audit
+    - nested_prospective_confirmation
+    - regret_price_of_robustness
+    - funded_composition_slices
+  appendix_or_paper4:
+    - direct_crc_ltt_decision_loss
+    - dependence_aware_concentration
+    - online_shift_aware_bound
+    - richer_lgd_ecl_target
+    - oce_cvar_as_new_objective
+
+outputs:
+  final_summary: reports/paper_material/paper1/tables/paper1_crpto_ijds_tournament_final_summary_2026-05-25.csv
+  negative_registry: reports/paper_material/paper1/tables/paper1_crpto_ijds_negative_results_registry_2026-05-25.csv
+  decision_memo: docs/research/paper1_crpto_ijds_champion_decision_memo_2026-05-25.md
+  live_summary_json: reports/run_logs/{run_root}/summary_current.json
+  live_summary_csv: reports/run_logs/{run_root}/summary_current.csv

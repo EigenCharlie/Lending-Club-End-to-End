@@ -1,0 +1,285 @@
+GitHub - xRiskLab/pearsonify: Lightweight Python package for generating classification intervals in binary classification tasks using Pearson residuals and conformal prediction · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+xRiskLab
+/
+pearsonify
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+2
+Star
+25
+Code
+Issues
+0
+Pull requests
+0
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+xRiskLab/pearsonify
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+NameName
+Last commit message
+Last commit date
+Latest commit
+History
+9 Commits
+9 Commits
+.github/workflows
+.github/workflows
+ims
+ims
+pearsonify
+pearsonify
+tests
+tests
+.gitignore
+.gitignore
+.pre-commit-config.yaml
+.pre-commit-config.yaml
+.python-version
+.python-version
+LICENSE.md
+LICENSE.md
+README.md
+README.md
+example.py
+example.py
+pyproject.toml
+pyproject.toml
+uv.lock
+uv.lock
+View all files
+Repository files navigation
+README
+MIT license
+💡 Pearsonify
+Probabilistic Classification with Conformalized Intervals
+Pearsonify is a lightweight 🐍 Python package for generating classification intervals around predicted probabilities in binary classification tasks.
+It uses Pearson residuals and principles of conformal prediction to quantify uncertainty without making strong distributional assumptions.
+🚀 Why Pearsonify?
+📊 Intuitive Classification Intervals: Get reliable intervals for binary classification predictions.
+🧠 Statistically Grounded: Uses Pearson residuals, a well-established metric from classical statistics.
+⚡ Model-Agnostic: Works with any model that provides probability estimates.
+🛠️ Lightweight: Minimal dependencies, easy to integrate into existing projects.
+📦 How to install?
+Use pip to install the package from GitHub:
+pip install pearsonify
+# or from GitHub:
+pip install git+https://github.com/xRiskLab/pearsonify.git
+💻 How to use?
+import numpy as np
+from pearsonify import Pearsonify
+from sklearn.svm import SVC
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+# Generate synthetic classification data
+np.random.seed(42)
+X, y = make_classification(
+n_samples=1000, n_features=20, n_informative=10, n_classes=2, random_state=42
+)
+# Split data into train, calibration, and test sets
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
+X_cal, X_test, y_cal, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+# Initialize Pearsonify with an SVC model
+clf = SVC(probability=True, random_state=42)
+model = Pearsonify(estimator=clf, alpha=0.05)
+# Fit the model on training and calibration sets
+model.fit(X_train, y_train, X_cal, y_cal)
+# Generate prediction intervals for test set
+y_test_pred_proba, lower_bounds, upper_bounds = model.predict_intervals(X_test)
+# Calculate coverage
+coverage = model.evaluate_coverage(y_test, lower_bounds, upper_bounds)
+print(f"Coverage: {coverage:.2%}")
+# Plot the intervals
+model.plot_intervals(y_test_pred_proba, lower_bounds, upper_bounds)
+Running example.py will generate the following plot:
+This plot shows predicted probabilities with 95% confidence intervals, sorted by prediction score.
+📖 References
+Hosmer, D. W., Lemeshow, S., & Sturdivant, R. X. (2013). Applied Logistic Regression. John Wiley & Sons.
+Tibshirani, R. (2023). Conformal Prediction. Advanced Topics in Statistical Learning, Spring 2023.
+📝 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+About
+Lightweight Python package for generating classification intervals in binary classification tasks using Pearson residuals and conformal prediction
+Topics
+python
+machine-learning
+classification
+Resources
+Readme
+License
+MIT license
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+25
+stars
+Watchers
+3
+watching
+Forks
+2
+forks
+Report repository
+Releases
+3
+Release v0.1.0
+Latest
+Feb 7, 2026
++ 2 releases
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page.
+Uh oh!
+There was an error while loading. Please reload this page.
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page.
+Languages
+Python
+100.0%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

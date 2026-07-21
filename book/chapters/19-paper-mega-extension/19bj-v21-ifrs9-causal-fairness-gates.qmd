@@ -1,0 +1,75 @@
+---
+title: "v21 IFRS9, Causal and Fairness Gates"
+page-layout: article
+---
+
+## Pregunta
+
+V21 pregunta qué claims deben quedar bloqueados con evidencia, no por falta de
+intención. El objetivo es cerrar rigurosamente tres carriles peligrosos:
+IFRS9 contractual, CATE policy value y fair-lending legal claim.
+
+## Qué intentamos
+
+Se auditó la data local para servicing, DPD, cure, recoveries, prepayment,
+EAD y macro scenarios. Se construyó el mejor panel proxy mensual IFRS9-inspired
+con SICR sensitivity. Se reforzó el dossier causal para
+`high_rate_within_grade_v21` con balance, overlap, placebo/falsification y
+hidden-bias sensitivity. Se dejó fairness como proxy governance only, con
+referencias metodológicas externas y flags explícitos de no-claim.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v21_ifrs9_data_field_audit.csv` | auditoría de campos disponibles |
+| `paper4_v21_ifrs9_readiness_matrix.csv` | readiness contractual/proxy |
+| `paper4_v21_ifrs9_proxy_monthly_panel.parquet` | panel ECL proxy mensual |
+| `paper4_v21_ifrs9_sicr_sensitivity.csv` | sensibilidad SICR |
+| `paper4_v21_causal_identification_dossier.csv` | balance por covariable |
+| `paper4_v21_causal_overlap_diagnostics.csv` | overlap por grade/score |
+| `paper4_v21_causal_falsification_outcomes.csv` | placebos |
+| `paper4_v21_cate_gate_report.csv` | gates CATE |
+| `paper4_v21_fairness_proxy_only_protocol.csv` | protocolo proxy-only |
+| `paper4_v21_source_governance_diagnostics.csv` | source coverage/governance |
+| `paper4_v21_status.json` | status reproducible |
+
+## Resultado
+
+Los tres claims fuertes siguen bloqueados. IFRS9 contractual tiene solo un
+componente parcialmente usable (`default_timing`) y no cumple servicing mensual,
+DPD, cure, recovery timing, prepayment timing, EAD path ni macro coherent paths.
+
+El dossier CATE mejora, pero no desbloquea policy value. El máximo balance
+reportado sigue alrededor de `max |SMD| = 0.435`, y la sensibilidad a sesgo
+oculto queda demasiado débil para convertir un contraste predictivo en claim
+causal. Fairness queda como source governance; no hay atributos protegidos ni
+protocolo aprobado para inferirlos.
+
+## Qué mejoró
+
+Ahora los bloqueos no son vagos. Cada no-claim tiene artifact, gate, evidencia y
+boundary. Eso es valioso académicamente: evita que el mega paper venda más de lo
+que el dataset está autorizado a sostener.
+
+## Qué falló
+
+No apareció servicing panel contractual real. No apareció identificación causal
+suficiente. No apareció un protocolo válido de protected attributes. Esos
+bloqueos no se resuelven con otra tabla local; requieren datos o diseño nuevo.
+
+## Claim permitido
+
+Paper 4 puede hablar de ECL proxy IFRS9-inspired, causal diagnostics y source
+governance por grupos observables.
+
+## Claim no permitido
+
+No puede reclamar IFRS9 contractual, CATE policy value ni fair-lending legal
+compliance.
+
+## Qué queda pendiente
+
+Si más adelante aparece servicing mensual o protected attributes/proxy protocol,
+estos gates pueden reabrirse. Mientras tanto quedan correctamente clasificados
+como `data_blocked`, `theory_blocked` y `prohibited_claim`.

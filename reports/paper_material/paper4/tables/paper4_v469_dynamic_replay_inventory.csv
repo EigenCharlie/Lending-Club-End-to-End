@@ -1,0 +1,3 @@
+dynamic_probe_id_v469,source_artifact_v469,candidate_version_v469,comparison_versions_v469,dynamic_proxy_replay_executed_v469,dynamic_proxy_trace_rows_v469,dynamic_proxy_policy_count_v469,dynamic_proxy_period_count_v469,period_distribution_match_v469,live_deployment_claim_allowed_v469,claim_boundary_v469
+v297_v295_vs_v293_dynamic_gate,paper4_v297_global_dynamic_gate_summary.csv,v295,v293,True,768,2,3,True,False,global/dynamic gate audit only; proxy replay is not deployment validation
+v340_v338_dynamic_proxy_gate,paper4_v340_dynamic_proxy_or_global_bound_after_v338.csv,v338,v295;v316;v330,True,1536,4,3,True,False,dynamic/global audit only; v338 proxy replay is not a live or global proof

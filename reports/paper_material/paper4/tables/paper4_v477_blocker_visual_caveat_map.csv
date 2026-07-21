@@ -1,0 +1,7 @@
+blocker_id_v477,affected_assets_v477,manuscript_section_v477,required_caption_caveat_v477,blocker_preserved_v477,resolved_by_visual_package_v477
+full_v55_global_proof_missing,T1;F1,results_evidence_cvar,local frontier evidence only; no full-v55 proof,True,False
+grade_a_primary_source_blocker,T2;F2,results_evidence_governance_online,diagnostic source blocker only; no cap relaxation,True,False
+v353_online_temporal_gate_missing,T4;F3,results_evidence_governance_online,internal online proxy only; no external holdout,True,False
+v353_dynamic_proxy_trace_missing,T3,discussion_limitations,v353 dynamic replay trace remains missing,True,False
+formal_theorem_or_proof_missing,T5;F4,methods_protocol,bounded historical audit only; no formal theorem,True,False
+contractual_ifrs9_requirements_missing,T6,discussion_limitations,requirement audit only; no accounting compliance claim,True,False

@@ -1,0 +1,12 @@
+priority,claim_status,artifact,quarto_page,caveat
+Challenger local search,implemented_local_pool,paper4_challenger_local_search.csv,19ad-v4-challenger-online-mdcp.qmd,100-policy exact LP over documented local candidate pool
+Online conformal v4,implemented_guarded,paper4_online_conformal_v4_method_summary.csv,19ad-v4-challenger-online-mdcp.qmd,guarded method may trade width for worst-cell coverage
+IFRS9 contractual proxy,implemented_with_available_performance,paper4_ifrs9_v4_contractual_policy_summary.csv,19ae-v4-ifrs9-cvar-selector.qmd,"uses available loan_status/LGD/CIF, not full servicing panel"
+CVaR/OCE constraint,implemented_candidate_pool_constraint_lp,paper4_cvar_oce_v4_constraint_frontier.csv,19ae-v4-ifrs9-cvar-selector.qmd,"candidate pool LP, not 276k full CVaR"
+Selector governance v4,implemented_paper4_working_champion,paper4_selector_v4_results.csv,19ae-v4-ifrs9-cvar-selector.qmd,Paper 4 working champion only
+Dynamic SDAM v4,implemented_dynamic_loan_level,paper4_sdam_v4_dynamic_solver_summary.csv,19af-v4-sdam-causal-fairness-regret.qmd,state transition proxy
+Causal high-rate v4,implemented_dossier_only,paper4_causal_high_rate_v4_dossier.csv,19af-v4-sdam-causal-fairness-regret.qmd,no CATE policy value promotion
+Fairness proxy v4,implemented_proxy_strategy,paper4_fairness_v4_proxy_strategy.csv,19af-v4-sdam-causal-fairness-regret.qmd,no protected attributes
+MDCP v4,implemented_pooling,paper4_mdcp_v4_source_coverage.csv,19ad-v4-challenger-online-mdcp.qmd,minimum-cell pooling caveat
+Regret-auditability v4,implemented_frontier,paper4_regret_auditability_v4_frontier.csv,19af-v4-sdam-causal-fairness-regret.qmd,auditability score is formalized but still a governance score
+Common sample paths,implemented_pairwise_ci,paper4_common_sample_path_pairwise_ci.csv,19ag-v4-sample-paths-working-champion.qmd,"simulated scenario paths, not observed future performance"

@@ -1,0 +1,142 @@
+Leveraging Profit Scoring in Digital Loan Underwriting
+Report this article
+Denis Burakov
+Denis Burakov
+Published Jun 28, 2023
++ Follow
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and credit line usage patterns. Statistics about a customer’s past credit inquiries, loan delinquencies and repayment history are the most common drivers that signal lenders about who's going to pay back the loan. And yet, this approach puts customers with limited or no credit history at a disadvantage: important factors like consistent on-time utility payments (which could otherwise enhance creditworthiness) are often overlooked and not considered in lenders' scoring systems.
+Assessing structured underwriting data is one thing, but understanding the true risk beyond consumers’ credit scores is a whole different story. Traditional loan evaluation typically involves statistical or machine learning techniques to differentiate between good and bad loans based on their estimated probabilities of default (PD). As a result, these underwriting models automatically reject risky applicants below a specified cut-off point.
+However, relying solely on credit scoring systems that focus on predicting PD can result in the exclusion of the risky borrowers with a high profitability potential. In contrast, profit scoring models consider both the creditworthiness and profitability aspects of loan applications, eliminating the need for predetermined score cut-off points. This empowers lenders to selectively choose the most attractive customer base.
+Based on several academic papers written since 2016, profit scoring models have demonstrated superior performance in terms of returns and profits compared to PD models, primarily because they consider alternative factors when predicting investment returns. The silver lining is this: oftentimes borrowers with low credit scores have the potential to be as profitable as those with higher credit profiles when lenders adopt a holistic approach to assessing customer risk profiles.
+Profitability metrics
+In the domain of profit scoring, various metrics are commonly used to measure loan returns. The use of these metrics offers an advantage of a more detailed customer view, as they rely on a continuous measure instead of a binary one (default or no default). Such granularity allows for a more nuanced evaluation of loan performance since knowing that a customer is likely to default doesn't tell the whole story.
+A risk practitioner can come across several common profitability metrics such as Internal Rate of Return (IRR), Net Rate of Return (NRR), and Annualized Rate of Return (ARR). Among these metrics, ARR stands out as a strong candidate for risk modeling purposes due to its alignment with the 12-month Expected Credit Loss (ECL) framework ubiqitously used by lenders.
+We borrow the definition of ARR from Xia et al. (2017), which considers the principal amount, interest gain, and the number of years to calculate loan profitability as per the following formula:
+Annualized Rate of Return (ARR)
+where:
+P is the principal amount
+G is the interest gain computed by multiplying the interest rate with the principal amount
+N is the number of years
+For example, if one invests €50 in a loan with a nominal interest rate of 9.98% and a loan term of 3 years (36 monthly payments), the ARR calculation would be:
+Annualized Rate of Return (ARR) - example
+One limitation of this formula, however, is that it does not incorporate loan-level cost of risk. To achieve that, we additionally exclude observed write-offs on the principal amount from the numerator and subtract ECL ratio provided by Pandora from the overall ARR to create a risk-adjusted ARR.
+Data
+The shift from credit score models to profit scoring models has been observed especially in the domain of P2P lending platforms. P2P lending involves individual lenders providing loans to individual borrowers through an online platform.
+P2P lending characterized by its inherent high-risk nature, with higher probability of default (PD) and loss given default (LGD) ratios compared to traditional lending. These elevated risks can be attributed to factors such as information asymmetry, the presence of unprofessional lenders on the platform, and the absence of collateralization.
+To build a prototype of a profit scoring model, we will utilize a real-world credit risk dataset obtained from Bondora, which is recognized as Europe's largest P2P lending platform. Bondora's loan dataset contains a large number of variables which can be used for building traditional credit risk models (PD, LGD) as well as profit scoring models. Please note that Bondora's proprietary profitability metric, XIRR (extended internal rate of return), is not available for public use. Sharing this data with practitioners could arguably aid efforts in building more accurate profit scoring models. Dataset description is available at Bondora's website.
+Below we can see the evolution of ARR and observed 12-month default rate for Bondora’s loan portfolio:
+Observed ARR and Default Rate
+We can observe a moderate correlation (43%) between the two time series due to the inclusion of the ECL ratio in the risk-adjusted ARR calculation.
+Experimental results
+After extensive data cleansing, we follow the conventional approach of train/test data splitting and estimating a scoring function.
+Below we can see the top-10 features that help to identify profitable loans. Among the top ones are Credit Score and Language Code (proxy for region of the borrower) as well as repayment history.
+Recommended by LinkedIn
+Loan Management Application
+Suresh Ashok
+3 years ago
+HOW TO IMPROVE YOUR LOAN PORTFOLIO: 10 STRATEGIES FOR…
+defi SOLUTIONS
+5 months ago
+LOAN ORIGINATION PROCESS EXPLAINED (AND HOW TO IMPROVE…
+defi SOLUTIONS
+8 months ago
+The accuracy ratio (Somers' D) of our model on the test set is 61% which can be considered fairly strong discrimination ability.
+Feature importance
+We can also confirm that our model is relatively well calibrated showing a close match between observed and predicted values as can be seen from the following diagram:
+Evolution of observed and predicted ARR values
+After fitting our model, our next goal is to cluster predictions into buckets to create ARR ratings, which are more intuitive to work with.
+The following diagram shows a comparison of observed profitability ratios across ARR ratings and PD ratings:
+ARR and PD ratings
+As is often highlighted in the literature on profit scoring, PD in this case may not be an appropriate measure for identifying profitable loans. Although it is true that profitability drops in the worst ratings of ARR and PD alike, we can notice that customers in good ARR ratings (1-3) remain highly profitable across the PD master scale.
+Finally, since we have confidence in our model's estimates we can analyze what drove profitability down during the period of 2014-2015.
+The diagram below shows absolute differences between average SHAP values for each feature during the downturn period (2014-2015) vs non-stressed times (periods outside 2014-2015):
+Difference in SHAP values
+We can observe that worsening external credit scores and smaller numbers of investment offers made by Portfolio Managers decreased the profitability metric during the stressed period.
+Concluding remarks
+Profit scoring offers a promising alternative to credit scorecards by considering both creditworthiness and profitability aspects of loan applications as borrowers with low credit scores often possess untapped profitability potential. In the evolving landscape of digital lending, the shift from a narrow focus on credit scores to a more comprehensive profit-centric approach represents a significant step forward. By leveraging the power of profit scoring, lenders can align their interests more effectively with the needs of borrowers thus fostering a more inclusive and sustainable lending ecosystem.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in my GitHub. You can play around with the data in the Google Colab notebook.
+All views expressed are my own.
+References
+Lyócsa, Š., Vašaničová, P., Hadji Misheva, B., & Vateha, M. D. (2022). Default or Profit Scoring Credit Systems? Evidence from European and US peer-to-peer Lending Markets. Financial Innovation, 8(1), 1-21. https://jfin-swufe.springeropen.com/articles/10.1186/s40854-022-00338-5
+Serrano-Cinca, C., & Gutiérrez-Nieto, B. (2016). The Use of Profit Scoring as an Alternative to Credit Scoring Systems in Peer-to-Peer (P2P) Lending. Decision Support Systems, 89, 113-122. https://www.sciencedirect.com/science/article/abs/pii/S0167923616301063
+Sjoblom, M., Castello, A., & Gadzinski, G. (2019). Profitability vs. Credit Score Models—a New Approach to Short Term Credit in the UK. Theoretical Economics Letters, 9(04), 1183. https://www.scirp.org/journal/paperinformation.aspx?paperid=92228
+Xia, Y., Liu, C., & Liu, N. (2017). Cost-sensitive Boosted Tree for Loan Evaluation in Peer-to-Peer Lending. Electronic Commerce Research and Applications, 24, 30-49. https://www.sciencedirect.com/science/article/abs/pii/S1567422317300492
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+24
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Show more
+See all articles

@@ -8,20 +8,30 @@
     "disruption_rate": 0.0,
     "max_negative_step": 0.0,
     "overall_pass": true,
-    "n_constrained_features": 2,
-    "mean_feature_violation_rate": 0.0,
-    "max_feature_violation_rate": 0.0,
-    "mean_predicted_pd": 0.21608988807287652,
+    "n_constrained_features": 4,
+    "mean_feature_violation_rate": 0.00537109375,
+    "max_feature_violation_rate": 0.01953125,
+    "mean_predicted_pd": 0.2171240052055989,
     "observed_default_rate": 0.21977902907151034
   },
   "top_feature_violations": [
     {
       "feature": "annual_inc",
       "direction": -1,
-      "violation_rate": 0.0
+      "violation_rate": 0.01953125
     },
     {
       "feature": "loan_to_income",
+      "direction": 1,
+      "violation_rate": 0.001953125
+    },
+    {
+      "feature": "installment",
+      "direction": 1,
+      "violation_rate": 0.0
+    },
+    {
+      "feature": "dti",
       "direction": 1,
       "violation_rate": 0.0
     }
@@ -33,6 +43,6 @@
   },
   "config_path": "configs/pd_model.champion.yaml",
   "schema_version": "2026-03-30.1",
-  "generated_at_utc": "2026-03-30T19:29:20.795121+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T17:43:02.044285+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07"
 }

@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#" class="no-js">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta charset="utf-8" />
+<script type="text/javascript" language="Javascript">if(window.navigator){
+  var LegacyAndroid = false;
+  var ua = window.navigator.userAgent;
+  var androidversion = parseFloat(ua.slice(ua.indexOf("Android")+8));
+  if ((ua.indexOf("Android") >= 0 && androidversion <= 3) || (ua.match(/IEMobile/i) && (ua.match(/MSIE\s(?!9.0)/))) || (ua.indexOf("BlackBerry") >= 0 && ua.indexOf("WebKit") >= 0)){
+    LegacyAndroid = true;
+    $(".nav").addClass("nav-float");
+  }
+  na = navigator.appVersion;
+  ie87 = (na.indexOf("MSIE 8.0") !== -1) || (na.indexOf("MSIE 7.0") !== -1);
+  ie9 = (na.indexOf("MSIE 9.0") !== -1);
+  ie10 = (na.indexOf("IE10") !== -1) || (na.indexOf("MSIE 10") !== -1)|| (na.indexOf("rv:10.0") !== -1);
+  ie11 = (na.indexOf("IE11") !== -1) || (na.indexOf("MSIE 11") !== -1)|| (na.indexOf("rv:11.0") !== -1);
+  if (ie87) {
+    document.documentElement.className = document.documentElement.className + ' lt-ie9';
+  }
+  if (ie9) {
+    document.documentElement.className = document.documentElement.className + ' ie9';
+  }
+  if (ie10) {
+    document.documentElement.className = document.documentElement.className + ' ie10';
+  }
+  if (ie11){
+    document.documentElement.className = document.documentElement.className + ' ie-11';
+  }
+}
+function supportsSVG() {
+  return !! document.createElementNS && !! document.createElementNS('http://www.w3.org/2000/svg','svg').createSVGRect;
+}
+if (supportsSVG()) {
+  document.documentElement.className += ' svg ';
+} else {
+  document.documentElement.className += ' no-svg ';
+}
+if (ie10 === true){
+  flexFallBackClass();
+}
+var v = document.body || document.documentElement, v = v.style;
+((v.webkitFlexWrap === '' || v.msFlexWrap === '' || v.flexWrap === '' ) || flexFallBackClass());
+function flexFallBackClass(){
+  document.documentElement.className = document.documentElement.className+= ' no-flexbox';
+}
+</script>
+<meta name="apple-itunes-app" content="app-id=903872316" />
+<meta name="google-site-verification" content="PvKNukKN365X5jc0rtnYhBq0jjXYUbECacPbm-rpPyo" />
+<meta name="description" content="The authors find that machine learning methods can generate satisfactorily performing credit score models based on data from the 90-days prior to the score date" />
+<meta name="keywords" content="Credit scoring, Machine learning, Deep learning, Original research" />
+<meta name="msapplication-TileColor" content="#3b7c8e" />
+<meta name="msapplication-TileImage" content="https://assets.risk.net/assets_css/bb8_assets/prod/images/site_specific/risk/prod/favicons/mstile-144x144.png" />
+<link rel="canonical" href="https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" />
+<meta name="robots" content="noimageindex" />
+<link rel="shortlink" href="https://www.risk.net/node/7951416" />
+<meta itemprop="name" content="An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data - Risk.net" />
+<meta itemprop="description" content="The authors find that machine learning methods can generate satisfactorily performing credit score models based on data from the 90-days prior to the score date" />
+<link rel="original-source" href="https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" />
+<link rel="syndication-source" href="https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" />
+<link rel="image_src" href="https://www.risk.net/sites/default/files/styles/metatag_image/public/2020-07/JRMV-2DFLATCVR-616PIXELS.jpg.webp?h=5f578d2f&amp;itok=mLM0r628" />
+<meta itemprop="image" content="https://www.risk.net/sites/default/files/styles/metatag_image/public/2020-07/JRMV-2DFLATCVR-616PIXELS.jpg.webp?h=5f578d2f&amp;itok=mLM0r628" />
+<meta name="citation_title" content="An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data" />
+<meta name="citation_publication_date" content="2022/07/05" />
+<meta name="citation_journal_title" content="Journal of Risk Model Validation" />
+<meta name="citation_pdf_url" content="https://www.risk.net//media/download/1083481/download" />
+<meta name="citation_author" content="Lars Ole Hjelkrem" />
+<meta name="citation_author" content="Petter Eilif de Lange" />
+<meta name="citation_author" content="Erik Nesset" />
+<meta name="og:article:author" content="Lars Ole Hjelkrem, Petter Eilif de Lange, Erik Nesset" />
+<meta property="og:site_name" content="Risk.net" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" />
+<meta property="og:title" content="An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data - Journal of Risk Model Validation" />
+<meta property="og:description" content="The authors find that machine learning methods can generate satisfactorily performing credit score models based on data from the 90-days prior to the score date" />
+<meta property="og:image" content="https://www.risk.net/sites/default/files/styles/metatag_image/public/2020-07/JRMV-2DFLATCVR-616PIXELS.jpg.webp?h=5f578d2f&amp;itok=mLM0r628" />
+<meta property="og:image:url" content="https://www.risk.net/sites/default/files/styles/metatag_image/public/2020-07/JRMV-2DFLATCVR-616PIXELS.jpg.webp?h=5f578d2f&amp;itok=mLM0r628" />
+<meta property="og:image:width" content="378" />
+<meta property="og:image:height" content="234" />
+<meta property="article:published_time" content="2022-07-05T10:19:10+01:00" />
+<meta property="article:modified_time" content="2022-11-01T12:07:45+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:description" content="The authors find that machine learning methods can generate satisfactorily performing credit score models based on data from the 90-days prior to the score date" />
+<meta name="twitter:site" content="RiskNetNews" />
+<meta name="twitter:title" content="An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data - Journal of Risk Model Validation" />
+<meta name="twitter:domain" content="http://www.risk.net/" />
+<meta name="twitter:image" content="https://www.risk.net/sites/default/files/styles/metatag_image/public/2020-07/JRMV-2DFLATCVR-616PIXELS.jpg.webp?h=5f578d2f&amp;itok=mLM0r628" />
+<meta name="cXenseParse:iim-content-type" content="Journal" />
+<meta name="cXenseParse:iim-language" content="en" />
+<meta name="cXenseParse:iim-medium" content="technical" />
+<meta name="cXenseParse:iim-parentcategory" content="Journals" />
+<meta name="cXenseParse:iim-restriction" content="Default" />
+<meta name="cXenseParse:iim-type" content="Technical paper" />
+<meta name="cXenseParse:pageclass" content="article" />
+<meta name="cXenseParse:recs:articleid" content="7951416" />
+<meta name="cXenseParse:recs:iim-userfriendlytime" content="5 JUL 2022" />
+<meta name="cXenseParse:title" content="An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data" />
+<meta name="Generator" content="Drupal 11 (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "NewsArticle",
+            "headline": "An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data",
+            "name": "An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data",
+            "about": "Original research",
+            "datePublished": "2022-07-05T10:19:10+01:00",
+            "dateModified": "2022-11-01T12:07:45+00:00",
+            "hasPart": {
+                "@type": "WebPageElement",
+                "cssSelector": ".paywall_content"
+            },
+            "author": {
+                "@type": "Person",
+                "name": [
+                    "Lars Ole Hjelkrem",
+                    "Petter Eilif de Lange",
+                    "Erik Nesset"
+                ]
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "Risk.net",
+                "url": "https://www.risk.net/",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://www.risk.net/sites/default/files/styles/metatag_image/public/2017-03/risk%20brand%20logo%20grey_0.png.webp?h=796e638f\u0026itok=uxOrKTDz",
+                    "width": "378",
+                    "height": "234"
+                }
+            },
+            "mainEntityOfPage": "https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data"
+        }
+    ]
+}</script>
+<link rel="alternate" hreflang="en" href="https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" />
+<link rel="apple-touch-icon" href="//www.risk.net/sites/default/files/2017-01/apple-touch-icon.png" sizes="57x57" />
+<link rel="apple-touch-icon" href="//www.risk.net/sites/default/files/2017-01/apple-touch-icon-76x76.png" sizes="76x76" />
+<link rel="apple-touch-icon" href="//www.risk.net/sites/default/files/2017-01/apple-touch-icon-120x120.png" sizes="120x120" />
+<link rel="apple-touch-icon" href="//www.risk.net/sites/default/files/2017-01/apple-touch-icon-152x152.png" sizes="152x152" />
+<link rel="apple-touch-icon" href="//www.risk.net/sites/default/files/2017-01/apple-touch-icon-180x180.png" sizes="180x180" />
+<link rel="shortcut icon" href="/themes/incisive/images/favicons/risk_net.ico" type="image/x-icon" />
+
+    <title>An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data - Journal of Risk Model Validation</title>
+    <link rel="stylesheet" media="all" href="/sites/default/files/css/css_YGiqtnnDbKaQlH9V0QBnHOy_pw9BZOqTjontb0M2hkM.css?delta=0&amp;language=en&amp;theme=incisive&amp;include=eJxFi1EKgCAQBS8keabNXrKR7uKzyNv3EeTfzMAka4hbu1zORQ55gtak1BtxFWJasuJWUTtnKyAlg4GDHeU7-nDLTfcRf3oBqNsnWw" />
+<link rel="stylesheet" media="all" href="/sites/default/files/css/css_nkXt3j5rWordmdsRU2GBGsTRYvW4lT0-2lmaY8JfXVY.css?delta=1&amp;language=en&amp;theme=incisive&amp;include=eJxFi1EKgCAQBS8keabNXrKR7uKzyNv3EeTfzMAka4hbu1zORQ55gtak1BtxFWJasuJWUTtnKyAlg4GDHeU7-nDLTfcRf3oBqNsnWw" />
+<link rel="stylesheet" media="all" href="//assets.risk.net/assets_css/bb8_assets/prod/styles/site_specific/risk/prod/styles.css" />
+<link rel="stylesheet" media="all" href="/sites/default/files/css/css_yONQR8GDtqW0uvgNJJSv6aajY-7sMF1L4RWYfqmtnbU.css?delta=3&amp;language=en&amp;theme=incisive&amp;include=eJxFi1EKgCAQBS8keabNXrKR7uKzyNv3EeTfzMAka4hbu1zORQ55gtak1BtxFWJasuJWUTtnKyAlg4GDHeU7-nDLTfcRf3oBqNsnWw" />
+
+    <script type="application/json" data-drupal-selector="drupal-settings-json">{"path":{"baseUrl":"\/","pathPrefix":"","currentPath":"node\/7951416","currentPathIsAdmin":false,"isFront":false,"currentLanguage":"en"},"pluralDelimiter":"\u0003","suppressDeprecationErrors":true,"ajaxPageState":{"libraries":"eJxNjmsOhDAIhC-ky5Ea1mIX00JTWo23X19R_wDzDZBh7zx7TQxn6zi5QVNSgXv6jBGDM5zpcM0cy0RD1QKb2NmoMeoCKCpr0mYX2K2AJcNe3I_QU9lZ5m0TjtpPxwMjLMMPzpVLdSwDG88EXzR61BYqq5BUe9ikrQjGns0avXhECQ0DOfJcWcXZwvX9OpHZ5r9OsuaW-4s_-MzUj1pSZ6tVSmesumYNhccV7ukPlYaFZw","theme":"incisive","theme_token":null},"ajaxTrustedUrl":{"\/search\/articles":true},"idDidomi":{"publicAPIKey":"92502d09-0e0f-4b5a-8590-cad06e72159e"},"hubspot":{"newsletter_form_url":"\/newsletters"},"language_switcher_paths":{"en":"\/journal-of-risk-model-validation\/7951416\/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data","ja":"\/ja"},"language_switcher_info":{"current_langcode":"en","home_urls":{"en":"\/","ja":"\/ja"}},"siteName":"Risk.net","imPiano":{"pianoApplicationId":"Nu0yK5Trpe","pianoJavascriptUrl":"\/\/experience-eu.piano.io","pianoTermIdForNewUser":null,"productsPriority":{"RISKDATAFILE":"17","CRONETWORK":"16","RISKDATA":"16","RISKPREMIUM":"15","RISKBUSINESS":"14","RISKACADEMIC":"13","RISKGARPARCHIVE":"12","RISKGARP":"12","RISKJOURNALS":"11","RISKJOURNALSJRMV":"10","RISKJOURNALSJOIS":"10","RISKJOURNALSJEM":"10","RISKJOURNALSJOOR":"10","RISKJOURNALSJCR":"10","RISKJOURNALSJOR":"10","RISKJOURNALSJCF":"10","RISKJOURNALSJFMI":"10","RISKDATADEMO":"7","RISKDATATRIAL":"7","RISKPREMIUMTRIAL":"6","RISKBUSINESSTRIAL":"5","RISKMEMBER":"1"}},"universal_variable":{"article":{"id":"7951416","content_type":"journal","barrier":true,"published_date":{"timestamp":1657009150,"datetime":"2022-07-05T09:19:10"},"authored_by":["thomas.paine@infopro-digital.com"],"journal_title":"An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data","rabbit_hole_action":"bundle_default","rabbit_hole_redirect_response_code":"301","rabbit_hole_redirect_fallback_action":"bundle_default","appendix_1":["Appendix to An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data"],"doi_number":"10.21314\/JRMV.2022.018","download_url":["An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data"],"link_count":"63","main_image":["JoRMV Journal Cover Image Timeless"],"primary_medium":"technical","restriction_type":"default","source":["Journal of Risk Model Validation"],"topics":["Credit scoring","Machine learning","Deep learning"],"journal_type":"Technical paper","word_count":"8655","token_active":false,"unlocking_products":{"217":"Risk Front Office + Flat File Access","196":"Risk.net Front Office","218":"CRO Network","101":"Risk.net Risk Management","156":"Risk.net Academic","181":"GARP-Risk.net Content Hub Archive Product","91":"Risk.net Journals","206":"Risk.net Front Office Trial","106":"Risk.net Risk Management Trial","216":"Risk Member Welcome","166":"Risk.net Books \u0026  Journals"},"piano_resource_ids":["RISKDATAFILE","RISKDATA","CRONETWORK","RISKPREMIUM","RISKACADEMIC","RISKGARPARCHIVE","RISKJOURNALS","RISKDATATRIAL","RISKPREMIUMTRIAL","RISKMEMBERWELCOME","RISKACADEMIC"],"unlocking_criterias":["126"],"category":[["Journals","Original research"]],"author":[{"name":"Lars Ole Hjelkrem","machinename":"lars-ole-hjelkrem"},{"name":"Petter Eilif de Lange","machinename":"petter-eilif-de-lange"},{"name":"Erik Nesset","machinename":"erik-nesset"}],"image_url":"https:\/\/www.risk.net\/sites\/default\/files\/2020-07\/JRMV-2DFLATCVR-616PIXELS.jpg","followable":["Machine learning"],"super_topics":{"1188696":"ML and AI"}},"page_type":"article","environment":"prod","site":"risk.net","following":[],"language_code":"en"},"csp":{"nonce":"0Gqochaybg9T5C1up3aJ7A"},"user":{"uid":0,"permissionsHash":"372da2a2e1da47d65eb8271aebfc6330b669aea5f0a04b17f4ea47aa4fe61a24"}}</script>
+<script src="/sites/default/files/js/js_436JtQNLguSjrdAaMX2JDbBNV1_r2NIG1DCXxdvhJ_k.js?scope=header&amp;delta=0&amp;language=en&amp;theme=incisive&amp;include=eJxNjeEOgzAIhF_IjkdqmMWKKaUpVrO3n51G9-fgvrsABx84qDCcY2Dxo4pohnt7TQmjN9yop5OmpDtg1vwRbXaBHkWsBbr4mTBQ7azw0YSfusU6McI6znBWLjdwHtl4I3ij0eMWbTVjcmzWyB6eMMeGkTwFXlmzt53X_zNFSytOyOxoPfj85iat8gXYl2Gw"></script>
+<script src="/modules/custom/id_didomi/js/didomi.js?tfdcp2" async></script>
+
+    <script>
+      (function(H){H.className=H.className.replace(/\bno-js\b/,'')})(document.documentElement);
+      !function(){"use strict";function e(e,t,s){e.addEventListener?e.addEventListener(t,s,!1):e.attachEvent&&e
+        .attachEvent("on"+t,s)}function t(e){return window.localStorage&&localStorage.font_css_cache&&localStorage.font_css_cache_file===e}function s(){if(window.localStorage&&window.XMLHttpRequest)if(t(n))c(localStorage.font_css_cache);else{var e=new XMLHttpRequest;e.open("GET",n,!0),e.onreadystatechange=function(){4===e.readyState&&200===e.status&&(c(e.responseText),localStorage.font_css_cache=e.responseText,localStorage.font_css_cache_file=n)},e.send()}else{var s=document.createElement("link");s.href=n,s.rel="stylesheet",s.type="text/css",document.getElementsByTagName("head")[0].appendChild(s),document.cookie="font_css_cache"}}function c(e){var t=document.createElement("style");t.setAttribute("type","text/css"),document.getElementsByTagName("head")[0].appendChild(t),t.styleSheet?t.styleSheet.cssText=e:t.innerHTML=e}var n="//assets.infopro-insight.com/assets_css/bb8_assets/prod/styles/global/fonts/fonts.css";window.localStorage&&localStorage.font_css_cache||document.cookie.indexOf("font_css_cache")>-1?s():e(window,"load",s)}();
+    </script>
+  </head>
+  <body class="barrier journal journals journals-article journal-of-risk-model-validation">
+    <a class="skip-nav-link" href="#main-content">Skip to main content</a>
+
+      <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+    <div id="rdm-overlay" class="ad-slot-overlay"></div>
+<div id="rdm-wallpaper" class="ad-slot-wallpaper"></div>
+<div class="container">
+  <aside class="content">
+    <div class="content-inner content-full-width">
+      <div class="main-content">
+          <div id="rdm-above-header" class="ad-slot-full"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- navigation drawer start -->
+<nav id="navigation-drawer" class="navigation-drawer" aria-label="Drawer navigation" role="navigation" aria-hidden="false">
+  <div class="close-search-panel">
+    <a href="#" class="nav-toggle active" type="button" aria-controls="navigation-drawer" aria-label="Close drawer menu" aria-expanded="true" title="Close drawer menu" tabindex="0">
+      <span></span>
+    </a>
+  </div>
+  <div class="branding-holder">
+    <a href="/" class="navigation-drawer-branding-link" alt=Risk.net>
+      <span itemprop="name" class="screen-reader-text">Risk.net</span>
+    </a>
+  </div>
+  <div class="navigation-drawer-inner">
+    <div class="search-3 header-search-holder blur">
+  <form block="block-headermobilesearch-2" action="/search/articles" method="get" id="im-search-header-mobile-form" accept-charset="UTF-8">
+  <input class="submit_style button js-form-submit form-submit" data-drupal-selector="edit-search-submit" type="submit" id="edit-search-submit" value="" />
+<span><input placeholder="Search here..." class="search-head-input form-search" autocomplete="off" data-drupal-selector="edit-query" type="search" id="edit-query" name="query" value="" size="60" maxlength="128" />
+
+</span><span class="visually-hidden"><input data-drupal-selector="edit-header-search" type="text" id="edit-header-search" name="header_search" value="true" size="60" maxlength="128" class="form-text" />
+
+</span>
+</form>
+
+</div>
+
+<ul class="main-top-content main-top-menu">
+
+    <li  class="main-top-title main-top-user my-edition" id="edition">
+                      <a href="/" data-drupal-link-system-path="<front>" aria-expanded="false">English</a>
+
+
+      <ul class="header-tools-content" aria-hidden="true">
+        <li>
+          <ul class="user-menu">
+                          <li>
+                <a href="/ja"
+                   title="日本語"
+                   class="menu-link-content1b59f746-3e98-4f54-9dbf-000c9805b298-edition-link">
+                  日本語
+                </a>
+              </li>
+                      </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<ul class="drawer-nav-ul">
+  <li >
+    <div class="drawer-menu-title">
+      <h5>All sections</h5>
+    </div>
+  </li>
+
+
+      <li>
+
+      <div class="drawer-menu-title"><a href="https://www.risk.net/latest">Latest</a></div>
+
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Desks" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Desks</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="/risk-management" data-drupal-link-system-path="node/7956226">Risk management</a></li>
+                      <li   class="sub-menu-content"><a href="/markets" data-drupal-link-system-path="node/7956228">Markets</a></li>
+                      <li   class="sub-menu-content"><a href="/regulation" data-drupal-link-system-path="node/7956225">Regulation</a></li>
+                      <li   class="sub-menu-content"><a href="/investing" data-drupal-link-system-path="node/7956227">Investing</a></li>
+                      <li   class="sub-menu-content"><a href="/riskquantum" data-drupal-link-system-path="node/7957381">Risk Quantum</a></li>
+                      <li   class="sub-menu-content"><a href="/cuttingedge" data-drupal-link-system-path="node/7958597">Cutting Edge</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Risk Data" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Risk Data</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="section-subheading sub-menu-content"><a href="/counterparty-radar" class="section-subheading" data-drupal-link-system-path="node/7958535">Counterparty Radar</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/credit-default-swap" data-drupal-link-system-path="node/7868016">Credit: Index CDS</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/credit-default-swap-single" data-drupal-link-system-path="node/7868021">Credit: Single-name CDS</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/credit-options" data-drupal-link-system-path="node/7942131">Credit: Credit options</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/equity-index" data-drupal-link-system-path="node/7906361">Equity: Index stock options</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/equity" data-drupal-link-system-path="node/7906366">Equity: Single-stock options</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/fx-forwards" data-drupal-link-system-path="node/7868011">Foreign exchange: FX forwards</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/fx-options" data-drupal-link-system-path="node/7868001">Foreign exchange: FX options</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/inflation-swaps" data-drupal-link-system-path="node/7868031">Rates: Inflation swaps</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/interest-rate-swaps" data-drupal-link-system-path="node/7868026">Rates: Interest rate swaps</a></li>
+                      <li   class="sub-menu-content"><a href="/crs/swaptions" data-drupal-link-system-path="node/7947261">Rates: Interest rate swaptions</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/crs/repo">Repo</a></li>
+                      <li   class="section-subheading sub-menu-content"><a href="/riskquantum" class="section-subheading" data-drupal-link-system-path="node/7957381">Risk Quantum</a></li>
+                      <li   class="sub-menu-content"><a href="/riskquantum-database" data-drupal-link-system-path="node/7959096">Risk Quantum database</a></li>
+                      <li   class="section-subheading sub-menu-content"><a href="/topics/risk-scenarios" class="section-subheading" data-drupal-link-system-path="taxonomy/term/265931">Risk Scenarios</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/risk-management/7948611/inflation-scenarios-pt-ii-end-of-the-party">Inflation scenarios (May 22)</a></li>
+                      <li   class="sub-menu-content"><a href="/risk-management/7893436/climate-scenarios-carbon-price-shock-sees-asset-prices-slump" data-drupal-link-system-path="node/7893436">Climate scenarios</a></li>
+                      <li   class="sub-menu-content"><a href="/risk-management/7889376/inflation-scenarios-tail-risks-loom-for-us-equities" data-drupal-link-system-path="node/7889376">Inflation scenarios (Oct 21)</a></li>
+                      <li   class="sub-menu-content"><a href="/risk-management/7701701/us-election-scenarios-meltdown-fears-if-poll-contested" data-drupal-link-system-path="node/7701701">US election scenarios</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Editors&#039; choice" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Editors&#039; choice</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/regulation/7963278/us-blows-the-floors-off-basel-iii">US blows the floors off Basel III</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/benchmarking/7963204/top-10-operational-risks-for-2026">Top 10 operational risks for 2026</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/risk-management/7963299/deutsche-bank-cro%E2%80%99s-year-of-living-dangerously">Deutsche Bank CRO’s year of living dangerously</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/risk-management/7963313/model-risk-in-the-age-of-generative-ai">Model risk in the age of generative AI</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/our-take/7963230/the-loneliness-of-the-model-risk-manager">The loneliness of the model risk manager</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Top stories by region" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Top stories by region</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="/regions/asia" data-drupal-link-system-path="node/7958734">Asia Pacific</a></li>
+                      <li   class="sub-menu-content"><a href="/regions/europe" data-drupal-link-system-path="taxonomy/term/251786">Europe</a></li>
+                      <li   class="sub-menu-content"><a href="/regions/north-america" data-drupal-link-system-path="taxonomy/term/257051">North America</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/us-banking">US Banking</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Special features" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Special features</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/risk-management/7961268/top-10-operational-risks-for-2025?ref=header-search">Top 10 Op Risks 2025</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/op-risk-benchmarking">Op Risk Benchmarking</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/quantitative-finance/7962681/quant-finance-master%E2%80%99s-guide-2026">Quant Finance Master&#039;s Guide 2026</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/talking-heads">Talking Heads</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/investing/7962891/risknet%E2%80%99s-top-10-investment-risks-for-2026">Top 10 Investment Risks 2026</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.risk.net/topics/counterparty-radar-dealer-rankings">Dealer Rankings</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Awards" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Awards</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="/risk-awards-winners" data-drupal-link-system-path="node/7958354">Risk Awards</a></li>
+                      <li   class="sub-menu-content"><a href="/asia-risk-awards-winners" data-drupal-link-system-path="node/7958345">Asia Risk Awards</a></li>
+                      <li   class="sub-menu-content"><a href="/risk-markets-technology-awards-winners" data-drupal-link-system-path="node/7958358">Markets Tech Awards</a></li>
+                      <li   class="sub-menu-content"><a href="/risk-technology-awards-winners" target="_blank" data-drupal-link-system-path="node/7958359">Risk Tech Awards</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Upcoming events" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Upcoming events</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="/events" data-drupal-link-system-path="node/7958794">Conferences</a></li>
+                      <li   class="sub-menu-content"><a href="/learning" data-drupal-link-system-path="node/7957539">Training</a></li>
+                      <li   class="sub-menu-content"><a href="/webinars" data-drupal-link-system-path="webinars">Webinars</a></li>
+                  </ul>
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Risk Learning" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Risk Learning</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="/learning" data-drupal-link-system-path="node/7957539">Public courses</a></li>
+                      <li   class="sub-menu-content"><a href="/books" data-drupal-link-system-path="books">Books</a></li>
+                      <li   class="sub-menu-content"><a href="/journals" data-drupal-link-system-path="journals">Journals</a></li>
+                  </ul>
+          </li>
+          <li>
+
+      <div class="drawer-menu-title"><a href="/resources" data-drupal-link-system-path="node/7960732">White papers and resources</a></div>
+
+          </li>
+          <li>
+
+      <div class="drawer-menu-title"><a href="https://www.risk.net/commercial" target="_blank">Marketing services</a></div>
+
+          </li>
+          <li>
+              <button class="sprite down drawer-menu-accordion" aria-label="Our digital network" aria-controls="drawer-menu-child-1" aria-expanded="true"></button>
+
+      <div class="drawer-menu-title"><a href="">Our digital network</a></div>
+
+              <ul class="drawer-nav-content" aria-hidden="true" id=drawer-menu-child-1>
+                      <li   class="sub-menu-content"><a href="https://www.centralbanking.com" target="_blank">Central Banking</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.fx-markets.com" target="_blank">FX Markets</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.waterstechnology.com" target="_blank">WatersTechnology</a></li>
+                      <li   class="sub-menu-content"><a href="https://www.chartis-research.com" target="_blank">Chartis Research</a></li>
+                  </ul>
+          </li>
+          <li>
+
+      <div class="drawer-menu-title"><a href="https://www.risk.net/glossary">Glossary</a></div>
+
+          </li>
+      </ul>
+
+<section class="menu-sidebar-inner">
+
+
+              <ul class="sidebar-list">
+              <li class="section-subheading">
+        <a href="" class="section-subheading">Access and account options</a>
+              </li>
+          <li id="login_drawer">
+        <a href="/user/login" data-drupal-link-system-path="user/login">Sign in</a>
+              </li>
+          <li id="newsletters_drawer">
+        <a href="/newsletters" data-drupal-link-system-path="d0df9e441519db48b1706cbc822a77b57cfedd88">Newsletters</a>
+              </li>
+          <li id="trialLink_drawer">
+        <a href="/form/membership">Register</a>
+              </li>
+          <li id="subscribeLink_drawer">
+        <a href="/subscriptions/subscribe" target="_blank" data-drupal-link-system-path="node/7961888">Subscriptions</a>
+              </li>
+          <li id="licenseFinder">
+        <a href="/license-finder" data-drupal-link-system-path="node/7954764">Corporate license finder</a>
+              </li>
+          <li id="apps_drawer">
+        <a href="https://subscriptions.risk.net/apps" target="_blank">Apps</a>
+              </li>
+          <li id="helpcentre_drawer">
+        <a href="https://subscriptions.risk.net/help-centre" target="_blank">Help centre</a>
+              </li>
+        </ul>
+
+
+</section>
+
+    <span class="screen-reader-text" tabindex="0">End of drawer navigation content</span>
+  </div>
+</nav>
+<!-- navigation drawer end -->
+
+  <header role="banner" class="main-head">
+    <div class="main-head-content content-width">
+              <div class="main-header-block-a"><div class="main-menu-holder">
+  <div class="main-top-title menu">
+    <a href="#" class="nav-toggle" aria-label="Menu" aria-controls="navigation-drawer" aria-expanded="false" title="Open side navigation menu">
+      <span></span>
+    </a>
+  </div>
+</div>
+  <div class="search-1 header-search-holder blur">
+    <a class="header-search-button" href="/search/articles"
+       id="search-popup" aria-haspopup="dialog" aria-expanded="false" title="Open search popup">
+      Search
+    </a>
+  </div>
+
+</div>
+            <div class="site-header">
+<div class="site-logo-holder" itemtype="//schema.org/Organization">
+  <div itemprop="name" class="screen-reader-text">Risk.net</div>
+  <a class="site-logo" title="Return to homepage" href="https://www.risk.net/">
+    <img class="sprite" alt="Risk.net" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+  </a>
+</div>
+
+</div>
+            <div class="main-header-block-b">
+
+<ul class="main-top-content main-top-menu">
+              <li  class="main-top-title main-top-user my-edition" id="edition">
+                      <a href="/" data-drupal-link-system-path="<front>" aria-expanded="false">English</a>
+
+
+                    <ul class="header-tools-content" aria-hidden="true">
+    <li>
+      <ul class="user-menu">
+                  <li>
+            <a href="/ja"
+               title="日本語"
+               class="menu-link-content7b34f98d-7344-4dc5-a86f-2d340f863f59-edition-link">
+              日本語
+            </a>
+          </li>
+              </ul>
+    </li>
+  </ul>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-trial" id="trial">
+                    <a href="/form/registration?tc=register-button-top-right" data-drupal-link-query="{&quot;tc&quot;:&quot;register-button-top-right&quot;}" data-drupal-link-system-path="webform/membership">Register</a>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-register" id="subscribe">
+                    <a href="/subscriptions/subscribe" data-drupal-link-system-path="node/7961888">Subscribe</a>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-login" id="login">
+                    <a href="/user/login" rel="nofollow" data-drupal-link-system-path="user/login">Sign in</a>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-user" id="account">
+                    <a href="/" data-drupal-link-system-path="&lt;front&gt;">My account</a>
+
+                    <ul class="header-tools-content">
+    <li>
+      <ul class="user-menu">
+                  <li>
+            <a href="/newsletters" title="Newsletters" class="newsletters-user-link">Newsletters</a>
+          </li>
+                  <li>
+            <a href="/apps" title="Apps" class="apps-user-link">Apps</a>
+          </li>
+                  <li>
+            <a href="https://subscriptions.risk.net/help-centre" title="Help Centre" class="contact-user-link">Help Centre</a>
+          </li>
+              </ul>
+    </li>
+  </ul>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-user main-top-institution" id="login_ip">
+                    <a href="/" data-drupal-link-system-path="&lt;front&gt;">Welcome</a>
+
+                    <ul class="header-tools-content institutional">
+    <li>
+      <div class="corporate-menu-information">
+        	<p class="corporate-menu-information-introduction">You are currently accessing Risk.net via your Enterprise account.</p>
+									<p>If you already have an account please use the link below to <a href="/user/login" title="Sign in">sign in</a>.</p>
+									<p>If you have any problems with your access or would like to request an individual access account please contact our customer service team.</p>
+									<p>Phone: <a href="tel:+44(0)8702408859">1+44 (0)870 240 8859</a></p>
+									<p>Email: <a href="mailto:csqueries@infopro-digital.com">csqueries@infopro-digital.com</a></p>
+      </div>
+      <ul class="user-menu">
+        <li>
+          <a href="/user/login" title="Sign in" class="sign-in-user-link" data-drupal-link-system-path="user/login">Sign in</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+    </li>
+              <li  class="main-top-title main-top-user main-top-openathens" id="login_oa">
+                    <a href="/" data-drupal-link-system-path="&lt;front&gt;">Welcome</a>
+
+                    <ul class="header-tools-content openathens">
+    <li>
+      <div class="oa-menu-information">
+        <p class="corporate-menu-information-introduction">You are currently accessing Risk.net via your institutional login.</p>
+<p>If you already have an account please use the link below to <a href="https://www.risk.net/userlogin" title="&quot;Sign">sign in</a>.</p>
+<p>If you have any problems with your access, contact our customer services team.</p>
+<p>Phone: <a href="tel:+44 20 7316 9685">+44 20 7316 9685</a></p>
+<p>Email: <a href="mailto:csqueries@infopro-digital.com">csqueries@infopro-digital.com</a></p>
+      </div>
+      <ul class="user-menu">
+        <li>
+          <a href="/user/login" title="Sign in" class="sign-in-user-link" data-drupal-link-system-path="user/login">Sign in</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+    </li>
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    </div>
+      </header>
+      <nav class="nav ">
+
+<div class="holder">
+  <header role="banner" class="mobile-main-header-holder">
+    <div class="mobile-main-header menu">
+      <a href="#" class="nav-toggle" aria-label="Menu mobile" aria-controls="navigation-drawer" aria-expanded="false" title="Open side navigation menu mobile">
+        <span></span>
+      </a>
+    </div>
+    <div class="mobile-main-header mobile-branding">
+              <a href="https://www.risk.net/" class="mobile-branding-link" alt="Risk.net"></a>
+          </div>
+    <div class="mobile-main-header login">
+      <button class="clicker4" type="button" aria-label="Login" title="Login"></button>
+    </div>
+  </header>
+  <nav class="primary-nav nav-colour01 init" role="navigation" aria-label="Primary navigation">
+    <div class="nav-branding"></div>
+
+<!-- main-menu start-->
+<ul class="main-menu main-top-content content-width">
+      <li  class="home menu-title">
+      <a href="/" data-drupal-link-system-path="&lt;front&gt;">Home</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/risk-management" data-drupal-link-system-path="node/7956226">Risk management</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/markets" data-drupal-link-system-path="node/7956228">Markets</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/regulation" data-drupal-link-system-path="node/7956225">Regulation</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/investing" data-drupal-link-system-path="node/7956227">Investing</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/cuttingedge" data-drupal-link-system-path="node/7958597">Cutting Edge</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/riskquantum" data-drupal-link-system-path="node/7957381">Quantum</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/counterparty-radar" data-drupal-link-system-path="node/7958535">Counterparty Radar</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/benchmarking" data-drupal-link-system-path="node/7962097">Benchmarking</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/insights" data-drupal-link-system-path="node/7960722">Insights</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/books" data-drupal-link-system-path="books">Books</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/journals" data-drupal-link-system-path="journals">Journals</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/learning" data-drupal-link-system-path="node/7957539">Learning</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/events" data-drupal-link-system-path="node/7958794">Events</a>
+
+          </li>
+      <li  class="menu-title">
+      <a href="/awards" data-drupal-link-system-path="node/7958408">Awards</a>
+
+          </li>
+
+      <li class="menu-title search-menu">
+      <ul class="menu-content search-panel-content">
+        <li>
+          <div class="main-sub-menu content-width panel-search">
+            <button type="button" class="close-search-panel" aria-label="Close search"></button>
+            <form class="im-search-header-form main-search-form" data-drupal-selector="im-search-header-form" novalidate="novalidate" action="/search/articles" method="get" id="im-search-header-form" accept-charset="UTF-8">
+  <input class="loop button js-form-submit form-submit" aria-label="Search" data-drupal-selector="edit-search-loop" type="submit" id="edit-search-loop" value="" />
+<span class="loading show" role="status" aria-live="polite" aria-hidden="true"><span class="visually-hidden">Searching</span></span><span id="search-panel-input" class="search-icon">  <label for="edit-query" class="visually-hidden">Search the site</label>
+<input placeholder="What are you searching for?" class="search-head-input form-search" autocomplete="off" data-drupal-selector="edit-query" type="search" id="edit-query" name="query" value="" size="60" maxlength="128" />
+
+</span><span class="visually-hidden"><input tabindex="-1" aria-hidden="true" data-drupal-selector="edit-header-search" type="text" id="edit-header-search" name="header_search" value="true" size="60" maxlength="128" class="form-text" />
+
+</span><input class="search-submit button js-form-submit form-submit" data-drupal-selector="edit-search-submit" type="submit" id="edit-search-submit" value="Search" />
+<span class="search-submit-loading show"></span>
+</form>
+
+          </div>
+          <div class="section group content">
+            <div class="col span_3_of_5 menu-contents search-panel-sections hide-element" id="search-panel-sections">
+              <div id="sections-content-holder">
+                <div class="search-panel-subheading">Latest articles</div>
+                <div id="sections-content"></div>
+              </div>
+            </div>
+            <div class="col span_2_of_5 menu-contents search-panel-topics hide-element" id="search-panel-topics">
+              <div id="topics-content-holder">
+                <div class="search-panel-subheading">Topics</div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </li>
+
+      <li class="menu-title main-nav-more">
+      <button id="main-nav-toggle-menu" type="button" aria-haspopup="navigation" aria-expanded="false">
+        <span></span>
+        <div class="nav-toggle-text">More</div>
+        <div class="nav-toggle-text active">Less</div>
+      </button>
+      <div class="main-nav-overflow-holder" role="navigation">
+        <ul id="main-nav-overflow" class="menu-content" role="menu" aria-labelledby="main-nav-toggle-menu" aria-hidden="true">
+        </ul>
+      </div>
+    </li>
+  </ul>
+<!-- main-menu end-->
+
+
+
+
+
+      </nav>
+</div>
+
+
+    </nav>
+
+  <aside class="message">
+    <div id="rdm-message-content"></div>
+  </aside>
+
+  <div class="wallpaper-wrapper">
+    <div class="wallpaper-left" id="rdm-wallpaper-left"></div>
+    <div class="wallpaper-right" id="rdm-wallpaper-right"></div>
+
+    <aside class="content">
+    <div class="content-inner content-full-width">
+      <div class="main-content">
+        <div id="rdm-below-header" class="ad-slot-full"></div>
+      </div>
+    </div>
+    </aside>
+
+    <aside class="content">
+      <div class="content-inner content-full-width">
+        <div class="main-content">
+          <div id="rdm-above-page-content" class="ad-slot-full"></div>
+        </div>
+      </div>
+    </aside>
+    <div id="main-content">
+  <div data-drupal-messages-fallback class="hidden"></div>
+    <div class="block-region-main">
+
+<div class="page-content">
+  <!-- Journal header: start -->
+  <div class="content">
+    <div class="content-inner content-full-width">
+      <section class="journal-header">
+
+  <h1><a href="/journal-of-risk-model-validation" title="Journal of Risk Model Validation">Journal of Risk Model Validation</a></h1>
+
+      <div class="journal-issn-links">
+      <p><strong>ISSN:</strong></p>
+
+
+      <p class="journal-issn-online">1753-9587 (online)</p>
+
+      </div>
+        <div class="journal-issn-links">
+      <p class="journal-chief-editor"><strong>Editor-in-chief:</strong> Steve Satchell</p>
+    </div>
+        <div class="journal-issn-links">
+      <p class="journal-impact-rating"><strong>Impact Factor:</strong> 0.6</p>
+    </div>
+        <div class="journal-issn-links">
+      <p class="journal-impact-rating"><strong>First Published: </strong>March 2007</p>
+    </div>
+  </section>
+
+    </div>
+  </div>
+  <!-- Journal header: end -->
+
+  <header class="article-header">
+    <div class="content">
+      <div class="content-inner">
+        <div class="main-content">
+          <div class="section group">
+            <div class="col span_1_of_5">
+              <!-- Print logo: start -->
+                <!-- Need to decide what to do with this - logo added for printing only - source path needs to be changed per site -->
+  <img class="print-branding" src="https://www.risk.net/sites/default/files/styles/print_logo/public/2018-09/print-logo.png?itok=1TpHrpuP" alt="Risk.net">
+              <!-- Print logo: end -->
+              <!-- Issue detail: start -->
+                <nav>
+    <ul class="meta-taxonomy-list breadcrumb">
+              <li class="meta-issue">
+      <a class="journal-issue-link" href="/journal-of-risk-model-validation/volume-16-number-2-june-2022">Volume 16, Number 2 (June 2022)</a>
+    </li>
+
+
+
+              <li class="meta-reference">
+          <p class="meta-header">DOI: </p>
+          <p><a href="//doi.org/10.21314/JRMV.2022.018">10.21314/JRMV.2022.018</a></p>
+        </li>
+
+              <li class="meta-publish-date">
+          <p class="meta-header">First published: </p>  <time datetime="2022-07-05" itemprop="datePublished">05 July 2022</time>
+</li>
+          </ul>
+  </nav>
+
+              <!-- Issue detail: end -->
+            </div>
+            <div class="col span_4_of_5">
+              <h1 itemprop="name" class="article-title">
+                An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data
+              </h1>
+              <!-- Author labels: start --><h2 class="article-sub-title">
+                <p>
+
+
+
+
+
+                Lars Ole Hjelkrem,
+
+
+
+
+
+
+                Petter Eilif de Lange and
+
+
+
+
+
+
+                Erik Nesset
+
+
+
+
+                </p>
+              </h2>
+              <!-- Author labels: end -->
+            </div>
+          </div>
+        </div><!--  end main-content -->
+      </div><!-- content-inner end  -->
+    </div><!-- content end -->
+  </header>
+  <div class="content">
+    <main class="content-inner" role="main">
+      <div class="main-content">
+        <article class="section group article">
+          <div class="col span_1_of_5"></div>
+          <div class="col span_4_of_5 article-col">
+            <div class="article-meta-container group">
+              <div class="tools-meta-outer">
+
+<ul class="tools-container">
+  <li>
+    <div title="Tweet" class="article-tools twitter-icon icons pos1" data-social-tracking="added">
+      <a href="//twitter.com/share?text=An%20end-to-end%20deep%20learning%20approach%20to%20credit%20scoring%20using%20CNN%20%2B%20XGBoost%20on%20transaction%20data&amp;url=https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" rel="nofollow" target="_blank">
+        <span class="visually-hidden">Tweet</span>
+      </a>
+    </div>
+  </li>
+  <li>
+    <div title="Facebook" class="article-tools facebook-icon icons pos2" data-social-tracking="added">
+      <a href="//www.facebook.com/sharer.php?u=https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data" rel="nofollow" target="_blank">
+        <span class="visually-hidden">Facebook</span>
+      </a>
+    </div>
+  </li>
+  <li>
+    <div title="LinkedIn" class="article-tools linkedin-icon icons pos3" data-social-tracking="added">
+      <a href="//www.linkedin.com/shareArticle?mini=true&amp;url=https://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data&amp;title=An%20end-to-end%20deep%20learning%20approach%20to%20credit%20scoring%20using%20CNN%20%2B%20XGBoost%20on%20transaction%20data" rel="nofollow" target="_blank">
+        <span class="visually-hidden">LinkedIn</span>
+      </a>
+    </div>
+  </li>
+  <li>
+          <div title="Save article" class="article-sticky-tools save-icon icons pos5">
+        <a href="#" onclick="openUserMsg();return false;">
+          <span class="visually-hidden">Save this article</span>
+        </a>
+      </div>
+      </li>
+  <li>
+    <div title="Send to" class="article-tools email-icon icons pos6" data-social-tracking="added">
+      <a target="_blank" rel="nofollow" href="mailto:?subject=An end-to-end deep learning approach to credit scoring using CNN + XGBoost on transaction data&amp;body=%0D%0A%0D%0Ahttps://www.risk.net/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data">
+        <span class="visually-hidden">Send to</span>
+      </a>
+    </div>
+  </li>
+  <li class="article-tool-print">
+    <div title="Print" class="article-tools print-icon icons" data-social-tracking="added">
+      <a onclick="window.print();return false" href="#">
+        <span class="visually-hidden">Print this page</span>
+      </a>
+    </div>
+  </li>
+</ul>
+              </div><!-- tools-meta-outer end -->
+            </div>
+
+                        <div class="article-anchor-links">
+              <header class="component-header">
+                <h4 itemprop="name">
+                  <div class="section-title-link">Need to know</div>
+                </h4>
+              </header>
+              <ul>
+	<li>Open Banking <span class="caps">API</span>s can prove to be an important data source for banks when assessing the creditworthiness of potential customers using application credit score models and have the potential to increase the profitability of banks when recruiting new customers.</li>
+	<li>We find that traditional regression models perform poorly, while machine learning methods can generate credit score models with satisfactory performance based on transaction data solely from the last 90-days before the score date.</li>
+	<li>The best-performing machine learning models are based on an end-to-end deep learning approach, where the machine learning algorithms create the explanatory variables based on non-aggregated data.</li>
+	<li>This result is in accordance with experiments in other scientific fields where deep learning has replaced shallow learning as state-of-the- art.</li>
+</ul>
+            </div>
+
+            <div class="article-page-body-content">
+                            <div class="journal-page-abstract">
+                <header class="component-header">
+                  <h4 itemprop="name">
+                    <div class="section-title-link">Abstract</div>
+                  </h4>
+                </header>
+                <p>The performance of credit scoring models is closely linked to a bank’s profitability. Application scoring models for potential customers usually perform worse than models for existing customers. This is due to the lender not having access to the financial behavioral data of potential customers. Access to such data about potential customers could therefore increase a bank’s profitability. Open banking application programming interfaces (<span class="caps">API</span>s) provide access to 90 days of historical data on potential customers’ balances and transactions. We examine the performance of credit scoring models developed using such data from a Norwegian bank. We find that traditional regression models perform poorly, while machine learning (<span class="caps">ML</span>) methods can provide models that perform satisfactorily based on these data alone. Further, we find that the best performing models are based on an end-to-end deep learning approach, where machine learning algorithms create explanatory variables based on non-aggregated data. These results indicate that data available through the open banking <span class="caps">API</span>s can be an important data source when banks assess the creditworthiness of potential customers. In combination with end-to-end deep learning methods they have the potential to increase the performance of a bank’s application credit scoring models and thus increase the bank’s profitability.</p>
+              </div>
+
+
+            </div>
+
+              <div class="print-copyright">
+<p>Copyright Infopro Digital Limited. All rights reserved.</p>
+
+<p>As outlined in our terms and conditions, <a href="https://www.infopro-digital.com/terms-and-conditions/subscriptions/" target="_blank">https://www.infopro-digital.com/terms-and-conditions/subscriptions/</a> (point 2.4), printing is limited to a single copy.</p>
+
+<p>If you would like to purchase additional rights please email <a href="mailto:info@risk.net">info@risk.net</a></p>
+</div>
+              <div class="copy-copyright">
+<p>Copyright Infopro Digital Limited. All rights reserved.</p>
+
+<p>You may share this content using our article tools. As outlined in our terms and conditions, <a href="https://www.infopro-digital.com/terms-and-conditions/subscriptions/" target="_blank">https://www.infopro-digital.com/terms-and-conditions/subscriptions/</a> (clause 2.4), an Authorised User may only make one copy of the materials for their own personal use. You must also comply with the restrictions in clause 2.5.</p>
+
+<p>If you would like to purchase additional rights please email <a href="mailto:info@risk.net">info@risk.net</a></p>
+</div>
+
+          </div>
+        </article>
+
+      </div>
+      <div class="sidebar" role="complementary">
+        <section class="journal-content-links">
+          <!-- Journal source specific menu links: start -->
+
+<ul class="journal-introduction-links specific-journal-links">
+      <li>
+      <span class="list-icon"></span>
+      <a href="/static/steve-satchell">About the editor</a>
+    </li>
+      <li>
+      <span class="list-icon"></span>
+      <a href="/static/journal-risk-model-validation-editorial-board">Editorial board</a>
+    </li>
+      <li>
+      <span class="list-icon"></span>
+      <a href="https://www.risk.net/purchase">Subscribe</a>
+    </li>
+      <li>
+      <span class="list-icon"></span>
+      <a href="/static/call-for-papers#jrmv-section">Call for papers</a>
+    </li>
+  </ul>          <!-- Journal source specific menu links: end -->
+
+
+  <div class="select-volume">
+    <header class="component-header">
+      <h4 itemprop="name"><div class="section-title-link">All issues</div></h4>
+    </header>
+    <select id="view_journal_issue">
+      <option value="">Select a volume to view</option>
+              <option value="/journal-of-risk-model-validation/volume-20-number-3-september-2026"  >Volume 20, Number 3 (September 2026)</option>
+              <option value="/journal-of-risk-model-validation/volume-20-number-2-june-2026"  >Volume 20, Number 2 (June 2026)</option>
+              <option value="/journal-of-risk-model-validation/volume-20-number-1-march-2026"  >Volume 20, Number 1 (March 2026)</option>
+              <option value="/journal-of-risk-model-validation/volume-19-number-4-december-2025"  >Volume 19, Number 4 (December 2025)</option>
+              <option value="/journal-of-risk-model-validation/volume-19-number-3-september-2025"  >Volume 19, Number 3 (September 2025)</option>
+              <option value="/journal-of-risk-model-validation/volume-19-number-2-june-2025"  >Volume 19, Number 2 (June 2025)</option>
+              <option value="/journal-of-risk-model-validation/volume-19-number-1-december-2025"  >Volume 19, Number 1 (March 2025)</option>
+              <option value="/journal-of-risk-model-validation/volume-18-number-4-december-2024"  >Volume 18, Number 4 (December 2024)</option>
+              <option value="/journal-of-risk-model-validation/volume-18-number-3-september-2024"  >Volume 18, Number 3 (September 2024)</option>
+              <option value="/journal-of-risk-model-validation/volume-18-number-2-june-2024"  >Volume 18, Number 2 (June 2024)</option>
+              <option value="/journal-of-risk-model-validation/volume-18-number-1-march-2024"  >Volume 18, Number 1 (March 2024)</option>
+              <option value="/journal-of-risk-model-validation/volume-17-number-4-december-2023"  >Volume 17, Number 4 (December 2023)</option>
+              <option value="/journal-of-risk-model-validation/volume-17-number-3-september-2023"  >Volume 17, Number 3 (September 2023)</option>
+              <option value="/journal-of-risk-model-validation/volume-17-number-2-june-2023"  >Volume 17, Number 2 (June 2023)</option>
+              <option value="/journal-of-risk-model-validation/volume-17-number-1-march-2023"  >Volume 17, Number 1 (March 2023)</option>
+              <option value="/journal-of-risk-model-validation/volume-16-number-4-december-2022"  >Volume 16, Number 4 (December 2022)</option>
+              <option value="/journal-of-risk-model-validation/volume-16-number-3-september-2022"  >Volume 16, Number 3 (September 2022)</option>
+              <option value="/journal-of-risk-model-validation/volume-16-number-2-june-2022"  >Volume 16, Number 2 (June 2022)</option>
+              <option value="/journal-of-risk-model-validation/volume-16-number-1-march-2022"  >Volume 16, Number 1 (March 2022)</option>
+              <option value="/journal-of-risk-model-validation/volume-15-number-4-december-2021"  >Volume 15, Number 4 (December 2021)</option>
+              <option value="/journal-of-risk-model-validation/volume-15-number-3-september-2021"  >Volume 15, Number 3 (September 2021)</option>
+              <option value="/journal-of-risk-model-validation/volume-15-number-2-june-2021"  >Volume 15, Number 2 (June 2021)</option>
+              <option value="/journal-of-risk-model-validation/volume-15-number-1-march-2021"  >Volume 15, Number 1 (March 2021)</option>
+              <option value="/journal-of-risk-model-validation/volume-14-number-4-december-2020"  >Volume 14, Number 4 (December 2020)</option>
+              <option value="/journal-of-risk-model-validation/volume-14-issue-september-2020"  >Volume 14, Issue  (September 2020)</option>
+              <option value="/journal-of-risk-model-validation/volume-14-issue-2-june-2020"  >Volume 14, Issue 2 (June 2020)</option>
+              <option value="/journal-of-risk-model-validation/volume-14-number-1-march-2020"  >Volume 14, Number 1 (March 2020)</option>
+              <option value="/journal-of-risk-model-validation/volume-13-number-4-december-2019"  >Volume 13, Number 4 (December 2019)</option>
+              <option value="/journal-of-risk-model-validation/volume-13-number-3-september-2019"  >Volume 13, Number 3 (September 2019)</option>
+              <option value="/journal-of-risk-model-validation/volume-13-number-2-june-2019"  >Volume 13, Number 2 (June 2019)</option>
+              <option value="/journal-of-risk-model-validation/volume-13-number-1-march-2019"  >Volume 13, Number 1 (March 2019)</option>
+              <option value="/journal-of-risk-model-validation/volume-12-number-4-december-2018"  >Volume 12, Number 4 (December 2018)</option>
+              <option value="/journal-of-risk-model-validation/volume-12-number-3-september-2018"  >Volume 12, Number 3 (September 2018)</option>
+              <option value="/journal-of-risk-model-validation/volume-12-number-2-june-2018"  >Volume 12, Number 2 (June 2018)</option>
+              <option value="/journal-of-operational-risk/volume-12-number-1-march-2018"  >Volume 12, Number 1 (March 2018)</option>
+              <option value="/journal-of-risk-model-validation/volume-11-number-4-december-2017"  >Volume 11, Number 4 (December 2017)</option>
+              <option value="/journal-of-risk-model-validation/volume-11-number-3-september-2017"  >Volume 11, Number 3 (September 2017)</option>
+              <option value="/journal-of-risk-model-validation/volume-11-number-2-june-2017"  >Volume 11, Number 2 (June 2017)</option>
+              <option value="/journal-of-risk-model-validation/volume-11-number-1-march-2017"  >Volume 11, Number 1 (March 2017) </option>
+              <option value="/journal-of-risk-model-validation/volume-10-number-4-december-2016"  >Volume 10, Number 4 (December 2016)</option>
+              <option value="/journal-of-risk-model-validation/volume-10-number-3-september-2016"  >Volume 10, Number 3 (September 2016)</option>
+              <option value="/journal-of-risk-model-validation/volume-10-number-2-june-2016"  >Volume 10, Number 2 (June 2016)</option>
+              <option value="/journal-of-risk-model-validation/volume-10-number-1-march-2016"  >Volume 10, Number 1 (March 2016) </option>
+              <option value="/journal-of-risk-model-validation/volume-9-number-4-december-2015"  >Volume 9, Number 4 (December 2015)</option>
+              <option value="/journal-of-risk-model-validation/volume-9-number-3-september-2015"  >Volume 9, Number 3 (September 2015)</option>
+              <option value="/journal-of-risk-model-validation/volume-9-number-2-june-2015"  >Volume 9, Number 2 (June 2015)</option>
+              <option value="/journal-of-risk-model-validation/volume-9-number-1-march-2015"  >Volume 9, Number 1 (March 2015)</option>
+              <option value="/journal-of-risk-model-validation/volume-8-number-4-december-2014"  >Volume 8, Number 4 (December 2014)</option>
+              <option value="/journal-of-risk-model-validation/volume-8-number-3-september-2014"  >Volume 8, Number 3 (September 2014)</option>
+              <option value="/journal-of-risk-model-validation/volume-8-number-2-june-2014"  >Volume 8, Number 2 (June 2014)</option>
+              <option value="/journal-of-risk-model-validation/volume-8-number-1-march-2014"  >Volume 8, Number 1 (March 2014)</option>
+              <option value="/journal-of-risk-model-validation/volume-7-number-4-december-2013"  >Volume 7, Number 4 (December 2013)</option>
+              <option value="/journal-of-risk-model-validation/volume-7-number-3-september-2013"  >Volume 7, Number 3 (September 2013) </option>
+              <option value="/journal-of-risk-model-validation/volume-7-number-2-june-2013"  >Volume 7, Number 2 (June 2013) </option>
+              <option value="/journal-of-risk-model-validation/volume-7-number-1-march-2013"  >Volume 7, Number 1 (March 2013)</option>
+              <option value="/journal-of-risk-model-validation/volume-6-number-4-december-2012"  >Volume 6, Number 4 (December 2012)</option>
+              <option value="/journal-of-risk-model-validation/volume-6-number-3-september-2012"  >Volume 6, Number 3 (September 2012)</option>
+              <option value="/journal-of-risk-model-validation/volume-6-number-2-june-2012"  >Volume 6, Number 2 (June 2012)</option>
+              <option value="/journal-of-risk-model-validation/volume-6-number-1-march-2012"  >Volume 6, Number 1 (March 2012)</option>
+              <option value="/journal-of-risk-model-validation/volume-5-number-4-december-2011"  >Volume 5, Number 4 (December 2011)</option>
+              <option value="/journal-of-risk-model-validation/volume-5-number-3-september-2011"  >Volume 5, Number 3 (September 2011)</option>
+              <option value="/journal-of-risk-model-validation/volume-5-number-2-june-2011"  >Volume 5, Number 2 (June 2011)</option>
+              <option value="/journal-of-risk-model-validation/volume-5-number-1-march-2011"  >Volume 5, Number 1 (March 2011)</option>
+              <option value="/journal-of-risk-model-validation/volume-4-number-4-december-2010"  >Volume 4, Number 4 (December 2010)</option>
+              <option value="/journal-of-risk-model-validation/volume-4-number-3-september-2010"  >Volume 4, Number 3 (September 2010)</option>
+              <option value="/journal-of-risk-model-validation/volume-4-number-2-june-2010"  >Volume 4, Number 2 (June 2010)</option>
+              <option value="/journal-of-risk-model-validation/volume-4-number-1-march-2010"  >Volume 4, Number 1 (March 2010)</option>
+              <option value="/journal-of-risk-model-validation/volume-3-number-4-december-2009"  >Volume 3, Number 4 (December 2009)</option>
+              <option value="/journal-of-risk-model-validation/volume-3-number-3-september-2009"  >Volume 3, Number 3 (September 2009)</option>
+              <option value="/journal-of-risk-model-validation/volume-3-number-2-june-2009"  >Volume 3, Number 2 (June 2009)</option>
+              <option value="/journal-of-risk-model-validation/volume-3-number-1-march-2009"  >Volume 3, Number 1 (March 2009)</option>
+              <option value="/journal-of-risk-model-validation/volume-2-number-4-december-2008"  >Volume 2, Number 4 (December 2008)</option>
+              <option value="/journal-of-risk-model-validation/volume-2-number-3-september-2008"  >Volume 2, Number 3 (September 2008)</option>
+              <option value="/journal-of-risk-model-validation/volume-2-number-2-summer-2008"  >Volume 2, Number 2 (Summer 2008)</option>
+              <option value="/journal-of-risk-model-validation/volume-2-number-1-spring-2008"  >Volume 2, Number 1 (Spring 2008)</option>
+              <option value="/journal-of-risk-model-validation/volume-1-number-4-winter-2007"  >Volume 1, Number 4 (Winter 2007)</option>
+              <option value="/journal-of-risk-model-validation/volume-1-number-3-september-2007"  >Volume 1, Number 3 (September 2007)</option>
+              <option value="/journal-of-risk-model-validation/volume-1-number-2-summer-2007"  >Volume 1, Number 2  (Summer 2007)</option>
+              <option value="/journal-of-risk-model-validation/volume-1-number-1-spring-2007"  >Volume 1, Number 1 (Spring 2007)</option>
+          </select>
+    <a href="#" class="btn go">Go</a>
+  </div>
+
+          <div id="rdm-rhc-middle" class="ad-slot"></div>
+          <!-- Journal general menu links: start -->
+
+<ul class="journal-introduction-links general-journal-links">
+      <li>
+      <span class="list-icon"></span>
+      <a href="/static/risk-journals-submission-guidelines">Publish with us</a>
+    </li>
+      <li>
+      <span class="list-icon"></span>
+      <a href="mailto:journals@infopro-digital.com?subject=Journals Permissions Enquiry"  target="_blank" >Permissions enquiries</a>
+    </li>
+      <li>
+      <span class="list-icon"></span>
+      <a href="/static/risk-journals-contact-us"  target="_blank" >Contact us</a>
+    </li>
+  </ul>          <!-- Journal general menu links: end -->
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="barrier-block">
+  <div class="iac-barrier" id="barrierContent">
+    <div class="barrier-placeholder">
+      <div class="content">
+        <div class="barrier-placeholder-inner">
+          <h2>Sorry, our subscription options are not loading right now</h2>
+<p>Please try again later. Get in touch with our <a href="/static/contact-us?tc=barrier-placeholder" target="_blank">customer services</a> team if this issue persists.</p>
+<p class="placeholder-subscriptions">New to Risk.net? View our <a href="https://subscriptions.risk.net/subscribe?tc=barrier-placeholder" target="_blank">subscription options</a></p>
+<p class="placeholder-login">If you already have an account, please <a id="placeholderLogin" href="/user/login">sign in here</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+
+  <div class="content">
+    <main class="content-inner" role="main">
+      <div class="main-content">
+        <div id="rdm-journals-above-other-papers"></div>
+
+
+  <section class="component-article-listings related-journal-papers">
+    <header class="component-header">
+      <h4 itemprop="name"><div class="section-title-link">More papers in this issue</div></h4>
+    </header>
+    <div class="component-inner">
+                    <div class="section group">
+        <article class="col span_2_of_4">
+          <div class="text-group">
+            <div class="article-title">
+              <a href="/journal-of-risk-model-validation/7950741/can-we-take-the-stress-out-of-stress-testing-applications-of-generalized-structural-equation-modeling-to-consumer-finance"
+                 title="Can we take the “stress” out of stress testing? Applications of generalized structural equation modeling to consumer finance">Can we take the “stress” out of stress testing? Applications of generalized structural equation modeling to consumer finance</a>
+            </div>
+            <ul class="article-meta-details">
+              <li>
+
+
+
+
+                    <a href="/author/jose-canals-cerda">José Canals-Cerdá</a>
+
+
+              </li>
+                                      <li>
+      <a class="journal-issue-link" href="/journal-of-risk-model-validation/volume-16-number-2-june-2022">Volume 16, Number 2 (June 2022)</a>
+    </li>
+
+                          </ul>
+          </div>
+        </article>
+
+
+        <article class="col span_2_of_4">
+          <div class="text-group">
+            <div class="article-title">
+              <a href="/journal-of-risk-model-validation/7951506/expected-shortfall-model-based-on-a-neural-network"
+                 title="Expected shortfall model based on a neural network">Expected shortfall model based on a neural network</a>
+            </div>
+            <ul class="article-meta-details">
+              <li>
+
+
+
+
+                    <a href="/author/sanja-doncic">Sanja Doncic</a><p>, et al</p>
+
+
+              </li>
+                                      <li>
+      <a class="journal-issue-link" href="/journal-of-risk-model-validation/volume-16-number-2-june-2022">Volume 16, Number 2 (June 2022)</a>
+    </li>
+
+                          </ul>
+          </div>
+        </article>
+
+        </div>                  <div class="section group">
+        <article class="col span_2_of_4">
+          <div class="text-group">
+            <div class="article-title">
+              <a href="/journal-of-risk-model-validation/7952276/general-bounds-on-the-area-under-the-receiver-operating-characteristic-curve-and-other-performance-measures-when-only-a-single-sensitivity-and-specificity-point-is-known"
+                 title="General bounds on the area under the receiver operating characteristic curve and other performance measures when only a single sensitivity and specificity point is known">General bounds on the area under the receiver operating characteristic curve and other performance measures when only a single sensitivity and specificity point is known</a>
+            </div>
+            <ul class="article-meta-details">
+              <li>
+
+
+
+
+                    <p>Roger M. Stein</p>
+
+
+              </li>
+                                      <li>
+      <a class="journal-issue-link" href="/journal-of-risk-model-validation/volume-16-number-2-june-2022">Volume 16, Number 2 (June 2022)</a>
+    </li>
+
+                          </ul>
+          </div>
+        </article>
+
+                    </div>    </div>
+  </section>
+
+
+        <div id="rdm-journals-above-related"></div>
+                <div id="rdm-journals-related"></div>
+
+        <div class="scrollup">
+          Back to Top
+        </div>
+      </div>
+      <div class="sidebar" role="complementary">
+        <div id="rdm-rhc-barrier" class="ad-slot"></div>
+      </div>
+    </main>
+  </div>
+  <aside class="content">
+    <div class="content-inner content-full-width">
+      <div class="main-content">
+        <div id="template-mini-hub" style="display:none;"></div>
+<div id="target-mini-hub"></div>
+<div class="ad-slot-full" id="rdm-above-footer"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+  <section class="all-journals">
+    <div class="content">
+      <div class="content-inner content-full-width">
+        <div class="main-content">
+          <header class="browse-journals-carousel-header"><h4>Browse journals</h4></header>
+          <div class="journal-cover browse-journals-carousel">
+                          <div class="journal-cover-image journal-of-computational-finance">
+                                <a href="/journal-of-computational-finance"><img style="height: auto;" alt="Journal of Computational Finance" src="/sites/default/files/styles/349x500sc/public/2017-12/JOCF_source_0.png.webp?itok=TDV_EycQ" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-credit-risk">
+                                <a href="/journal-of-credit-risk"><img style="height: auto;" alt="Journal of Credit Risk" src="/sites/default/files/styles/349x500sc/public/2017-12/JOCR_source_0.png.webp?itok=-fEoP_kB" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-energy-markets">
+                                <a href="/journal-of-energy-markets"><img style="height: auto;" alt="Journal of Energy Markets" src="/sites/default/files/styles/349x500sc/public/2017-12/JOEM_source_0.png.webp?itok=sD1DdQMD" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-financial-market-infrastructures">
+                                <a href="/journal-of-financial-market-infrastructures"><img style="height: auto;" alt="Journal of Financial Markets Infrastructures" src="/sites/default/files/styles/349x500sc/public/2017-12/JOFMI_source_0.png.webp?itok=ekp4gHn9" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-investment-strategies">
+                                <a href="/journal-of-investment-strategies"><img style="height: auto;" alt="Journal of Investment Strategies" src="/sites/default/files/styles/349x500sc/public/2017-12/JOIS_source_0.png.webp?itok=hjz9u6eT" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-network-theory-in-finance">
+                                <a href="/journal-of-network-theory-in-finance"><img style="height: auto;" alt="Journal of Network theory in Finance" src="/sites/default/files/styles/349x500sc/public/2017-12/JONTF_source_0.png.webp?itok=tY-MWfJn" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-operational-risk">
+                                <a href="/journal-of-operational-risk"><img style="height: auto;" alt="Journal of Operational Risk" src="/sites/default/files/styles/349x500sc/public/2017-12/JOOR_source_0.png.webp?itok=w0Twn5PP" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-risk">
+                                <a href="/journal-of-risk"><img style="height: auto;" alt="Journal of Risk" src="/sites/default/files/styles/349x500sc/public/2017-12/JOR_source_0.png.webp?itok=tRAYjX1F" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                          <div class="journal-cover-image journal-of-risk-model-validation">
+                                <a href="/journal-of-risk-model-validation"><img style="height: auto;" alt="Journal of Risk Model Validation" src="/sites/default/files/styles/349x500sc/public/2017-12/JORMV_source_0.png.webp?itok=CfQ4FCFz" width="349" height="500" loading="lazy" />
+
+</a>
+              </div>
+                      </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <div class="no-user-message follow-message" id="nousermsg" style="display:none;">
+    <span class="close-user-msg" onclick="closeUserMsg();"></span>
+    <p>You need to sign in to use this feature. If you don’t have a Risk.net account, please register for a trial.</p>
+        <a class="btn login" href="/user/login?destination=/journal-of-risk-model-validation/7951416/an-end-to-end-deep-learning-approach-to-credit-scoring-using-cnn-c-xgboost-on-transaction-data">Sign in</a>
+  </div>
+</div>
+
+
+</div>
+
+
+
+    <footer role="contentinfo" class="main-footer">
+  <div class="main-footer-content main-footer-links">
+    <div class="main-footer-content-inner content-width">
+
+
+
+              <div class="main-footer-nav">
+                        <div class="main-footer-nav-group">
+          <div class="main-footer-nav-group-content">
+            <!-- Parent Item -->
+            <p class="group-title">Support</p>
+            <!-- Parent Item -->
+            <ul class="menu-links-group">
+                                        <li class="menu-title">
+          <a href="/subscriptions/about" target="_blank" data-drupal-link-system-path="node/7961887">About us</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="/static/contacts" target="_blank" data-drupal-link-system-path="node/1496622">Contact us</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.risk.net/static/editorial-commitment">Editorial pledge</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="/help-centre" target="_blank" data-drupal-link-system-path="node/7961929">Help Centre</a>
+                  </li>
+                            </ul>
+          </div>
+        </div>
+                <div class="main-footer-nav-group">
+          <div class="main-footer-nav-group-content">
+            <!-- Parent Item -->
+            <p class="group-title">Services</p>
+            <!-- Parent Item -->
+            <ul class="menu-links-group">
+                                        <li class="menu-title">
+          <a href="/commercial" target="_blank" data-drupal-link-system-path="node/7962056">Advertising</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.risk.net/static/media-pack-enquiry-form">Media pack</a>
+                  </li>
+                            </ul>
+          </div>
+        </div>
+                <div class="main-footer-nav-group">
+          <div class="main-footer-nav-group-content">
+            <!-- Parent Item -->
+            <p class="group-title">Legal & Privacy</p>
+            <!-- Parent Item -->
+            <ul class="menu-links-group">
+                                        <li class="menu-title">
+          <a href="https://www.infopro-digital.com/terms-and-conditions/accessibility/" target="_blank">Accessibility</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.infopro-digital.com/terms-and-conditions/website-conditions-of-use/" target="_blank">Website conditions of use</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.infopro-digital.com/data-protection/" target="_blank">Privacy notice</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.infopro-digital.com/terms-and-conditions/" target="_blank">Terms and conditions</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="https://www.infopro-digital.com/terms-conditions/privacy-policy/?lang=en" target="_blank">California Residents – Do not sell my personal information</a>
+                  </li>
+                            <li class="menu-title">
+          <a href="" class="didomiShowBanner">Consent preferences</a>
+                  </li>
+                            </ul>
+          </div>
+        </div>
+                <div class="main-footer-nav-group">
+          <div class="main-footer-nav-group-content">
+            <!-- Parent Item -->
+            <p class="group-title">Useful links</p>
+            <!-- Parent Item -->
+            <ul class="menu-links-group">
+                                  <li>
+          <div class="nav-tools follow-icon" data-social-tracking="added">
+            <a href="https://www.risk.net/following" class="follow-icon">View all Follow topics</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools linkedin" data-social-tracking="added">
+            <a href="https://www.linkedin.com/company/risk-net" class="linkedin" target="_blank">Linkedin</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools facebook-icon" data-social-tracking="added">
+            <a href="https://www.facebook.com/riskdotnet" class="facebook-icon" target="_blank">Facebook</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools newsletters" data-social-tracking="added">
+            <a href="https://www.risk.net/newsletters" class="newsletters">Newsletters</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools bluesky-icon" data-social-tracking="added">
+            <a href="https://bsky.app/profile/risk.net" class="bluesky-icon" target="_blank">Bluesky</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools apps" data-social-tracking="added">
+            <a href="/apps" class="apps" data-drupal-link-system-path="node/7961900">Apps</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools" data-social-tracking="added">
+            <a href="https://www.risk.net/static/social-hub">Social hub</a>
+                      </div>
+        </li>
+                        <li>
+          <div class="nav-tools rss-icon" data-social-tracking="added">
+            <a href="https://www.risk.net/rss-feeds" class="rss-icon">RSS</a>
+                      </div>
+        </li>
+                            </ul>
+          </div>
+        </div>
+        </div>
+
+
+
+
+    </div>
+  </div>
+
+  <div class="main-footer-content main-footer-copyright">
+    <div class="main-footer-content-inner content-width">
+              <div class="publisher-footer">
+          <div class="logo">
+  <span class="screen-reader-text">© Infopro Digital 2026</span>
+</div>
+<p class="copyright-full">© Infopro Digital Services Limited (2026). All rights reserved. Published by Infopro Digital Services Limited, 133 Houndsditch, London, EC3A 7BX. Company registered in England and Wales with company registration number 04699701.</p>
+        </div>
+                    <div class="publisher-accreditation">
+
+        </div>
+          </div>
+  </div>
+</footer>
+
+  </div>
+
+
+</div>
+    <div class="message-holder"><div id="rdm-sticky-message"></div></div>
+  </div>
+
+    <div class="no-user-message follow-message" id="nousermsg">
+  <span class="close-user-msg"></span>
+  <p>You need to sign in to use this feature. If you don’t have a Risk.net account, please register for a trial.</p>
+  <a class="btn login" href="/user/login">Sign in</a>
+</div>
+<div class="ip-user-message follow-message" id="ipusermsg">
+  <span class="close-ip-msg"></span>
+  <h5>You are currently on corporate access.</h5>
+  <p>To use this feature you will need an individual account. If you have one already please sign in.</p>
+<a class="btn login" href="/user/login">Sign in</a>.
+<p>Alternatively you can <a href="https://subscriptions.risk.net/corporate#existing-corp-enquiry" target="_blank">request an individual account here</a></p>
+</div>
+
+    <script src="/core/assets/vendor/jquery/jquery.min.js?v=4.0.0"></script>
+<script src="/sites/default/files/js/js_j1QccnmgBDruvk0QJ4ex83HRKncxyVDTKYNhb3OY0iA.js?scope=footer&amp;delta=1&amp;language=en&amp;theme=incisive&amp;include=eJxNjeEOgzAIhF_IjkdqmMWKKaUpVrO3n51G9-fgvrsABx84qDCcY2Dxo4pohnt7TQmjN9yop5OmpDtg1vwRbXaBHkWsBbr4mTBQ7azw0YSfusU6McI6znBWLjdwHtl4I3ij0eMWbTVjcmzWyB6eMMeGkTwFXlmzt53X_zNFSytOyOxoPfj85iat8gXYl2Gw"></script>
+<script src="https://code.jquery.com/jquery-migrate-4.0.2.min.js"></script>
+<script src="/sites/default/files/js/js_dhXJBP7INsjZTJ9YQrbwKx2YEhTSZI7oPwbFlqAAM-E.js?scope=footer&amp;delta=3&amp;language=en&amp;theme=incisive&amp;include=eJxNjeEOgzAIhF_IjkdqmMWKKaUpVrO3n51G9-fgvrsABx84qDCcY2Dxo4pohnt7TQmjN9yop5OmpDtg1vwRbXaBHkWsBbr4mTBQ7azw0YSfusU6McI6znBWLjdwHtl4I3ij0eMWbTVjcmzWyB6eMMeGkTwFXlmzt53X_zNFSytOyOxoPfj85iat8gXYl2Gw"></script>
+<script src="//assets.risk.net/assets_js/prod/risk/javascript-risk.head.js"></script>
+<script src="//assets.risk.net/assets_js/prod/risk/javascript_v2-risk.head.js"></script>
+<script src="/sites/default/files/js/js_RbZiUi4q1Kjv45os-zUSaGoZg-YDa8NhVLRiQXRJkXQ.js?scope=footer&amp;delta=6&amp;language=en&amp;theme=incisive&amp;include=eJxNjeEOgzAIhF_IjkdqmMWKKaUpVrO3n51G9-fgvrsABx84qDCcY2Dxo4pohnt7TQmjN9yop5OmpDtg1vwRbXaBHkWsBbr4mTBQ7azw0YSfusU6McI6znBWLjdwHtl4I3ij0eMWbTVjcmzWyB6eMMeGkTwFXlmzt53X_zNFSytOyOxoPfj85iat8gXYl2Gw"></script>
+
+    <style>
+      .icon-sponsored:after {
+        content: "Sponsored content";
+      }
+    </style>
+  </body>
+</html>

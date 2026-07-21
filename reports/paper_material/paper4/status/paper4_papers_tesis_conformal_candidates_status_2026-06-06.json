@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-06-06T06:09:01.171753+00:00",
+  "schema_version": "2026-06-06.papers_tesis_candidates.v1",
+  "input_artifact": "reports/paper_material/paper4/tables/paper4_online_conformal_v4_intervals.parquet",
+  "calibration_end": "2018-12-31",
+  "n_calibration": 197178,
+  "n_holdout": 79691,
+  "target_coverage": 0.9,
+  "source_min_support": 100,
+  "outputs": {
+    "summary": "reports/paper_material/paper4/tables/paper4_papers_tesis_conformal_candidate_summary_2026-06-06.csv",
+    "by_source": "reports/paper_material/paper4/tables/paper4_papers_tesis_conformal_candidate_by_source_2026-06-06.csv",
+    "gate_register": "reports/paper_material/paper4/tables/paper4_papers_tesis_conformal_candidate_gate_register_2026-06-06.csv",
+    "note": "reports/paper_material/paper4/notes/paper4_papers_tesis_conformal_candidates_2026-06-06.md"
+  },
+  "champion_modified": false,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "diagnostic appendix only; no source deployment or champion replacement claim"
+}

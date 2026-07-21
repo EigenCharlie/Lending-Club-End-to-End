@@ -1,0 +1,99 @@
+Robust Logistic Regression
+Outliers in labels (label noise) can skew the results of logistic regression modeling. One
+solution to reduce the impact of contamination on estimates is to use a robust version of
+logistic regression1.
+
+
+
+
+  This model works by introducing the mixture of the two “sources” of labels, the model
+  and the random (outlier) process. The robust probability curve is pulled toward 0.5
+  where the model is uncertain, making the fit more robust to the presence of outliers.
+
+
+
+
+  1. Kevin P. Murphy. Probabilistic Machine Learning: An Introduction, MIT, 2022.
+Robust Logistic Regression
+Below we provide a sketch implementation of mixture log likelihood with Fisher
+scoring with Python 🐍 1:
+
+
+
+      import numpy as np
+      from scipy.special import expit as sigmoid
+
+      def robust_logistic_regression(
+         X, y, epsilon=0.05, max_iter=30, tol=1e-6
+      ):
+           """Robust Logistic Regression."""
+           n_features = X.shape[1]
+           beta = np.zeros(n_features)
+           q = 0.5 * np.ones_like(y, dtype=float)
+           for _ in range(max_iter):
+               z = X @ beta    # Logit
+               p = sigmoid(z) # Inverse logit
+
+                 # Assign probabilities to true label
+                 p_model = np.where(y    1, p, 1 - p)
+
+                 # Calculate weights
+                 numerator = (1 - epsilon) * p_model
+                 denominator = numerator + epsilon * q
+                 w = numerator / denominator
+
+                 # Calculate weights and score
+                 W_diag = w * p * (1 - p)
+                 score = X.T @ (w * (y - p))
+
+                 # Calculate weighted Fisher information
+                 fisher_info = X.T @ (W_diag[:, np.newaxis] * X)
+
+                 try: # Update step
+                    beta_new = np.linalg.inv(fisher_info) @ score
+                except np.linalg.LinAlgError:
+                    beta_new = np.linalg.pinv(fisher_info) @ score
+                beta += beta_new
+                if np.linalg.norm(beta_new) < tol: # Convergence
+                    break
+            return beta
+
+
+
+  1. Here we provide the Fisher Scoring algorithm example, which leverages Fisher information to estimate the coefficients,
+  beta. Other alternatives to fitting are SGD (using only first-order gradients) and Bayesian logistic regression with pymc.
+  Notebook with examples: https://lnkd.in/esHjSmZZ
+                            =
+Robust Logistic Regression
+The fisher-scoring package provides fast maximum likelihood Python 🐍
+implementations with standard errors, confidence intervals, and rich summaries for:
+
+Proportions
+• Logistic Regression
+• Multinomial Logistic Regression
+Proportions (imbalance and outliers)
+• Focal Loss Logistic Regression
+• Robust Logistic Regression
+Count data
+• Poisson Regression
+• Negative Binomial Regression
+
+
+Try robust logistic regression with sher-scoring package
+
+
+
+           %pip install fisher-scoring 2.0.5
+           from fisher_scoring import RobustLogisticRegression
+
+           rlr = RobustLogisticRegression()
+           rlr.fit(X, y)
+
+           rlr.display_summary()
+
+
+
+
+                      https://github.com/xRiskLab/fisher-scoring
+                  =
+                              fi

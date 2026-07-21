@@ -1,0 +1,961 @@
+Naeem Siddiqi - SAS | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Naeem Siddiqi
+Sign in to view Naeem’s full profile
+Naeem can introduce you to 10+ people at SAS
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Canada
+Contact Info
+Sign in to view Naeem’s full profile
+Naeem can introduce you to 10+ people at SAS
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+16K followers
+500+ connections
+See your mutual connections
+View mutual connections with Naeem
+Naeem can introduce you to 10+ people at SAS
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Join to view profile
+Message
+Sign in to view Naeem’s full profile
+Naeem can introduce you to 10+ people at SAS
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+SAS
+Imperial College London
+Report this profile
+About
+Naeem Siddiqi is the author of Credit Risk Scorecards : Developing and Implementing…
+see more
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+Articles by Naeem
+Some good non-technical books for data science and risk folks
+May 2, 2024
+Some good non-technical books for data science and risk folks
+These are some of the non-technical books I've enjoyed reading related to credit scoring - all written for general…
+107
+13 Comments
+Different Levels, Different Problems
+Aug 4, 2023
+Different Levels, Different Problems
+A few days ago I came across an interesting post (https://www.linkedin.
+38
+7 Comments
+Best Management Advice I Got - From a Comedian
+Feb 21, 2022
+Best Management Advice I Got - From a Comedian
+Mike McDonald, may he rest in peace, was a Canadian comedy legend. He was well respected and brought so much joy to so…
+44
+3 Comments
+Impact of Climate Change on Credit Scoring
+Nov 20, 2019
+Impact of Climate Change on Credit Scoring
+Two weeks ago, a study backed by 11,000 scientists confirmed that climate change is a “clear and unequivocal”…
+109
+11 Comments
+Will Automation Reduce Modeling Skills ?
+Mar 16, 2019
+Will Automation Reduce Modeling Skills ?
+An article in The Toronto Star on how recent airplane crashes are making some people re-think autopilot makes…
+121
+14 Comments
+Black Box Models : A Governance Approach
+Dec 7, 2018
+Black Box Models : A Governance Approach
+The deployment of AI, and in particular Machine Learning (ML) has been a hot topic in almost all business sectors in…
+111
+6 Comments
+Show more
+See all articles
+Activity
+16K followers
+Posts
+Comments
+Reactions
+No more previous content
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+Elizabeth B.
+Elizabeth B.
+14h
+Naeem Siddiqi reposted this
+✨️Donde tienes la mejor data, es donde comienzan los mejores y verdaderos casos de uso impulsados por #IA.
+Un gran evento de SAS que reunió valiosos insights para la industria de servicios financieros y dejó claro que la innovación no solo depende de la tecnología, sino también de los fundamentos que la sostienen.
+💡Muy enriquecedor escuchar este panel junto a nuestros expertos en #Fraude YURI RUEDA y #Risk Luis Angel Barrientos Huesca asi como nuestra líder y experta global Julie Muckleroy en #Banking, acompañados por Fabian Serrato, quien destacó esta relevancia de contar con un gobierno de datos sólido, un framework de confianza y una infraestructura ágil capaz de responder a cualquier necesidad o imprevisto, especialmente cuando la IA requiere ajustes para mantenerse alineada con los objetivos del negocio.
+#banking #financialservices #customers #Trust #IA #SASevent #governance
+✨️Where you have the best data is where the most meaningful and impactful #AI use cases begin.
+A great SAS event that brought together valuable insights for the financial services industry, reinforcing that innovation is not only about technology itself, but also about the foundations that support it.
+💡It was enriching to hear this panel featuring our #Fraud and #Risk experts, alongside our global #Banking leader Julie Muckleroy together with Fabian Serrato, who highlighted the importance of strong data governance, a trusted framework, and an agile infrastructure capable of supporting any business need or unexpected challenge—especially when AI needs adjustments to stay aligned with business outcomes.
+public_profile__posts
+21
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+Reto Knutti
+Reto Knutti
+18h
+Naeem Siddiqi reposted this
+Lots of nonsense is written about the new climate scenarios for IPCC. As an author of the ScenarioMIP paper and former IPCC author, here’s what I think matters.
+IPCC does *not* create scenarios; in reality, it only assesses them and their climate impacts.
+ScenarioMIP is a community effort to coordinate CMIP7 simulations for IPCC. It’s important and CMIP7 undeniably frames discussions, but there are thousands of scenarios. The process behind ScenarioMIP is inclusive and rigorous, involving reviews and workshops. It tries to satisfy all needs, but it’s not perfect.
+The debate is about eliminating the highest scenario RCP8.5 and its misinterpretation that climate is no longer a problem. RCP8.5 scenario was never a “likely” scenario, but built to explore the consequences of high emissions. As one of “baseline scenarios without climate mitigation”, it unfortunately and inappropriately became a “business as usual” scenario.Two excellent summaries linked in the comments.
+Rather than an attempt to mislead, I think this reflects ignorance of what scenarios are. They are “what if”, a tool to understand the response, to explore drivers and consequences of choices. Scenarios are not predictions and don’t have likelihoods.
+Scenarios must be broad to explore plausible consequences. Overconfidence is deadly. But what is plausible? Extreme scenarios are often the most interesting ones to explore vulnerability. For nuclear power plants, for tropical storms, we spend most of our time exploring worst cases not because they are likely, but because we want to be prepared for the unlikely.
+Why did RCP8.5 get prominent with climate models? We are isolating trends from natural variability, and simulations are expensive. Cut emissions by 3 and you need 9 times more simulations (sqrt(N)) for the same signal/noise ratio. At 10K-100K per run, you make choices. If computing is limited, you always learn more from a high emission scenario, then you can scale to lower ones, as IPCC did with the global warming levels. Interpolation is easier than extrapolation. Want to explore model differences and uncertainties? You pick the scenario that models have run first, which is RCP8.5. RCP8.5 has become the de facto standard as a stress test, and for very practical reasons of computing, data availability and a clear climate signal, not to mislead people.
+Certain outcomes become implausible as we move on. We’ve bent the emission curve, so inevitably the highest “no mitigation” scenarios are gone. This is a "prevention paradox": the worst-case predictions didn't manifest not because we were stupid, but because we took action to stop them.
+1.5°C without overshoot can also be ruled out. We are doing better, but we are still not doing enough. Current policies point to ~3°C rather than 1-5°C. The claim that climate change is not a problem is nonsense.
+So there is progress on mitigation, but not enough. And as long as CO2 emissions remain above zero, the world continues to warm.
+public_profile__posts
+819
+37 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+LaunchGood
+LaunchGood
+2d
+Naeem Siddiqi reposted this
+Amin Abdullah.
+He stood his ground so others could make it home safely.
+When gunmen opened fire outside the Islamic Center of San Diego, Amin protected the community until his final moments. Police say his actions prevented the attack from becoming far worse.
+Support Amin’s family with funeral costs, immediate household needs, education for his children, and long term financial stability.
+May Allah accept him amongst the martyrs and grant patience to his loved ones. 🤲
+https://lnkd.in/eHaVCBfu
+#aminabdullah
+public_profile__posts
+3,148
+41 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+Naeem Siddiqi
+1d
+Report this post
+Naeem Siddiqi shared this
+I have been part of this journey for 27 years for a reason.
+#sas #saslife #sas50
+Jim Goodnight
+Jim Goodnight
+1d
+Naeem Siddiqi shared this
+This year, SAS offices all around the world are celebrating our 50th anniversary.
+Fifty years is something to be proud of. But it didn't happen on product alone.
+It happened because of the people.
+Our people are what has always mattered most, and they're what will carry SAS forward for the next 50 years.
+As we celebrate this milestone, we reflect on our culture and on the impact we’ve made for our customers.
+Thank you to everyone who has been part of this journey. And to those shaping what's next. #SAS50
+public_profile__posts
+10
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+SAS
+SAS
+5d
+Naeem Siddiqi reposted this
+Congratulations to SAS for being a category leader in Chartis’ RiskTech Quadrant® for ALM Solutions, 2025! “SAS is a long-standing partner of financial institutions, including global systemically important banks (G-SIBs)," says Chartis Research.
+"SAS' ALM solutions provide a broad range of integrated capabilities in data management, modeling, simulation and reporting, supported by the highly scalable power of cloud-native computing technology." 🤝 👏 Read the full accolade for the six quadrants where SAS earned this honor: https://lnkd.in/ec4tUVeT #AnalystReport #FinTech
+public_profile__posts
+67
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+SAS
+SAS
+5d
+Naeem Siddiqi reposted this
+If you treat people like they make a difference, they will.
+Last night, we raised a glass to 50 years of innovation - SAS-style. From where we started to how far we've come and where we're headed next, this milestone is powered by the people behind it all.
+So we did what felt right: gathering at our World Headquarters with our colleagues and their families to celebrate the moments, the memories and the momentum ahead. 🌟
+Enjoy a few highlights from the celebration! #saslife #SAS50
+public_profile__posts
+635
+11 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+ESG Today
+ESG Today
+6d
+Naeem Siddiqi reposted this
+Companies are anticipating $900 billion losses from extreme weather, while cost to mitigate is 13x lower than financial impact: CDP report
+https://lnkd.in/du2Kcmhm
+Amir Sokolowski #climatechange #sustainability #climateadaptation #climateaction #sustainabilityreporting
+Companies Anticipating $900 Billion Losses from Extreme Weather: CDP Report - ESG Today
+Companies Anticipating $900 Billion Losses from Extreme Weather: CDP Report - ESG Today
+39
+2 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+Forbes
+Forbes
+5d
+Naeem Siddiqi reposted this
+Unlike most of today’s biggest AI companies, SAS—once America’s largest privately held software company—has always operated slowly, steadily and profitably. Competition from all sides and an upcoming leadership transition will test the company’s longstanding strategy.
+Read the full story: https://lnkd.in/ercm36y7 (Photo: Aaron Kotowski for Forbes)
+public_profile__posts
+567
+11 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+reposted this
+Report this post
+Naeem Siddiqi reposted this
+Saqib Qureshi
+Saqib Qureshi
+6d
+Naeem Siddiqi reposted this
+There is something about Western media that simply refuses to see human beings as having equal worth. BBC News what do you think?
+public_profile__posts
+74
+5 Comments
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+Slide to item 4
+Slide to item 5
+Slide to item 6
+Slide to item 7
+Slide to item 8
+Slide to item 9
+Naeem Siddiqi commented on a post
+4h
+Ben Gvir isn't a random religious fanatic. He is a convicted terrorist sympathiser who was appointed to cabinet by Netanyahu. The fanaticism, the racism, the support for violent terrorist settlers and rapists are state backed.
+Naeem Siddiqi commented on a post
+9h
+They're not complaining about IDF raping prisoners or the Israeli ministers applauding rapists - they're complaining about this being reported.
+Naeem Siddiqi commented on a post
+9h
+This is a good thing especially for inactive credit cards.
+No more previous content
+Naeem Siddiqi
+reacted on this
+Report this post
+Naeem Siddiqi reacted on this
+Amjad Heer 🇬🇧🇵🇸
+Amjad Heer 🇬🇧🇵🇸
+1d
+Naeem Siddiqi reacted on this
+If armed Muslim teenagers attacked a church or synagogue and killed worshippers, the word “terrorism” would dominate headlines within minutes.
+However after three Muslims were killed at a mosque in San Diego, the language suddenly became softer:“possible hate crime”“troubled teens”“mental health concerns”
+Let’s be honest about the double standard.
+Civilians were targeted at a place of worship. Authorities acknowledged hate rhetoric. Children had to flee in fear. One victim reportedly died protecting others inside the mosque.
+This was not random violence.
+For years, anti-Muslim rhetoric has been normalised across parts of politics, media, and online culture. When communities are constantly portrayed as threats, outsiders, or suspects, there are real-world consequences.
+Condemning Islamophobia should not depend on political convenience.
+Every faith community deserves safety, dignity, and equal humanity.
+#SanDiego #Terrorism #HateCrime
+public_profile__reactions
+116
+19 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+liked this
+Report this post
+Naeem Siddiqi liked this
+Sahar Aziz
+Sahar Aziz
+17h
+Naeem Siddiqi liked this
+The US government has wasted billions of dollars since 9/11 to surveil and investigate Muslims for “online radicalization.” Yet, the FBI completely ignores the rise of White right wing extremism that inspired the murderous hate crime at San Diego’s largest mosque. This is how racism operates.
+“The shooters had met and been radicalized online, according to the FBI. At a news conference on Tuesday, Mark Remily, the special agent in charge of the FBI San Diego office, said investigators uncovered a “manifesto” that expressed a “broad hatred” toward various races and religions.
+Investigators found 30 firearms and a crossbow after searching two residences in connection with the investigation. Remily said agents also seized tactical gear, ammunition and electronics.
+“We also identified writings and various ideologies outlining religious and racial beliefs of how the world they envisioned should look,” he said. “These subjects did not discriminate on who they hated.”
+He said it was still too early in the investigation to say whether the Islamic Center was the sole or specific target of the shooters.
+Authorities have not yet publicly shared the names of the suspects, but they have been identified in news reports as Cain Clark, 17, and Caleb Vazquez, 18.”
+Teenagers behind mass shooting in San Diego rushed at mosque ‘fully armored’
+Teenagers behind mass shooting in San Diego rushed at mosque ‘fully armored’
+33
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+liked this
+Report this post
+Naeem Siddiqi liked this
+John Baptist
+John Baptist
+1d
+Naeem Siddiqi liked this
+Never thought I would live to see this day again. To be honest, I am not a die hard fan. Was originally an Ipswich fan with my favourite player then being Paul Mariner. When he moved to Arsenal, I followed Arsenal. Congratulations to the Arsenal!🥳🥳
+public_profile__reactions
+24
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+liked this
+Report this post
+Naeem Siddiqi liked this
+Becky S. Brown
+Becky S. Brown
+13h
+Naeem Siddiqi liked this
+Networking is...
+building a web of relationships with others for mutual support, growth and learning.
+Networking is not...
+transactional. It's not about collecting names and numbers.
+Approaching networking with the right mindset, one focused on giving before asking, can make all the difference in the world.
+Here are two suggestions for adopting a healthy mindset around networking.
+1️⃣ Be confident that you have something to offer.
+Realize that you have much to *give* to others based on your life experiences. Even if you are not an expert in your field, you have knowledge that someone else wants or needs to receive. But if you don't share it, they won't know.
+Asking questions when you first meet people is a great strategy for identifying the people that you can help - and that might be able to help you.
+2️⃣Know that others are nervous too.
+Even the most experienced networkers get butterflies walking into a room of new people.
+Networking is about building and cultivating relationships. No matter what industry you're in, you need other people to help you succeed.
+Whether you want to talk with people across the street or across the world, you will likely connect first through digital communication.
+Subsequent interactions will likely be a combination of online and offline as you build relationships.
+👉 Enter a social platform like LinkedIn, that can help you integrate your online and offline engagement.
+Ever thought about LinkedIn as a tool to help you network and make more meaningful connections?
+You might want to.
+💫 Embrace a *giving* mindset and think about not just what you might be able to gain from knowing other people, but also what can you give that may help someone else.
+David J.P. Fisher Hannah Nicksic Ed Sanchez Mimi Stapleton Priyha Thirukonda
+public_profile__reactions
+38
+6 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+liked this
+Report this post
+Naeem Siddiqi liked this
+Avi Lewis
+Avi Lewis
+6h
+Naeem Siddiqi liked this
+It’s a relief to hear the Prime Minister express some moral outrage over Ben-Gvir’s brutish behaviour, outrage which has been missing during Israel’s attack on Iran, bombardment of Lebanon and ongoing genocide in Gaza.
+But strong words must be followed by strong action. Sanctioning individual ministers is not enough when this cruelty is mirrored in Israeli state policy. Close the loophole on arms sales, cancel the free trade agreement and use every tool in Canada’s diplomatic arsenal to end Israel’s impunity.
+#cdnpoli
+public_profile__reactions
+173
+11 Comments
+Copy
+LinkedIn
+Facebook
+X
+Naeem Siddiqi
+liked this
+Report this post
+Ayaz Somjee, PMP
+Ayaz Somjee, PMP
+4h
+Naeem Siddiqi liked this
+Looking forward to being at eHealth26. It’s always a strong gathering of people pushing digital health forward in meaningful ways.
+Fractional PMO and PMO-as-a-service are starting to play a bigger role, giving organizations the ability to scale delivery, bring in the right expertise at the right time, and stay focused on outcomes without adding unnecessary overhead.
+Great to compare notes with others thinking about this. If you’re attending, let’s connect.
+#DigitalHealth #HealthTech #HealthInnovation #ProjectManagement #FractionalPMO #PMOasaService
+Finish Line Projects
+Finish Line Projects
+1d
+Naeem Siddiqi liked this
+Finish Line Projects is excited to be attending our fourth consecutive year at #eHealth26! Looking forward to connecting with industry leaders and innovators. Let us know your booth# — we’d love to stop by and say hello!
+#DigitalHealth #HealthTech #HealthInnovation #ProjectManagement
+public_profile__reactions
+4
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+See all activities
+Experience & Education
+SAS
+****** ******** **** *** ************ *********
+******** ************
+****** ***** ** *********
+**
+********* ******** **** ********* * *********
+******** ******* ******
+**** ****** undefined undefined
+1987 - 1990
+******** ****** ** ******** * **** **********
+*** undefined
+1991 - 1992
+View Naeem’s full experience
+See their title, tenure and more.
+Sign in
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Licenses & Certifications
+SAS Trainer 2022
+SAS
+Issued Feb 2022
+See credential
+SAS Trainer 2021
+SAS
+Issued Feb 2021
+Expires Dec 2022
+See credential
+Volunteer Experience
+Vice Chair Board Of Directors
+Olive Tree Foundation
+Jan 2004 - Present
+22 years 5 months
+Education
+The Olive Tree Foundation is a philanthropic organization that promotes community development through the collection of endowed funds, the earnings of which are used to fund services for the long-term benefit of the community. The Foundation will occupy a clear, distinctive, and desirable place in the minds of donors, volunteers, and consumers. It is positioned as the premier charitable organization that effectively addresses compelling community needs and…
+Show more
+The Olive Tree Foundation is a philanthropic organization that promotes community development through the collection of endowed funds, the earnings of which are used to fund services for the long-term benefit of the community. The Foundation will occupy a clear, distinctive, and desirable place in the minds of donors, volunteers, and consumers. It is positioned as the premier charitable organization that effectively addresses compelling community needs and priorities.
+www.olivetreefoundation.ca
+Show less
+Member Board of Directors
+Windmill Microlending
+Sep 2022 - Present
+3 years 9 months
+Economic Empowerment
+Publications
+Economic Turbulence Ahead: A guide for credit risk managers
+Banking Exchange
+Apr 2020
+See publication
+Model Governance for AI : Rethinking our approach to using and validating black box models
+SAS Global Forum
+Apr 2020
+Model governance, including model validation, is a well-practiced discipline. The traditional
+approaches have served the industry well over the years. These typically involve activities
+such as backtesting, performing methodology and documentation reviews, benchmarking
+models, and performing qualitative assessments. A central part of this governance process
+is in model explainability, where knowing the exact variables and their weights is considered
+key. In the emerging world of…
+Show more
+Model governance, including model validation, is a well-practiced discipline. The traditional
+approaches have served the industry well over the years. These typically involve activities
+such as backtesting, performing methodology and documentation reviews, benchmarking
+models, and performing qualitative assessments. A central part of this governance process
+is in model explainability, where knowing the exact variables and their weights is considered
+key. In the emerging world of artificial intelligence (AI) and machine learning models, it is
+often very difficult to understand model components, and traditional approaches might not
+be ideal. Such new models, known as black box models, require a re-think on how we
+approach model governance. This paper proposes a new framework for model governance
+that does not depend on knowing specific details about what is inside the model. Such an
+approach can enable institutions, particularly regulated financial ones, to be able to use
+black box models with confidence.
+Show less
+See publication
+Developing an Impairment Loss
+Given Default Model Using Weighted Logistic Regression Illustrated on a
+Secured Retail Bank Portfolio
+Risks as part of the
+Special Issue Computational Methods for Risk Management in Economics and
+Finance
+December 1, 2019
+Other authors
+See publication
+Designing the Infrastructure for Credit Risk Model Development
+SAS Institute
+Aug 2017
+As more organizations globally realize the value of analytics and credit scoring, there’s growing interest in setting up analytics and modeling disciplines in-house. But to realize expected value, your organization needs a comprehensive plan and long-term vision for analytics and modeling. This paper explores the most common problems organizations face when setting up infrastructure for analytics – and credit risk modeling specifically – and suggests ways to increase productivity and reduce…
+Show more
+As more organizations globally realize the value of analytics and credit scoring, there’s growing interest in setting up analytics and modeling disciplines in-house. But to realize expected value, your organization needs a comprehensive plan and long-term vision for analytics and modeling. This paper explores the most common problems organizations face when setting up infrastructure for analytics – and credit risk modeling specifically – and suggests ways to increase productivity and reduce problems through better planning and design. The discussion focuses on building, using and monitoring predictive models, including scorecards.
+Show less
+See publication
+Intelligent Credit Scoring : Developing and Implementing Better Credit Risk Scorecards. 2nd Edition
+WIley and Sons
+January 9, 2017
+This book offers a detailed step by step guide for building scorecards. It looks at the process from a business perspective, and helps analysts go beyond the statistics. Planning, coordination, developing parameters, segmentation, binning, model fitting, reject inference and other topics are covered in detail.
+See publication
+Building Loss Given Default Scorecard Using Weight of Evidence Bins in SAS® Enterprise Miner™
+SAS
+2012
+The process of building PD models involves grouping variables using weight of evidence, and then performing logistic regression to produce predicted probabilities. Learn how to use the same process to build binned variable scorecards for Loss Given Default. We will explain the theoretical principles behind the method and use actual data to demonstrate how we did it.
+Other authors
+See publication
+Improving Credit Risk Scorecards with Memory-Based Reasoning to Reject Inference with SAS® Enterprise Miner™
+SAS
+2010
+This paper uses real-world data to present an example of using memory based reasoning as a reject inference technique. SAS® Enterprise Miner™ software is used to perform the analysis. The paper discusses the technical concepts in reject inference and the methodology behind using memory-based reasoning as a reject inference technique. Several misclassification measures are reported to determine how well memory-based reasoning performs as a reject inference technique.
+In addition, a macro to…
+Show more
+This paper uses real-world data to present an example of using memory based reasoning as a reject inference technique. SAS® Enterprise Miner™ software is used to perform the analysis. The paper discusses the technical concepts in reject inference and the methodology behind using memory-based reasoning as a reject inference technique. Several misclassification measures are reported to determine how well memory-based reasoning performs as a reject inference technique.
+In addition, a macro to determine how to pick the number of neighbors for the memory-based reasoning technique is given and discussed.
+Show less
+Other authors
+See publication
+Reject Inference Techniques Implemented in Credit Scoring for SAS® Enterprise Miner™
+SAS
+2009
+This paper discusses the technical concepts in reject inference and the methodology behind the reject inference algorithms that are available in Credit Scoring for SAS Enterprise Miner. Each reject inference algorithm is discussed in detail, and each algorithm’s impact on the final scorecard is shown. Suggestions for which algorithm to use under certain conditions are also given.
+Other authors
+See publication
+Credit Risk Scorecards : Developing and Implementing Intelligent Credit Scoring
+Wiley and Sons
+Sep 2006
+"The book is a comprehensive guide for developing, implementing and monitoring credit risk scorecards." (Institute of Chartered Financial Analysts of India, November 2006)
+Using credit risk scorecards helps large companies manage and minimize their risk exposure and thus improve their bottom lines. Most books on credit scoring emphasize the statistics-related aspects; Credit Risk Scorecards emphasizes the business-related aspects. This unique, business-focused methodology results in more…
+Show more
+"The book is a comprehensive guide for developing, implementing and monitoring credit risk scorecards." (Institute of Chartered Financial Analysts of India, November 2006)
+Using credit risk scorecards helps large companies manage and minimize their risk exposure and thus improve their bottom lines. Most books on credit scoring emphasize the statistics-related aspects; Credit Risk Scorecards emphasizes the business-related aspects. This unique, business-focused methodology results in more robust scorecard development for real-world, company-wide applications. With this guide to intelligent credit scoring, readers will:
+Have a solid foundation in statistic and data mining principles
+Understand an end-to-end scorecard development and implementation process—from a business perspective
+Know how to incorporate business knowledge to facilitate better scorecard development
+Have practical knowledge of all aspects of scorecard development and implementation, including development roles, model building, validation, implementation, and post-implementation
+Understand how to relate credit risk scoring to Basel II Accord requirements
+Know how to use scorecards to develop risk; adjusted strategies, predict delinquencies, and perform vintage curve analysis to generate highly accurate credit loss forecasts
+Credit Risk Scorecards explains a generic development methodology that is applicable globally. All locations, departments, and lines of business can use the credit risk scorecard; this results in a much more accurate analysis of a company's total exposure than can be derived from reports based on the disparate methodologies of various entities.
+A valuable resource for treasurers, CFOs, credit risk analysts/managers; credit scoring analyst managers; and credit risk executives in banking, retail lending, telecommunications, and insurance; as well as undergraduate and graduate students—this book helps businesses know the score!
+Show less
+See publication
+Creating Interval Target Scorecards with Credit Scoring for SAS ® Enterprise Miner ™
+-
+Credit Scoring for SAS ®Enterprise Miner™ has been widely used to develop binary target probability of default scorecards, which include scorecards for application and behavior scoring. Extending the weight -of-evidence binned scorecard methodology to interval - based targets such
+as loss given default and exposure at default is a natural step in the evolution of scorecard development methodologies.
+This paper discusses several new methods available in Credit Scoring for SAS Enterprise…
+Show more
+Credit Scoring for SAS ®Enterprise Miner™ has been widely used to develop binary target probability of default scorecards, which include scorecards for application and behavior scoring. Extending the weight -of-evidence binned scorecard methodology to interval - based targets such
+as loss given default and exposure at default is a natural step in the evolution of scorecard development methodologies.
+This paper discusses several new methods available in Credit Scoring for SAS Enterprise Miner that help build scorecards that are based on interval targets. These include cutoffs that convert the interval target to a binary form and an algorithm that maintains the continuous nature of the
+interval target.
+Each method is covered in detail, and all methods are compared to determine how they perform
+against known target values.
+Show less
+Other authors
+See publication
+Join now to see all publications
+Languages
+English
+Native or bilingual proficiency
+Urdu
+Native or bilingual proficiency
+Malay
+Full professional proficiency
+Recommendations received
+Vicent Osabel
+“I've had the great pleasure with working with Naeem whilst I led the PH Risk Practice during my time in SAS Philippines. His book "Credit Risk Scorecards" has been fundamental in building my knowledge and expertise in this area. His subject matter expertise has also been well-regarded by my customers and prospects which is why he's been asked to come back multiple times to meet with them.”
+Javed Siddiqi
+“I have attended one of the SAS scoring training was delivered by Naeem and really found him very knowledgeable and friendly person. My team has also raised/send number of queries through e-mail and he has generously explained all the issues.
+I have also gone through various articles/Book written by him and witnessed that all are very helping in my risk management profession & Basel II & Basel III implementation journey. He has presented all the key aspects of Scoring Models and PD calculation that aligned with the Basel II & IFRS 9 requirements; he has highlighted the forward –looking design of practical tools that drive optimal bottom-line results.”
+9 people have recommended Naeem
+Join now to view
+View Naeem’s full profile
+See who you know in common
+Get introduced
+Contact Naeem directly
+Join to view full profile
+Other similar profiles
+Michael Baker ICD.D
+Michael Baker ICD.D
+AlphaLayer
+985 followers
+Edmonton, AB
+View Profile
+Normand Zucco
+Normand Zucco
+Toronto Cat Rescue
+1K followers
+Canada
+View Profile
+Arif Mobeen Ahmed
+Arif Mobeen Ahmed
+Fairstone Bank
+3K followers
+Oakville, ON
+View Profile
+Ricardo de Leonardis
+Ricardo de Leonardis
+Rogers Bank
+2K followers
+Notre-Dame-du-Mont-Carmel, QC
+View Profile
+Rob Wallis
+Rob Wallis
+VELA Wealth
+2K followers
+Canada
+View Profile
+Christine Leskun
+Christine Leskun
+Enlightened Benefits Consulting Ltd.
+2K followers
+Calgary, AB
+View Profile
+Atul Gautam
+Atul Gautam
+Evolve Capital Partners
+2K followers
+United States
+View Profile
+Mohamed Datoo
+Mohamed Datoo
+Kawartha Credit Union
+2K followers
+Aurora, ON
+View Profile
+Leo de Bever
+Leo de Bever
+Mountain Pacific Group
+2K followers
+Greater Calgary Metropolitan Area
+View Profile
+Explore more posts
+Dr Yannick Lallement
+7K followers
+It was a pleasure to be part of the panel discussion on AI in banking at Toronto Machine Learning Summit (TMLS) yesterday.
+One of the questions posed to the panel was to describe AI in banking using a movie title. My choice (with a little help from ChatGPT) was Edge of Tomorrow. Much like in the movie, we're at the beginning of a massive transformation. The full impact of AI on banking is still unfolding, similar to how it was difficult to predict the full impact of mobile technology back in the era of the PalmPilot.
+During the discussion, I highlighted a few key areas we're focused on at Scotiabank:
+* Evolving Skillsets: The role of an AI practitioner is changing. It's no longer just about building models. Strong software development skills and a deep understanding of cloud platforms are becoming essential as we embed AI directly into our core processes.
+* Delivering Tangible Value: We're moving beyond experimentation to real-world application. A great example is an agentic AI system we recently deployed. This system reviews and sorts thousands of daily emails from our commercial clients. It now processes 70% of these emails with higher accuracy than previous manual methods.
+* Improving Customer Experience: The true benefit of this AI system isn't just internal efficiency. By instantly sorting and creating cases, we've cut down the response-initiation time by 1-2 hours. This delivers a faster, better service to our clients, which is the ultimate goal.
+It was a fantastic conversation with my fellow panelists Ozge Yeloglu, Patricia Arocena, PhD, Saba Zuberi and Eric Morrow.
+334
+13 Comments
+Vinh Tran
+RBC Borealis
+• 4K followers
+What a big day for #rbc…this is our double down on AI. How do we improve on #1 in Canada and #3 globally?…We build an org that is focused on delivering value through AI across the enterprise…but do it faster.
+I’m honoured to be part of it and thrilled by the talent I will get to work with. #rbcai #borealis #lumina
+183
+1 Comment
+MUNSHA A.
+InfoTekRisk Consulting Inc.
+• 929 followers
+Interesting and knowledgeable article for bank customers!
+Introduction of Open Banking Framework in banks in Canada is a good beginning for bank customers if the banks address their cybersecurity risks under a strong compliance monitoring by Bank of Canada and OSFI.
+5
+2 Comments
+Shashin Pandya, MBA, CSSBB, CAP
+Lifemark Health Group
+• 2K followers
+​I’m seeing a lot of organizations chase AI trends, but what stands out about TD’s approach, highlighted by Luke Gee, is the focus on foundational principles over hype.
+How is your organization balancing rapid AI adoption with responsible practices?
+#AI #FinTech #ResponsibleAI #DigitalTransformation #Leadership
+9
+2 Comments
+Finperform
+27K followers
+What Canada's Data Collection Modernization Project Could Mean for Financial Institutions: Institutions that treat regulatory reporting as an enterprise data capability—integrated with risk and finance—will be better positioned to reduce ... #regulatoryreporting #regulation #finperform
+Arindam Bhaumik (Mgmt. Consultant focused on AFC and DLT)
+Capco
+• 2K followers
+Money laundering threats are evolving fast—how are industry leaders keeping pace? Join Capco Canada’s Gaelan Woolham at the Annual Canadian Forum on Anti-Money Laundering and Financial Crime Conference this June for a high-impact panel: “How Industry Leaders are Identifying and Tackling Money Laundering.”
+He’ll join experts from across sectors to share how diverse industries are fighting financial crime on the front lines.
+Key topics include:
+• Spotting and adapting to emerging criminal behaviours and techniques.
+• Responding to global and national AML regulatory shifts.
+• Highlighting proactive strategies outside of traditional banking.
+Don’t miss the opportunity to learn how cross-industry collaboration is transforming AML practices—and how Capco is helping drive the change.
+5
+CREDiTools Technologies
+9 followers
+𝐔𝐧𝐝𝐞𝐫𝐬𝐭𝐚𝐧𝐝𝐢𝐧𝐠 𝐇𝐨𝐰 𝐀𝐝𝐯𝐚𝐧𝐜𝐞𝐝 𝐃𝐚𝐭𝐚 𝐀𝐧𝐚𝐥𝐲𝐭𝐢𝐜𝐬 𝐢𝐬 𝐓𝐫𝐚𝐧𝐬𝐟𝐨𝐫𝐦𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐫𝐧 𝐂𝐫𝐞𝐝𝐢𝐭 𝐒𝐜𝐨𝐫𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐥𝐬
+The financial landscape is experiencing a seismic shift as advanced data analytics reshapes traditional credit scoring methodologies. Financial institutions across Canada and globally are discovering that sophisticated analytical frameworks can dramatically enhance risk assessment accuracy while strengthening client relationships.
+𝐁𝐞𝐲𝐨𝐧𝐝 𝐓𝐫𝐚𝐝𝐢𝐭𝐢𝐨𝐧𝐚𝐥 𝐂𝐫𝐞𝐝𝐢𝐭 𝐌𝐞𝐭𝐫𝐢𝐜𝐬
+Modern data analytics transcends conventional credit scoring by incorporating diverse data sources including transaction patterns, behavioral indicators, and real-time financial movements. This comprehensive approach enables lenders to evaluate creditworthiness with unprecedented precision, reducing false positives and identifying viable borrowers who might be overlooked by traditional models.
+𝐑𝐞𝐚𝐥-𝐓𝐢𝐦𝐞 𝐑𝐢𝐬𝐤 𝐀𝐬𝐬𝐞𝐬𝐬𝐦𝐞𝐧𝐭 𝐑𝐞𝐯𝐨𝐥𝐮𝐭𝐢𝐨𝐧
+Advanced analytics platforms facilitate instant credit evaluations, transforming lengthy approval processes into streamlined experiences. By integrating multiple data touchpoints, these systems provide dynamic risk profiles that adapt to changing financial circumstances, ensuring more accurate lending decisions.
+The integration of predictive modeling allows institutions to anticipate potential defaults before they occur, enabling proactive client management and portfolio optimization. This forward-thinking approach protects both lenders and borrowers while fostering sustainable lending practices.
+𝐒𝐭𝐫𝐚𝐭𝐞𝐠𝐢𝐜 𝐀𝐝𝐯𝐚𝐧𝐭𝐚𝐠𝐞𝐬 𝐟𝐨𝐫 𝐅𝐢𝐧𝐚𝐧𝐜𝐢𝐚𝐥 𝐈𝐧𝐬𝐭𝐢𝐭𝐮𝐭𝐢𝐨𝐧𝐬
+Data-driven credit scoring delivers measurable benefits including reduced processing times, lower default rates, and enhanced regulatory compliance. Banks, credit unions, and lending institutions leveraging these technologies report improved client satisfaction alongside stronger risk management outcomes.
+As we advance into an increasingly digital financial ecosystem, the convergence of data analytics and credit scoring represents more than technological innovation—it's a fundamental transformation that positions forward-thinking institutions for sustained success.
+At CREDiTools Technologies, we're developing an innovative ML-driven credit risk management platform designed to revolutionize how financial institutions evaluate creditworthiness. Our comprehensive solution spans commercial lending, asset financing, leasing, and SME lending, delivering the advanced analytics capabilities that modern lenders require to thrive in today's competitive landscape.
+#CreditRisk #DataAnalytics #FinTech #MachineLearning #RiskManagement #CreditScoring #FinancialServices #Innovation #Canada
+Cameron Schuler
+6K followers
+This is exactly why Vector exists.
+Our mission centers on helping Canadian businesses harness groundbreaking AI research, and seeing strong partners like CIBC achieve remarkable success with their purpose-built AI systems is incredibly rewarding.
+CIBC's journey to #1 worldwide for responsible AI leadership demonstrates what happens when cutting-edge research meets visionary business strategy. From their internally-developed CAI tool to their comprehensive AI transformation, they're proving that Canadian innovation can lead globally.
+This is the impact we're working toward—research and collaboration that drives real business outcomes.
+Read the full story: https://lnkd.in/gRDaMA4z
+45
+David Colby
+CIBC
+• 642 followers
+Thought Leadership driving enterprise upskilling on AI & Data in the 2025 Sustainability Report
+At CIBC, we believe that responsible innovation and continuous learning are essential to building a more sustainable future. The 2025 Sustainability Report:https://lnkd.in/eQSJAU6a highlights progress against our ESG initiatives across the bank. Delivered by our Enterprise Innovation team – the Future Now thought leadership program has become a cornerstone for driving knowledge and adoption of emerging technologies across the bank for the last 5 years and I’m proud to share our feature once again.
+In 2025, more than 50% of Future Now sessions were dedicated to advancing AI-focused trends, concepts, and use cases, reaching over 12,000 employees. These sessions empowered our teams to upskill in AI capabilities and stay ahead in a rapidly evolving landscape, while reinforcing our commitment to trustworthy and ethical AI adoption.
+I’m proud of the collaborative spirit that powers Future Now, bringing together industry experts, thought leaders, and our own talented team members. This initiative reflects our ongoing commitment to innovation, risk management, and supporting our clients and communities in a digital-first world.
+#ProudToBeCIBC
+James Maeng Ian Wight Tarandeep Singh Chris Charalambides Geoff C. Maria Podorojansky Ronni Bharadwaj Ralph Nott Rachel Fernandes
+126
+Marie Fenner
+Piano
+• 6K followers
+A Great panel session this morning at MoneyLIVE North America on The AI-enabled bank with
+- Kristin Milchanowski, Ph.D., Chief AI and Data Officer at BMO
+- Rafal Orlowski Director of Data Science at Scotiabank
+- Melisa Albas, Director, Enterprise Insights at First West Credit Union
+- Carlos Kazuo Missao, Global Head of Innovation at GFT.
+The benefits of AI are clear - operational efficiency, revenue opportunities, frictionless customer experience, product innovation - but we need to embed the ‘responsible AI and risk framework’ to mitigate risks.
+42
+1 Comment
+Ted Paris
+TD
+• 9K followers
+Customers now expect their banks to be more responsive than ever; in fact, according to the TD AI Insights Report, 48% of consumers say around-the-clock access is the most valuable benefit of AI in financial services. That’s not a trend — it’s a transformation. This shift represents a strategic opportunity to meet customers where they are - anytime, anywhere.
+Check out the TD Stories article, AI in Banking, to learn more.
+#ProudtobeTD #AI #AIinBanking
+https://lnkd.in/eB7-rVQW
+113
+3 Comments
+Substance Law
+912 followers
+The RPAA annual report PSPs must submit to the Bank of Canada verifies adherence to risk management and fund safeguarding requirements.
+Imran Mian
+mobileLIVE Inc
+• 10K followers
+TD AI Prism gives TD Bank a substantial competitive edge by enabling hyper-personalized customer experiences at scale, faster innovation cycles through a unified AI model, and robust privacy protections embedded in a secure cloud environment. The in-house development and integration with TD’s cloud infrastructure provide agility and flexibility that many competitors lack, positioning TD as a leader in AI-driven banking innovation. This foundation model also supports enhanced risk management, helping TD safeguard its assets while delivering superior customer value.
+In an industry rapidly embracing AI, TD’s approach with AI Prism not only future-proofs its digital strategy but also creates a differentiated customer experience and operational efficiency that will be difficult for competitors to replicate quickly! Bravo!
+8
+Hunar Malik
+RBC Borealis
+• 2K followers
+From Leading the Financial Industry to Shaping the Future of AI 🚀
+When I joined RBC, I knew I was stepping into Canada’s most respected financial institutions. What I didn’t expect was how deeply focused we are on the future — and how seriously we take the responsibility to innovate.
+AI isn’t just a trend here. It’s becoming part of how we think, build, and show up for clients. Whether it’s enhancing digital experiences, improving decisions, or making banking more intuitive — we’re not just adopting new tools, we’re shifting how things are done.
+Disruption isn’t just a buzzword here — it’s a mindset.
+It’s inspiring to see how a legacy institution is embracing the speed, responsibility, and creativity that modern AI demands.
+Here’s to building what’s next. 🔍🤖💡
+#RBC #AI #FinTech #Innovation #Leadership #FutureOfFinance
+35
+2 Comments
+Masoud Nasari
+Bank of Canada
+• 2K followers
+​A fantastic example of structural change from the Canadian Mathematical Society!
+​The CMS has been supporting and promoting Mathematics in Canada since 1945, and seeing them evolve their institutional framework is incredibly encouraging. A great step forward for the community. 👏
+​#Math #Canada #Innovation #CMS
+7
+Zarish Rasheed - ACA, BFP, MCBI, MSc.
+Citi
+• 5K followers
+It was a real pleasure to speak with the MSc Banking & Finance students at Cranfield School of Management about the future of digital banking, fintech and AI.
+The future of banking will be shaped by those who understand technology, regulation and transformation together.
+And it’s always energising to see such curiosity, ambition and thoughtful questions from the next generation of industry leaders.
+Thank you Lakshmy for the invitation and the engaging discussion.
+Cranfield University Cranfield School of Management #Banking #Fintech #AI #DigitalBanking
+29
+Dean McKeown
+Smith School of Business at…
+• 8K followers
+I am currently reading Mark Carney’s book – Value(s). It is a comprehensive and interesting look at banking around the world including the beginnings of the global monetary system and the gold standard. Canada’s banking system is globally recognized for its stability, conservative regulation, and resilience, especially during crises like the 2008 financial meltdown. I feel quite strongly that you cannot determine a path forward without a strong understanding of where you have been and where you are now. This chapter outlines the structure and key players in the current system, including the Big Five banks, credit unions, and the Bank of Canada.
+Canada’s financial core is dominated by five major banks:
+Bank Distinctive Feature
+RBC Largest by market cap; global reach
+TD Strong U.S. retail presence
+Scotiabank Focus on Latin America
+BMO Canada’s oldest bank
+CIBC Domestic retail and small business focus
+Key Traits:
+· Regulated by Office of the Superintendent of Financial Institutions
+· Strong capital and liquidity
+· Offer full-service financial products
+· Emphasize long-term stability over short-term risk
+Credit unions offer a community-based alternative to big banks:
+· Democratic governance: One member, one vote
+· Provincial regulation
+· Personalized service and lower fees
+They are especially important in rural and underserved areas and often lead in tech adoption.
+The Bank of Canada ensures monetary and financial stability through:
+· Monetary policy (interest rate setting)
+· Currency issuance
+· Systemic risk monitoring
+· Innovation research (e.g., CBDCs)
+It targets 2% inflation and acts decisively during crises, such as using quantitative easing during COVID-19.
+Canada’s system is praised for being “boring”—a strength rooted in:
+· Strict regulation
+· High capital buffers
+· Minimal subprime exposure
+· Deposit insurance (CDIC)
+· Strong bank-regulator collaboration
+This framework supports cautious innovation, including fintech integration.
+Canada’s banking model blends scale and security (Big Five), community responsiveness (credit unions), and monetary discipline (Bank of Canada). It offers a compelling case study in how to balance innovation with systemic safety—a theme explored further in the next chapter on fintech.
+#Sustainability #Crypto #DigitalAssets #ClimateTech #Innovation #ESG #LinkedInInsights #FinancialInnovation #CanadaFinance #DigitalCurrency #FintechForEveryone #BankingMadeSimple #TrustAndTechnology #Fintech #Innovation #DigitalTransformation #CanadaTech #Blockchain #AI #Finance #WealthManagement #Neobanking #Insurtech #Regtech #Crypto #FutureOfFinance #CanadianBanking #Leadership #smithqueens #MMA #AI #MMAI #MFIT #queensuniversity
+20
+1 Comment
+Portfolio+
+8K followers
+Cloud-Based Infrastructure. Crystal-Clear Strategy. ☁️ Portfolio+ Cloud delivers a secure, fully managed cloud foundation for Canadian financial institutions, purpose-built for compliance, resilience, and modernization. Enable cloud-first strategies, accelerate innovation, and focus on building what’s next in banking without the operational complexity.
+👉 Learn more about Portfolio+ Cloud: https://bit.ly/4uA2pnJ
+#CloudBanking #CoreBanking #Banks #PortfolioPlus #CloudFirst #BankingTechnology #ManagedServices
+6
+Canadian Centre for the Study of Co-operatives
+2K followers
+New Publication - Co-ops and Credit Unions: 2025 Report from the Board Room is now available!
+Penned by Marc-Andre Pigeon, Stan Yu, and Syed Jafar Raza Rizvi, this report presents the current landscape of governance practices across Canadian co-operatives and credit unions, and how they have changed over time. You can read the full report here: https://lnkd.in/gZF4gwvb
+Thank you, UFA, for supporting this project!
+10
+3 Comments
+Show more posts
+Show fewer posts
+Explore top content on LinkedIn
+Find curated posts and insights for relevant topics all in one place.
+View top content
+Add new skills with these courses
+1h 17m
+Decision Science Fundamentals
+2h
+Delivering Data-Driven Decisions with AWS: Applying Machine Learning, Data Engineering, and Generative AI
+49m
+Data Quality: Transactions, Ingestions, and Storage
+See all courses
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Learn from Naeem’s industry expertise
+Naeem can introduce you to 10+ people at SAS
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

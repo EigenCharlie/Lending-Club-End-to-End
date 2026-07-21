@@ -1,0 +1,5 @@
+Excited to share an update on my book, releasing 𝗠𝗮𝗿𝗰𝗵 𝟭𝘀𝘁 as a color paperback!
+I just received my proof copy and wanted to give you a preview. 𝘖𝘯 𝘊𝘳𝘦𝘥𝘪𝘵: 𝘚𝘤𝘰𝘳𝘪𝘯𝘨 𝘍𝘰𝘶𝘯𝘥𝘢𝘵𝘪𝘰𝘯𝘴 𝘪𝘯 𝘵𝘩𝘦 𝘈𝘨𝘦 𝘰𝘧 𝘈𝘐 bridges 80 years of credit scoring history, from Turing's weight of evidence at Bletchley Park through Fisher's maximum likelihood to modern ensemble methods and explainability frameworks.
+The book will be available on Amazon worldwide starting March 1. Code examples and notebooks are already live: https://lnkd.in/daK5nfYM
+Full release announcement coming soon.
+#CreditRisk #CreditScoring #DataScience #AI #BookRelease

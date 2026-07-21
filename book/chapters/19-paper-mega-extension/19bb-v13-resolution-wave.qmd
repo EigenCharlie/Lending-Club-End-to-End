@@ -1,0 +1,379 @@
+---
+title: "v13 Resolution Wave"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v13_status.json")
+champion = _json("paper4_v13_working_champion.json")
+refs = _csv("paper4_v13_method_reference_registry.csv")
+cvar = _csv("paper4_v13_cvar_stronger_decomposition_frontier.csv")
+cvar_active = _csv("paper4_v13_cvar_active_constraints.csv")
+mdcp_caps = _csv("paper4_v13_mdcp_cap_regime_rationale.csv")
+mdcp = _csv("paper4_v13_mdcp_cap_regime_solver_summary.csv")
+dla_coef = _csv("paper4_v13_dla_fitted_value_coefficients.csv")
+dla = _csv("paper4_v13_dla_fvi_comparison.csv")
+spo_report = _csv("paper4_v13_spo_decision_loss_report.csv")
+spo = _csv("paper4_v13_spo_decision_loss_candidates.csv")
+sample_ci = _csv("paper4_v13_sample_path_macro_calibrated_ci.csv")
+pairwise = _csv("paper4_v13_sample_path_pairwise_champion_ci.csv")
+stress = _csv("paper4_v13_champion_stress_test.csv")
+ifrs9 = _csv("paper4_v13_ifrs9_sicr_sensitivity.csv")
+ifrs9_blockers = _csv("paper4_v13_ifrs9_data_blocker_register.csv")
+causal = _csv("paper4_v13_causal_cate_dossier.csv")
+fairness = _csv("paper4_v13_fairness_proxy_governance.csv")
+registry = _csv("paper4_v13_working_candidate_registry.csv")
+dashboard = _csv("paper4_v13_blocker_dashboard.csv")
+claims = _csv("paper4_v13_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V13 prueba si el champion de trabajo de Paper 4 sobrevive cuando se aumentan
+los pools CVaR, se integran DLA-FVI y SPO en los mismos sample paths, y se
+corrige el scoring del registry para que las métricas buenas realmente reciban
+mejor puntaje. La respuesta fue no: el champion v12 queda reemplazado por un
+candidate DLA-FVI.
+
+::: {.callout-warning}
+El nuevo champion es solo `paper4_working_champion_only`. No toca el Paper
+Estrella, no crea promoción final y no autoriza claims IFRS9 contractuales,
+CATE policy value ni fair-lending legal.
+:::
+
+## Status
+
+```{python}
+#| label: tbl-paper4-v13-status
+#| tbl-cap: "Paper 4 v13 status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "previous_champion_v12": status.get("previous_working_champion_policy_id_v12"),
+    "working_champion_v13": status.get("working_champion_policy_id_v13"),
+    "champion_changed": status.get("champion_changed_vs_v12"),
+    "universe_n": status.get("candidate_universe_n_v13"),
+    "cvar_pool_n": status.get("cvar_pool_n_v13"),
+    "cvar_feasible": status.get("cvar_feasible_count_v13"),
+    "cvar_non_dominated": status.get("cvar_non_dominated_count_v13"),
+    "mdcp_optimal": status.get("mdcp_optimal_count_v13"),
+    "dla_best_delta": status.get("dla_best_delta_state_value_v13"),
+    "sample_path_policies": status.get("sample_path_policy_count_v13"),
+    "final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Method Boundaries
+
+```{python}
+#| label: tbl-paper4-v13-method-references
+#| tbl-cap: "V13 method reference registry"
+
+refs
+```
+
+V13 sigue la idea predict-then-optimize y decision-focused learning como
+arquitectura, pero no declara una prueba SPO+ diferenciable. La implementación
+actual es una aproximación temporal de regret, validada por replay y no por una
+capa convexa diferenciable.
+
+## CVaR/OCE
+
+```{python}
+#| label: tbl-paper4-v13-cvar-frontier
+#| tbl-cap: "V13 larger-pool CVaR/OCE frontier"
+
+_cols(
+    cvar.head(18),
+    [
+        "policy_id",
+        "solver_status",
+        "feasible_v13",
+        "non_dominated_v13",
+        "column_round_v12",
+        "pool_n_v13",
+        "pool_expansion_vs_v11",
+        "objective_return",
+        "scenario_loss_cvar90",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "auditability_score_v13",
+        "frontier_scope_v13",
+        "cap_relaxation_v13",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v13-active-constraints
+#| tbl-cap: "V13 active CVaR constraints"
+
+_cols(
+    cvar_active[cvar_active.get("active_v12", False).astype(bool)].head(24),
+    ["policy_id", "constraint_name", "limit_v12", "actual_v12", "slack_v12", "active_v12"],
+)
+```
+
+El pool CVaR sube a 32k y la segunda ronda prueba 36k. El hallazgo permanece:
+los puntos estrictos siguen infeasible; los puntos factibles aparecen bajo
+relajación explícita de comité. Eso no es una derrota, es información: el
+trade-off retorno-CVaR-MDCP-qhat no se consigue gratis.
+
+## MDCP
+
+```{python}
+#| label: tbl-paper4-v13-mdcp-caps
+#| tbl-cap: "V13 MDCP cap rationale"
+
+mdcp_caps
+```
+
+```{python}
+#| label: tbl-paper4-v13-mdcp-summary
+#| tbl-cap: "V13 MDCP cap-regime solver summary"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "mdcp_family_gate_v8",
+        "auditability_score_v12",
+        "cap_regime_scope_v13",
+    ],
+)
+```
+
+MDCP queda como governance source coverage, no como fairness legal. V13 prueba
+regímenes base, tight y return-recovery, y conserva el bloqueo legal de
+fairness.
+
+## DLA/SDAM
+
+```{python}
+#| label: tbl-paper4-v13-dla-coefficients
+#| tbl-cap: "V13 DLA fitted-value coefficients"
+
+dla_coef
+```
+
+```{python}
+#| label: tbl-paper4-v13-dla-comparison
+#| tbl-cap: "V13 DLA-FVI comparison"
+
+dla
+```
+
+V13 integra DLA-FVI en sample paths mediante un libro representativo
+budget-capped construido desde decisiones dinámicas. Eso permite comparar bajo
+paths comunes, pero no reemplaza una evaluación dinámica completa con transición
+endógena mes a mes.
+
+## SPO/DFL
+
+```{python}
+#| label: tbl-paper4-v13-spo-report
+#| tbl-cap: "V13 SPO-style decision-loss report"
+
+spo_report
+```
+
+```{python}
+#| label: tbl-paper4-v13-spo-candidates
+#| tbl-cap: "V13 SPO-style candidate policies"
+
+_cols(
+    spo,
+    [
+        "policy_id",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "decision_regret_proxy_v12",
+        "constraint_pd_pass",
+        "training_scope_v12",
+    ],
+)
+```
+
+V13 extiende el entrenamiento temporal de regret, pero el blocker metodológico
+continúa: una capa diferenciable o una implementación SPO+ formal sigue abierta.
+
+## Sample Paths
+
+```{python}
+#| label: tbl-paper4-v13-sample-ci
+#| tbl-cap: "V13 macro-calibrated common-path intervals"
+
+sample_ci
+```
+
+```{python}
+#| label: tbl-paper4-v13-pairwise
+#| tbl-cap: "V13 pairwise comparison against working champion"
+
+pairwise
+```
+
+Los sample paths ahora incluyen CVaR/MDCP/SPO y libros representativos DLA. La
+comparación se vuelve más útil, pero hay que leerla con el caveat correcto:
+DLA no está todavía evaluado como proceso dinámico completo dentro del mismo
+motor de stress.
+
+## Champion Stress
+
+```{python}
+#| label: tbl-paper4-v13-champion
+#| tbl-cap: "V13 Paper 4 working champion"
+
+pd.DataFrame([champion])
+```
+
+```{python}
+#| label: tbl-paper4-v13-registry
+#| tbl-cap: "V13 working candidate registry"
+
+_cols(
+    registry,
+    [
+        "registry_rank_v13",
+        "policy_id",
+        "lane_v13",
+        "return_proxy",
+        "tail_risk_proxy",
+        "state_value_delta",
+        "p95_loss",
+        "loss_per_1m_v13",
+        "working_candidate_score_v13",
+        "registry_decision_v13",
+        "caveat",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v13-stress
+#| tbl-cap: "V13 champion stress test"
+
+_cols(
+    stress,
+    [
+        "registry_rank_v13",
+        "policy_id",
+        "reference_champion_v13",
+        "mean_loss_diff_vs_champion",
+        "p95_loss_diff_vs_champion",
+        "prob_lower_loss_than_champion",
+        "stress_decision_v13",
+    ],
+)
+```
+
+El champion v13 es `v13_fvi_return_recovery`. La razón no es retorno bruto, sino
+robustez de pérdida y state value dentro de la comparación disponible. Esta es
+una promoción interna de laboratorio: útil para orientar v14, no para publicar
+como política final.
+
+## IFRS9, CATE y Fairness
+
+```{python}
+#| label: tbl-paper4-v13-ifrs9
+#| tbl-cap: "V13 SICR proxy sensitivity"
+
+_cols(
+    ifrs9.head(18),
+    [
+        "scenario",
+        "relative_pd_increase",
+        "absolute_pd_threshold",
+        "stage1_share_v12",
+        "stage2_share_v12",
+        "stage3_share_v12",
+        "mean_ecl_proxy_v12",
+        "stage_mix_defensible_proxy",
+        "contractual_ifrs9_claim_allowed",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v13-ifrs9-blockers
+#| tbl-cap: "V13 IFRS9 contractual data blockers"
+
+ifrs9_blockers
+```
+
+```{python}
+#| label: tbl-paper4-v13-causal
+#| tbl-cap: "V13 causal/CATE dossier"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v13-fairness
+#| tbl-cap: "V13 fairness proxy governance"
+
+fairness
+```
+
+IFRS9 contractual, CATE policy value y fair-lending legal claims siguen
+bloqueados. En v13 eso queda como decisión explícita, no como omisión.
+
+## Blockers
+
+```{python}
+#| label: tbl-paper4-v13-dashboard
+#| tbl-cap: "V13 blocker dashboard"
+
+dashboard
+```
+
+```{python}
+#| label: tbl-paper4-v13-claims
+#| tbl-cap: "V13 claim-artifact matrix"
+
+claims
+```
+
+## Next Step
+
+V14 debería resolver una tensión clara: el champion DLA-FVI gana en paths
+representativos, pero todavía necesita evaluación dinámica completa. El próximo
+paso natural es construir un motor de stress que compare CVaR/MDCP/SPO/DLA como
+procesos de decisión mes a mes, no solo como libros representativos.

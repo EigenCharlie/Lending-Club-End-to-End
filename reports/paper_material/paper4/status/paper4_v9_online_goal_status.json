@@ -1,0 +1,23 @@
+{
+  "schema_version": "2026-05-13.9",
+  "generated_at_utc": "2026-05-14T02:10:45.066141+00:00",
+  "phase": "v9_online_goal_resolution",
+  "mode": "paper4_living_lab_no_paper1_changes",
+  "goal_objective": "Improve Paper 4 online conformal efficiency until source-month >= 0.80, policy-month >= 0.90, and avg_width <= 0.95 without touching Paper Estrella.",
+  "online_goal_achieved": true,
+  "online_best_method_v9": "v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040",
+  "online_best_method_family": "structural_tail_guard_width_shrink",
+  "online_best_source_month_defended_min": 0.8,
+  "online_best_policy_month_defended_min": 0.9,
+  "online_best_width": 0.9342434494753106,
+  "online_width_margin_to_0p95": 0.015756550524689383,
+  "online_goal_passing_count": 503,
+  "target_source_month": 0.8,
+  "target_policy_month": 0.9,
+  "target_avg_width": 0.95,
+  "paper1_artifacts_modified": false,
+  "paper4_final_promotion_created": false,
+  "paper_estrella_freeze_artifact": "models/final_project_promotion.json",
+  "runtime_seconds": 38.811,
+  "caveat": "The v9 structural tail guard resolves the explicit online gate in replay. It is not a Paper Estrella change and does not imply final Paper 4 promotion."
+}

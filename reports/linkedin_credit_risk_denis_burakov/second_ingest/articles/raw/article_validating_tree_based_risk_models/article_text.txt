@@ -1,0 +1,192 @@
+Validating Tree-Based Risk Models
+Report this article
+Denis Burakov
+Denis Burakov
+Published Jun 12, 2024
++ Follow
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification tasks, which constitute the majority of commercial applications. By leveraging ensembles of decision trees, boosting excels in delivering outstanding performance. It effectively addresses common challenges such as handling missing data, managing outliers, and modeling interactions.
+Among the various forms of boosting, particularly prominent are gradient boosted decision trees (GBDT). These models are celebrated for their superior discriminatory power on tabular datasets compared to parametric models. However, a major challenge in fully benefitting from these powerful models in risk management tasks is, arguably, model validation (EBA/REP/2023/28, Chapter 4).
+What is Model Validation?
+Validation in the context of risk management is a critical step ensuring models are safe and ready for production use. SR 11-7 defines model validation as a set of activities intended to verify that models perform as expected, which generally includes:
+A review of the suitability and conceptual soundness of the model (independent review)
+Verification of the integrity of implementation (process verification)
+Ongoing testing to confirm that the model continues to perform as intended (model performance monitoring)
+You can read more about validation approaches to ML models here ⤵
+Throughout this process, validators form their opinion on the model and its assumptions. This process differs from standard model back-testing (sometimes also called validation in non-regulated ML environments), where the process is usually more straightforward and does not involve external verification of the model construct.
+Model Validation for High-Risk Models
+For high-risk applications of ML such as credit scoring, portfolio risk management, and other finance use cases, an independent validation is essential for robust model risk management. Per regulatory guidance, validation must cover the whole scope of model development.
+Source: Author
+In recent years, there has been growing interest in the model risks associated with ML models for high-stakes use cases. This heightened interest largely coincides with increased regulatory attention, as seen in frameworks like GDPR, the EU AI Act, and the NIST AI RMF.
+When working with more complex ML models, validators may face additional questions, for example:
+Is the model choice and complexity justified, or could a simpler model suffice?
+Is the model well-optimized, and does it generalize effectively?
+Does the model continue to be fit for its intended purpose of use?
+Among these challenges, model performance monitoring for ML models can be considered to be key. When working with models like gradient boosted trees (GBDT), validators may require technical tools and familiar metrics to perform this assessment. This article proposes a method for assessing GBDT models' performance using the chi-square (χ2) test of independence. The approach is applicable to other contingency-based metrics (for example Somers' D) which would lead the validator to similar conclusions about potential model degradation.
+Validation Approach for Tree-Based Risk Models
+GBDT model performance can be validated at the sub-model (tree) level. The tree structure can be represented in the form of contingency tables formed by the bins (leaves) of the tree. One common test for contingency table analysis is the chi-square test of independence between categories (tree leaves against labels).
+The chi-square (χ2) statistic is a measure used to determine the likelihood that observed differences between sets of categorical data are by chance. The chi-square (χ2) statistic was introduced by Karl Pearson (1857–1936) and was advanced by Ronald A. Fisher (1890–1962).
+Chi-square statistic
+A gradient boosted model consists of a sequence of boosting iterations, each represented by a decision tree estimated on the residuals from previous boosting rounds. For classification, the raw model predictions, known as margins or leaf weights, represent the log odds of class membership and are cumulatively added across boosting iterations to produce the final prediction with a sigmoid function (logistic regression).
+This approach, however, does not rely on residuals and uses the observed data for a chi-square test viewing each tree as a stand-alone model (sub-model).
+Consider an example based on the first tree in the ensemble model showing the distribution of training data points within buckets:
+Goodness of fit on training data
+This table describes the risk classification of a decision tree where the first split (Delinquency < 98%) allows to differentiate the majority of Class 1 (default) cases. This can be seen through a conditional probability of x < 0.98 | y = 1 (674/700). From this contingency table, we can calculate the chi-square (χ2) statistic, which equals 1020 (p-value < 0.001). The high value of statistic indicates that the observed data is very different from an expected distribution (breakdown).
+When validating the model on a new dataset (e.g., an out-of-time dataset), the validator's goal is to verify that the model trained on historical data reflects current risk adequately. A chi-square statistic of 1.895 (p-value = 0.169) for the new data might indicate that the model does not adequately represent the population anymore and may cause an adverse selection of risk.
+Goodness of fit on validation data
+It is important to note that with a growing complexity of tree-based models (e.g., larger depths of individual trees), the test discussed above may become unreliable because with more categories, it is more likely to observe a significant outcome. Hence, a penalized version of the chi-square statistic can be used:
+Recommended by LinkedIn
+The New and the Old in Risk Management
+Isaac Alfon
+6 years ago
+From Model Risk to Decision Risk:
+Validating and…
+Omkar Saha
+1 month ago
+Knock knock…it’s the Regulator. Your AI Is Ready - But…
+Ira Goldberg
+5 months ago
+Adjusted chi-square
+This adjustment accounts for the increased likelihood of spurious significance in more complex trees by penalizing the chi-square statistic based on the complexity of the tree.
+The general idea can be extended to testing the goodness of fit of all trees in the model to get an average chi-square. Real-world applications of this approach can address performance monitoring across different products covered by the model application that were not part of the training dataset. Additionally, such testing can be extended to sub-populations or slices (e.g., revolving/non-revolving credit).
+Step-by-Step Workflow
+Below we outline the step-by-step approach to testing the goodness of fit for tree-based risk models.
+Model validation workflow for GBDT models
+1. Model and Data Preparation:
+A fitted GBDT model, training and validation data are provided.
+2. Validation Using a New Dataset:
+To validate the model, a validator uses a new dataset that hasn’t been seen during training, for example this could be an out-of-time (OOT) or out-of-sample (OOS) data, or a combination thereof.
+3. Running Through Each Tree:
+The goal is to calculate the counts of class frequencies from the training and validation datasets for each tree in the model and create a χ2 test summaries.
+For validation data, the bins that were defined by the GBDT model during training remain unchanged, only the observed frequencies for new data change (flowing into the existing tree structure).
+4. Calculating Goodness of Fit (Chi-Square Test):
+For each tree in the model, a validator compares the expected distribution with the observed distribution on training and validation datasets.
+The chi-square test can be used to assess how well the gradient boosted tree model fits the validation data, benchmarking this result against the training dataset.
+The overall fit of the model can be assessed by calculating an average chi-square (χ2) statistic across trees (all trees are weighted equally unless we fit a logistic regression on top) and its corresponding p-value, indicating whether the model maintains the desired stability of risk differentiation.
+Below we show an example of model performance degradation by ~30% gini score points reflected in the validation summaries for an XGBoost logistic regression model:
+Training Data - Average Chi-Square: 280.06
+Training Data - p-value of the average Chi-Square: 0.00000
+Training Data - Percent of non-significant trees: 12.94%
+Validation Data - Average Chi-Square: 55.48
+Validation Data - p-value of the average Chi-Square: 0.99452
+Validation Data - Percent of non-significant trees: 37.65%
+It is also interesting that there are some trees in the original model that do not describe the data well (13%) based on the chosen significant level (e.g., 0.05). With the use of boosted scorecards, such trees can be removed from the model via an exclusion from the overall score.
+Summary
+As data for predictive modeling becomes more complex and diverse, integrating rigorous, data-centric validation methods becomes increasingly critical. By using a familiar suite of validation tests for tree-based risk model validation, developers and validators can leverage well-established instruments to validate and assess the performance of predictive models.
+This data-centric approach ensures that the model accurately describes the data-generating process, especially when applied to new, unseen data. Embracing robust validation practices ensures that advanced risk models maintain their predictive power and stability, ultimately safeguarding decision-making in high-risk scenarios.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in this notebook.
+All views expressed are my own.
+Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+125
+9 Comments
+Svetlana Dietz
+1y
+Report this comment
+Dear Denis, very interesting post! Especially with growing importance of advanced machine learning technics, the specter of validation tests must be enhanced - thank you for sharing, it can be very useful!
+Like
+Reply
+1 Reaction
+2 Reactions
+Oleg Evdokimov
+1y
+Report this comment
+Interesting!
+Like
+Reply
+1 Reaction
+2 Reactions
+José Caloca
+1y
+Report this comment
+The fact that some trees are not significant during the training of the boosted scorecard it is an evidence of additional variance in the model. Wouldn’t be best to drop these features from the training data? Unless, of course, there is regulatory or strong business rationale to keep them.
+Something is not clear to me though. Assuming that the trees are fitted on the feature level not assuming interactions with other features, and depending on the depth of the trees we might encounter contingency tables 2 x n categories. Usually these categories would represent the WoE bins used in the traditional method. Therefore, averaging the chi squared statistics and calculating the p-value of the averaged statistic would not represent the different degrees of freedom of each statistic. It would make sense if all trees leaves can be represented in a 2 x 2 contingency table format, but what if one of the trees has, for example, 4 x 2 contingency table?
+Like
+Reply
+2 Reactions
+3 Reactions
+Arko Prava Nandi Majumder
+1y
+Report this comment
+Thank you for such an informative article! Can this be evaluated/implemented for lightGBM models? As I see, the package 'xgbooster' used for this analysis is based on xgboost.
+Like
+Reply
+2 Reactions
+3 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles

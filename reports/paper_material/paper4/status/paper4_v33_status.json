@@ -1,0 +1,14 @@
+{
+  "schema_version": "2026-05-15.33",
+  "generated_at_utc": "2026-05-15T02:13:17.656773+00:00",
+  "phase": "v33_cvar_certificate_full_universe",
+  "full_universe_attempt_executed_v33": false,
+  "exact_full_universe_claim_v33": false,
+  "certificate_rows_v33": 12,
+  "frontier_rows_v33": 15,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "CVaR v33 improves certificate wording but does not claim exact full-universe optimality",
+  "runtime_seconds": 0.086
+}

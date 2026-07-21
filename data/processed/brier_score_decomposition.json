@@ -1,19 +1,19 @@
 {
   "calibrated": {
-    "brier_decomposed": 0.15526026171044263,
-    "reliability": 7.107365559189574e-05,
-    "resolution": 0.016287019397043807,
+    "brier_decomposed": 0.15536072768157372,
+    "reliability": 6.613946143142636e-05,
+    "resolution": 0.016181619231752237,
     "uncertainty": 0.17147620745189454,
-    "miscalibration_share": 0.0004577710665234271,
-    "discrimination_share": 0.10490140373084506
+    "miscalibration_share": 0.000425715445714089,
+    "discrimination_share": 0.10415514572587464
   },
   "uncalibrated": {
-    "brier_decomposed": 0.2096845405640723,
-    "reliability": 0.054830745704283014,
-    "resolution": 0.016622412592105257,
+    "brier_decomposed": 0.2090537648073431,
+    "reliability": 0.054163468685148944,
+    "resolution": 0.01658591132970037,
     "uncertainty": 0.17147620745189454,
-    "miscalibration_share": 0.26149159855458515,
-    "discrimination_share": 0.07927342925419925
+    "miscalibration_share": 0.25908870254053623,
+    "discrimination_share": 0.07933801787777123
   },
   "selected_calibration_method": "venn_abers"
 }

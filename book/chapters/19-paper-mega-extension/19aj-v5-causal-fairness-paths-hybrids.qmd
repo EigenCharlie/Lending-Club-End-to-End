@@ -1,0 +1,213 @@
+---
+title: "v5 Causal, Fairness, Sample Paths and Hybrids"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+cate = _csv("paper4_v5_causal_cate_policy_value_screen.csv")
+placebo = _csv("paper4_v5_causal_falsification_tests.csv")
+sensitivity = _csv("paper4_v5_causal_sensitivity_formal.csv")
+overlap = _csv("paper4_v5_causal_overlap_bins.csv")
+fairness = _csv("paper4_v5_fairness_protocol_decision.csv")
+fairness_gap = _csv("paper4_v5_fairness_proxy_gap_bands.csv")
+paths = _csv("paper4_v5_correlated_sample_path_ci.csv")
+spo = _csv("paper4_v5_spo_dfl_hybrid_screen.csv")
+temporal = _csv("paper4_v5_temporal_ecl_downstream_value.csv")
+cqr = _csv("paper4_v5_cqr_decision_aware_screen.csv")
+claims = _csv("paper4_v5_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v5-causal-fairness-question}
+
+Esta página documenta los carriles valiosos que todavía no deben promocionarse:
+Causal/CATE, fairness, sample paths realistas, SPO+/DFL hybrids, temporal TS/ECL
+y CQR decision-aware. La meta es que ninguno se pierda y que todos tengan un
+criterio explícito para salir de research-only.
+
+## Artefactos
+
+| Artefacto | Rol |
+|---|---|
+| `paper4_v5_causal_cate_policy_value_screen.csv` | gate CATE para policy value |
+| `paper4_v5_causal_falsification_tests.csv` | placebos, leakage checks y overlap checks |
+| `paper4_v5_causal_sensitivity_formal.csv` | sensibilidad a sesgo oculto |
+| `paper4_v5_fairness_protocol_decision.csv` | decisión de no hacer fair-lending legal claim |
+| `paper4_v5_correlated_sample_path_ci.csv` | sample paths con shocks macro, grade y month |
+| `paper4_v5_spo_dfl_hybrid_screen.csv` | estado de SPO+/DFL/hybrids |
+| `paper4_v5_temporal_ecl_downstream_value.csv` | valor downstream y gate temporal TS/ECL |
+| `paper4_v5_cqr_decision_aware_screen.csv` | CQR como comparator bloqueado |
+| `paper4_v5_claim_artifact_matrix.csv` | matriz claim-artifact-page-caveat v5 |
+
+## Resultado: Causal/CATE
+
+```{python}
+#| label: tbl-paper4-v5-cate-screen
+#| tbl-cap: "CATE v5: gate de policy value"
+
+cate
+```
+
+```{python}
+#| label: tbl-paper4-v5-causal-placebos
+#| tbl-cap: "Falsification tests v5"
+
+placebo
+```
+
+```{python}
+#| label: tbl-paper4-v5-causal-sensitivity
+#| tbl-cap: "Sensibilidad formal v5"
+
+sensitivity
+```
+
+El dossier causal mejora como memoria de investigación, pero no desbloquea
+policy value. La razón principal es que la mayoría de intervalos CATE cruza
+cero y el tratamiento no es aleatorizado. Paper 4 puede usar este carril para
+aprender, escribir identificación y diseñar falsification tests; no debe usarlo
+como objetivo de solver.
+
+```{python}
+#| label: tbl-paper4-v5-causal-overlap
+#| tbl-cap: "Overlap bins disponibles"
+
+overlap.head(20)
+```
+
+## Resultado: fairness governance
+
+```{python}
+#| label: tbl-paper4-v5-fairness-protocol
+#| tbl-cap: "Fairness v5: protocolo y límites"
+
+fairness
+```
+
+```{python}
+#| label: tbl-paper4-v5-fairness-gap-bands
+#| tbl-cap: "Proxy gap bands v5"
+
+fairness_gap
+```
+
+La decisión v5 es permanente hasta que existan atributos protegidos válidos o
+un protocolo externo aprobado: Paper 4 no hace fair-lending legal claim. Lo que
+sí hace es proxy governance: detectar concentración por variables disponibles y
+obligar al selector a explicar trade-offs.
+
+## Resultado: sample paths correlacionados
+
+```{python}
+#| label: tbl-paper4-v5-sample-path-ci
+#| tbl-cap: "Sample paths v5: diferencias pareadas contra CRPTO/Paper_CRPTO externo congelado"
+
+_cols(
+    paths.sort_values(["scenario", "prob_beats_paper1"], ascending=[True, False]),
+    [
+        "policy_id",
+        "scenario",
+        "mean_diff_vs_paper1",
+        "p05_diff_vs_paper1",
+        "p50_diff_vs_paper1",
+        "p95_diff_vs_paper1",
+        "prob_beats_paper1",
+        "cvar90_simulated_loss",
+        "n_paths",
+    ],
+).head(30)
+```
+
+Estos sample paths son mejores que shocks independientes simples porque
+incluyen factor macro, shock por mes y shock por grade. Aun así, siguen siendo
+un simulador comparativo, no una predicción de performance futura. Sirven para
+diferencias pareadas y robustez de ranking, no para prometer retorno esperado.
+
+## Resultado: SPO+/DFL hybrids
+
+```{python}
+#| label: tbl-paper4-v5-spo-dfl
+#| tbl-cap: "SPO+/DFL hybrid screen v5"
+
+spo
+```
+
+El carril SPO+/DFL sigue siendo valioso porque apunta al problema central:
+bajar regret sin perder auditabilidad CRPTO. Pero v5 todavía no entrena un
+modelo decision-loss integrado. La decisión es mantenerlo como carril de
+entrenamiento futuro con constraints de cobertura, MDCP e IFRS9.
+
+## Resultado: temporal TS/ECL
+
+```{python}
+#| label: tbl-paper4-v5-temporal-ecl
+#| tbl-cap: "Temporal TS/ECL downstream screen v5"
+
+temporal
+```
+
+Temporal TS/ECL tiene valor downstream alto porque separa punto y adverse 90%,
+pero el gate de cobertura temporal sigue falso. Por eso permanece research-only:
+puede alimentar stress y escenarios, no decisiones promocionables.
+
+## Resultado: CQR decision-aware
+
+```{python}
+#| label: tbl-paper4-v5-cqr
+#| tbl-cap: "CQR decision-aware comparator v5"
+
+cqr
+```
+
+CQR queda bloqueado por el trade-off esperado: cuando mejora cobertura, sube
+ambiguedad y baja elegibilidad de decisión. Solo debe volver al selector si
+mejora simultáneamente cobertura, ancho y elegibilidad operacional.
+
+## Matriz de claims
+
+```{python}
+#| label: tbl-paper4-v5-claim-matrix
+#| tbl-cap: "Matriz claim-artifact-page-caveat v5"
+
+claims
+```
+
+La matriz evita que Paper 4 crezca sin memoria. Cada prioridad v5 queda asociada
+a artifact, página y caveat. Esto es especialmente importante para carriles que
+siguen bloqueados: quedan vivos sin convertirse en claims exagerados.
+
+## Interpretación
+
+La v5 no mata estos carriles. Los ordena. CATE, fairness, temporal TS/ECL y CQR
+no están listos para promoción; sample paths y SPO/DFL son infraestructura para
+iteraciones futuras. El valor inmediato es que ahora cada bloqueo tiene un
+artifact ejecutable y un criterio de salida.
+
+## Next Step
+
+El siguiente ciclo debe escoger uno o dos desbloqueos de alto valor, no todos a
+la vez: online source-month eficiente, MDCP-aware solve real o DFL con
+constraints CRPTO. Causal y fairness deben seguir documentándose, pero sin
+entrar al objetivo de decisión hasta que sus gates cambien.

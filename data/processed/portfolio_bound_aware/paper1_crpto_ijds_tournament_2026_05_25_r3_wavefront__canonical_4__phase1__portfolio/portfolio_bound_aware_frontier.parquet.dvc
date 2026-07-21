@@ -1,0 +1,5 @@
+outs:
+- md5: 5887099ed55ae9bf550f07910b806098
+  size: 4237814
+  hash: md5
+  path: portfolio_bound_aware_frontier.parquet

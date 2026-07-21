@@ -1,0 +1,5 @@
+series_id,url,fetch_status,error,meaning,source,claim_boundary_v35
+UNRATE,https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE,success,,unemployment_rate,"Federal Reserve Economic Data (FRED), fred.stlouisfed.org",official macro context only; not forecast validation
+FEDFUNDS,https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS,success,,federal_funds_rate,"Federal Reserve Economic Data (FRED), fred.stlouisfed.org",official macro context only; not forecast validation
+USREC,https://fred.stlouisfed.org/graph/fredgraph.csv?id=USREC,success,,nber_recession_indicator,"Federal Reserve Economic Data (FRED), fred.stlouisfed.org",official macro context only; not forecast validation
+DRCLACBS,https://fred.stlouisfed.org/graph/fredgraph.csv?id=DRCLACBS,success,,delinquency_rate_consumer_loans_all_commercial_banks,"Federal Reserve Economic Data (FRED), fred.stlouisfed.org",official macro context only; not forecast validation

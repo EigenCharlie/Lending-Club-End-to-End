@@ -1,0 +1,6 @@
+blocker_id_v470,blocking_v470,evidence_count_v470,required_next_artifact_v470,claim_boundary_v470
+v353_online_temporal_gate_missing,True,1,future_v353_online_temporal_gate,current local frontier lacks online replay
+external_holdout_missing,True,1,future_external_online_holdout,internal replay is not external validation
+production_monitoring_not_authorized,True,1,future_production_monitoring_design,no production monitoring control is approved
+spo_dla_boundary_not_refreshed,True,1,paper4_v471_spo_dla_boundary_probe.md,formal method-boundary lane still pending
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

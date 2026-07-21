@@ -1,0 +1,8 @@
+𝐬𝐦𝐢: 𝐀𝐧 𝗣𝘆𝘁𝗵𝗼𝗻 𝐏𝐚𝐜𝐤𝐚𝐠𝐞 𝐟𝐨𝐫 𝐈𝐅𝐑𝐒𝟗 𝐅𝐨𝐫𝐰𝐚𝐫𝐝-𝐋𝐨𝐨𝐤𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐥𝐢𝐧𝐠
+This Python package is a replica of the R package I recently published on my GitHub repository (https://lnkd.in/dm2p5UNv).
+The main purpose of this package is to address key challenges in IFRS9 forward-looking (FLI) modeling, particularly those arising from limited data availability.
+The package provides core functionality for applying a new method, the 𝐒𝐮𝐩𝐞𝐫𝐯𝐢𝐬𝐞𝐝 𝐌𝐚𝐜𝐫𝐨𝐞𝐜𝐨𝐧𝐨𝐦𝐢𝐜 𝐈𝐧𝐝𝐞𝐱 (𝐒𝐌𝐈). I developed this method based on a model-averaging approach, allowing practitioners to incorporate key business inputs while preserving a fully explainable model structure, comparable to the standard use of OLS regression for the same purpose.
+Attached is a short manual describing the main features of the package for IFRS9 FLI modeling.
+As always, practitioners are encouraged to adapt the underlying concepts and ideas to their specific needs and model designs.
+I hope those interested will find the package useful and motivating for further exploration of FLI modeling, one of the most interesting tasks in IFRS9.
+#ifrs9 #forwardlookingmodeling #python #rstat

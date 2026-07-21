@@ -1,0 +1,182 @@
+source_asset_id: 7392821942728273920_external_10
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/lgd/vasicek_lgd.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/lgd/vasicek_lgd.pdf
+source_type: github
+
+          The Vasicek Loss Given Default Model
+
+    The Functional Form and Parameters Estimation Method
+
+
+                             Andrija Djurovic
+
+
+
+
+                   www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic              The Vasicek LGD Model        1/6
+The Vasicek Probability of Default Model
+The Vasicek Probability of Default (PD) model is derived from the asset return equation
+represented as:
+                                     √     p
+                                 y = ρz + 1 − ρϵ
+where:
+     ρ is asset correlation;
+     z represents the systemic factor which follows a standard normal distribution
+     ϵ denotes the idiosyncratic factor which follows a standard normal distribution.
+Starting from the above equation, the Vasicek PD model is defined by two parameters, p
+and ρ, commonly referred to as the average default rate and asset correlation, respectively.
+The parameter p is usually estimated as an average of the observed default rates, while
+the parameter ρ can be estimated by maximizing the log-likelihood of the Vasicek
+probability density function:
+                                                                √                        2 
+                                      r                              1−ρϕ−1 (x )−ϕ−1 (p)
+                                          1−ρ 2
+                                               1       ϕ−1 (x )2 −        √
+                                                                             ρ
+                        fp,ρ (x ) =          e
+                                           ρ
+
+Details on the Vasicek (distribution) PD model and different parameter estimation
+methods are available at the following link.
+         Andrija Djurovic                    The Vasicek LGD Model                                2/6
+The Vasicek Loss Given Default Model
+The Vasicek Loss Given Default (LGD) model is derived from the recovery equation. The
+recovery equation looks similar to the asset return and is defined as:
+                                        √        p
+                             r = µ + σ qz + σ (1 − q)ϵ
+where:
+     µ is defined as a quantity parameter (similar to the parameter p from the PD
+     model);
+     σ represents the quality parameter;
+     q is the sensitivity parameter (similar to the parameter ρ from the PD model);
+     z represents the systemic factor derived from the PD model;
+     ϵ denotes the idiosyncratic factor independent from z which follows a standard
+     normal distribution.
+Model parameters can be obtained by maximizing the log-likelihood of the following
+probability density function:
+                                                                                 √
+                                                                      (x −µ−σ q)2
+                                                  1               −
+                                                                         2σ 2 (1−q)
+                            fµ,σ,q (x ) = p                   e
+                                              2πσ 2 (1 − q)
+
+For more information about the Vasicek LGD model, check the following paper.
+         Andrija Djurovic               The Vasicek LGD Model                         3/6
+Simulation Study
+The dataset below is utilized solely for simulation purposes, whereas in real-world scenarios, the
+development of recovery rates usually tends to exhibit less volatility.
+
+Simulation Dataset:                                 The Vasicek PD Model Parameters:
+##    T     dr     rr    lgd                        ##        p    rho
+##    1 0.1024 0.7433 0.2567                        ##   0.0444 0.0965
+##    2 0.1130 0.1398 0.8602
+##    3 0.0546 0.2127 0.7873
+##    4 0.0295 0.8631 0.1369                        z:
+##    5 0.0508 0.1141 0.8859                        ##       1       2       3         4       5
+##    6 0.0236 0.8811 0.1189                        ## -1.5984 -1.7737 -0.5767    0.2998 -0.4686
+##    7 0.0350 0.6007 0.3993                        ##       6       7       8         9      10
+##    8 0.0285 0.9723 0.0277                        ## 0.5946 0.0663 0.3461       1.4488 0.4680
+##    9 0.0118 0.9432 0.0568                        ##      11      12      13        14      15
+##   10 0.0260 0.8167 0.1833                        ## 0.2862 0.5143 -1.1830      1.3904 0.4083
+##   11 0.0298 0.2798 0.7202                        ##      16      17      18        19      20
+##   12 0.0251 0.3129 0.6871                        ## -0.4241 0.2727 -1.8892     1.7238 0.3182
+##   13 0.0802 0.6168 0.3832
+##   14 0.0124 0.7047 0.2953
+##   15 0.0272 0.6373 0.3627                        The Vasicek Recovery Model Parameters:
+##   16 0.0493 0.3651 0.6349
+##   17 0.0301 0.7007 0.2993                        ##     mu sigma       q
+##   18 0.1204 0.5110 0.4890                        ## 0.5929 0.2644 0.2492
+##   19 0.0093 0.8323 0.1677
+##   20 0.0291 0.6406 0.3594
+
+        Andrija Djurovic               The Vasicek LGD Model                                       4/6
+Simulation Study cont.
+
+                                                    Loss Given Default Values
+                                                          FITTED          OBSERVED
+
+
+
+      100%
+
+
+
+
+      75%
+LGD
+
+
+
+
+      50%
+
+
+
+
+      25%
+
+
+
+
+       0%
+
+              1     2    3      4   5   6   7   8     9      10           11   12    13   14   15   16   17   18   19   20
+                                                                  Years
+
+
+
+
+             Andrija Djurovic                   The Vasicek LGD Model                                                        5/6
+Simulation Study cont.
+The following graph demonstrates the relationship between the LGD and PiT PD values under
+the following assumptions: p = 0.05, ρ = 0.10, µ = 0.60, σ = 0.30, and q = 0.15.
+                                                        Loss Given Default vs PiT Probability of Default
+
+      80%
+
+
+
+
+      70%
+
+
+
+
+      60%
+
+
+
+
+      50%
+LGD
+
+
+
+
+      40%
+
+
+
+
+      30%
+
+
+
+
+      20%
+
+
+
+
+            1.0%   2.0%   3.0%   4.0%   5.0%   6.0%   7.0%   8.0%   9.0%   10.0%   11.0%   12.0%   13.0%   14.0%   15.0%   16.0%   17.0%   18.0%   19.0%   20.0%
+                                                                             PiT PD
+
+
+
+
+            Andrija Djurovic                                  The Vasicek LGD Model                                                                                6/6

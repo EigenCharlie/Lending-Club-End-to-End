@@ -1,0 +1,5 @@
+method_lane,primary_source,url,v13_use,claim_boundary_v13
+SPO/SPO+,"Elmachtoub and Grigas, Smart Predict, then Optimize",https://pubsonline.informs.org/doi/10.1287/mnsc.2020.3922,decision-loss and SPO+ boundary for portfolio predict-then-optimize,"v13 remains non-differentiable SPO-style approximation, not a formal SPO+ proof"
+Online SPO,"Liu and Grigas, Online Contextual Decision-Making with SPO",https://arxiv.org/abs/2206.07316,temporal regret validation and resource-constrained decision framing,"historical replay, not online deployment"
+Differentiable convex layers,"Agrawal et al., Differentiable Convex Optimization Layers",https://papers.neurips.cc/paper/9152-differentiable-convex-optimization-layers,future path for cvxpylayer-style end-to-end training,not implemented as a differentiable layer in v13
+OptNet,"Amos and Kolter, OptNet",https://proceedings.mlr.press/v70/amos17a.html,optimization-as-layer design reference,not implemented as a QP layer in v13

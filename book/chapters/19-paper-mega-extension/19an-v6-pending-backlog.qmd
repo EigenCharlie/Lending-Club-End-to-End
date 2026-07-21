@@ -1,0 +1,242 @@
+---
+title: "v6 Pending Backlog"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _fmt(value, digits: int = 4) -> str:
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+        return f"{float(value):.{digits}f}"
+    except (TypeError, ValueError):
+        return str(value)
+
+status = _json("paper4_v6_priority_resolution_status.json")
+online = _csv("paper4_v6_online_source_month_efficiency_search.csv")
+sicr = _csv("paper4_v6_sicr_calibration_grid.csv")
+readiness = _csv("paper4_v6_contractual_ifrs9_readiness.csv")
+gaps = _csv("paper4_v6_servicing_gap_register.csv")
+mdcp = _csv("paper4_v6_mdcp_solver_summary.csv")
+cvar = _csv("paper4_v6_cvar_constraint_summary.csv")
+dla = _csv("paper4_v6_dla_loan_level_summary.csv")
+paths = _csv("paper4_v6_correlated_sample_path_ci.csv")
+cate = _csv("paper4_v6_cate_gate.csv")
+fairness = _csv("paper4_v6_fairness_protocol.csv")
+hybrids = _csv("paper4_v6_spo_dfl_hybrid_summary.csv")
+
+online_deployable = online[online["deployable_without_outcomes"].astype(bool)] if not online.empty else pd.DataFrame()
+online_audit = online[~online["deployable_without_outcomes"].astype(bool)] if not online.empty else pd.DataFrame()
+best_deployable = online_deployable.sort_values("avg_width_loan").iloc[0] if not online_deployable.empty else {}
+best_audit = online_audit[online_audit["gate_pass_80"].astype(bool)].sort_values("avg_width_loan").iloc[0] if not online_audit.empty and online_audit["gate_pass_80"].astype(bool).any() else {}
+```
+
+## Propósito {#sec-paper4-v6-pending-purpose}
+
+Esta página consolida lo que queda pendiente después de v6. No reemplaza las
+páginas técnicas; funciona como tablero operativo para decidir qué atacar en la
+siguiente iteración. La regla sigue intacta: CRPTO/Paper_CRPTO externo permanece congelado
+y Paper 4 no crea promoción final.
+
+## Estado Consolidado
+
+```{python}
+#| label: tbl-paper4-v6-pending-status
+#| tbl-cap: "Status consolidado de la ola v6"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+    "online_promotion_eligible": status.get("online_promotion_eligible"),
+    "contractual_ifrs9_readiness_score": status.get("contractual_ifrs9_readiness_score"),
+    "mdcp_solver_optimal_count": status.get("mdcp_solver_optimal_count"),
+    "cvar_solver_optimal_count": status.get("cvar_solver_optimal_count"),
+    "dla_endogenous_implemented": status.get("dla_endogenous_implemented"),
+    "hybrid_surrogate_implemented": status.get("hybrid_surrogate_implemented"),
+}])
+```
+
+## Backlog Priorizado
+
+```{python}
+#| label: tbl-paper4-v6-pending-backlog
+#| tbl-cap: "Backlog priorizado después de v6"
+
+pending_rows = [
+    {
+        "prioridad": 1,
+        "lane": "online conformal",
+        "estado": "bloqueado deployable; objetivo audit ya existe",
+        "evidencia": (
+            "deployable source_min="
+            + _fmt(best_deployable.get("coverage_source_month_min"), 2)
+            + ", width="
+            + _fmt(best_deployable.get("avg_width_loan"), 4)
+            + "; audit source_min="
+            + _fmt(best_audit.get("coverage_source_month_min"), 2)
+            + ", width="
+            + _fmt(best_audit.get("avg_width_loan"), 4)
+        ),
+        "bloqueo": "el método que pasa gate usa información ex post; no puede promocionarse",
+        "siguiente_experimento": "predictor pre-decision de weak cells con historia previa, n efectivo, grade, DTI, score, mes y drift",
+        "criterio_salida": "source/policy-month >=0.80, width <=0.95, deployable_without_outcomes=True",
+    },
+    {
+        "prioridad": 2,
+        "lane": "MDCP inside solver",
+        "estado": "parcial; cap estricto casi vacía el feasible set",
+        "evidencia": f"optimal={int(mdcp['solver_status'].astype(str).str.contains('optimal', case=False, na=False).sum()) if not mdcp.empty else 0}/{len(mdcp)}",
+        "bloqueo": "budget + PD cap + weak-source cap global es demasiado rígido para el pool local",
+        "siguiente_experimento": "reformular MDCP como penalty suave o caps por familia/source, y ampliar pool",
+        "criterio_salida": "al menos 3 variants factibles con menor weak-source sin colapsar retorno",
+    },
+    {
+        "prioridad": 3,
+        "lane": "IFRS9 contractual",
+        "estado": "enhanced proxy, no servicing ledger",
+        "evidencia": "readiness=" + _fmt(readiness['readiness_score'].iloc[0], 2) if not readiness.empty else "",
+        "bloqueo": "faltan payment panel mensual, EAD observado, recovery timing y macro path contractual",
+        "siguiente_experimento": "buscar o construir panel servicing; si no existe, declarar proxy scope permanente",
+        "criterio_salida": "readiness >=0.75 o nota explícita de imposibilidad de claim contractual completo",
+    },
+    {
+        "prioridad": 4,
+        "lane": "SICR",
+        "estado": "calibración MRM abierta",
+        "evidencia": "candidate rules=" + str(sorted(sicr.loc[sicr['sicr_recommendation_v6'].eq('candidate_for_mrm_review'), 'sicr_rule_v6'].unique().tolist())) if not sicr.empty else "",
+        "bloqueo": "Stage 2 domina bajo reglas relativas/conservadoras; algunas reglas son demasiado laxas",
+        "siguiente_experimento": "escoger 2-3 reglas MRM y evaluar sensibilidad net return/ECL por policy",
+        "criterio_salida": "Stage 2 baseline en rango defendible sin ocultar adverse/severe stress",
+    },
+    {
+        "prioridad": 5,
+        "lane": "CVaR/OCE",
+        "estado": "constraint factible en top-k expandido",
+        "evidencia": f"optimal={int(cvar['solver_status'].astype(str).str.contains('optimal', case=False, na=False).sum()) if not cvar.empty else 0}/{len(cvar)}; floor alto 140k infeasible",
+        "bloqueo": "no es full-universe y floors altos vacían feasible set",
+        "siguiente_experimento": "descomposición/full-universe o top-k más diverso con floors adaptativos",
+        "criterio_salida": "frontera retorno-CVaR con al menos 3 puntos no dominados y comparación contra candidates CRPTO",
+    },
+    {
+        "prioridad": 6,
+        "lane": "DLA loan-level",
+        "estado": "endógeno proxy implementado",
+        "evidencia": f"funded_loans={int(dla['funded_loans'].iloc[0]) if not dla.empty else 0}; expected_loss={_fmt(dla['cumulative_expected_loss'].iloc[0], 2) if not dla.empty else ''}",
+        "bloqueo": "no hay Bellman/ADP, coverage state real ni servicing-real transition",
+        "siguiente_experimento": "meter ECL capital, coverage state y shocks calibrados en la decisión mensual",
+        "criterio_salida": "DLA mejora estado ajustado por ECL contra static/reference bajo paths comunes",
+    },
+    {
+        "prioridad": 7,
+        "lane": "sample paths",
+        "estado": "macro/grade/LGD cíclico implementado",
+        "evidencia": f"policies={paths['policy_id'].nunique() if not paths.empty else 0}; scenarios={paths['scenario'].nunique() if not paths.empty else 0}",
+        "bloqueo": "simulador comparativo, no forecast calibrado externo",
+        "siguiente_experimento": "calibrar macro shocks con series externas o bootstrap temporal por cohorte",
+        "criterio_salida": "paths comunes con dependencia temporal y validación razonable de default/LGD",
+    },
+    {
+        "prioridad": 8,
+        "lane": "CATE / causal",
+        "estado": "bloqueado para policy value",
+        "evidencia": "share_ci_crosses_zero=" + _fmt(cate['share_ci_crosses_zero'].iloc[0], 4) if not cate.empty else "",
+        "bloqueo": "tratamiento observacional e intervalos mayoritariamente inconclusos",
+        "siguiente_experimento": "definir outcome causal limpio y falsification/sensitivity más fuerte",
+        "criterio_salida": "policy_value_allowed=True solo si intervalos y sensibilidad sostienen signo/valor",
+    },
+    {
+        "prioridad": 9,
+        "lane": "fairness",
+        "estado": "proxy governance only",
+        "evidencia": "no fair-lending legal claim",
+        "bloqueo": "sin atributos protegidos ni protocolo externo aprobado",
+        "siguiente_experimento": "conseguir protocolo externo o mantener declaración proxy-only permanente",
+        "criterio_salida": "no usar lenguaje de compliance legal sin protected attributes/proxy aprobado",
+    },
+    {
+        "prioridad": 10,
+        "lane": "SPO+/DFL hybrids",
+        "estado": "surrogate constrained implementado",
+        "evidencia": f"optimal={int(hybrids['solver_status'].astype(str).str.contains('optimal', case=False, na=False).sum()) if not hybrids.empty else 0}/{len(hybrids)}",
+        "bloqueo": "no hay entrenamiento decision-loss real",
+        "siguiente_experimento": "entrenar DFL/SPO surrogate con penalties CRPTO, MDCP, IFRS9 y auditability",
+        "criterio_salida": "menor regret sin romper coverage/auditability gates",
+    },
+]
+
+pd.DataFrame(pending_rows)
+```
+
+## Lo Que Puede Mejorar Rápido
+
+1. **Online weak-cell predictor.** El `audit_targeted_weak_cell_rescue_v6` deja
+una señal muy buena: el gate se puede pasar con ancho razonable si solo se
+ensanchan las celdas correctas. Esta es la mejora con mayor retorno metodológico
+inmediato.
+
+2. **MDCP penalty suave.** La v6 mostró que los caps globales son demasiado
+duros. Una penalización diferenciable por source family debería dar una frontera
+más informativa que infeasible/feasible.
+
+3. **SICR MRM shortlist.** Ya no hace falta probar veinte reglas. Hay que
+quedarse con dos o tres reglas candidatas, escribir su justificación y mostrar
+sensibilidad.
+
+4. **DLA con ECL capital.** El DLA ya decide loans; falta que el estado de ECL y
+coverage condicione el presupuesto y la acción.
+
+## Lo Que Está Lejos
+
+1. **IFRS9 contractual completo.** Sin servicing panel real, el claim completo
+queda fuera de alcance. Se puede mejorar el proxy, pero no fingir data que no
+existe.
+
+2. **CATE como policy value.** La señal causal sigue muy débil. Debe seguir
+como dossier de aprendizaje hasta que haya identificación fuerte.
+
+3. **Fair-lending legal claim.** Sin atributos protegidos o protocolo externo,
+se mantiene bloqueado.
+
+4. **DFL/SPO final.** Hay surrogate, pero falta entrenamiento decision-loss real
+y comparación estable contra CRPTO/SPO+.
+
+## Próximo Sprint Recomendado
+
+El sprint más natural es **Online + MDCP solver**:
+
+1. construir predictor pre-decision de weak cells;
+2. usar ese predictor como penalty/constraint suave dentro del solver;
+3. evaluar retorno, coverage, width, MDCP y CVaR en paths comunes;
+4. documentar si aparece un candidate que pase review sin depender de oracle.
+
+Ese sprint ataca el bloqueo más importante sin abrir demasiadas ramas nuevas.

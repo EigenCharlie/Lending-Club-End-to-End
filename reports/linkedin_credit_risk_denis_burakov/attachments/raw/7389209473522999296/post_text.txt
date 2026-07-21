@@ -1,0 +1,5 @@
+While explainability is widely discussed, distillation receives far less attention. The idea is to make something (in this case, a model) simpler—ideally without sacrificing accuracy.
+SHAP values extracted from a trained teacher model (your favorite ML algorithm goes here) can be used to build interpretable student models that closely mimic the teacher's decisions. This continues my work on SHAP scorecards and will be covered in detail in a chapter I am currently writing.
+This deck walks through how to distill a complex black box model into a transparent, scorecard-style logistic regression using SHAP values.
+For anyone looking to create a glass box version of their black box model, SHAP-based model distillation provides a practical path forward ⤵
+#DataScience #ExplainableAI #SHAP #MachineLearning #Scorecards

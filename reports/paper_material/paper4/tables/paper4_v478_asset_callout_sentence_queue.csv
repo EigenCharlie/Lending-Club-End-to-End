@@ -1,0 +1,11 @@
+asset_id_v478,asset_type_v478,manuscript_section_v478,callout_order_v478,draft_callout_sentence_v478,callout_sentence_final_v478,inserted_into_quarto_v478,must_preserve_caveat_v478,claim_boundary_v478
+T5,table,methods_protocol,1,Call out T5 as the boundary matrix that limits SPO-DLA language.,False,False,True,no formal theorem or CRC guarantee
+F4,figure,methods_protocol,2,Call out F4 as historical regret-auditability context only.,False,False,True,no formal SPO-DLA theorem claim
+T1,table,results_evidence,3,Call out T1 as the current local return/CVaR evidence table.,False,False,True,no full-v55 optimality or champion claim
+F1,figure,results_evidence,4,Call out F1 as legacy frontier context paired with T1.,False,False,True,visual context only; v467 table carries current claim
+T2,table,results_evidence,5,Call out T2 as source-governance blocker evidence.,False,False,True,no source cap approval or mutation
+F2,figure,results_evidence,6,Call out F2 as source-governance visual context only.,False,False,True,no cap relaxation or legal fairness certification
+T4,table,results_evidence,7,Call out T4 as internal online monitoring proxy evidence.,False,False,True,no production monitoring claim
+F3,figure,results_evidence,8,Call out F3 as internal online method-search context only.,False,False,True,no external holdout or production monitoring claim
+T3,table,discussion_limitations,9,Call out T3 as the v353 dynamic replay gap table.,False,False,True,no live dynamic deployment language
+T6,table,discussion_limitations,10,Call out T6 as the contractual IFRS9 requirement-gap audit.,False,False,True,no contractual accounting compliance claim

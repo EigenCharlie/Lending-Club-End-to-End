@@ -2,6 +2,14 @@
 
 Date: 2026-03-29
 
+> **Historical runtime snapshot — no current scientific authority.** Terms
+> such as `official_fairness`, `passed fairness`, `champion` and `promotion`
+> below reproduce internal field names and decisions at this cutoff. The
+> fairness lane screened proxy groups under a simulated approval outcome; it
+> had no protected attributes and does not establish legal equity, fair-lending
+> compliance, independent validation or a current paper claim. `SESSION_STATE.md`
+> and the paper-specific claim contracts supersede this document.
+
 ## Executive Summary
 
 - Audit scope completed for the `adsfcr` repository surface referenced from its `README`.

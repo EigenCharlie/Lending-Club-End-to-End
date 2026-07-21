@@ -23,9 +23,11 @@ from scripts.generate_conformal_intervals import (
     _load_calibrator,
     _load_model,
     _resolve_features,
+    _subset_calibration_frame,
 )
 from src.evaluation.backtesting import winkler_interval_score
 from src.models.conformal import (
+    apply_probability_calibrator,
     build_mondrian_partition_labels,
     conditional_coverage_by_group,
     create_cross_conformal_score_intervals,
@@ -172,6 +174,41 @@ def _build_output_paths(namespace: str | None = None) -> dict[str, Path]:
     }
 
 
+def _coerce_csv_tuple(raw: str | None, *, cast=str) -> tuple[Any, ...]:
+    if raw is None:
+        return ()
+    values = []
+    for token in str(raw).split(","):
+        token = token.strip()
+        if not token:
+            continue
+        values.append(cast(token))
+    return tuple(values)
+
+
+def _variant_name(
+    *,
+    partition: str,
+    partition_probability_source: str,
+    n_score_bins: int,
+    fallback_mode: str,
+    score_scale_family: str,
+    min_group_size: int,
+    calibration_fraction: float | None = None,
+) -> str:
+    parts = [
+        str(partition),
+        f"prob={partition_probability_source}",
+        f"bins={int(n_score_bins)}",
+        f"fallback={fallback_mode}",
+        f"scale={score_scale_family}",
+        f"mgs={int(min_group_size)}",
+    ]
+    if calibration_fraction is not None:
+        parts.append(f"calfrac={float(calibration_fraction):.2f}")
+    return "::".join(parts)
+
+
 def main(
     alpha: float = 0.10,
     selected_config_path: str = "models/conformal_results_mondrian.pkl",
@@ -179,6 +216,16 @@ def main(
     cross_cal_sample_size: int = 5000,
     cross_test_sample_size: int = 5000,
     calibration_size_fractions: tuple[float, ...] = (0.25, 0.50, 0.75, 1.0),
+    partition_candidates: tuple[str, ...] = (
+        "grade",
+        "score_decile_mondrian",
+        "grade_x_scoreband_mondrian",
+    ),
+    partition_probability_sources: tuple[str, ...] = ("raw",),
+    n_score_bins_candidates: tuple[int, ...] = (10,),
+    fallback_modes: tuple[str, ...] = ("grade_then_global",),
+    score_scale_families: tuple[str, ...] = ("none", "bernoulli_sqrt"),
+    min_group_sizes: tuple[int, ...] | None = None,
     artifact_namespace: str | None = None,
     calibrator_override_path: str | None = None,
 ) -> None:
@@ -195,11 +242,41 @@ def main(
     y_cal = cal_df[TARGET_COL].astype(float)
     X_test = _build_feature_matrix(test_df, features, categorical)
     y_test = test_df[TARGET_COL].astype(float).to_numpy(dtype=float)
-    group_cal = cal_df[GROUP_COL].fillna("UNKNOWN").astype(str)
-    group_test = test_df[GROUP_COL].fillna("UNKNOWN").astype(str)
-    issue_test = test_df.get("issue_d", pd.Series([pd.NaT] * len(test_df)))
-    y_prob_cal = model.predict_proba(X_cal)[:, 1]
-    y_prob_test = model.predict_proba(X_test)[:, 1]
+    group_cal = cal_df[GROUP_COL].fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    group_test = test_df[GROUP_COL].fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    issue_test = test_df.get("issue_d", pd.Series([pd.NaT] * len(test_df))).reset_index(drop=True)
+    y_prob_cal_raw = model.predict_proba(X_cal)[:, 1]
+    y_prob_test_raw = model.predict_proba(X_test)[:, 1]
+    y_prob_calibrated = (
+        apply_probability_calibrator(calibrator, y_prob_cal_raw)
+        if calibrator is not None
+        else np.asarray(y_prob_cal_raw, dtype=float)
+    )
+    y_prob_test_calibrated = (
+        apply_probability_calibrator(calibrator, y_prob_test_raw)
+        if calibrator is not None
+        else np.asarray(y_prob_test_raw, dtype=float)
+    )
+    partition_candidates = tuple(
+        dict.fromkeys(str(x).strip() for x in partition_candidates if str(x).strip())
+    ) or ("grade",)
+    partition_probability_sources = tuple(
+        dict.fromkeys(
+            str(x).strip().lower() for x in partition_probability_sources if str(x).strip()
+        )
+    ) or ("raw",)
+    n_score_bins_candidates = tuple(int(x) for x in n_score_bins_candidates if int(x) > 0) or (10,)
+    fallback_modes = tuple(
+        dict.fromkeys(str(x).strip().lower() for x in fallback_modes if str(x).strip())
+    ) or ("grade_then_global",)
+    score_scale_families = tuple(
+        dict.fromkeys(str(x).strip().lower() for x in score_scale_families if str(x).strip())
+    ) or ("none",)
+    min_group_sizes = tuple(
+        int(x) for x in (min_group_sizes or (min_group_size_default,)) if int(x) > 0
+    ) or (int(min_group_size_default),)
+    prob_cal_lookup = {"raw": y_prob_cal_raw, "calibrated": y_prob_calibrated}
+    prob_test_lookup = {"raw": y_prob_test_raw, "calibrated": y_prob_test_calibrated}
 
     rows: list[dict[str, Any]] = []
     by_group_rows: list[pd.DataFrame] = []
@@ -210,24 +287,37 @@ def main(
         name: str,
         *,
         partition: str,
-        scaled_scores: bool,
+        partition_probability_source: str,
+        n_score_bins: int,
+        fallback_mode: str,
+        score_scale_family: str,
         alpha_used: float = alpha,
         min_group_size: int = min_group_size_default,
         X_cal_variant: pd.DataFrame | None = None,
         y_cal_variant: pd.Series | None = None,
         y_prob_cal_variant: np.ndarray | None = None,
+        base_groups_cal_variant: pd.Series | None = None,
+        calibration_fraction: float | None = None,
     ) -> None:
         X_cal_use = X_cal if X_cal_variant is None else X_cal_variant
         y_cal_use = y_cal if y_cal_variant is None else y_cal_variant
-        y_prob_cal_use = y_prob_cal if y_prob_cal_variant is None else y_prob_cal_variant
+        y_prob_cal_use = (
+            prob_cal_lookup[partition_probability_source]
+            if y_prob_cal_variant is None
+            else y_prob_cal_variant
+        )
+        base_groups_cal_use = (
+            group_cal if base_groups_cal_variant is None else base_groups_cal_variant
+        )
         group_cal_part, group_test_part, partition_meta = build_mondrian_partition_labels(
             y_prob_cal=y_prob_cal_use,
-            y_prob_eval=y_prob_test,
+            y_prob_eval=prob_test_lookup[partition_probability_source],
             partition=partition,
-            base_groups_cal=group_cal.iloc[: len(y_cal_use)].reset_index(drop=True),
+            base_groups_cal=base_groups_cal_use.iloc[: len(y_cal_use)].reset_index(drop=True),
             base_groups_eval=group_test,
-            n_score_bins=10,
+            n_score_bins=n_score_bins,
             min_group_size=min_group_size,
+            fallback_mode=fallback_mode,
         )
         _y_pred, y_int, _ = create_pd_intervals_mondrian(
             classifier=model,
@@ -239,7 +329,7 @@ def main(
             alpha=alpha_used,
             min_group_size=min_group_size,
             calibrator=calibrator,
-            scaled_scores=scaled_scores,
+            score_scale_family=score_scale_family,
         )
         row, by_group = _summarize_variant(name, y_test, y_int, group_test_part, alpha)
         temporal_meta, temporal_monthly = _summarize_temporal_stability(
@@ -247,10 +337,15 @@ def main(
         )
         row.update(temporal_meta)
         row["partition"] = partition_meta.get("partition", partition)
-        row["scaled_scores"] = bool(scaled_scores)
+        row["partition_probability_source"] = partition_probability_source
+        row["n_score_bins"] = int(n_score_bins)
+        row["fallback_mode"] = str(partition_meta.get("fallback_mode", fallback_mode))
+        row["scaled_scores"] = bool(score_scale_family != "none")
+        row["score_scale_family"] = score_scale_family
         row["min_group_size"] = int(min_group_size)
         row["selected_alpha_used"] = float(alpha_used)
         row["fallback_groups_n"] = int(len(partition_meta.get("fallback_groups", [])))
+        row["calibration_fraction"] = float(calibration_fraction or 1.0)
         rows.append(row)
         by_group_rows.append(by_group)
         temporal_rows.append(temporal_monthly)
@@ -259,7 +354,7 @@ def main(
             {
                 "record_type": "local_partition_summary",
                 "variant": name,
-                "partition": partition_meta.get("partition", partition),
+                "partition": row["partition"],
                 "group": pd.Series(group_test_part).astype(str),
                 "y_true": y_test,
                 "low": y_int[:, 0],
@@ -273,13 +368,13 @@ def main(
         local_diag["width"] = local_diag["high"] - local_diag["low"]
         local_rows.append(local_diag)
 
-    # 1) Global split conformal (reference)
     _y_pred_global, y_int_global = create_pd_intervals(
         classifier=model,
         X_cal=X_cal,
         y_cal=y_cal,
         X_test=X_test,
         alpha=alpha,
+        calibrator=calibrator,
     )
     row, by_group = _summarize_variant("global_split", y_test, y_int_global, group_test, alpha)
     temporal_meta, temporal_monthly = _summarize_temporal_stability(
@@ -290,39 +385,29 @@ def main(
     by_group_rows.append(by_group)
     temporal_rows.append(temporal_monthly)
 
-    # 2) Mondrian unscaled scores
-    _append_mondrian_variant(
-        "mondrian_unscaled",
-        partition="grade",
-        scaled_scores=False,
-        min_group_size=min_group_size_default,
-    )
+    for partition in partition_candidates:
+        for partition_probability_source in partition_probability_sources:
+            for n_score_bins in n_score_bins_candidates:
+                for fallback_mode in fallback_modes:
+                    for score_scale_family in score_scale_families:
+                        for min_group_size in min_group_sizes:
+                            _append_mondrian_variant(
+                                _variant_name(
+                                    partition=partition,
+                                    partition_probability_source=partition_probability_source,
+                                    n_score_bins=n_score_bins,
+                                    fallback_mode=fallback_mode,
+                                    score_scale_family=score_scale_family,
+                                    min_group_size=min_group_size,
+                                ),
+                                partition=partition,
+                                partition_probability_source=partition_probability_source,
+                                n_score_bins=n_score_bins,
+                                fallback_mode=fallback_mode,
+                                score_scale_family=score_scale_family,
+                                min_group_size=min_group_size,
+                            )
 
-    # 3) Mondrian scaled scores
-    _append_mondrian_variant(
-        "mondrian_scaled",
-        partition="grade",
-        scaled_scores=True,
-        min_group_size=min_group_size_default,
-    )
-
-    # 3b) Score-band Mondrian
-    _append_mondrian_variant(
-        "score_decile_mondrian",
-        partition="score_decile_mondrian",
-        scaled_scores=True,
-        min_group_size=min_group_size_default,
-    )
-
-    # 3c) Hybrid grade x score-band Mondrian
-    _append_mondrian_variant(
-        "grade_x_scoreband_mondrian",
-        partition="grade_x_scoreband_mondrian",
-        scaled_scores=True,
-        min_group_size=min_group_size_default,
-    )
-
-    # 4) Score-space cross conformal (research sidecar, cheap to recompute)
     rng = np.random.RandomState(42)
     cal_idx = (
         rng.choice(len(y_cal), size=min(int(cross_cal_sample_size), len(y_cal)), replace=False)
@@ -336,8 +421,8 @@ def main(
     )
     _y_pred_cross, y_int_cross = create_cross_conformal_score_intervals(
         y_cal=y_cal.iloc[cal_idx].reset_index(drop=True),
-        y_prob_cal=y_prob_cal[cal_idx],
-        y_prob_test=y_prob_test[test_idx],
+        y_prob_cal=y_prob_calibrated[cal_idx],
+        y_prob_test=y_prob_test_calibrated[test_idx],
         alpha=alpha,
         method="plus",
         cv=5,
@@ -357,8 +442,7 @@ def main(
     )
     row.update(temporal_meta)
     row["implementation_note"] = (
-        "Cross conformal executed on raw-score space with a lightweight linear regressor "
-        "to avoid retraining the frozen upstream CatBoost classifier."
+        "Cross conformal executed on calibrated score space with a lightweight linear regressor."
     )
     row["evaluation_sample_n_cal"] = int(len(cal_idx))
     row["evaluation_sample_n_test"] = int(len(test_idx))
@@ -366,7 +450,6 @@ def main(
     by_group_rows.append(by_group)
     temporal_rows.append(temporal_monthly)
 
-    # 5) Canonical selected config (if available)
     cfg_path = Path(selected_config_path)
     if cfg_path.exists():
         with open(cfg_path, "rb") as f:
@@ -374,105 +457,96 @@ def main(
         best = payload.get("tuning_90_best", {}) if isinstance(payload, dict) else {}
         alpha_used = float(best.get("alpha_used_90", alpha))
         min_group_size = int(best.get("min_group_size", min_group_size_default))
-        scaled_scores = bool(best.get("scaled_scores", False))
-        _y_pred_selected, y_int_selected, _ = create_pd_intervals_mondrian(
-            classifier=model,
-            X_cal=X_cal,
-            y_cal=y_cal,
-            X_test=X_test,
-            group_cal=group_cal,
-            group_test=group_test,
-            alpha=alpha_used,
-            min_group_size=min_group_size,
-            calibrator=calibrator,
-            scaled_scores=scaled_scores,
-        )
-        row, by_group = _summarize_variant(
+        partition_probability_source = str(best.get("partition_probability_source", "raw"))
+        n_score_bins = int(best.get("n_score_bins", 10))
+        fallback_mode = str(best.get("fallback_mode", "grade_then_global"))
+        score_scale_family = str(best.get("score_scale_family", "none"))
+        _append_mondrian_variant(
             "mondrian_selected_cfg",
-            y_test,
-            y_int_selected,
-            group_test,
-            alpha,
+            partition=str(best.get("partition", "grade")),
+            partition_probability_source=partition_probability_source,
+            n_score_bins=n_score_bins,
+            fallback_mode=fallback_mode,
+            score_scale_family=score_scale_family,
+            alpha_used=alpha_used,
+            min_group_size=min_group_size,
         )
-        temporal_meta, temporal_monthly = _summarize_temporal_stability(
-            "mondrian_selected_cfg", y_test, y_int_selected, issue_test
-        )
-        row.update(temporal_meta)
-        row["selected_alpha_used"] = alpha_used
-        row["selected_min_group_size"] = min_group_size
-        row["selected_scaled_scores"] = scaled_scores
-        rows.append(row)
-        by_group_rows.append(by_group)
-        temporal_rows.append(temporal_monthly)
 
     sensitivity_rows: list[dict[str, Any]] = []
-    rng_sensitivity = np.random.RandomState(123)
     for frac in calibration_size_fractions:
         frac_float = float(frac)
         if frac_float <= 0 or frac_float > 1:
             continue
-        sample_n = max(1000, int(round(len(X_cal) * frac_float)))
-        sample_n = min(sample_n, len(X_cal))
-        sample_idx = (
-            rng_sensitivity.choice(len(X_cal), size=sample_n, replace=False)
-            if sample_n < len(X_cal)
-            else np.arange(len(X_cal))
+        cal_df_sub = _subset_calibration_frame(cal_df, calibration_fraction=frac_float)
+        X_cal_sub = _build_feature_matrix(cal_df_sub, features, categorical)
+        y_cal_sub = cal_df_sub[TARGET_COL].astype(float).reset_index(drop=True)
+        group_cal_sub = cal_df_sub[GROUP_COL].fillna("UNKNOWN").astype(str).reset_index(drop=True)
+        y_prob_cal_sub_raw = model.predict_proba(X_cal_sub)[:, 1]
+        y_prob_cal_sub_calibrated = (
+            apply_probability_calibrator(calibrator, y_prob_cal_sub_raw)
+            if calibrator is not None
+            else np.asarray(y_prob_cal_sub_raw, dtype=float)
         )
-        sample_idx = np.sort(sample_idx)
-        X_cal_sub = X_cal.iloc[sample_idx].reset_index(drop=True)
-        y_cal_sub = y_cal.iloc[sample_idx].reset_index(drop=True)
-        y_prob_cal_sub = y_prob_cal[sample_idx]
-        for variant_name, partition in (
-            ("score_decile_mondrian", "score_decile_mondrian"),
-            ("grade_x_scoreband_mondrian", "grade_x_scoreband_mondrian"),
-        ):
-            group_cal_part, group_test_part, partition_meta = build_mondrian_partition_labels(
-                y_prob_cal=y_prob_cal_sub,
-                y_prob_eval=y_prob_test,
-                partition=partition,
-                base_groups_cal=group_cal.iloc[sample_idx].reset_index(drop=True),
-                base_groups_eval=group_test,
-                n_score_bins=10,
-                min_group_size=min_group_size_default,
-            )
-            _y_pred_sub, y_int_sub, _ = create_pd_intervals_mondrian(
-                classifier=model,
-                X_cal=X_cal_sub,
-                y_cal=y_cal_sub,
-                X_test=X_test,
-                group_cal=group_cal_part,
-                group_test=group_test_part,
-                alpha=alpha,
-                min_group_size=min_group_size_default,
-                calibrator=calibrator,
-                scaled_scores=True,
-            )
-            metrics = validate_coverage(y_test, y_int_sub, alpha=alpha)
-            by_group_sub = conditional_coverage_by_group(y_test, y_int_sub, group_test_part)
-            stability_sub, _ = _summarize_temporal_stability(
-                variant_name, y_test, y_int_sub, issue_test
-            )
-            sensitivity_rows.append(
-                {
-                    "record_type": "calibration_size_sensitivity",
-                    "variant": variant_name,
-                    "partition": partition_meta.get("partition", partition),
-                    "calibration_fraction": frac_float,
-                    "n_calibration_rows": int(sample_n),
-                    "coverage": float(metrics["empirical_coverage"]),
-                    "coverage_gap": float(metrics["coverage_gap"]),
-                    "avg_width": float(metrics["avg_interval_width"]),
-                    "min_group_coverage": float(by_group_sub["coverage"].min()),
-                    "winkler_90": float(
-                        np.mean(
-                            winkler_interval_score(
-                                y_test, y_int_sub[:, 0], y_int_sub[:, 1], alpha=alpha
+        prob_cal_sub_lookup = {"raw": y_prob_cal_sub_raw, "calibrated": y_prob_cal_sub_calibrated}
+        for partition in ("score_decile_mondrian", "grade_x_scoreband_mondrian"):
+            for partition_probability_source in partition_probability_sources:
+                group_cal_part, group_test_part, partition_meta = build_mondrian_partition_labels(
+                    y_prob_cal=prob_cal_sub_lookup[partition_probability_source],
+                    y_prob_eval=prob_test_lookup[partition_probability_source],
+                    partition=partition,
+                    base_groups_cal=group_cal_sub,
+                    base_groups_eval=group_test,
+                    n_score_bins=n_score_bins_candidates[0],
+                    min_group_size=min_group_sizes[0],
+                    fallback_mode=fallback_modes[0],
+                )
+                _y_pred_sub, y_int_sub, _ = create_pd_intervals_mondrian(
+                    classifier=model,
+                    X_cal=X_cal_sub,
+                    y_cal=y_cal_sub,
+                    X_test=X_test,
+                    group_cal=group_cal_part,
+                    group_test=group_test_part,
+                    alpha=alpha,
+                    min_group_size=min_group_sizes[0],
+                    calibrator=calibrator,
+                    score_scale_family=score_scale_families[0],
+                )
+                metrics = validate_coverage(y_test, y_int_sub, alpha=alpha)
+                by_group_sub = conditional_coverage_by_group(y_test, y_int_sub, group_test_part)
+                stability_sub, _ = _summarize_temporal_stability(
+                    partition, y_test, y_int_sub, issue_test
+                )
+                sensitivity_rows.append(
+                    {
+                        "record_type": "calibration_size_sensitivity",
+                        "variant": _variant_name(
+                            partition=partition,
+                            partition_probability_source=partition_probability_source,
+                            n_score_bins=n_score_bins_candidates[0],
+                            fallback_mode=fallback_modes[0],
+                            score_scale_family=score_scale_families[0],
+                            min_group_size=min_group_sizes[0],
+                            calibration_fraction=frac_float,
+                        ),
+                        "partition": partition_meta.get("partition", partition),
+                        "partition_probability_source": partition_probability_source,
+                        "calibration_fraction": frac_float,
+                        "n_calibration_rows": int(len(X_cal_sub)),
+                        "coverage": float(metrics["empirical_coverage"]),
+                        "coverage_gap": float(metrics["coverage_gap"]),
+                        "avg_width": float(metrics["avg_interval_width"]),
+                        "min_group_coverage": float(by_group_sub["coverage"].min()),
+                        "winkler_90": float(
+                            np.mean(
+                                winkler_interval_score(
+                                    y_test, y_int_sub[:, 0], y_int_sub[:, 1], alpha=alpha
+                                )
                             )
-                        )
-                    ),
-                    "stability_over_time": float(stability_sub["stability_over_time"]),
-                }
-            )
+                        ),
+                        "stability_over_time": float(stability_sub["stability_over_time"]),
+                    }
+                )
 
     bench = pd.DataFrame(rows)
     bench["promotion_pass"] = bench.apply(lambda row: _promotion_pass(row, policy), axis=1)
@@ -505,6 +579,7 @@ def main(
             ignore_index=True,
             sort=False,
         )
+
     output_paths = _build_output_paths(artifact_namespace)
     selected_cfg_path = Path(selected_config_path)
     selected_intervals_path = output_paths["selected_intervals"]
@@ -553,7 +628,7 @@ def main(
     status_path.write_text(
         json.dumps(
             {
-                "schema_version": "2026-03-13.1",
+                "schema_version": "2026-04-03.1",
                 "generated_at_utc": datetime.now(tz=UTC).isoformat(),
                 "artifact_namespace": artifact_namespace or "",
                 "calibrator_override_path": str(calibrator_override_path or ""),
@@ -585,6 +660,15 @@ def main(
                     "winkler_90": float(selected.get("winkler_90", 0.0)),
                     "stability_over_time": float(selected.get("stability_over_time", 0.0)),
                 },
+                "search_space": {
+                    "partition_candidates": list(partition_candidates),
+                    "partition_probability_sources": list(partition_probability_sources),
+                    "n_score_bins_candidates": [int(x) for x in n_score_bins_candidates],
+                    "fallback_modes": list(fallback_modes),
+                    "score_scale_families": list(score_scale_families),
+                    "min_group_sizes": [int(x) for x in min_group_sizes],
+                    "calibration_size_fractions": [float(x) for x in calibration_size_fractions],
+                },
                 "top_variants": bench.head(5).to_dict(orient="records"),
             },
             indent=2,
@@ -593,10 +677,12 @@ def main(
         encoding="utf-8",
     )
 
-    logger.info(f"Saved conformal benchmark summary: {bench_path} ({bench.shape})")
-    logger.info(f"Saved conformal benchmark by-group: {bench_group_path} ({bench_by_group.shape})")
+    logger.info("Saved conformal benchmark summary: {} ({})", bench_path, bench.shape)
     logger.info(
-        f"Saved conformal temporal diagnostics: {temporal_path} ({temporal_diagnostics.shape})"
+        "Saved conformal benchmark by-group: {} ({})", bench_group_path, bench_by_group.shape
+    )
+    logger.info(
+        "Saved conformal temporal diagnostics: {} ({})", temporal_path, temporal_diagnostics.shape
     )
     if not local_diagnostics.empty:
         logger.info(
@@ -604,7 +690,6 @@ def main(
         )
     logger.info("Saved conformal variant selection report: {}", selection_path)
     logger.info("Saved conformal variant selection status: {}", status_path)
-    logger.info(f"\n{bench}")
 
 
 if __name__ == "__main__":
@@ -615,6 +700,15 @@ if __name__ == "__main__":
     parser.add_argument("--cross_cal_sample_size", type=int, default=5000)
     parser.add_argument("--cross_test_sample_size", type=int, default=5000)
     parser.add_argument("--calibration_size_fractions", default="0.25,0.50,0.75,1.0")
+    parser.add_argument(
+        "--partition_candidates",
+        default="grade,score_decile_mondrian,grade_x_scoreband_mondrian",
+    )
+    parser.add_argument("--partition_probability_sources", default="raw")
+    parser.add_argument("--n_score_bins_candidates", default="10")
+    parser.add_argument("--fallback_modes", default="grade_then_global")
+    parser.add_argument("--score_scale_families", default="none,bernoulli_sqrt")
+    parser.add_argument("--min_group_sizes", default=None)
     parser.add_argument("--artifact_namespace", default=None)
     parser.add_argument("--calibrator_override_path", default=None)
     args = parser.parse_args()
@@ -628,6 +722,18 @@ if __name__ == "__main__":
         cross_cal_sample_size=args.cross_cal_sample_size,
         cross_test_sample_size=args.cross_test_sample_size,
         calibration_size_fractions=calibration_size_fractions,
+        partition_candidates=_coerce_csv_tuple(args.partition_candidates, cast=str),
+        partition_probability_sources=_coerce_csv_tuple(
+            args.partition_probability_sources, cast=str
+        ),
+        n_score_bins_candidates=_coerce_csv_tuple(args.n_score_bins_candidates, cast=int),
+        fallback_modes=_coerce_csv_tuple(args.fallback_modes, cast=str),
+        score_scale_families=_coerce_csv_tuple(args.score_scale_families, cast=str),
+        min_group_sizes=(
+            _coerce_csv_tuple(args.min_group_sizes, cast=int)
+            if args.min_group_sizes is not None
+            else None
+        ),
         artifact_namespace=args.artifact_namespace,
         calibrator_override_path=args.calibrator_override_path,
     )

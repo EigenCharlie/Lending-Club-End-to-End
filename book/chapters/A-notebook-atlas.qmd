@@ -12,9 +12,11 @@ listing:
   filter-ui: false
 ---
 
-Este apéndice no inventaria procedencia de notebooks. Su función es otra: **mostrar qué evidencia visual del proyecto sí merece quedar cristalizada en el libro** y cómo conecta con decisiones reales de modelado, incertidumbre, provisión y negocio.
+{{< include ../includes/_scientific-scope-contract.qmd >}}
 
-Cada entrada del atlas cumple la misma regla editorial: una figura entra aquí si ayuda a explicar mejor, demostrar mejor o conectar mejor con negocio. Si una imagen solo sirve para recordar de qué notebook salió, no pertenece al libro.
+Este apéndice conserva evidencia visual histórica del proyecto y muestra cómo se conectó con sus carriles de modelado, incertidumbre y simulación. No convierte las figuras en resultados vigentes, decisiones operativas, provisiones IFRS9 ni evidencia causal.
+
+Cada entrada del atlas cumple una regla editorial: una figura entra aquí si ayuda a explicar el desarrollo o a auditar un artefacto. Las lecturas de `decision` en el listado son contexto histórico y no recomendaciones actuales.
 
 ## Evidencia visual reutilizable
 

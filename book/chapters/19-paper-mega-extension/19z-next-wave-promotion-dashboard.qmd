@@ -1,0 +1,115 @@
+---
+title: "Next Wave Promotion Dashboard"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+claims = _csv("paper4_next_wave_claim_artifact_matrix.csv")
+paths = _csv("paper4_multi_period_sample_path_search.csv")
+dashboard = _csv("paper4_nonpromoted_lane_dashboard.csv")
+status = _json("paper4_next_wave_status.json")
+```
+
+## Pregunta {#sec-paper4-next-wave-dashboard-question}
+
+El next wave implementó mucho. Esta página evita que eso se convierta en ruido:
+
+> ¿Qué quedó como claim, qué quedó como búsqueda, qué sigue bloqueado y qué
+> tendría que pasar para promover algo?
+
+## Status
+
+```{python}
+#| label: tbl-paper4-next-wave-status
+#| tbl-cap: "Status JSON next wave"
+
+pd.DataFrame(
+    [
+        {"field": key, "value": str(value)}
+        for key, value in status.items()
+        if key not in {"generated_artifacts"}
+    ]
+)
+```
+
+## Claim Matrix
+
+```{python}
+#| label: tbl-paper4-next-wave-claim-matrix
+#| tbl-cap: "Next wave claim-artifact matrix"
+
+claims if not claims.empty else claims
+```
+
+## Multi-Period Sample Paths
+
+```{python}
+#| label: tbl-paper4-next-wave-sample-paths
+#| tbl-cap: "Sample-path search multi-period"
+
+paths.head(24) if not paths.empty else paths
+```
+
+El sample-path search ya muestra algo útil: switching mensual puede mejorar
+contra `static_champion` bajo horizontes cortos y escenarios. Pero sigue siendo
+toy: no modela cartera viva, amortización, prepago ni servicing.
+
+## Promotion Readiness
+
+```{python}
+#| label: tbl-paper4-next-wave-readiness
+#| tbl-cap: "Readiness de carriles no promovidos"
+
+dashboard if not dashboard.empty else dashboard
+```
+
+## Decisión Actual
+
+| Lane | Decisión |
+|---|---|
+| Full exact top-k | `keep`: base exacta para siguientes análisis |
+| IFRS9/tail exact-funded | `keep-with-caveat`: lifetime proxy domina |
+| Online conformal | `retry`: mejor candidato `rolling_score_decile`, pero peor mes falla |
+| Selector gates | `retry`: thresholds deben volverse decisión de comité |
+| Tail LP | `keep-as-prototype`: falta CVaR LP formal |
+| MDCP | `keep`: source search promete, pero no es garantía formal |
+| Fairness | `keep-as-proxy`: no claim legal |
+| Causal/CATE | `gated`: solo `high_rate_within_grade` amerita dossier |
+| Multi-period | `keep-as-toy`: requiere cartera viva |
+| Open-source/package | `park`: APIs internas todavía se mueven |
+
+## Next Step
+
+El próximo batch debería ser más selectivo:
+
+1. rehacer selector sobre full exact top-k;
+2. abrir dossier causal `high_rate_within_grade`;
+3. formalizar CVaR LP;
+4. convertir online `rolling_score_decile` en challenger contra ACI/UP-OCP;
+5. mejorar multi-period con cartera viva.

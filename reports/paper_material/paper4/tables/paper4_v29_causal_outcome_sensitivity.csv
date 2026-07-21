@@ -1,0 +1,3 @@
+outcome,naive_difference,ipw_difference_proxy,model,causal_claim_allowed,claim_boundary,primary_outcome_flag_v29,secondary_outcome_flag_v29,causal_policy_value_allowed
+y_true,0.012756859000112836,-0.015227609456682695,logistic_propensity,False,accepted-loan causal diagnostic only,True,False,False
+base_return_vec,224.86791367944215,38.92579298683518,logistic_propensity,False,accepted-loan causal diagnostic only,False,True,False

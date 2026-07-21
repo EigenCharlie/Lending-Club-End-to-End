@@ -1,0 +1,22 @@
+{
+  "asset_caveat_rows_v476": 10,
+  "assets_inserted_into_quarto_v476": false,
+  "book_references_modified_v476": false,
+  "book_sources_modified_v476": false,
+  "caption_and_insertion_plan_created_v476": true,
+  "caption_rows_v476": 10,
+  "captions_final_v476": false,
+  "claim_boundary": "v476 creates draft captions and insertion plan only; asset insertion, submission and final promotion claims remain blocked",
+  "generated_at_utc": "2026-05-17T17:00:14.826209+00:00",
+  "insertion_rows_v476": 10,
+  "next_artifact_v476": "paper4_v477_post_visual_package_manuscript_delta.md",
+  "paper1_promotion_allowed_v476": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v476": false,
+  "phase": "v476_caption_and_insertion_plan",
+  "prior_table_figure_selection_version_v476": 475,
+  "runtime_seconds": 0.048,
+  "schema_version": "2026-05-17.476",
+  "submission_ready_claim_allowed_v476": false,
+  "working_champion_claim_allowed_v476": false
+}

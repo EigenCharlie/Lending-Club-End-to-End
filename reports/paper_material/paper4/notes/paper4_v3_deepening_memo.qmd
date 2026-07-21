@@ -1,0 +1,14 @@
+---
+title: "Paper 4 v3 Deepening Memo"
+format: html
+---
+
+# Paper 4 v3 Deepening Memo
+
+This run deepens the eight highest-priority open lanes. It remains a living-lab
+run: it protects the Paper Estrella champion, does not create
+`paper4_final_promotion.json`, and labels IFRS9, fairness, causal and
+multi-period outputs with their current evidence scope.
+
+Key guardrail: v3 can produce candidates for review, but not a replacement
+champion.

@@ -259,6 +259,80 @@ class TestSolvePortfolio:
         assert sol["objective_value"] == pytest.approx(123.0)
 
 
+def test_cuopt_native_adapter_accepts_seed_and_presolve(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class FakeDataModel:
+        def set_csr_constraint_matrix(self, *args, **kwargs):
+            return None
+
+        def set_constraint_bounds(self, *args, **kwargs):
+            return None
+
+        def set_row_types(self, *args, **kwargs):
+            return None
+
+        def set_objective_coefficients(self, *args, **kwargs):
+            return None
+
+        def set_maximize(self, *args, **kwargs):
+            return None
+
+        def set_variable_lower_bounds(self, *args, **kwargs):
+            return None
+
+        def set_variable_upper_bounds(self, *args, **kwargs):
+            return None
+
+    class FakeSolverSettings:
+        def __init__(self):
+            captured["params"] = {}
+
+        def set_parameter(self, name, value):
+            captured["params"][name] = value
+
+    class FakeSolution:
+        def get_primal_solution(self):
+            return np.array([0.25, 0.25, 0.25], dtype=float)
+
+        def get_termination_reason(self):
+            return "Optimal"
+
+        def get_primal_objective(self):
+            return 42.0
+
+    class FakeLpApi:
+        DataModel = FakeDataModel
+        SolverSettings = FakeSolverSettings
+
+        @staticmethod
+        def Solve(dm, settings):
+            _ = (dm, settings)
+            return FakeSolution()
+
+    monkeypatch.setattr(cuopt_adapter, "_require_cuopt", lambda: FakeLpApi)
+
+    loans = pd.DataFrame(
+        {
+            "loan_amnt": [10_000.0, 10_000.0, 10_000.0],
+            "purpose": ["credit_card", "debt_consolidation", "credit_card"],
+        }
+    )
+    result = cuopt_adapter.solve_portfolio_cuopt_native(
+        loans=loans,
+        pd_point=np.array([0.05, 0.06, 0.07], dtype=float),
+        pd_high=np.array([0.07, 0.08, 0.09], dtype=float),
+        lgd=np.array([0.45, 0.45, 0.45], dtype=float),
+        int_rates=np.array([0.12, 0.13, 0.11], dtype=float),
+        random_seed=42,
+        presolve=1,
+    )
+
+    assert result["solver_backend"] == "cuopt"
+    assert captured["params"]["random_seed"] == 42
+    assert captured["params"]["presolve"] == 1
+
+
 # ---------------------------------------------------------------------------
 # build_binary_model
 # ---------------------------------------------------------------------------

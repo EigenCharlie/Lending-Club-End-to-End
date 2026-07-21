@@ -1,0 +1,634 @@
+Rahul Shaw - LatentView Analytics | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Rahul Shaw
+Sign in to view Rahul’s full profile
+Rahul can introduce you to 6 people at LatentView Analytics
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Bengaluru, Karnataka, India
+Contact Info
+Sign in to view Rahul’s full profile
+Rahul can introduce you to 6 people at LatentView Analytics
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+382 followers
+343 connections
+See your mutual connections
+View mutual connections with Rahul
+Rahul can introduce you to 6 people at LatentView Analytics
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Join to view profile
+Message
+Sign in to view Rahul’s full profile
+Rahul can introduce you to 6 people at LatentView Analytics
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+LatentView Analytics
+Madras School of Economics
+Report this profile
+About
+Analytics Manager in BFSI with a total of 7+ years of experience in model development…
+see more
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+Experience & Education
+LatentView Analytics
+********* *******
+**** ***** ****
+**** *********
+****
+**** ******* *******
+****** ****** ** *********
+******** ****** ********* undefined
+2016 - 2018
+View Rahul’s full experience
+See their title, tenure and more.
+Sign in
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Licenses & Certifications
+EY Analytics - Data science - Bronze
+EY
+Issued Feb 2019
+See credential
+Introduction to Bash Scripting
+DataCamp
+Credential ID #14031631
+See credential
+Introduction to R
+DataCamp
+Credential ID #1723299
+See credential
+Introduction to Shell
+DataCamp
+Credential ID #12911415
+See credential
+View Rahul’s full profile
+See who you know in common
+Get introduced
+Contact Rahul directly
+Join to view full profile
+Other similar profiles
+Ankush Rasam
+Ankush Rasam
+EY
+4K followers
+Mumbai
+View Profile
+Sharad Singh
+Sharad Singh
+American Express
+4K followers
+Bengaluru
+View Profile
+Dhrumil Gaglani
+Dhrumil Gaglani
+Bank of America
+2K followers
+Mumbai
+View Profile
+Aby Eapen
+Aby Eapen
+Navi
+4K followers
+Bengaluru
+View Profile
+Priyanka Mundhra
+Priyanka Mundhra
+Upfield
+13K followers
+India
+View Profile
+Anu Gupta
+Anu Gupta
+Macquarie Group
+4K followers
+Gurgaon
+View Profile
+Dhruv Parikh
+Dhruv Parikh
+EY
+8K followers
+Mumbai
+View Profile
+Anand Agarwal, CQF, FRM
+Anand Agarwal, CQF, FRM
+Citi
+4K followers
+Mumbai
+View Profile
+Swapnil Agrawal FRM®
+Swapnil Agrawal FRM®
+KPMG India
+20K followers
+Bengaluru
+View Profile
+Ratnika Saxena
+Ratnika Saxena
+Protiviti
+18K followers
+Gurgaon
+View Profile
+Explore more posts
+Samith R'krishnan
+Axis Bank
+• 10K followers
+🔹 Revolutionising Fraud Detection in Digital Payments – NPCI’s G-TED SAM 🔹
+India’s UPI has become a lifeline for everyday payments — billions of transactions every month, all processed in a fraction of a second. But with this speed and scale comes a huge challenge: how do you keep fraudsters out without slowing the system down?
+That’s where NPCI’s latest innovation, G-TED SAM (Graph Transformer Distillation to Simple Attention Model), comes in.
+🧑‍🏫 Think of it like a teacher and student:
+• The Teacher model is a brilliant detective — it studies the full web of accounts and transactions to spot hidden fraud rings.
+• The Student model learns from this teacher and applies those instincts instantly, checking transactions at lightning speed without needing the entire web.
+💡 The impact?
+• Fraud caught more accurately, without delays.
+• Scalable to billions of payments.
+• Affordable and deployable even for smaller banks and fintechs.
+• Trust in UPI stays intact — secure and seamless.
+👉 Great example of India building world-class AI for real-world financial challenges. Extending the above when Telecom Meets Payments: A New Frontline Against Fraud
+Digital India’s backbone runs on two rails:
+📱 Telecom — every SIM, every OTP, every device.
+💳 Payments — UPI, cards, wallets, and billions of transactions a month.
+Fraudsters know this. They don’t attack one system in isolation — they exploit the weak links across both. A fake SIM, a compromised KYC, a mule account… and suddenly the fraud shows up in UPI or card payments.
+This is why two innovations together could be game-changing:
+• DoT’s Financial Resource Intelligence (FRI): spotting fraudulent telecom identities and abnormal SIM behaviour.
+• NPCI’s G-TED SAM: an AI-powered fraud detection system that learns patterns of suspicious transactions at scale, without slowing down UPI’s lightning speed.
+💡 Imagine combining the two:
+• FRI flags a SIM involved in suspicious activity.
+• That signal feeds into G-TED SAM’s fraud graph, enriching it with telecom intelligence.
+• Now NPCI can catch fraud before the money even moves — spotting mule networks and scam rings at the root.
+👉 In simple terms: FRI is the neighbourhood watch outside the bank; G-TED SAM is the CCTV inside the bank. Together, they make fraudsters visible from the moment they step into the lane.
+7
+Pankaj Baid
+Standard Chartered
+• 9K followers
+Excited to join this conversation on AI.
+Looking forward to sharing experiences and learning from fellow experts on advancing trustworthy and sustainable AI.
+Cognition - The Data Science and Analytics Club Goa Institute of Management (GIM)
+17
+Hillol Das
+RD (Panchayat) Department…
+• 492 followers
+📰 Latest from Indian Express
+🔹 For the first time, retail top category for loan write-offs by Indian banks in FY25
+🔗 Read the full story: https://lnkd.in/gTPXbcJy
+#IndianExpress #News #Update
+NAGARJUNA MAHANTI
+SRM University
+• 19K followers
+If you’re in credit risk or data analytics, you’ve likely heard of PD, LGD, and EAD — key pillars of credit risk modeling under Basel and RBI guidelines.
+1. PD – Probability of Default
+Definition:
+PD measures how likely a customer is to default on their credit obligation (i.e., fail to make payments for a specified period, usually 90 days past due).
+In credit card terms:
+It’s the probability that a customer will not pay their minimum due or total due for a prolonged period and becomes a non-performing asset (NPA).
+Example:
+Let’s say Ravi, an Indian salaried person working in Bengaluru, has an HBCD Credit Card with a credit limit of ₹1,00,000.
+He has been paying on time, but recently his company downsized, and he lost his job.
+Based on the bank’s risk model and Ravi’s profile (e.g., income, utilization rate, delinquency history), the model assigns a PD = 5% (0.05).
+➤ Meaning there’s a 5% chance Ravi will default in the next 12 months.
+💸 2. LGD – Loss Given Default
+Definition:
+LGD represents the portion of exposure that the bank will lose if the customer defaults, after considering recoveries (through collections, settlements, or sale to recovery agencies).
+In credit card terms:
+It’s the percentage of outstanding balance the bank cannot recover after default.
+Example:
+Ravi’s outstanding balance at default = ₹80,000
+The bank manages to recover ₹20,000 through collections over time.
+So, Loss = ₹80,000 - ₹20,000 = ₹60,000
+Therefore,
+👉 LGD = 60,000 / 80,000 = 75%
+That means the bank loses 75% of the exposure after all recoveries.
+💳 3. EAD – Exposure at Default
+Definition:
+EAD is the total amount exposed to risk when the customer defaults — i.e., the outstanding principal + interest + accrued charges on the card at the time of default.
+In credit card terms:
+It’s the balance on the card (plus any pending fees/interest) when the customer stops paying.
+Example:
+Credit limit = ₹1,00,000
+Utilized amount at time of default = ₹80,000
+No further usage after delinquency
+So, EAD = ₹80,000
+🧮 Putting it Together – Expected Loss (EL)
+Banks combine these three parameters to estimate the expected credit loss (ECL):
+PD = 5% (0.05)
+LGD = 75% (0.75)
+EAD = ₹80,000
+👉 The bank expects to lose ₹3,000 on average from customers with similar profiles.
+Bank calculate these metrics for regulatory and internal risk management under frameworks such as:
+Basel II / III guidelines, and
+RBI’s IRB (Internal Ratings-Based) approach for credit risk.
+These help:
+-Set credit limits
+-Decide interest rates or APR
+-Estimate provisions (ECL) for IFRS 9 / Ind-AS 109 accounting
+-Track portfolio-level risk trends
+#Creditrisk #RiskManagement #RiskModelling #Controls #Risk #Regulatory #RiskReporting
+20
+1 Comment
+Arzan Azmi
+Andromeda Sales &…
+• 2K followers
+Verhoeff Checksum : The Math That Secures India's Identity
+The 12-digit Aadhaar number, the foundation of India's digital identity system, is a masterclass in combining randomization with mathematical integrity.
+The Aadhaar number is composed of two distinct parts, each serving a critical function:
+The First 11 Digits (The Identifier): These digits are the actual Unique Identification Number. The Unique Identification Authority of India (UIDAI) has confirmed that these digits are intentionally and randomly generated. They contain no embedded intelligence, no information about the holder's demographics. This randomization is the primary security feature, making the number un-guessable and ensuring it is a true, unique identifier. The number never starts with 0 or 1.
+The 12th Digit (The Checksum): This is the Verhoeff Checksum, a single digit calculated from the preceding 11 digits. Its sole purpose is to act as a powerful error detection mechanism.
+Why the Verhoeff Checksum?
+The Verhoeff algorithm, developed by Dutch mathematician Jacobus Verhoeff in 1969, is significantly more robust than simpler checksums like the Luhn algorithm (used for credit cards). It is based on abstract algebra, specifically the Dihedral Group D5, and is designed to catch the most common human data entry errors:
+Error Type - Detection Rate
+Single Digit Errors (e.g., 1234 -> 1235) - 100%
+Adjacent Transposition Errors (e.g., 1234 -> 1324) - 100%
+Other Transposition and Twin Errors - Very High
+The algorithm's power comes from its use of three pre-defined mathematical tables, which are applied sequentially to the digits of the number:
+1. Dihedral Group D5 Table (Multiplication): This table defines a non-commutative "multiplication" operation on the digits 0-9. The non-commutative property is what allows the algorithm to detect transpositions
+2. Permutation Table: This table dictates the order in which the digits are processed, ensuring that the position of each digit affects the final result.
+3. Inverse Table: This table is used to calculate the final checksum digit.
+The final calculation involves a series of multiplications and permutations on the digits, resulting in a single checksum digit.
+It is important to note the difference between error detection and security. Since the checksum is a single digit (0-9), there is a 0.1 probability that a completely random 12-digit number will accidentally pass the Verhoeff check.
+Therefore, the Verhoeff checksum is not a security feature against malicious guessing. Its value lies entirely in ensuring data integrity against human error in real-world data entry scenarios. The un-guessability and security of the Aadhaar number are derived from the massive numeric space provided by the 11 random digits.
+The Verhoeff checksum is a silent guardian of data quality in one of the world's most ambitious identity projects.
+Relevant Links - https://lnkd.in/dKECKiCu
+29
+3 Comments
+Raj Singh
+Rova
+• 14K followers
+Fractal Analytics set to make history as India’s first AI company IPO.
+SEBI has approved the IPO of Fractal Analytics, a major milestone for India’s rapidly advancing AI landscape.
+The Mumbai-based firm aims to raise around ₹4,900 crore through a combination of fresh equity and an offer-for-sale, with Bloomberg projecting the listing to push its valuation past $3.5 billion.
+Founded by Srikanth Velamakanni and Pranay Agrawal, Fractal has built a strong global footprint in decision intelligence and AI products, serving technology giants including Microsoft, Apple, NVIDIA, Alphabet®, Amazon, Meta, and Tesla.
+A significant portion of the capital raised will be used to:
+→ Reduce debt in its US subsidiary
+→ Expand operations in India
+→ Accelerate advancements in generative AI
+With backing from TPG, Apax, and Gaja Capital, Fractal has raised over $800 million in previous funding and earns more than 65% of its revenue from the US market. Despite investor exits, the founders and their families will retain their holdings.
+The IPO, managed by Morgan Stanley India, Goldman Sachs India, Kotak Mahindra Capital, and AXIS (AXIS Capital), is expected to attract strong interest as India’s AI ambitions gain momentum.
+#AI #IPO #FractalAnalytics #SEBI #GenerativeAI #TechIndustry #IndiaTech #ArtificialIntelligence
+1,136
+27 Comments
+StatChakravyuh
+200 followers
+Aspirants often underestimate the importance of distribution transformations and their implications in statistical inference.
+Today’s Question of the Day is a strong test of conceptual clarity involving:
+• Uniform distribution
+• Transformation of random variables
+• Understanding derived statistics
+Such problems are highly relevant for IIT JAM, GATE, and ISS examinations, where depth of understanding is critical.
+I encourage you to attempt this question and share your answer in the comments.
+Consistent practice of such questions is what differentiates top rankers from average aspirants.
+IIT JAM + GATE + ISS — All in ONE membership.
+Unlock StatCV Pass & prepare like a topper!
+🔗 statcv.in/pass
+#statistics #iitjam #gateexam #iss #mathematicalstatistics #probabilitytheory #highereducation #examstrategy #datasciencelearning
+3
+Abhishek Mungoli
+InMobi
+• 50K followers
+COVID-19 brought abrupt changes in consumer behavior and impacted the accuracy of forecasting models.
+Similarly, UPI (Unified Payment Interface) abrupted consumer's spending methods, bringing many of them online. Concept drift happens when the statistical properties of the target variable, which the model is trying to predict, itself change over time. This causes problems because the predictions become less accurate and become unreliable.
+Here's a short video for Data Science enthusiasts I have created on the topic of Data drift and model monitoring followed by a practical exercise at the end. Like and subscribe for more such interesting concepts. Also, like and share over here for maximum reach. : )
+Video Link: youtu.be/tQjRQWfYQ10
+YT channel Link: youtube.com/@datatrek
+#datatrek #datascience #machinelearning #statistics #deeplearning #ai
+3
+Sadia Parvin Ripa
+BRAC Bank PLC
+• 2K followers
+🔍 AI Is Redefining the Financial Industry
+From agentic AI to large language models (LLMs), the next wave of AI innovation is transforming risk management, compliance, treasury, and credit decisioning across financial institutions.
+📈 Key Developments:
+✅ Agentic AI (autonomous AI systems) is enabling dynamic portfolio monitoring, stress testing, and automated responses to market events — all without human prompts.
+✅ LLMs like GPT-4, Claude, and Gemini are being embedded into internal systems to summarize regulations, generate policy reports, flag anomalies, and answer compliance queries in real time.
+✅ Machine Learning (ML) risk models now integrate macroeconomic trends, borrower behavior, and alternative data to improve default predictions by 15–25%, according to Deloitte.
+📊 Industry Data:
+McKinsey estimates AI will add $200B–$340B annually in value across banking alone.
+73% of global financial institutions are investing in “AI-driven risk functions” (World Economic Forum, 2024).
+BlackRock, JPMorgan, and Citi are already deploying LLMs for treasury optimization, loan pricing, and liquidity risk analytics.
+🛡️ What This Means for Risk Modeling:
+Move from static models ➡ to adaptive ML models with explainability (XAI).
+Focus on real-time ALM, regulatory sandboxes, and model risk governance.
+Hybrid teams: quants + AI engineers + compliance experts.
+🚀 The future of finance isn’t just digital — it’s cognitive, autonomous, and proactive.
+#AIinFinance #RiskModeling #AgenticAI #LLM #FintechInnovation #MachineLearning #ALM #TreasuryTransformation
+20
+2 Comments
+Abhishek Ginodia
+Altius Investech (Pre IPO |…
+• 12K followers
+Fractal Analytics: India’s First Listed AI Company?
+India’s tech ecosystem is about to hit a new milestone — an AI-first IPO.
+Fractal Analytics, a homegrown Enterprise AI leader, has filed its Draft Red Herring Prospectus (DRHP) with SEBI, aiming to raise ₹4,900 crore.
+But what’s the big deal here?
+This is the first time an Indian AI solutions company (with global scale) is going public — positioning AI as not just the future of business, but now as a public market story.
+________________________________________
+📌 Quick Snapshot of the IPO
+• Fresh Issue: ₹1,279 crore
+• Offer for Sale: ₹3,621 crore by existing investors (Apax, TPG, others)
+• Key Sellers:
+o TPG Fett Holdings – ₹2,000 crore
+o Apax Partners – ₹1,463 crore
+Use of Proceeds:
+1. Repay US subsidiary debt
+2. Expand R&D capabilities
+3. Open new offices in India & abroad
+4. Boost sales & marketing
+5. Fund inorganic growth opportunities
+________________________________________
+💡 Why This IPO Matters
+Fractal isn’t just another IT services company. It has built AI-led platforms across industries:
+• Qure → Healthcare analytics
+• Cuddle → AI-powered decision making
+• Flyfish→ Sales
+That’s why companies like TPG & Apax have backed it heavily.
+In fact, Fractal has raised $857 million across 6 rounds, with TPG’s $360 million round valuing it at $2.44 billion.
+________________________________________
+🌍 Where the Money Comes From
+Fractal is a global play — earning:
+• 66% from the US
+• 17.7% from Europe
+• Rest from Asia-Pacific
+.
+________________________________________
+📊 Financial Snapshot (FY25)
+• Revenue: ₹2,765 crore
+• Profit: ₹220.6 crore
+Not massive yet compared to IT giants, but strong enough for the AI niche.
+________________________________________
+🎯 The Bigger Picture
+AI is in its hypergrowth phase, with platforms scaling rapidly across industries.
+Fractal’s IPO will test whether Indian markets are ready to value AI companies beyond the “IT services” tag.
+The key questions:
+• Will public investors see Fractal as another IT firm or as a true AI innovator?
+• Can it balance growth with profitability as it expands globally?
+________________________________________
+✅ Bottomline: If this IPO succeeds, it sets the stage for a wave of Indian AI listings. If not, it risks being clubbed with “tech IPO hype” that fizzles out.
+#IPO #ArtificialIntelligence #FractalAnalytics #IndianMarkets #TechIPO
+11
+1 Comment
+Jesca Birungi
+Freelance
+• 17K followers
+One interesting thing about learning #machinelearning with #R is that there is no single “best” resource.
+Different resources work for different stages of learning.
+After sharing an introductory resource earlier, I thought it might also help to share something more hands-on.
+Hands-On Machine Learning with R: https://lnkd.in/d6zjNWzH
+This guide focuses on implementing machine learning techniques in R through practical examples, covering areas such as:
+• Tree-based models
+• Boosting methods
+• Clustering techniques
+• Neural networks
+• Ensemble models
+For #statisticians, #biostatisticians, and #dataanalysts working in R, it can be a helpful way to build practical machine learning skills step by step.
+I’d love to hear from my network:
+What resources would you recommend for learning machine learning with R?
+#Biostatistics #MachineLearning #RStats #DataScience #OpenScience #StatisticalLearning
+40
+4 Comments
+Fortune India
+59K followers
+Fractal Analytics and Aye Finance are set to launch their IPOs on February 9, aiming to raise a combined ₹3,844 crore.
+(Chitranjan Kumar reports)
+#FractalAnalytics #AyeFinance #IPO
+https://lnkd.in/dj49P8cS
+Nitesh Singh
+1Kosmos
+• 659 followers
+Today I explored different chunking strategies for RAG systems, and it’s clear that choosing the right approach directly impacts retrieval quality.
+Here are the key strategies I understand, along with their trade-offs:
+1. Character-based splitting
+✔️ Pros:
+Simple to implement
+Works consistently across all text types
+Predictable chunk sizes
+❌ Cons:
+Breaks context mid-sentence
+Poor semantic understanding
+Lower retrieval accuracy
+2. Recursive character splitting
+✔️ Pros:
+Preserves structure better than fixed splitting
+Flexible fallback mechanism (paragraph → sentence → word)
+Balanced chunk quality
+❌ Cons:
+Still not fully semantic
+Requires tuning (chunk size, overlap)
+3. Document-specific splitting
+✔️ Pros:
+Leverages document structure (headings, sections, tables)
+Better contextual grouping
+Ideal for PDFs, markdown, structured docs
+❌ Cons:
+Format-dependent
+Requires custom parsers per document type
+4. Semantic chunking
+✔️ Pros:
+Context-aware splitting
+Higher relevance in retrieval
+Improves embedding quality
+❌ Cons:
+Computationally expensive
+Requires embeddings during preprocessing
+Slower pipeline
+5. Agentic / intelligent chunking
+✔️ Pros:
+Dynamic and context-driven
+Can adapt per use case
+Potentially best retrieval performance
+❌ Cons:
+Complex to design
+Higher cost and latency
+Harder to debug
+One approach I’m currently exploring as well and that is Unstructured.io.
+It looks promising for handling multi-format documents (PDF, HTML, DOCX, etc.) and extracting structured elements before chunking.
+I am Curious about what chunking strategy has worked best in your RAG pipelines and why ?
+#AI #RAG #Backend #DataEngineering #LLM #SystemDesign
+5
+Sameer Pati
+HSBC
+• 867 followers
+Understanding how statistical concepts translate into algorithms and real-world applications is crucial for any data professional.
+That’s why I created a structured, 3-column guide:
+📘 Concept – the “why” behind the numbers
+⚙️ Technique – the “how” we apply it
+🌍 Use Case – the “where” it delivers business value
+Whether you're building models, interpreting trends, or explaining insights to stakeholders, this guide bridges theory and practice.
+#DataScience #Statistics #Probability #MachineLearning #Analytics #CareerDevelopment #AI #LearningResources
+8
+1 Comment
+Mohamed Abaza
+Banque Misr
+• 5K followers
+AutoMl is gonna change the game!
+First of all, let’s talk what is an Automated Machine Learning (AutoML). Simply, it a way to automate all the steps been done to learn and deploy an ML model end to end. This Including data preparation, feature engineering, model selection, fine tuning the hyper parameters, and model assessment. Can you imagine all of these steps are being automated!
+So what is the impact? Well, with such automation, #ML ain’t be a luxurious investment anymore, coz guess what? It shall be accessible to all users, especially, non experts. Imagine all small businesses that could make use it. Attention! I’m not talking about some end user AI/GenAI tools here. I’m talking about a full ML training process that shall provide high quality models, tailored for an entity’s data without the need for deep technical knowledge!
+#AutoML is simply “democratizing” machine learning.
+15
+Venkatesh K Iyengar
+Tathwamasi Consulting
+• 5K followers
+MSME Data Science & Analytics Update — November 2025 (India)
+India’s MSMEs are steadily moving toward data-driven operations, and November brought some important developments:
+1.AI & Analytics Training Expands
+ni-MSME, in collaboration with JNTU-K, launched advanced programmes on Generative AI for Data Analytics — strengthening MSME skilling and digital readiness. (Source: ni-MSME)
+2.MSME Clusters Going Digital
+Industrial hubs like Belagavi showcased how smaller units are using analytics to improve manufacturing efficiency and process quality. (Source: Economic Times MSME Summit)
+3.Adoption Gap = Big Opportunity
+Analytics adoption among Indian MSMEs is still estimated at ~15%, compared to 35–40% globally, highlighting a massive scope for competitive advantage through data-driven decisions. (Source: Analytics India industry review)
+For MSME leaders, 2025–26 is the crucial window to build data capability — forecasting, customer insights, process analytics and AI-led automation can directly improve margins and resilience.
+Lets meet ...
+#MSME #DataScience #BusinessAnalytics #AIforSMEs #DigitalTransformation #IndiaBusiness #tathwamasi
+16
+Pranay Tiwari
+Fidelity Investments
+• 16K followers
+Building an LLM - concepts and interview question series
+Topic 5 – Quantization: PTQ vs. QAT
+When asked, “How do you optimize a 70B parameter model for inference?” many candidates jump to “Quantization.” But very few can explain how we get from FP16 down to INT8 or INT4 without turning the model into gibberish.
+The bridge between massive weights and limited GPU VRAM is carefully engineered quantization.
+So to control the trade-off between perplexity (accuracy) and latency, you must distinguish between two paradigms:
+Post Training Quantization (PTQ) - This is like a quick win. You take a pre-trained Llama-3 or Mistral checkpoint and calibrate it after training.
+Mechanics: Uses a small dataset to fix activation ranges.
+Used - Flows like load_in_8bit or GGUF fall here. (for more see bitsandbytes package documentation)
+Reason it works: Large models have parameter redundancy. They can "eat" the precision loss with <1% perplexity degradation.
+Quantization-Aware Training (QAT) – So here you inject fake quantization nodes during a fine-tuning stage. The model “sees” the rounding noise during the forward pass and adapts its weights to survive it. (Fake it till you make it for LLMs :))
+Used: Critical for INT4 (and below) or on-device SLMs.
+Reason it works: At 4-bit precision, naive PTQ often breaks reasoning capabilities. QAT recovers that lost signal.
+Why this matters for LLMs: A 7B model in FP16 needs ~14GB VRAM. In INT8, it needs ~7GB. This isn't just about saving space; it is about Memory Bandwidth. Since inference is memory-bound, moving 50% less data per token directly translates to higher tokens-per-second.
+Real-World Example: Meta’s DLRM Recommender systems at scale (like Meta’s) are often bottlenecked by fetching massive Embedding Tables from memory, not by the CPU compute. By applying QAT to these embeddings, they compress Terabyte-scale tables by 4x. This frees up memory bandwidth, allowing the model to run drastically faster in production without losing the nuances about user preferences.
+My Rule of Thumb: Start with a solid PTQ process. If perplexity degrades beyond tolerance (especially at 4-bits)—pay the compute cost for QAT.
+The code block below shows how PyTorch simulates INT8 noise during training (the QAT workflow).
+#PyTorch #LLM #GenerativeAI #MachineLearning #Quantization
+23
+3 Comments
+Divye Kapoor
+Meesho
+• 5K followers
+We believe in data over gut feeling. This role sits at an exciting intersection of Data Science and Risk, with opportunities to expand into Collections, LTV, and Propensity Modeling using state-of-the-art (SOTA) models.
+16
+Show more posts
+Show fewer posts
+Explore top content on LinkedIn
+Find curated posts and insights for relevant topics all in one place.
+View top content
+Add new skills with these courses
+49m
+Data Quality: Transactions, Ingestions, and Storage
+46m
+Data Quality: Measure, Improve, and Enforce Reliable Systems
+4h
+Complete Guide to Analytics Engineering
+See all courses
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+View Rahul’s full profile
+Rahul can introduce you to 6 people at LatentView Analytics
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

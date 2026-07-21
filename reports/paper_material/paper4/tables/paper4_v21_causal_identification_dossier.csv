@@ -1,0 +1,9 @@
+treatment_id,covariate,smd_unweighted,balance_gate_pass
+high_rate_within_grade_v21,pd_point_alpha01,0.43476896604088006,False
+high_rate_within_grade_v21,pd_high_alpha01,0.36509612651191725,False
+high_rate_within_grade_v21,qhat_v4,0.33519838267393537,False
+high_rate_within_grade_v21,loan_amnt,0.20904774771985452,False
+high_rate_within_grade_v21,annual_inc,0.04933787619964544,True
+high_rate_within_grade_v21,dti,0.05113061069413884,True
+high_rate_within_grade_v21,fico_score,-0.12837678903245708,False
+high_rate_within_grade_v21,installment_burden,0.0005284516623688248,True

@@ -1,0 +1,6 @@
+design_element,data_anchor,implementation_v15,overclaim_guardrail
+vintage/cohort shock,issue_month and period,default and LGD multipliers grow under later stressed vintages,internal labels only
+dependent defaults,common monthly latent factor,all loans in a month share systemic_factor_v15,not a macro forecast
+cyclic LGD,same latent factor as defaults,LGD increases when systemic stress rises,proxy LGD path
+prepayment timing,loan status/term proxy,prepayment factor falls under stress,no servicing panel
+common random numbers,path_id and loan_id hashes,same event draws reused across policies,paired comparison only

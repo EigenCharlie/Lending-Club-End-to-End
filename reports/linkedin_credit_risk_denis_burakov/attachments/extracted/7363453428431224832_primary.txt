@@ -1,0 +1,67 @@
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+Evaluating Calibration Accuracy
+Calibration metrics after undersampling with 50/50 imbalance ratio
+PROBLEM STATEMENT                                                                   CALIBRATION VARIANTS (CONT.)
+     When training on balanced samples (50/50) for                                       Logistic recalibration (Platt):
+     rare events, predictions must be corrected                                           p = (az + b), (x) = 1 +1e x
+     to population prevalence pt.                                                        Isotonic calibration: non-parametric mapping
+                                                                                         with CalibratedClassifierCV (prefit).
+DATA & SPLIT                                                                             Venn-Abers: inductive split, probabilistic
+     Real banking dataset ( 10% default                                                  intervals.
+     rate); stratified 70/30 train/test.
+     Balanced training sample via undersampling to                                  EVALUATION METRICS
+     50/50.                                                                              Metrics: Brier, Log loss, AUC; ECE, MCE & CE.
+                                                                                                          n
+                                                                                          Brier = 1n           pi yi 2
+CALIBRATION VARIANTS
+                                                                                                               (             )
+
+                                                                                                         i=1
+                                                                                                                   n
+     Uncorrected: train on original data.                                                 LogLoss = 1n                 [   yilog(pi) + (1 yi)log 1 pi
+                                                                                                                                              (         )]
+
+
+
+     Weighted (King-Zeng): class/sample weights:                                                     M
+                                                                                                               i=1
+                                                                                                           |Bm|
+     w0 = 11 ppts , w1 = ppts                                                             ECE =              n |acc(Bm)             conf(Bm)|
+                                                                                                    m=1
+     Prior-corrected (King-Zeng §4.1):                                                    MCE = max |acc(Bm ) conf(Bm)|
+                                                                                                 m
+              orig log 1 pt ps
+       0 = 0
+       corr                                                                                          n
+                          (pt 1 ps     )
+
+                                                                                          CE = 1n         |pi yi|
+                                                                                                    i=1
+
+
+
+
+Reference: King, G., & Zeng, L. (2001). Logistic regression in rare events data. Political Analysis, 9(2), 137-163.

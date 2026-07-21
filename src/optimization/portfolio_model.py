@@ -258,7 +258,7 @@ def solve_portfolio(
     threads: int = 4,
     solver_backend: str = "highs",
 ) -> dict[str, Any]:
-    """Solve portfolio optimization with HiGHS (default) or optional cuOpt."""
+    """Solve portfolio optimization with HiGHS (default), Gurobi, or optional cuOpt."""
     backend = solver_backend.strip().lower()
     if backend == "highs":
         from pyomo.contrib.appsi.solvers import Highs
@@ -266,6 +266,14 @@ def solve_portfolio(
         solver = Highs()
         solver.config.time_limit = time_limit
         _ = threads  # reserved for future HiGHS appsi configuration
+        results = solver.solve(model)
+    elif backend == "gurobi":
+        from pyomo.contrib.appsi.solvers import Gurobi
+
+        solver = Gurobi()
+        solver.config.time_limit = time_limit
+        if int(threads) > 0:
+            solver.gurobi_options["Threads"] = int(threads)
         results = solver.solve(model)
     elif backend == "cuopt":
         solver = pyo.SolverFactory("cuopt")
@@ -277,7 +285,9 @@ def solve_portfolio(
         _ = (time_limit, threads)  # backend-specific options vary by cuOpt deployment
         results = solver.solve(model)
     else:
-        raise ValueError(f"Unsupported solver_backend={solver_backend!r}. Use 'highs' or 'cuopt'.")
+        raise ValueError(
+            f"Unsupported solver_backend={solver_backend!r}. Use 'highs', 'gurobi', or 'cuopt'."
+        )
 
     allocation = {i: pyo.value(model.x[i]) for i in model.I}
     obj_value = pyo.value(model.obj)
@@ -324,6 +334,14 @@ def optimize_portfolio_allocation(
     time_limit: int = 300,
     threads: int = 4,
     solver_backend: str = "highs",
+    random_seed: int | None = None,
+    cuopt_presolve: int | None = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
 ) -> dict[str, Any]:
     """Unified portfolio solve entrypoint for CPU and native cuOpt backends."""
     backend = solver_backend.strip().lower()
@@ -345,6 +363,14 @@ def optimize_portfolio_allocation(
             pd_cap_slack_penalty=pd_cap_slack_penalty,
             pd_constraint_override=pd_constraint_override,
             time_limit=time_limit,
+            random_seed=random_seed,
+            presolve=cuopt_presolve,
+            method=cuopt_method,
+            pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            num_cpu_threads=cuopt_num_cpu_threads,
+            infeasibility_detection=cuopt_infeasibility_detection,
+            dual_postsolve=cuopt_dual_postsolve,
+            optimality_tolerance=cuopt_optimality_tolerance,
         )
 
     model = build_portfolio_model(

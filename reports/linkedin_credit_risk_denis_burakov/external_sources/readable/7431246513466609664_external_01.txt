@@ -1,0 +1,75 @@
+source_asset_id: 7431246513466609664_external_01
+parent_activity_id: 7431246513466609664
+canonical_url: https://github.com/deburky/on-credit-book
+readable_url: https://raw.githubusercontent.com/deburky/on-credit-book/main/README.md
+source_type: github
+
+# On Credit
+
+<p align="center">
+  <img src="book-cover.jpg" alt="On Credit book cover" width="280">
+</p>
+
+**Scoring Foundations in the Age of AI**
+*Denis Burakov*
+
+This repository contains the code and Jupyter notebooks for **On Credit: Scoring Foundations in the Age of AI**.
+
+---
+
+## Contents
+
+| Chapter | Topics |
+|--------|--------|
+| **1. Weight of Evidence** | WOE, Banburismus, MacKay–Turing |
+| **2. Logistic Regression** | Binary/multinomial logistic, WOE–logistic link, gradient descent, log-loss |
+| **3. Deep Learning** | XOR, MLPs, credit scorecard MLP, contour plots, attention |
+| **4. The Credit Game** | Trees, SHAP, scorecards, Fisher–Yates, information gain, two cultures |
+
+---
+
+## Requirements
+
+- **Python 3.11**
+- **[uv](https://docs.astral.sh/uv/)** (recommended) or pip
+- **LaTeX** (optional, for some notebook outputs) — e.g. [MacTeX](https://tug.org/mactex/mactex-download.html) on macOS
+
+---
+
+## Setup
+
+Clone the repo, then install dependencies with uv:
+
+```bash
+uv sync --dev
+```
+
+If you use MacTeX, ensure `texbin` is on your `PATH`:
+
+```bash
+export PATH="/Library/TeX/texbin:$PATH"
+```
+
+Run any notebook with Jupyter (e.g. from the repo root):
+
+```bash
+uv run jupyter notebook
+# or
+uv run jupyter lab
+```
+
+---
+
+## Project layout
+
+```
+├── book-cover.jpg
+├── pyproject.toml
+├── data/
+├── ch01-weight-of-evidence/
+├── ch02-logistic-regression/
+├── ch03-deep-learning/
+└── ch04-credit-game/
+```
+
+Dependencies are listed in `pyproject.toml` (e.g. `pandas`, `scikit-learn`, `shap`, `xgboost`, `catboost`, `statsmodels`, `matplotlib`, `seaborn`).

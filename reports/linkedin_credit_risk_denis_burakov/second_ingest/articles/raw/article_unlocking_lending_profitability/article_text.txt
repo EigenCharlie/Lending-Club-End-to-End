@@ -1,0 +1,119 @@
+Unlocking Lending Profitability with Risk Modeling
+Report this article
+Denis Burakov
+Denis Burakov
+Published Aug 23, 2023
++ Follow
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes frequently depended on the dynamics of individual relationships: this evokes the image of a bank clerk, reminiscent of a scene from "The Wolf of Wall Street", making pivotal choices regarding matters such as opening a checking account.
+"Safe is Risky"
+Fast forward to now, with the growing use of digital channels and deeper automation of financial services provisioning, more people gained access to online banking, and digital players are utilizing growing amounts of digitally collected data to tailor customers’ product needs and offer a best in-class banking experience.
+Notwithstanding tech innovation achieved in recent decades, today’s digital banking remains a balance sheet-driven business, and profitability hinges on a company’s ability to operate a sustainably profitable lending franchise. Although fee-driven products (e.g., payments and crypto) may be effective in helping digital banks scale quickly, that alone may not drive profitability due to lower margins and narrower focus of these offerings.
+Lending products, on the other hand, carry greater monetization potential. Building a strong collection of deposits and offering effective loan options is key to creating a profitable bank.
+But loans aren't just products – they're instruments for consumers to achieve their dreams such as buying a first home or preparing for a big life event. Loans enable future wishes to become possible right now.
+Looking at recent history one can notice that profitable digital banks started to become successful more quickly over time. In the early 2000s, it took about 46 months for digital banks to start making money, but banks founded after 2014 took only about 25 months on average to become profitable, and most of the profit comes from the net interest income earned on loans.
+Given these resonating success stories (which to a large extent are examples of a “survivorship” bias), this Forbes article even went on to advise banks to aim to hit profitability within the next 18 months.
+WhiteSight - Cracking the profitability code of successful digital banks
+Ok. But if everything is very straightforward and the business model has been around for decades, why is lending hard?
+Unfortunately, lending is not (and probably will never be) be easy to unlock. According to many industry surveys and stories from lenders researched, there are no shortcuts to mastery in this domain, and many small things need to be done well – just as in manufacturing.
+There is an interesting Upstart podcast about this. Tony Hejna from KeyBank talks about a Fintech division that worked separately from a bank: this division had its own IT, underwriting, and collections teams who together navigated through fraud and evolution over the course of 10 years. The takeaway for the new owner was something like: "We want the results that they’re having but we don’t really appreciate what it took to build an infrastructure over 10 years to get there".
+Recommended by LinkedIn
+Battle Between FinTech and Banks, or Solution?
+Philip Wong
+8 years ago
+Winning the Lending Race in the Post COVID-19 World
+Michailas Traubas
+5 years ago
+What sort of "Ph.D. APIs" will be produced for the…
+Paul Rohan
+8 years ago
+"Why company X can't have what company Y has"
+The unique process of financial institutions learning through trial and error is part of the reason why we don’t see mass-market manufacturing innovation in lending. Yet, there's another crucial element that often goes unnoticed in many success stories, which is their internal ways of figuring out who to give loans to. At least two factors contribute to an effective loan mechanism: an accurate credit underwriting engine and risk-based loan pricing. In order not to incur excessive losses, banks must properly calibrate risk models to determine appropriate pricing rules.
+The chart below illustrates a relationship between the interest rate of a loan and a probability of default (PD). If a bank fails to estimate credit risk correctly, it either overprices loans and loses its market share, or sets interest rates too low to cover the expected losses, which leads to poor financial results as Klarna’s loss-making experience since 2019 has shown.
+Interest rate and probability of default (PD)
+Therefore, accurate credit risk assessment affects an organization's balance sheet and income statement, since credit risk strategy determines pricing, and might even influence seemingly unrelated domains, e.g. marketing and decision-making. One lesson from successful lenders is to focus on getting the basics right (adapted from Tinkoff Consumer Finance Strategy Day Presentation):
+Credit policy basics of Tinkoff bank
+To effectively manage their lending business, banks must utilize high quality credit-risk data, which serves as the foundation for modeling credit risk and devising efficient underwriting strategies. These strategies encompass various aspects such as managing limits, setting aside funds for potential loan losses, overseeing collections, and vigilantly tracking and reporting loan performance, among other critical functions in the lending workflow.
+ML & DS shades of Credit Risk Management. Part I.
+Concluding remarks
+Recent success stories within the digital banking space emphasize the leading role of lending products, surpassing fee-based services, in attaining profitability. The lessons learned from digital lenders emphasize the significance of accurate credit risk assessment, influencing everything from pricing to decision-making. As the industry continues to evolve, embracing the foundational aspects of credit risk management and adept underwriting will remain essential for digital banks' sustained growth and resilience.
+#creditrisk #creditriskmodeling #lending #banking
+--
+I hope you have enjoyed reading this post! 💡
+All views expressed are my own.
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+43
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles

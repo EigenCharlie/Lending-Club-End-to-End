@@ -1,0 +1,2 @@
+treatment_id,balance_pass_v8,overlap_pass_v8,falsification_pass_v8,sensitivity_pass_v8,cate_policy_value_allowed,sensitivity_rows_blocked,decision_v8,required_to_unblock
+high_rate_within_grade,True,False,True,False,False,7,dossier_usable_policy_value_blocked,"stable hidden-bias sensitivity, cleaner causal outcome, and CATE intervals that do not mostly cross zero"

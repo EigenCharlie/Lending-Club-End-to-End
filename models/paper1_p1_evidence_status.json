@@ -1,0 +1,110 @@
+{
+  "champion_label": "bound_aware_276k_economic_champion",
+  "conditional_tightening": {
+    "appendix_artifact": "docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md",
+    "documented_in": "book/chapters/14-paper-estrella/14b-theoretical-framework.qmd",
+    "main_theorem_role": "Markov remains the distribution-free guarantee.",
+    "status": "implemented_as_conditional_appendix",
+    "tightening_role": "Hoeffding/Bernstein require additional conditional independence."
+  },
+  "conformal_finalist_exact_eval": {
+    "alpha01_pass_ranks": [
+      1,
+      2,
+      3
+    ],
+    "artifact": "reports/paper_material/paper1/tables/paper1_tableA10_conformal_finalist_exact_bound_eval.csv",
+    "n_finalists": 3,
+    "status": "implemented"
+  },
+  "decision_aware_selector": {
+    "exact_bound_available_for_all_ranks": true,
+    "scope": "croms_style_screen_existing_artifacts",
+    "selected_partition": "score_decile_mondrian",
+    "selected_rank": 1,
+    "selected_score": 0.85
+  },
+  "enhanced_synthetic_shift": {
+    "all_coverage90_pass": true,
+    "artifact": "reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.csv",
+    "n_scenarios": 5,
+    "status": "implemented",
+    "worst_coverage_90": 0.9291361618671646,
+    "worst_scenario": "worst_segment_2018h1_b_nondefaults_to_default_5pct"
+  },
+  "funded_set_composition": {
+    "artifact": "reports/paper_material/paper1/tables/paper1_tableA8_funded_set_composition.csv",
+    "largest_segment": "2019H2/D",
+    "largest_segment_exposure_share": 0.1760110934354644,
+    "n_segments": 24,
+    "status": "implemented"
+  },
+  "funded_set_export": {
+    "artifact": "reports/paper_material/paper1/tables/paper1_tableA7_funded_set_loans.csv",
+    "n_funded_loans": 335,
+    "status": "implemented",
+    "total_funded_exposure": 1000000.0
+  },
+  "generated_artifacts": [
+    "reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA4_segment_period_sensitivity.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA4_segment_period_sensitivity.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA5_decision_aware_selector.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA5_decision_aware_selector.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA6_synthetic_shift.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA6_synthetic_shift.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA7_funded_set_loans.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA7_funded_set_loans.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA8_funded_set_composition.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA8_funded_set_composition.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA10_conformal_finalist_exact_bound_eval.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA10_conformal_finalist_exact_bound_eval.tex",
+    "reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.csv",
+    "reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.tex",
+    "docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md",
+    "models/paper1_p1_evidence_status.json",
+    "docs/research/paper_estrella_p1_evidence_2026-05-04.md"
+  ],
+  "generated_at_utc": "2026-05-04T21:03:10.091717+00:00",
+  "nested_holdout": {
+    "final_V": 0.03645,
+    "final_alpha01_exact_pass": true,
+    "final_gamma_cp": 0.18591,
+    "final_matches_champion": true,
+    "final_return": 170464.5429284627,
+    "scope": "staged_5k_25k_276k_post_selection_confirmation",
+    "strict_disjoint_split": false
+  },
+  "run_tag": "paper-thesis-final-economic-2026-04-06",
+  "schema_version": 1,
+  "segment_period": {
+    "flagged_segments": 0,
+    "n_segments": 29,
+    "worst_coverage_90": 0.9032032095777877,
+    "worst_grade": "B",
+    "worst_period": "2018H1"
+  },
+  "source_artifacts": [
+    "models/final_project_promotion.json",
+    "data/processed/conformal_gap/conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612/conformal_reopen_phase1_final_candidates.parquet",
+    "data/processed/conformal_gap/conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612__phase1__final__rank-1/conformal_intervals_mondrian.parquet",
+    "data/processed/portfolio_tradeoff/conformal_finalist_comparison.parquet",
+    "data/processed/test.parquet"
+  ],
+  "strict_temporal_holdout": {
+    "all_alpha01_pass": true,
+    "artifact": "reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.csv",
+    "status": "implemented",
+    "strict_disjoint_split": true
+  },
+  "synthetic_shift": {
+    "all_coverage90_pass": true,
+    "n_scenarios": 5,
+    "scope": "oot_covariate_reweighting",
+    "worst_coverage_90": 0.9297140524941399,
+    "worst_scenario": "baseline"
+  }
+}

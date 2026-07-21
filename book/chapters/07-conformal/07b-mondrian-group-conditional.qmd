@@ -1,8 +1,12 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Mondrian: Cobertura Condicional por Grupo {#sec-mondrian}
 
 ### El Problema de la Cobertura Marginal
 
-La garantía de split conformal (@eq-coverage-guarantee) es **marginal**: promedia sobre toda la población. Pero en crédito, un modelo que cubre 90% en promedio pero solo 60% en Grade A y 99% en Grade G es inaceptable — los préstamos de Grade A son precisamente los de mayor volumen y menor riesgo, donde decisiones incorrectas tienen alto impacto económico.
+La garantía de split conformal (@eq-coverage-guarantee) es marginal. Una
+diferencia fuerte entre grades revela heterogeneidad que debe reportarse, pero
+no implica por sí sola un impacto económico ni una PD mal cubierta.
 
 El **Mondrian conformal** [@vovk2005] resuelve esto particionando la calibración por grupos y calculando cuantiles **separados** para cada grupo:
 
@@ -14,21 +18,27 @@ donde $g(x_i)$ asigna cada observación a un grupo y $n_g$ es el tamaño de cali
 
 ::: {#thm-mondrian-coverage}
 ## Garantía de Cobertura Condicional por Grupo
-Para cada grupo $g$ con al menos $n_g$ observaciones de calibración:
+Si la partición, el predictor y la regla de score se fijan sin usar los labels
+de conformización, y los scores de conformización y del nuevo punto son
+intercambiables **dentro del grupo** $g$:
 
 $$
 P\left(Y_{n+1} \in C_g(X_{n+1}) \mid g(X_{n+1}) = g\right) \geq 1 - \alpha
 $$ {#eq-mondrian-guarantee}
 
-La cobertura se garantiza **dentro de cada grupo**, no solo marginalmente.
+La cobertura se controla dentro de ese grupo. El tamaño $n_g$ determina la
+resolución del cuantil, pero no sustituye el supuesto de intercambio.
 :::
 
 ::: {.callout-note}
-## Calibración reduce la brecha de cobertura condicional
+## Calibración y cobertura son objetos distintos
 
-Incluso sin Mondrian, una buena calibración de probabilidades reduce la diferencia entre cobertura marginal y condicional [@guo2017]. El mecanismo es directo: la brecha entre cobertura marginal y condicional surge cuando los scores de no-conformidad tienen distribuciones distintas por subpoblación. Si el clasificador base asigna probabilidades sistemáticamente más altas a un subgrupo (por class imbalance o distribution shift), los scores de no-conformidad de ese subgrupo serán sistemáticamente menores, produciendo sub-cobertura en el subgrupo complementario.
-
-La calibración Venn-Abers corrige esto al alinear las probabilidades predichas con las frecuencias reales en cada región del espacio de scores, haciendo la distribución de scores de no-conformidad más uniforme entre subpoblaciones. En nuestro pipeline, la calibración opera **antes** de la conformización, lo que explica por qué incluso la variante global (no Mondrian) logra cobertura mínima de 59.5% por grade — mejor que lo que se obtendría con scores brutos sin calibrar.
+La calibración probabilística alinea scores y frecuencias en un sentido
+declarado; la cobertura conformal depende del ranking de los scores residuales
+y de intercambiabilidad. Una buena calibración no garantiza cobertura
+condicional ni corrige distribution shift. El artefacto local aplica
+calibración antes de conformizar, pero su efecto causal sobre la brecha por
+grade no se identificó.
 :::
 
 ### Partición por Grade de Lending Club
@@ -37,14 +47,16 @@ La partición natural para crédito es el **risk grade** asignado por la platafo
 
 | Grade | Tasa default | Residuos típicos | Consecuencia |
 |-------|-------------|-------------------|-------------|
-| A | ~5% | Pequeños (PD cercana a 0) | Intervalos estrechos |
+| A | ~5% | Pequeños (score de clase 1 cercano a 0) | Intervalos estrechos |
 | B-C | ~15-20% | Moderados | Intervalos medios |
 | D-E | ~25-35% | Grandes | Intervalos anchos |
 | F-G | ~40-50% | Muy grandes | Intervalos muy anchos |
 
 : Heterogeneidad de residuos por grade {#tbl-residuos-por-grade}
 
-Con el cuantil global, Grade A recibe intervalos demasiado anchos (desperdicio de capital) y Grade G intervalos demasiado estrechos (riesgo subestimado). Mondrian corrige ambos problemas simultáneamente.
+Con un cuantil global, la geometría puede ser muy distinta por grade. Mondrian
+recalibra esa geometría por grupos; si eso mejora una decisión o mide riesgo
+latente requiere evidencia adicional.
 
 ### Implementación
 
@@ -59,7 +71,6 @@ for grade in ["A", "B", "C", "D", "E", "F", "G"]:
     scr = SplitConformalRegressor(
         estimator=prob_reg, confidence_level=0.90, prefit=True
     )
-    scr.fit(X_cal[mask_cal], y_cal[mask_cal])
     scr.conformalize(X_cal[mask_cal], y_cal[mask_cal])
 
     y_pred_g, intervals_g = scr.predict_interval(X_test[mask_test])
@@ -94,7 +105,11 @@ else:
     df.head(7)
 ```
 
-La cobertura mínima por grupo es **89.0%** (cercana al target de 90%), comparada con el 59.5% del split conformal global. Este es el beneficio fundamental de Mondrian: la garantía se cumple **dentro de cada segmento de riesgo**, no solo en promedio.
+En el artefacto runtime activo, la cobertura empírica mínima por grupo es
+90.04% (grade E), frente a 59.5% para el comparador split global archivado. Es
+un contraste descriptivo del OOT reutilizado; ni el shift temporal ni haber
+ajustado el calibrador con los mismos labels permiten restaurar la garantía
+teórica.
 
 ### Métricas Agregadas Mondrian vs Global
 
@@ -119,22 +134,29 @@ pd.DataFrame(comparison)
 
 ::: {.callout-tip}
 ## Eficiencia vs Cobertura
-Mondrian logra mejor cobertura mínima por grupo (89.0% vs 59.5%) con un ancho promedio **menor** (0.755 vs 0.947). Esto parece contradictorio, pero se explica porque Mondrian ajusta los intervalos a cada grupo: grades de bajo riesgo reciben intervalos estrechos (no desperdician ancho), mientras que grades de alto riesgo reciben intervalos adecuadamente anchos. El resultado neto es menor ancho promedio con mejor cobertura condicional.
+El run histórico reporta mejor cobertura mínima y menor ancho promedio para la
+variante por grade. La explicación plausible es el uso de cuantiles separados;
+no demuestra que los anchos sean “adecuados” para capital, PD o provisión.
 :::
 
 ### Trade-off: Tamaño de Grupo
 
-Mondrian requiere suficientes observaciones de calibración por grupo para que el cuantil empírico sea confiable. Con $n_\text{cal} = 237{,}584$ y 7 grades, cada grupo tiene $\sim 34{,}000$ observaciones — más que suficiente. Si la partición fuera más fina (e.g., sub_grade × term), algunos grupos tendrían pocas observaciones y la cobertura se degradaría.
+El total de calibración es $n_\text{cal}=237{,}584$, pero debe medirse el $n_g$
+real de cada grade: los grupos no son uniformes. Un mayor tamaño mejora la
+resolución del cuantil empírico; no prueba intercambiabilidad ni transporte a
+otra población. Particiones más finas (por ejemplo, `sub_grade` × `term`)
+pueden producir celdas pequeñas y cuantiles discretos o inestables.
 
-| Partición | Grupos | Min. por grupo | Cobertura mínima |
-|-----------|--------|---------------|-----------------|
-| Grade (A-G) | 7 | ~10,000 | 89.0% |
-| Score decile | 10 | ~23,000 | 89.7% |
-| Grade × scoreband | ~42 | ~500 | 75.6% |
+| Partición | Grupos | Mín. N de evaluación (no $n_g$ de calibración) | Cobertura mínima |
+|-----------|--------|-----------------------------------------------|-----------------|
+| Grade (A-G), artefacto runtime activo | 7 | 406 | 90.04% |
+| Score decile, snapshot candidato archivado | 10 | ~23,000 | 89.7% |
+| Grade × scoreband, snapshot candidato archivado | ~42 | ~500 | 75.6% |
 
-: Trade-off granularidad vs estabilidad {#tbl-partition-tradeoff}
+: Resultados de distinta procedencia; no constituyen un ranking contemporáneo {#tbl-partition-tradeoff}
 
-La partición por **grade** es el punto óptimo para este dataset: granularidad suficiente para capturar la heterogeneidad de riesgo, con grupos lo suficientemente grandes para cobertura estable.
+`grade` es un baseline interpretable. La comparación retrospectiva no lo
+convierte en partición óptima ni seleccionada por el CRPTO vigente.
 
 ### Limitación: Grupos Disjuntos y Conformal Multivalid
 
@@ -146,4 +168,7 @@ $$
 \left| P\left(Y_{n+1} \in C_\alpha(X_{n+1}) \mid X_{n+1} \in G\right) - (1 - \alpha) \right| \leq \epsilon, \quad \forall\, G \in \mathcal{G}
 $$
 
-El algoritmo funciona como un procedimiento de boosting: ajusta iterativamente el cuantil conformal para satisfacer la cobertura de todos los grupos simultáneamente. Para nuestro pipeline, multivalid CP podría garantizar cobertura por grade Y por DTI-bucket Y por vintage sin requerir que estos formen una partición disjunta. Esto permanece como una extensión futura; con 237K observaciones de calibración y solo 7 grades disjuntos, Mondrian estándar es suficiente para el caso actual.
+El algoritmo funciona como un procedimiento iterativo para controlar errores
+en una familia de grupos. Es una extensión futura que necesitaría protocolo y
+validación propios; el tamaño del dataset no demuestra que Mondrian estándar
+sea suficiente bajo transporte temporal.

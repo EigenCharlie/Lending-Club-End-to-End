@@ -1,0 +1,14 @@
+---
+title: "Paper 4 v4 Open Priorities Memo"
+format: html
+---
+
+# Paper 4 v4 Open Priorities Memo
+
+V4 implements the eleven active Paper 4 priorities as a research layer. Paper
+Estrella remains frozen. Paper 4 can name a working champion, but this is an
+internal laboratory object used for iteration, sample paths and future
+experiments.
+
+The main new distinction is between `paper1_frozen_reference_policy` and
+`paper4_working_champion_policy_id`.

@@ -1,0 +1,140 @@
+Explainable Boosted Scoring (xbooster) | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Explainable Boosted Scoring with Python ⤵
+⭐ GitHub repo: https://lnkd.in/dag5Kqwf
+📚 Documentation: https://xrisklab.ai/
+If you like credit scorecards and gradient boosting, this repo is for you! 🚀
+The xbooster library is specifically designed for productionizing credit scorecards using gradient boosted decision trees 🌳. It extends XGBoost's logistic regression framework, tailored to meet the needs of model developers and validators working in the risk management domain 🏦
+What can xbooster do for you?
+▹ Boost Model Accuracy: Enhance predictive performance of the scorecards with ML.
+▹ Open Up the 'Black-Box': Utilize tree visualization and understand global and local importance of features.
+▹ Simplify Deployment and Validation: Deploy scorecards effortlessly using SQL and reduce validation efforts.
+Install with pip install xbooster 🌟
+➡️ Medium article: https://lnkd.in/dWniT28T
+💻 Colab notebook: https://lnkd.in/dPPGUmUj
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a post about boosted scorecards for decision-making in lending: https://lnkd.in/dAZKcn-e 💡
+▷ Discover a post about scorecard boosting from Paul Edwards, the author of the approach, here: https://lnkd.in/dQxdqcqi 💡
+▷ Discover a non-technical introduction to scorecard boosting here: https://lnkd.in/dQ4PXt6Y 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+201
+3 Comments
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+José Caloca
+2y
+Report this comment
+It would be interesting to know how credit scores are calculated using the PDO method for boosting scoring.
+Scaling LR model parameters together with WoE buckets using the PDO method is quite straightforward, but I’m wondering how the scores are defined based on the tree splits 🧐
+Like
+Reply
+3 Reactions
+4 Reactions
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Connect
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

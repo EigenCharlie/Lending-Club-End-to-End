@@ -1,0 +1,32 @@
+{
+  "schema_version": "2026-04-05.2",
+  "run_label": "paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k",
+  "solver_backend": "cuopt",
+  "exact_solver_backend": "highs",
+  "start": {
+    "captured_at_utc": "2026-05-25T17:28:18.050725+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 57006716,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 2235.0,
+      "memory_free_mb": 7819.0,
+      "gpu_util_pct": 0.0,
+      "memory_util_pct": 0.0
+    }
+  },
+  "backend_validation": {
+    "validated_at_utc": "2026-05-25T17:28:13.865672+00:00",
+    "python": "/home/eigenlinux/miniforge3/envs/rapids/bin/python",
+    "expected_release": "26.02",
+    "cuopt": "26.02.00",
+    "cudf": "26.02.01",
+    "cupy": "14.0.1",
+    "pyomo": "6.10.0",
+    "loguru": "0.7.3"
+  }
+}

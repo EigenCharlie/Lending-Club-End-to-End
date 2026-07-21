@@ -1,0 +1,6 @@
+Are you interested in learning how the machine learning scorecard development process differs from traditional scorecards?
+In 2023, I wrote a paper outlining a blueprint showing how constrained tree-based models can match and outperform traditional scorecard methods in discriminatory power and calibration accuracy, without losing interpretability.
+As many leading institutions now transition toward explainable ML frameworks, this work provides a blueprint for the responsible integration of advanced methods within regulated environments.
+👉 GitHub repo: https://lnkd.in/dVjjSfeJ
+🤝 Special thanks go to Paul Edwards, Guillermo Navas Palencia, PhD, and Fabiana Clemente for their valuable feedback during the writing process.
+#CreditRiskModeling #DataScience #xAI #MachineLearning #ResponsibleAI

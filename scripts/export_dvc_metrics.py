@@ -21,12 +21,18 @@ except ImportError:  # sklearn < 1.8
     d2_brier_score = None
 
 ROOT = Path(__file__).resolve().parents[1]
+MODELS = ROOT / "models"
 SCHEMA_VERSION = "2026-03-01.1"
 
 
 def _load_pickle(path: Path) -> Any:
     with open(path, "rb") as f:
         return pickle.load(f)
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _ece(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 15) -> float:
@@ -108,6 +114,49 @@ def _optimization_metrics() -> dict[str, float]:
     }
 
 
+def _paper1_final_metrics() -> dict[str, float]:
+    """Expose the final Paper Estrella closure without overwriting operational KPIs."""
+    path = ROOT / "models/final_project_promotion.json"
+    if not path.exists():
+        return {}
+
+    with open(path, encoding="utf-8") as f:
+        promotion = json.load(f)
+    champion = promotion.get("final_champion", {})
+    conformal = promotion.get("conformal_upstream", {}).get("winner_metrics", {})
+    region = promotion.get("robust_region_summary", {})
+
+    metrics = {
+        "paper1.final.robust_return": float(champion.get("realized_total_return", 0.0)),
+        "paper1.final.price_of_robustness": float(champion.get("price_of_robustness", 0.0)),
+        "paper1.final.price_of_robustness_pct": float(champion.get("price_of_robustness_pct", 0.0)),
+        "paper1.final.alpha01_exact_pass": float(
+            int(bool(champion.get("alpha01_exact_pass", False)))
+        ),
+        "paper1.final.alpha03_exact_pass": float(
+            int(bool(champion.get("alpha03_exact_pass", False)))
+        ),
+        "paper1.final.alpha10_exact_pass": float(
+            int(bool(champion.get("alpha10_exact_pass", False)))
+        ),
+        "paper1.final.alpha01_weighted_miscoverage_V": float(
+            champion.get("alpha01_weighted_miscoverage_V", 0.0)
+        ),
+        "paper1.final.alpha01_gamma_cp": float(champion.get("alpha01_gamma_cp", 0.0)),
+        "paper1.final.alpha01_violation": float(champion.get("alpha01_violation", 0.0)),
+        "paper1.final.robust_region_alpha01_pass_rate": float(region.get("alpha01_pass_rate", 0.0)),
+        "paper1.final.robust_region_n_policies": float(region.get("n_unique_policies", 0.0)),
+        "paper1.final.conformal_coverage90": float(conformal.get("coverage_90", 0.0)),
+        "paper1.final.conformal_coverage95": float(conformal.get("coverage_95", 0.0)),
+        "paper1.final.conformal_avg_width90": float(conformal.get("avg_width_90", 0.0)),
+        "paper1.final.conformal_min_group_coverage90": float(
+            conformal.get("min_group_coverage_90", 0.0)
+        ),
+        "paper1.final.conformal_winkler90": float(conformal.get("winkler_90", 0.0)),
+    }
+    return metrics
+
+
 def _write_conformal_backtest_plot(out_path: Path) -> None:
     df = pd.read_parquet(ROOT / "data/processed/conformal_backtest_monthly.parquet").copy()
     keep = [
@@ -167,6 +216,7 @@ def main(run_tag: str | None = None) -> None:
     metrics.update(_conformal_metrics())
     metrics.update(_ifrs9_metrics())
     metrics.update(_optimization_metrics())
+    metrics.update(_paper1_final_metrics())
 
     invalid = [k for k, v in metrics.items() if not np.isfinite(float(v))]
     if invalid:
@@ -176,6 +226,11 @@ def main(run_tag: str | None = None) -> None:
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "run_tag": resolved_run_tag,
+        "paper1_final_run_tag": _load_json(MODELS / "final_project_promotion.json").get(
+            "run_tag", "missing"
+        )
+        if (MODELS / "final_project_promotion.json").exists()
+        else "missing",
         "metrics": metrics,
     }
     # Keep top-level numeric keys for compatibility with DVC metrics and Streamlit helpers.

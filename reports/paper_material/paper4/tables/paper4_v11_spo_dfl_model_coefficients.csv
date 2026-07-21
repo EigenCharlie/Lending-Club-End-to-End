@@ -1,0 +1,12 @@
+feature,coefficient,model_scope_v11,feature_mean,feature_std
+intercept,0.04729922697752551,ridge_trained_against_v10_solver_targets,,
+return_per_dollar,0.17072711537738375,ridge_trained_against_v10_solver_targets,0.08259394698121976,0.03653111074651779
+pd_high,-0.015025797743033207,ridge_trained_against_v10_solver_targets,0.3476253339207284,0.3430394141758982
+qhat,-0.030192257422581133,ridge_trained_against_v10_solver_targets,0.7932061232094247,0.11122185986311375
+weak_source,-0.00685980679832315,ridge_trained_against_v10_solver_targets,0.347475,0.16052219278031307
+ecl_rate,-0.015025797723551735,ridge_trained_against_v10_solver_targets,0.1564314002643278,0.1543677363791542
+amount_10k,-0.008326457714666845,ridge_trained_against_v10_solver_targets,0.892842625,0.769858302170347
+grade_dplus,-0.045356277039785335,ridge_trained_against_v10_solver_targets,0.2969,0.4568920988592383
+dti_high,-0.023665904641328107,ridge_trained_against_v10_solver_targets,0.1931,0.394730781672775
+score_low,0.08298614212553704,ridge_trained_against_v10_solver_targets,0.6609,0.47340383395152175
+income_q5,-0.03195040586312637,ridge_trained_against_v10_solver_targets,0.239,0.42647274238806865

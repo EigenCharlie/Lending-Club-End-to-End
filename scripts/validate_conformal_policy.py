@@ -415,6 +415,17 @@ def main(
     coverage_materiality_ok = bool(
         coverage_deviation_90 <= max_cov_dev_90 and coverage_deviation_95 <= max_cov_dev_95
     )
+    coverage_undercoverage_materiality_ok = bool(
+        coverage_90 >= float(policy["target_coverage_90_min"]) - max_cov_dev_90
+        and coverage_95 >= float(policy["target_coverage_95_min"]) - max_cov_dev_95
+    )
+    statistical_tests_diagnostic_only = statistical_tests_role in {
+        "diagnostic_informational",
+        "diagnostic_warning",
+        "strict_diagnostics",
+        "warning_only",
+        "non_blocking",
+    }
 
     def _evaluate_check_frame(frame: pd.DataFrame) -> dict[str, object]:
         strict = bool(frame["passed"].all())
@@ -427,10 +438,14 @@ def main(
             frame.loc[~statistical_mask & ~frame["passed"], "metric"].astype(str).tolist()
         )
         only_stats = bool((not strict) and len(failing_stats) > 0 and len(failing_non_stats) == 0)
+        if statistical_tests_diagnostic_only:
+            materiality_ok_for_role = coverage_undercoverage_materiality_ok
+        else:
+            materiality_ok_for_role = coverage_materiality_ok
         methodological_pass = bool(
             allow_methodological_justification
             and only_stats
-            and coverage_materiality_ok
+            and materiality_ok_for_role
             and independence_ok_90
             and independence_ok_95
         )
@@ -442,8 +457,12 @@ def main(
             methodological_status = "disabled"
         elif len(failing_non_stats) > 0:
             methodological_status = "blocked_non_statistical_failures"
-        elif not coverage_materiality_ok:
-            methodological_status = "blocked_materiality"
+        elif not materiality_ok_for_role:
+            methodological_status = (
+                "blocked_undercoverage_materiality"
+                if statistical_tests_diagnostic_only
+                else "blocked_materiality"
+            )
         else:
             methodological_status = "blocked_statistical_pattern"
         return {
@@ -531,6 +550,7 @@ def main(
                 and len(failing_non_statistical_checks) == 0
             ),
             "coverage_materiality_ok": coverage_materiality_ok,
+            "coverage_undercoverage_materiality_ok": coverage_undercoverage_materiality_ok,
             "coverage_deviation_90": coverage_deviation_90,
             "coverage_deviation_95": coverage_deviation_95,
             "max_coverage_deviation_for_statistical_warning_90": max_cov_dev_90,
@@ -546,7 +566,7 @@ def main(
             "decision": bool(methodological_justification_pass),
             "justification_role": (
                 "diagnostic_warning_not_blocking_for_promotion"
-                if statistical_tests_role == "strict_diagnostics"
+                if statistical_tests_diagnostic_only
                 else "strict_blocking"
             ),
         },

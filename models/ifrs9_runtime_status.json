@@ -2,7 +2,7 @@
   "stage_name": "ifrs9",
   "phase": "completed",
   "state": "completed",
-  "updated_at_utc": "2026-03-30T19:27:41.951009+00:00",
+  "updated_at_utc": "2026-04-07T04:02:13.150993+00:00",
   "scenario_summary_path": "data/processed/ifrs9_scenario_summary.parquet",
   "summary_pickle_path": "models/ifrs9_sensitivity_summary.pkl",
   "baseline_ecl": 875935946.2736094,

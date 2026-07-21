@@ -1,17 +1,19 @@
 ---
 title: "Glosario y Fundamentos"
 page-layout: article
-close_takeaway: "Esta parte no existe para detener la lectura con definiciones aisladas, sino para darte el mínimo común conceptual que permite seguir el pipeline sin perder el hilo."
-close_connects: "Funciona como rampa de entrada a modelado PD, incertidumbre, optimización e inferencia causal; no como capítulo para memorizar en abstracto."
-close_reuse: "Los conceptos de los capítulos 5 al 9 reaparecen una y otra vez en el resto del libro, pero ya aterrizados a un artefacto, una policy o una decisión del proyecto."
 ---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
 ¿Qué conceptos necesitas para seguir el libro sin convertir el inicio en un curso enciclopédico? Esta parte responde justo eso: lo mínimo que un lector de banca, ciencia de datos o estadística debe dominar para entender por qué este pipeline hace lo que hace y por qué algunas decisiones importan más que otras.
 
-Ejemplo concreto: si un lector ve `AUC`, `ECE`, `SICR`, `MAPIE Mondrian` y `Bertsimas & Sim` en la misma historia, aquí encuentra una traducción rápida al problema real de Lending Club: **cómo puntuar, calibrar, cuantificar incertidumbre y decidir capital o elegibilidad con un lenguaje común**.
+Ejemplo concreto: si un lector ve `AUC`, `ECE`, `SICR`, `MAPIE Mondrian` y
+`Bertsimas & Sim` en la misma historia, aquí encuentra una traducción rápida:
+**qué objeto calcula cada capa, qué transformaciones ejecutó el freeze local y
+dónde deja de transportarse la interpretación**.
 :::
 
 La mejor forma de usar esta parte no es leerla entera de corrido. Entra por el bloque que más te falte para seguir la narrativa principal; luego vuelve al pipeline. Cada subcapítulo responde tres preguntas: qué significa el concepto, cómo aparece en Lending Club y por qué cambia una decisión real del libro.
@@ -27,10 +29,12 @@ La mejor forma de usar esta parte no es leerla entera de corrido. Entra por el b
 ## Qué aporta esta parte
 
 - **5** fija el vocabulario de riesgo crediticio para que PD, LGD, EAD, SICR e IFRS9 no aparezcan como jerga aislada.
-- **6** traduce discriminación, calibración y métricas al contexto de un score PD real.
-- **7** explica por qué una banda conformal aporta más que una PD puntual cuando hay que decidir.
-- **8** muestra cómo la incertidumbre se vuelve input de optimización y no solo diagnóstico.
-- **9** abre la puerta a política causal y diseño de intervención, más allá de correlación.
+- **6** traduce discriminación, calibración y métricas al contexto del score histórico etiquetado PD.
+- **7** distingue el intervalo predictivo de $Y$ de una PD puntual y delimita
+  qué cobertura puede auditarse.
+- **8** muestra cómo los endpoints se reutilizaron como stress numérico en la
+  optimización histórica, sin garantía para la decisión seleccionada.
+- **9** delimita los supuestos y datos que faltarían para diseñar una intervención; no habilita una policy.
 
 ## Navegación curada
 
@@ -40,8 +44,23 @@ La mejor forma de usar esta parte no es leerla entera de corrido. Entra por el b
   <div class="chapter-card"><h4><a href="02b-ml-statistics-foundations.html">6. ML y Estadística</a></h4><p>AUC, Gini, Brier, ECE, calibración y boosting.</p></div>
   <div class="chapter-card"><h4><a href="02c-uncertainty-conformal.html">7. Incertidumbre</a></h4><p>Exchangeability, cobertura y predicción conformal.</p></div>
   <div class="chapter-card"><h4><a href="02d-optimization-or.html">8. Optimización</a></h4><p>LP, robustez, Bertsimas &amp; Sim y SPO+.</p></div>
-  <div class="chapter-card"><h4><a href="02e-causal-inference-primer.html">9. Causalidad</a></h4><p>DML, CATE, refutaciones y diseño de políticas.</p></div>
+  <div class="chapter-card"><h4><a href="02e-causal-inference-primer.html">9. Causalidad</a></h4><p>DML, CATE, supuestos de identificación y límites de policy learning.</p></div>
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+Esta parte ofrece el mínimo común conceptual para seguir el pipeline sin
+confundir definiciones teóricas con claims empíricos del proyecto.
+
+## Esto conecta con…
+
+Funciona como rampa de entrada a modelado PD, incertidumbre, optimización e
+inferencia causal; no como licencia para transportar garantías entre objetos.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Los conceptos reaparecen en el resto del libro aterrizados a artefactos,
+diagnósticos y decisiones históricas con sus límites explícitos.
+:::

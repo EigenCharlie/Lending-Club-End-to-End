@@ -1,0 +1,466 @@
+LocalStack | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+LocalStack
+Software Development
+Run your cloud & serverless apps locally to reduce development time and increase product velocity with LocalStack!
+See jobs
+Follow
+Discover all 102 employees
+Report this company
+About us
+At LocalStack, we provide the #1 platform for local cloud development & testing, offering the most advanced cloud emulation for AWS services. Our aim is to assist individual cloud developers and enterprises in becoming solution nimble, optimizing costs, reducing contention, and delivering resilient and secure value to their customers.
+LocalStack is ideal for designing and testing highly resilient and secure solutions on your local machine before live deployment. Our platform facilitates integration testing of cloud solutions both locally and in CI/CD environments, enhancing developer velocity and feature quality.
+With LocalStack, you fully emphasize on black-box solution tests that fully exercise the inputs and outputs of your system, rather than solely focusing on unit tests.
+Our solution also enables rapid design and development of sophisticated cloud solutions with little to no changes needed for IaC pipelines. In addition, by emulating cloud services locally, LocalStack enables additional features and workflows that are not feasible on the cloud, such as local chaos engineering, IAM security testing, team collaboration, and more!
+Website
+https://localstack.cloud
+External link for LocalStack
+Industry
+Software Development
+Company size
+51-200 employees
+Headquarters
+Zurich
+Type
+Privately Held
+Specialties
+cloud computing, developer tooling, digital transformation, amazon web services, microsoft azure, continuous integration, and devops
+Products
+LocalStack
+LocalStack
+DevOps Software
+LocalStack is a cloud development platform that facilitates building/testing of cloud and serverless applications on your local machine. At its core, it features a service emulator that runs in a single container on your laptop or in your CI environment. LocalStack supports a growing number of AWS services, like Lambda, S3, DynamoDB, SQS, RDS, ECS, EKS and many more!
+With LocalStack, you can run your AWS applications or Lambdas entirely on your local machine without connecting to a remote cloud provider! Whether you are testing complex CDK applications or Terraform configurations, or just beginning to learn about AWS services, LocalStack helps speed up and simplify your testing and development workflow.
+Locations
+Primary
+Zurich, CH
+Get directions
+Employees at LocalStack
+Brian Rinaldi
+Steve Purcell
+Joseph Ruscio
+Peter Smith, PhD
+See all employees
+Updates
+LocalStack
+34,649 followers
+18h
+Report this post
+🚀 Announcing the Latest LocalStack for AWS Release!
+Our latest release is officially live, bringing powerful new capabilities to mirror complex cloud environments right on your local machine.This update brings major enhancements, including AWS Batch Multi-Node Parallel jobs, self-managed EC2 nodes on emulated EKS clusters, expanded AWS Replicator coverage.
+Here are the key highlights:
+✅ AWS Batch Multi-Node Parallel Jobs: Simulate large-scale compute workloads locally. You can now develop and test MNP jobs across multiple container instances without spinning up costly AWS infrastructure.
+✅ Self-Managed EC2 Nodes on Emulated EKS Clusters: Run self-managed nodes on EC2 inside your local EKS environment. This lets you mimic production cluster topologies and test intricate Kubernetes networking and scheduling workflows.
+✅ Expanded AWS Replicator Coverage: Mirror your resources seamlessly across multiple local regions with broader coverage, making it easier than ever to test failover strategies and multi-region resilience.
+Get the full breakdown of everything new on our blog: https://lnkd.in/en5UKuNf
+#LocalStack #AWS #CloudDevelopment #DevOps #Kubernetes #EKS #AWSBatch #SoftwareEngineering
+Announcing the LocalStack for AWS 2026.05.0 Release
+blog.localstack.cloud
+7
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+1d
+Report this post
+Debugging asynchronous AWS service chains is one of those problems that sounds simple until you're in the middle of it.
+Your Lambda fires. Something downstream doesn't. You add a log line, redeploy, wait for the pipeline to run, and still aren't sure which hop dropped the message.
+Repeat until fixed or until you give up.
+App Inspector, a new feature built directly into LocalStack, is designed to break that loop. It automatically records a real-time, searchable stream of every AWS API call your application makes locally.
+You get a graph view of how your services connect, a payload details panel to inspect exactly what was sent and received, and enough visibility to catch real errors before you've provisioned a single cloud resource.
+See how in Kiah's latest video that walks through a live pipeline.
+If you're building event-driven or async architectures on AWS, this is worth 4 minutes of your time.
+🎬 https://lnkd.in/ewxZvAz4
+#LocalStack #AWS #CloudNative #ServerlessComputing #DevOps #CloudDevelopment #Debugging
+…more
+I Tried App Inspector...and You Won't Believe What Happened Next!
+https://www.youtube.com/
+6
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+2d
+Report this post
+You've typed it a thousand times: kubectl apply. One command, then your pod just… shows up somewhere. But what actually happens in between?
+Kiah Imani just published a fantastic breakdown of the full 7-step Kubernetes deployment lifecycle...every component, every handoff, and how to watch it happen live using LocalStack.
+Here's the map:
+→ Step 1: kubectl serializes your YAML and POSTs to the API Server
+→ Step 2: Auth, authorization, and schema validation (all three must pass before etcd is written)
+→ Step 3: The Controller Manager sees the new Deployment and creates a ReplicaSet
+→ Step 4: The ReplicaSet controller writes Pod objects (intentions, not running containers yet)
+→ Step 5: The Scheduler scores nodes and assigns a destination (it doesn't start anything)
+→ Step 6: kubelet pulls the image, mounts volumes, and starts the container
+→ Step 7: Readiness probes pass, EndpointSlices update, iptables rules propagate (now traffic can reach it)
+The mental model is most useful when things break. Pod stuck in Pending? That's Step 5 — the Scheduler can't find a valid node. ImagePullBackOff? Step 6. Readiness probe failing? Step 7.
+Once you know which step failed, you know which component to look at.
+The post also walks through spinning up a local EKS cluster with LocalStack, deploying a real workload, and deliberately killing a pod to watch the reconciliation loop self-heal in real time.
+Worth a read whether you're deep into platform engineering or just want to finally understand what Kubernetes is actually doing.
+🔗 https://lnkd.in/eycZmWmU
+#Kubernetes #EKS #PlatformEngineering #CloudNative #LocalStack #DevOps #SRE
+The 7 steps between 'kubectl apply' and a running a pod
+blog.localstack.cloud
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+5d
+Report this post
+Join our May meetup where Shelton Graves from LocalStack demonstrates how App Inspector opens up the black box of AWS development with a real-time view of every service interaction inside your local cloud. He'll show how it reveals exactly what triggered what, with what payload, and in what order, so you can catch bugs locally before they ever reach staging or production.
+No More Black Boxes: Observable Local AWS Dev with LocalStack App Inspector
+www.linkedin.com
+8
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+5d
+Report this post
+Eliminating "Credit Anxiety" in Data Engineering 😰
+In Snowflake development, the "unit of cost" is the cloud credit.
+Every iterative query, schema migration, or dbt run in a staging environment contributes to non-production spend.
+For data engineers, this creates "credit anxiety." The hesitation to iterate frequently due to cost-governance constraints.
+LocalStack for Snowflake shifts the data development lifecycle left by emulating the Snowflake compute and metadata layers on your local machine.
+Let's discuss technical advantages for data architects...
+❄️ Zero-Credit Iteration
+Execute Snowflake Scripting, Stored Procedures, and complex SQL logic locally. Validate your code as many times as needed without impacting the cloud budget.
+❄️ Logic Validation
+Test WHILE loops, EXCEPTION handling, and branching logic in stored procedures before deploying to a live warehouse.
+❄️ Local Data Ingestion
+Use LocalStack’s S3 emulation to test Snowpipe notifications and COPY INTO commands entirely offline.
+❄️ Deterministic CI
+Run your full data transformation suite in isolated containers. Ensure a clean state for every test run without environment contention or shared-resource latency.
+Decouple your development loop from the Snowflake billing console to increase deployment frequency and ensure higher code quality without scaling costs.
+https://lnkd.in/gufhRRMa
+Safe local environments for every data engineer.
+localstack.cloud
+6
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+6d
+Report this post
+Solving the "Static Environment" Bottleneck 😅
+In a traditional cloud-native SDLC, pre-production environments are often "static."
+They persist over time, accumulating configuration drift and state pollution that makes debugging non-deterministic.
+LocalStack Cloud Pods allow architects to treat infrastructure state as version-controlled artifacts, enabling a "Snapshot-and-Share" workflow for cloud resources.
+Use LocalStack Cloud Pods for...
+🏗️ Architectural Advantages
+State Serialization to capture the full runtime state of your local AWS stack (including DynamoDB records, S3 objects, and IAM configurations) into a portable "Pod."
+🐞 Collaborative Debugging
+Instead of sending logs or screenshots, senior engineers can share a Cloud Pod.
+A peer can pod load the exact state to reproduce a bug in seconds, ensuring 100% environment parity.
+🌱 Deterministic CI Seeding
+Use Cloud Pods to pre-seed CI pipelines with complex datasets or specific infrastructure states, reducing the time spent on "Setup" scripts and ensuring every test run starts from a known-good baseline.
+🚦 Rapid Context Switching
+High-velocity teams can switch between feature branches by loading different Pods, effectively swapping entire cloud architectures without manual reconfiguration.
+Move away from shared, persistent staging environments and drastically improve the fidelity of your integration testing.
+https://lnkd.in/eMYSdNJi
+Cloud Pods
+docs.localstack.cloud
+4
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+1w
+Edited
+Report this post
+Connect your AWS tooling to LocalStack 🙌
+The core value of LocalStack is the ability to maintain your existing AWS workflow while shifting the execution environment to your local machine.
+You don't change your tools; you only change the endpoint.
+There are five primary ways to interface with your local cloud:
+☁️ AWS CLI
+Use the awslocal wrapper or manual endpoint overrides to manage local resources via the terminal.
+☁️ AWS SDKs
+Configure your application code to point to localhost:4566, allowing your Lambdas and services to communicate as they would in production.
+☁️ Infrastructure as Code (IaC)
+Validate Terraform, CDK, or Pulumi templates locally to ensure orchestration logic is correct before deployment.
+☁️ IDE Extensions
+Manage and inspect resources directly within VS Code or JetBrains, reducing context switching during development.
+☁️ LocalStack Console
+A web-based UI for resource management, serving as a production-faithful equivalent to the AWS Management Console.
+Read more here:
+https://lnkd.in/ecbqxDeH
+13
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+1w
+Report this post
+I Tried App Inspector...and You Won't Believe What Happened Next! 🤯
+App Inspector is LocalStack's built-in observability layer that shows you every AWS API call, IAM permission evaluation, and full request/response payload your app makes locally, before it ever hits a real AWS account.
+https://lnkd.in/ghNB7vxW
+I Tried App Inspector...and You Won't Believe What Happened Next!
+blog.localstack.cloud
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+1w
+Report this post
+App Inspector is LocalStack's built-in observability layer that shows you every AWS API call, IAM permission evaluation, and full request/response payload your app makes locally, before it ever hits a real AWS account.
+Learn more about it here 👉 https://lnkd.in/ghNB7vxW
+#AppInspector #AWS #LocalStack #Observability
+I Tried App Inspector...and You Won't Believe What Happened Next!
+blog.localstack.cloud
+11
+Like
+Comment
+Share
+LocalStack
+34,649 followers
+1w
+Report this post
+LocalStack App Inspector: Shift-Left Observability 🔎
+Debugging distributed AWS applications locally often suffers from a "black-box" problem.
+App Inspector provides a dedicated observability layer to trace service-to-service interactions in real-time.
+Use it for...
+✨ Request Tracing
+Visualize the full execution path (e.g., API Gateway → Lambda → DynamoDB) without modifying application code.
+✨ Payload Inspection
+View exact request/response bodies and metadata at every hop to validate data integrity.
+✨ IAM Validation
+Identify permission gaps and policy failures during development, rather than at deployment.
+✨ Zero Instrumentation
+No X-Ray SDKs or external agents required; observability is built into the local control plane.
+App Inspector reduces MTTR and ensures architectural logic is validated before reaching the cloud by providing deep visibility into local AWS calls.
+https://lnkd.in/en8umJKs
+App Inspector
+docs.localstack.cloud
+7
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at LocalStack
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Similar pages
+PlanetScale
+Software Development
+San Francisco, California
+Storyblok
+Software Development
+Linz, Oberösterreich
+WorkFlex
+IT Services and IT Consulting
+Contentsquare
+Software Development
+Kong
+Software Development
+San Francisco, California
+Stripe
+Technology, Information and Internet
+South San Francisco, California
+SEO Sherpa
+Advertising Services
+Dubai, Dubai
+Gusto
+Software Development
+San Francisco, California
+Aha!
+Software Development
+Remote, Global
+Jurisynk
+Software Development
+Bengaluru, Karnataka
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Executive jobs
+690,514 open jobs
+Administrative Assistant jobs
+66,842 open jobs
+Engineering Manager jobs
+145,990 open jobs
+Assistant jobs
+711,811 open jobs
+Executive Assistant jobs
+28,934 open jobs
+Director jobs
+1,220,357 open jobs
+Engineer jobs
+555,845 open jobs
+Manager jobs
+1,880,925 open jobs
+Head of Engineering jobs
+11,832 open jobs
+Project Manager jobs
+253,048 open jobs
+Director of Engineering jobs
+19,030 open jobs
+Associate jobs
+1,091,945 open jobs
+Office Manager jobs
+164,964 open jobs
+Secretary jobs
+362,008 open jobs
+Head of Product jobs
+17,322 open jobs
+Technical Lead jobs
+214,024 open jobs
+Software Engineering Manager jobs
+59,689 open jobs
+Virtual Assistant jobs
+47,766 open jobs
+Specialist jobs
+768,666 open jobs
+Developer jobs
+258,935 open jobs
+Show more jobs like this
+Show fewer jobs like this
+Funding
+LocalStack
+2 total rounds
+Last Round
+Series A
+Dec 12, 2024
+External Crunchbase Link for last round of funding
+US$ 25.0M
+Investors
+Notable Capital
++ 1
+Other investor
+See more info on crunchbase
+More searches
+More searches
+Executive jobs
+Engineering Manager jobs
+Assistant jobs
+Executive Assistant jobs
+Engineer jobs
+Director of Engineering jobs
+Director jobs
+Head of Engineering jobs
+Manager jobs
+Chief Technology Officer jobs
+Virtual Assistant jobs
+Associate jobs
+Administrative Assistant jobs
+Office Manager jobs
+Management Assistant jobs
+Secretary jobs
+Project Manager jobs
+Executive Administrative Assistant jobs
+Senior Engineering Manager jobs
+Senior Software Engineer jobs
+Technical Lead jobs
+Senior Executive Assistant jobs
+Developer jobs
+Vice President of Engineering jobs
+Head jobs
+Chief Financial Officer jobs
+Specialist jobs
+Personal Assistant jobs
+Product Manager jobs
+Team Lead jobs
+Software Engineering Manager jobs
+Director of Product Management jobs
+Intern jobs
+Administrator jobs
+Contract Network Engineer jobs
+Human Resources Specialist jobs
+Chief of Staff jobs
+Event Manager jobs
+Technology Officer jobs
+Coordinator jobs
+Lead jobs
+Team Assistant jobs
+Human Resources Director jobs
+Vice President jobs
+Scrum Master jobs
+Recruiter jobs
+Staff Software Engineer jobs
+Analyst jobs
+Senior Product Manager jobs
+Software Architect jobs
+Monitoring Specialist jobs
+Chief Product Officer jobs
+Head of Product jobs
+Event Specialist jobs
+Community Specialist jobs
+Assistant to the Director jobs
+Technical Recruiter jobs
+Senior Director of Product Management jobs
+Consultant jobs
+Talent Acquisition Specialist jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at LocalStack
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

@@ -1,0 +1,33 @@
+{
+  "asset": "urn:li:digitalmediaAsset:D4E1FAQFKNbKnl50Dtg",
+  "transcriptManifestUrl": "https://media.licdn.com/dms/document/media/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-transcript/feedshare-document-transcript/0/1726408458758?e=1780531200&v=beta&t=EYv2NlS60LeTXzW6VlJUy7fFxyOUoeRCYVCDm0gE-Ro",
+  "transcribedDocumentUrl": "https://media.licdn.com/dms/document/media/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-pdf-analyzed/feedshare-document-pdf-analyzed/0/1726408458758?e=1780531200&v=beta&t=T4_gnqrSu6RCq8Qghwwnxvj4Gzfg14SBpL6rRMyy-os",
+  "scanRequiredForDownload": true,
+  "perResolutions": [
+    {
+      "width": 135,
+      "height": 168,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-images_160/feedshare-document-images_160/0/1726408458758?e=1780531200&v=beta&t=6Wg-6uIY_NA0DUgPs-uimILLl2KBiXf0yvJKEnz6Sx4"
+    },
+    {
+      "width": 390,
+      "height": 487,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-images_480/feedshare-document-images_480/0/1726408458758?e=1780531200&v=beta&t=aQLQb8TRi3iiKP_sIaants5-4Vl1Su8Kx8ib_TtO1cM"
+    },
+    {
+      "width": 1035,
+      "height": 1293,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-images_1280/feedshare-document-images_1280/0/1726408458758?e=1780531200&v=beta&t=cSK8pl6C48lqyjTMgVggWTtB4WFi8e4qQj7-ouybM4U"
+    },
+    {
+      "width": 645,
+      "height": 806,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-images_800/feedshare-document-images_800/0/1726408458758?e=1780531200&v=beta&t=0fUvDFmz-IJLFxtZqUwxejS3LiOlnG-jR_JGj2zkDQ4"
+    },
+    {
+      "width": 1545,
+      "height": 1931,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4E1FAQFKNbKnl50Dtg/feedshare-document-images_1920/feedshare-document-images_1920/0/1726408458758?e=1780531200&v=beta&t=BW1TAdQbB9u3UlEdWw6aJIzUPfGbfXTgq5VT4ugy_1Y"
+    }
+  ]
+}

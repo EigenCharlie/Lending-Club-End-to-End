@@ -1,0 +1,16 @@
+📚 𝗢𝗻 𝗖𝗿𝗲𝗱𝗶𝘁: 𝗦𝗰𝗼𝗿𝗶𝗻𝗴 𝗙𝗼𝘂𝗻𝗱𝗮𝘁𝗶𝗼𝗻𝘀 𝗶𝗻 𝘁𝗵𝗲 𝗔𝗴𝗲 𝗼𝗳 𝗔𝗜 𝗶𝘀 𝗟𝗶𝘃𝗲 🎉
+This book traces the mathematical lineage connecting Alan Turing's wartime cryptanalysis to modern credit scoring systems. It reveals how weight of evidence, developed to break enemy codes at Bletchley Park in the early 1940s, connects through maximum likelihood and logistic regression to neural networks, ensemble methods, and explainability frameworks used in today's financial institutions.
+The four chapters cover:
+• 𝗪𝗲𝗶𝗴𝗵𝘁 𝗼𝗳 𝗘𝘃𝗶𝗱𝗲𝗻𝗰𝗲: from Turing's decibans to credit scoring
+• 𝗟𝗼𝗴𝗶𝘀𝘁𝗶𝗰 𝗥𝗲𝗴𝗿𝗲𝘀𝘀𝗶𝗼𝗻: from Fisher's maximum likelihood to machine learning
+• 𝗗𝗲𝗲𝗽 𝗟𝗲𝗮𝗿𝗻𝗶𝗻𝗴 𝗮𝗻𝗱 𝗔𝗜: neural networks and AI in financial services
+• 𝗧𝗵𝗲 𝗖𝗿𝗲𝗱𝗶𝘁 𝗚𝗮𝗺𝗲: classical machine learning and explainability
+You'll discover the historical connections between Turing, Fisher, Breiman, and modern AI, while learning practical techniques: solving logistic regression by hand, understanding the WOE-logit connection, tree-based methods internals, and TreeSHAP explanations.
+Written for data scientists in risk modeling, risk professionals transitioning to data science, and students exploring the historical foundations of modern credit scoring.
+My sincere thanks go to Naeem Siddiqi for the foreword and Agus Sudjianto for the epilogue.
+Available now:
+🌍 EU: https://lnkd.in/dtNUi5FW
+🌎 US: https://lnkd.in/d4GaNKUA
+🇬🇧 UK: https://lnkd.in/dKE92dwU
+And in your local Amazon marketplaces.
+#CreditScoring #DataScience #MachineLearning #Statistics #AI #CreditRisk #FinancialServices

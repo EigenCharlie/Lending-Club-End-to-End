@@ -1,0 +1,7 @@
+You already understand LLMs better than you think.
+NLP and credit risk seem like different worlds, but the statistical foundation is identical. MLE connects your scorecard's logistic regression to a spaCy word counter to GPT's training loop.
+Most data scientists in credit risk do not work extensively with text. The only applications I have seen firsthand were using NLP to extract news for semantic scoring on corporate loans, and web crawlers for alternative data. But the connection runs deeper than applications.
+A SpaCy word-frequency summarizer estimates 𝖯(𝗐𝗈𝗋𝖽 | 𝖽𝗈𝖼𝗎𝗆𝖾𝗇𝗍) by counting and normalizing. A bigram model does the same for word pairs. GPT does it for entire sequences with billions of parameters. Your scorecard does the same with WOE and logistic regression, just with a different goal.
+I wrote about this connection with working Python code, walking the full arc from extractive summarization to large language models.
+Link to full article: https://lnkd.in/dhxUaTt4
+#DataScience #MachineLearning #NLP #LLMs #Statistics

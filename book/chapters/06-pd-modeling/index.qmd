@@ -1,18 +1,19 @@
 ---
 title: "Modelado de PD y Calibración"
 page-layout: article
-close_takeaway: "El modelo champion (CatBoost calibrado, AUC 0.713, ECE 0.0059) se selecciona por validación temporal estricta sobre datos OOT. La calibración no es opcional: un modelo con buen ranking pero probabilidades incorrectas produce provisiones IFRS9 erróneas y portafolios frágiles."
-close_connects: "El modelo calibrado alimenta la capa conformal (@sec-split-conformal) que produce intervalos de incertidumbre, y estos intervalos se convierten en conjuntos de incertidumbre para la optimización robusta (@sec-robust-portfolio)."
-close_reuse: "Las métricas del champion (`model_comparison.json`, `pd_training_record.pkl`) son la referencia canónica para explicabilidad (@sec-global-explanations), fairness (@sec-mrm), backtesting conformal (@sec-backtest-monitoring) y los tres papers de investigación."
 ---
 
-El modelo de Probabilidad de Default (PD) es el corazón predictivo del pipeline. Este capítulo documenta la estrategia completa de modelado: desde el baseline interpretable de regresión logística hasta el modelo CatBoost optimizado con Optuna, pasando por la selección automática del calibrador y la designación del modelo champion.
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+El modelo de Probabilidad de Default (PD) es la pieza predictiva del pipeline histórico. Este capítulo documenta la estrategia ejecutada: desde el baseline interpretable de regresión logística hasta CatBoost optimizado con Optuna, pasando por la selección automática del calibrador y la etiqueta local `champion`. Esa etiqueta describe un freeze de artefactos del repositorio padre, no una selección vigente ni una recomendación de despliegue.
 
 La estrategia de modelado sigue un principio de **complejidad incremental**:
 
-![Importancia de las 10 variables más influyentes del modelo PD champion, recortada para lectura ejecutiva y navegación rápida.](../../assets/figures/editorial/pd_feature_importance_top10.png){fig-alt="Top 10 de importancia de variables del modelo champion de probabilidad de default."}
+![Importancia de las 10 variables más influyentes del modelo PD del freeze histórico local, recortada para lectura ejecutiva y navegación rápida.](../../assets/figures/editorial/pd_feature_importance_top10.png){fig-alt="Top 10 de importancia de variables del modelo de probabilidad de default congelado históricamente."}
 
-![Curvas ROC de los modelos PD principales evaluados en el proyecto.](../../assets/figures/editorial/pd_roc_curve.png){fig-alt="Curvas ROC comparando los modelos principales de probabilidad de default."}
+La ROC legacy se conserva en `book/assets/` y se omite de la landing: su título
+presenta “modelos PD candidatos” y “OOT” sin declarar score legacy ni la
+reutilización de la partición temporal.
 
 ```{python}
 #| label: tbl-model-overview
@@ -35,17 +36,33 @@ df_models.columns = ["Modelo", "AUC", "Gini", "Brier", "D² Brier"][:len(df_mode
 df_models
 ```
 
-Cada modelo se evalúa exclusivamente sobre el set de test OOT (2018--2020), nunca sobre datos de entrenamiento o validación. Las métricas reflejan rendimiento prospectivo genuino.
+Cada modelo se comparó sobre la partición temporal etiquetada `test OOT` (2018--2020), separada de entrenamiento y validación dentro del diseño histórico. Como el corte se definió y analizó retrospectivamente sobre datos ya observados, las métricas son evidencia temporal interna; no constituyen una prueba prospectiva ni externa.
 
 La idea editorial de esta landing es simple: primero ver si el ranking funciona, luego verificar si la probabilidad quedó bien calibrada. En riesgo crediticio, un modelo con buen ranking pero mala calibración sigue siendo una base frágil para provisiones, umbrales y decisiones downstream.
 
 ```{=html}
 <div class="chapter-landing-grid">
   <div class="chapter-card"><h4><a href="06a-logistic-regression-baseline.html">19. LR Baseline</a></h4><p>Lower bound interpretable y preprocesamiento mínimo.</p></div>
-  <div class="chapter-card"><h4><a href="06b-catboost-tuned.html">20. CatBoost Tuned</a></h4><p>HPO, manejo nativo de categorías y champion predictivo.</p></div>
+  <div class="chapter-card"><h4><a href="06b-catboost-tuned.html">20. CatBoost Tuned</a></h4><p>HPO, manejo nativo de categorías y freeze predictivo local.</p></div>
   <div class="chapter-card"><h4><a href="06c-calibration-selection.html">21. Calibración</a></h4><p>Platt, Isotonic y Venn-Abers bajo validación temporal.</p></div>
-  <div class="chapter-card"><h4><a href="06d-model-comparison-champion.html">22. Champion</a></h4><p>Selección final, contrato canónico y métricas OOT.</p></div>
+  <div class="chapter-card"><h4><a href="06d-model-comparison-champion.html">22. Champion</a></h4><p>Etiqueta histórica, contrato de procedencia y métricas temporales retrospectivas.</p></div>
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+El freeze local etiquetó CatBoost calibrado como `champion`; sus métricas en una
+partición temporal retrospectiva no seleccionan el modelo vigente ni prueban
+desempeño prospectivo.
+
+## Esto conecta con…
+
+Los scores alimentaron intervalos de $Y$ y simuladores de optimización. Esa
+composición no crea intervalos para PD latente ni garantías de decisión.
+
+## Dónde se reutiliza esta señal o artefacto
+
+`model_comparison.json` y `pd_training_record.pkl` preservan procedencia para
+explicabilidad, checks MRM y backtesting; no fijan claims actuales de los papers.
+:::

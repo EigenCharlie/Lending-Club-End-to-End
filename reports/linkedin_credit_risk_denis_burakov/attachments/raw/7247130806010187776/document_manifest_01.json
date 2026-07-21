@@ -1,0 +1,33 @@
+{
+  "asset": "urn:li:digitalmediaAsset:D4D1FAQFrk5THhYMrmg",
+  "transcriptManifestUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-transcript/feedshare-document-transcript/0/1727710939315?e=1780531200&v=beta&t=mnFq1M1S5CcMiO1jh5DaPdaChH-Rnh4Ss--igCaBNow",
+  "transcribedDocumentUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-pdf-analyzed/feedshare-document-pdf-analyzed/0/1727710939315?e=1780531200&v=beta&t=jodgyul387Q62dXcCj9Ayf5q91WpbmP8CbtuX1Ivu7M",
+  "scanRequiredForDownload": true,
+  "perResolutions": [
+    {
+      "width": 173,
+      "height": 150,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-images_160/feedshare-document-images_160/0/1727710939315?e=1780531200&v=beta&t=24ZeQF4UPtD4xaQmH_c8Ctt71QEgeUTaT8j-b9fVN7w"
+    },
+    {
+      "width": 486,
+      "height": 420,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-images_480/feedshare-document-images_480/0/1727710939315?e=1780531200&v=beta&t=wuRRgKHs-A8c7gsHDKwpY6HpnhDFSQLIMVDZAGsNkm4"
+    },
+    {
+      "width": 1284,
+      "height": 1110,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-images_1280/feedshare-document-images_1280/0/1727710939315?e=1780531200&v=beta&t=ng19xXtt7sP0VPFQrhzuZMbrSPgbTWXhkwCy9Cc4mEA"
+    },
+    {
+      "width": 815,
+      "height": 705,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-images_800/feedshare-document-images_800/0/1727710939315?e=1780531200&v=beta&t=hEvihJz2KQbu-OJ8wGtXsOOOg8WnSNdix0IMrfadBqA"
+    },
+    {
+      "width": 1927,
+      "height": 1665,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQFrk5THhYMrmg/feedshare-document-images_1920/feedshare-document-images_1920/0/1727710939315?e=1780531200&v=beta&t=37K8Z0pZ0nOrZFxqoYtYdqGnSiJqq-MkcxCkwc_AVh4"
+    }
+  ]
+}

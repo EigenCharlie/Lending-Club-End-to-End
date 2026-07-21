@@ -1,0 +1,6 @@
+join_key,connects,input_artifacts,paper4_output,status
+loan_id / id,"PD, conformal interval, funded decision, ECL, CATE, fairness slices","final_project_summary, conformal_intervals, cate_estimates_oot, IFRS9 tables",paper4_loan_level_policy_evidence.parquet,viable with existing artifacts
+policy_id / policy parameters,"CRPTO robust region, ECL overlay, tail risk, satisficing, selector","final_project_promotion, robust-region tables, A12/A13 artifacts",paper4_policy_level_evidence.parquet,needs derived policy grid
+month / period,"TS state, ECL replay, coverage replay, causal OOT policy value","time_series_vnext, ts_ecl_intervals, causal_policy_oot_backtest",paper4_monthly_replay.parquet,diagnostic now; online later
+segment / source label,"Mondrian groups, fairness, MDCP, RAPIDS clusters, causal heterogeneity","grade/score decile, fairness audit, gpu insight cluster/community profiles",paper4_segment_source_registry.parquet,candidate labels need stability gates
+scenario,"baseline/adverse/severe IFRS9, CVaR/OCE, capital/provision limits","ifrs9_scenario_summary, ecl_alpha_sensitivity, ts_ecl_intervals",paper4_scenario_policy_grid.parquet,viable as MVP diagnostic

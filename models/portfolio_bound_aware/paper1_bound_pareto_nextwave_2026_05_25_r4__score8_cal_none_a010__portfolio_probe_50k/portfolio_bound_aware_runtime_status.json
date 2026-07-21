@@ -1,0 +1,22 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "frontier_running",
+  "state": "running",
+  "updated_at_utc": "2026-05-25T17:28:20.796965+00:00",
+  "run_tag": "paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k",
+  "frontier_total_units": 1005,
+  "frontier_completed_units": 1,
+  "frontier_pct_complete": 0.0009950248756218905,
+  "bound_total_checks": 0,
+  "bound_completed_checks": 0,
+  "bound_pct_complete": 0.0,
+  "global_total_units": 1005,
+  "global_completed_units": 1,
+  "global_pct_complete": 0.0009950248756218905,
+  "elapsed_sec": 2.7462325250089634,
+  "eta_sec": 2757.2174551089993,
+  "phase_random_state": 42,
+  "latest_policy_mode": "point_estimate",
+  "latest_risk_tolerance": 0.175,
+  "latest_gamma": 0.0
+}

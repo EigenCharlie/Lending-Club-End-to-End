@@ -1,0 +1,207 @@
+Validating New Generation Credit Risk Models
+Report this article
+Denis Burakov
+Denis Burakov
+Published Nov 21, 2022
++ Follow
+Model validation can be described as a set of processes and activities intended to verify that models are performing as expected, in line with their design objectives and business uses (SR 11-7). During validation, testing of data, model construct, assumptions, and model outcomes are performed regularly in order to identify, monitor, record, and remediate model limitations and weaknesses (PRA CP6/22).
+Existing regulatory validation guidelines are ill-suited for addressing model risks stemming from the use of machine learning techniques in credit risk model development. With a growing influence of advanced analytics on credit risk modeling practices, established know-hows of model validation need to be re-evaluated to account for model risks associated with new model training methods.
+In this post I will share a framework for validating new generation credit risk models based on three dimensions of model quality:
+Model choice (challenger models)
+Model parsimony (validation model)
+Model complexity (parameterization)
+These dimensions in no way serve to reflect all aspects of model quality, including assessments of model assumptions, input data quality and representativeness as well as other traditional quantitative tests (e.g., discriminatory power and calibration accuracy) and one can argue that these are not completely new. Yet, I am focusing on these dimensions because they can be universally applied to next-gen credit risk and non-credit risk models alike which makes this framework relatively flexible for automating validation tasks.
+Model development
+In this example, we will work with a credit card dataset contributed to the UCI Machine Learning Repository, which comes from a Taiwanese bank. This sample contains information on default payments, demographic factors, credit data, history of payment, and bill statements of credit card clients in Taiwan from April 2005 to September 2005.
+Data
+Before proceeding to building the model, we split the data into train, validation, and test sets. This is done using a two-step hold-out method (also known as train/test split). First, we split our dataset into train (full set) and test parts (80/20% split) and then split the train (full set) part into train and validation parts (75/25% split).
+The split is shown in the visual below:
+Train/Validation/Test split
+From 30,000 original observations we obtain the following samples:
+Train set: 18,000 observations
+Validation set: 6,000 observations
+Test set: 6,000 observations
+Train and test sets will be used in model development process, while validation set will be kept for validation tests only.
+Further in our example we will extensively rely on cross-validation resampling procedures. Cross-validation is a resampling method that uses different portions of the data to train and test a model on different iterations.
+A k-fold cross-validation procedure is visualized below:
+K-Fold Cross-Validation (K=5)
+where:
+A model is trained using k-1 of the folds (“blue” folds)
+The resulting model is validated on the remaining folds (“orange” folds that are used as a test set to compute a performance measure such as AUC)
+We also use a stratified cross-validation to preserve the observed default rate in each fold.
+Model training
+We will train our scoring model using AutoWoE algorithm (WhiteBox model for binary classification on tabular data) from the LightAutoML library developed by Sberbank's AI Lab. AutoWoE combines the well known weight-of-evidence logistic regression design with binning based on gradient boosting (lightgbm). For a practical introduction to this library, I highly recommend this source.
+The AutoWoE pipeline is visualized below:
+AutoWoE pipeline
+As one can notice, the process resembles a typical scorecard development process, which is fully automated within this library.
+Discriminatory power metrics of the AutoWoE model are reported below:
+Train Gini coefficient: 53.95%
+Test Gini coefficient: 56.13%
+Model validation
+Model choice
+We challenge the modeling choice by running two challenger models with the highest interpretability, namely logistic regression and decision tree, to see if we are able to achieve similar discriminatory power to the model being validated.
+Logistic regression
+To construct the logistic regression model we create a pipeline with one-hot encoding for categorical features and logistic regression without regularization.
+Logistic Regression Pipeline
+The discriminatory power results are reported below:
+Train Gini coefficient: 52.75%
+Test Gini coefficient: 54.43%
+Decision Tree
+We run several decision tree models with different depths ([1, 3, 5, 6, 8, 10]) and test the performance on out-of-fold predictions.
+Below, feature importances for the selected model (depth of 6) is visualized:
+We observe that the model is heavily influenced by the PAY_0 feature which represents the most recent repayment status.
+In the following decision tree plot we see that PAY_0 provides an important split for good and bad risk. We observe two worst probabilities in our sample assigned to the two blue nodes with 68% and 71% probability of default.
+Recommended by LinkedIn
+AI-Driven Credit Scoring – Smarter Risk Assessments
+KOLLECT
+1 year ago
+CECL Modeling in R: Bridging Analytics, Compliance…
+Maryam Shahbaz A.
+8 months ago
+🔗 Faulty Signals, Broken Trust: What My Own EWS Alert…
+Rahul Kumar
+10 months ago
+Decision Tree Plot
+Comparing the models
+Discriminatory power of the final model and two challengers on the test set is visualized in the diagram below:
+ROC AUC curve
+As we can see from the chart above, logistic regression can be considered a viable alternative to the final model estimated with the AutoWoE algorithm.
+Model parsimony
+This test is based on a validation feature selection from the original data to test if another set of useful features can be obtained for the given problem. We use the Sequential Feature Selection (SFS) algorithm from Sebastian Raschka’s mlxtend library.
+The SFS algorithm removes or adds one feature at a time based on the model performance until a feature subset of the desired size k is reached. We use a Decision Tree model with a depth of 6 from the previous test as a scoring function and AUC as the performance metric. Additionally, we use a 5-fold cross-validation for model training in this example.
+The result is shown in the following chart:
+5-Fold Sequential Feature Selection
+We can see that the highest discriminatory power (AUC) is achieved with 8 features in the model.
+We additionally identify potential features that were not considered in the final model: PAY_2 (Repayment status in August, 2005) and BILL_AMT1 (Amount of bill statement in September, 2005). These features can be recommended to the development team for model improvements and experiments.
+Discriminatory power of the validation model is reported below:
+Train Gini coefficient: 52.26%
+Test Gini coefficient: 51.51%
+Model complexity
+EBA Supervisory Validation Handbook 45(b) includes a validation of "Any functional form or ‘hyperparameters’ used in the model development to aggregate all the risk drivers” into the scope of validation tests. In Chapter 3.1 Challenges posed by ML models, European Banking Authority (EBA) in its EBA/DP/2021/04 writes that “the validation function is expected to analyse and challenge the model design, assumptions and methodology ... For example, the validation of the hyperparameters.”
+In our example, we do not work with hyperparameters in the strict sense (parameters that cannot be directly learned from the regular training process). However, the example easily generalizes to hyperparameters used in non-parametric models with optimizers such as Optuna, Hyperopt, or Skopt.
+We assess the choice of parameters in the final model using Optuna. For more insights on how to use Optuna for your problem I recommend this resource.
+We test the following parameter grids in the model:
+Pearson correlation threshold (0.5, 0.7, 0.9)
+AUC threshold (0.5, 0.55, 0.6)
+p-value threshold (0.01, 0.05, 0.1)
+Remove features with a single split (True, False)
+WOE encoding based on cross-validation (True, False)
+Type of importance (feature importance, permutation importance)
+We train the model with parameter search on the validation sample and measure performance on the test sample. We use a random seed to make the results reproducible.
+Below the results of the best trial are reported:
+Best value: 52.01%
+Best params: {'pearson_th': 0.7, 'metric_th': 0.5, 'force_single_split': True, 'oof_woe': False, 'imp_type': 'perm_imp', 'p_val': 0.1}
+Optuna provides excellent graphics to trace the study process as shown below:
+Parallel Coordinate Plot
+In our example lowering the p-value and Pearson correlation thresholds had the largest impact on the objective value.
+Hyperparameter Importances
+We can see that the final model delivers higher performance on the test sample than the one developed using parameter optimization, therefore the choice of parameters used appears warranted:
+Final model Test Gini : 56.13%
+Retrained model Test Gini : 54.72%
+Concluding remarks
+Validation of new generation credit risk models incorporating advanced analytics techniques must cover model quality dimensions that go beyond traditional validation tests prescribed by existing regulations. Rethinking existing model risk management frameworks and focusing on such quality dimensions as model choice, model parsimony, and model complexity can help model developers and validators build more reliable credit risk systems.
+#creditrisk #riskmodeling #modelvalidation #modelriskmanagement
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in my GitHub. You can play around with the data in the Google Colab notebook.
+All views expressed are my own.
+References
+Bank of England/Prudential Regulation Authority. CP6/22 – Model Risk Management Principles for Banks. Consultation paper 6/22. https://www.bankofengland.co.uk/prudential-regulation/publication/2022/june/model-risk-management-principles-for-banks
+Dua, D. and Graff, C. (2019). UCI Machine Learning Repository. Irvine, CA: University of California, School of Information and Computer Science http://archive.ics.uci.edu/ml
+European Banking Authority. Discussion Paper on Machine Learning for IRB Models. EBA/DP/2021/04. https://www.eba.europa.eu/calendar/discussion-machine-learning-irb-models
+European Banking Authority. Supervisory Handbook for the Validation of Internal Ratings Based Systems. EBA/CP/2022/08. https://www.eba.europa.eu/regulation-and-policy/model-validation/supervisory-handbook-validation-internal-ratings-based-systems-0
+The Federal Reserve Board (Fed) and Office of the Comptroller of the Currency (OCC). Supervisory Guidance on Model Risk Management. Federal Reserve SR Letter 11-7; OCC Bulletin 2011-12; and FDIC FIL 22-2017. https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+63
+5 Comments
+Huy Tran
+3y
+Report this comment
+This is a very insightful post. Thanks for writting it up. I have a small related question. How much efforts should one put on the validation process? The regulation only requires some (?). In every day work of fast-paced companies, the balance between spending more time to craft (more than “requirement”) and moving on to other stuff is very tricky to me.
+Like
+Reply
+1 Reaction
+Guillermo Navas Palencia, PhD
+3y
+Report this comment
+Thanks for this nicely written and insightful post. Perhaps, I would mention the use of time series cross-validation split when there are time-correlated variables in the data. This type of training reduces the possibility of suffering from data leakage (e.g., loan restructuring information or fraudulent transactions)
+Like
+Reply
+3 Reactions
+4 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Show more
+See all articles

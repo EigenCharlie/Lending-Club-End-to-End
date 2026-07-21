@@ -1,0 +1,42 @@
+---
+title: "Paper 4 Open Questions"
+format: html
+---
+
+# Paper 4 Open Questions
+
+Preguntas abiertas del laboratorio vivo. Algunas se responderán con
+experimentos rápidos; otras pueden tardar meses.
+
+## Preguntas Iniciales
+
+| ID | Lane | Pregunta | Estado | Próximo paso |
+|---|---|---|---|---|
+| Q-001 | IFRS9/CRPTO | ¿El champion económico sigue ganando después de ECL/provisión? | answered-proxy-full-grid | rerun exacto top-k para challengers |
+| Q-002 | Tail/satisficing | ¿OCE/CVaR cambia el ranking o solo diagnostica cola? | answered-diagnostic-selector | comparar proxy vs exacto para top 5 |
+| Q-003 | Temporal | ¿Monthly replay revela fragilidad por periodo? | answered-all-policy-proxy | agregar drift/sample paths más ricos |
+| Q-004 | Online CP | ¿La recalibración forward-only mejora coverage sin intervalos inútiles? | answered-forward-replay-v2 | comparar rolling, Mondrian online y ACI |
+| Q-005 | Causal | ¿Existe treatment/outcome defendible para CATE en Lending Club? | gated-expanded | definir treatment/outcome antes de policy value real |
+| Q-006 | SDAM | ¿Cuál es el mínimo `S_t^x` útil para un DLA pequeño? | answered-toy | modelar repayments/prepayment/recovery |
+| Q-007 | Exact replay | ¿Cuánto difiere la matriz proxy de allocations exactas? | answered-exact-limited | usar exact-limited como filtro, no como claim final |
+| Q-008 | Full solve | ¿El top-k exact-limited se mantiene cuando el universo vuelve a 276,869 préstamos? | answered-full-universe-topk | persistir full allocations en cada run futuro |
+| Q-009 | Selector gates | ¿Los gates MDCP/fairness proxy son comité real o stress exploratorio? | partly-answered-sensitivity | calibrar thresholds con comité/MRM antes de promoción |
+| Q-010 | Tail solver | ¿CVaR/OCE debe entrar como constraint LP o como selector post-hoc? | partly-answered-tail-penalty-prototype | escalar a scenario-CVaR LP formal |
+| Q-011 | Causal | ¿Podemos definir treatment/outcome creíble antes de usar CATE en `C_t`? | partly-answered-high-rate-route | diseñar dossier de identificación y sensibilidad |
+| Q-012 | Tail solver | ¿Cómo formular CVaR/OCE formal con variables auxiliares y escenarios comunes por policy? | answered-pool-formal-lp | escalar de pool 20k a universo completo o usar CVaR constraint con piso de retorno |
+| Q-013 | Online CP | ¿ACI, Mondrian online o UP-OCP reducen el peor policy-month sin inflar ancho? | answered-negative-v3 | diseñar adaptación local por celdas pequeñas; no promover hasta superar peor policy-month/source-month |
+| Q-014 | Causal | ¿El treatment `high_rate_within_grade` sobrevive balance, placebo y sensibilidad? | partly-answered-gated | mejorar balance residual de PD, sensibilidad y falsification appendix antes de policy value |
+| Q-015 | Fairness | ¿Podemos conseguir atributos protegidos válidos o una estrategia externa defendible? | answered-current-data-no | mantener scope proxy-governance-only o buscar protocolo externo de atributos protegidos |
+| Q-016 | Paper Estrella / Paper 4 | ¿Qué hacemos con un challenger exacto que supera el champion congelado en retorno bruto pero falla gates Paper 4? | answered-v4-review-only | mantener Paper Estrella congelado y usar `paper4_working_champion` solo como objeto de laboratorio |
+| Q-017 | SDAM multi-period | ¿Por qué el replay loan-level favorece al champion estático frente al selector IFRS9 y qué estado falta? | partly-answered-v4-dynamic | iterar DLA con servicing panel, timing real y decisiones endógenas bajo capital/ECL |
+| Q-018 | Online CP | ¿Cómo subir peor source-month de 0.7500 a gate sin inflar intervalos? | partly-answered-v6-oracle-target | v6 audit rescue pasa gate 0.80 con ancho 0.930; falta predictor deployable pre-outcome |
+| Q-019 | Selector | ¿El working champion de Paper 4 debe priorizar score continuo o decisión `review_candidate`? | answered-v4 | priorizar `review_candidate` mientras promoción global esté bloqueada |
+| Q-020 | IFRS9 | ¿Existe performance mensual suficiente para lifetime ECL contractual real? | partly-answered-proxy | v5 usa ECL marginal mensual; buscar servicing/performance panel con prepago, default timing, cure y recovery reales |
+| Q-021 | CVaR | ¿CVaR full-universe requiere descomposición o top-k exacto expandido? | partly-answered-topk-expanded | comparar solver full, decomposition y top-k CVaR rerun |
+| Q-022 | MDCP | ¿Cómo meter MDCP/worst-source y eficiencia online dentro del solver, no solo en selector posterior? | partly-answered-v6-mostly-infeasible | pasar de cap global rígido a penalties suaves/caps por familia y pool más diverso |
+| Q-023 | SDAM | ¿Cómo pasar de DLA action-library a decisión loan-level endógena con aprendizaje? | partly-answered-v6-loan-level-proxy | añadir coverage state, ECL capital y aprendizaje/ADP sobre decisions loan-level |
+| Q-024 | Causal/CATE | ¿Qué outcome causal limpio puede volver útil `high_rate_within_grade`? | gated | probar default, prepayment, net return, loss y approval proxy con sensibilidad formal |
+| Q-025 | Temporal/CQR | ¿Qué condición haría que TS/ECL o CQR salgan de research-only? | gated | exigir cobertura por horizonte, ancho útil y mejora downstream de decisión |
+| Q-026 | Fairness | ¿Se puede conseguir protocolo externo válido para protected attributes o proxy legalmente aceptable? | open-governance | mantener lenguaje no-legal-claim mientras no exista validación externa |
+| Q-027 | Hybrids | ¿El surrogate SPO/DFL puede convertirse en entrenamiento decision-loss real con constraints CRPTO? | open-method | entrenar objective decision-loss con penalties de coverage, MDCP, IFRS9 y auditability |
+| Q-028 | Online CP | ¿Qué features predicen celdas débiles sin mirar outcomes del mes actual? | open-high-priority | modelar weak-cell risk con historia previa, n efectivo, grade, DTI, score, mes y drift |

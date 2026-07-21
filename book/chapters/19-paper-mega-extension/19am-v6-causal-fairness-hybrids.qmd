@@ -1,0 +1,140 @@
+---
+title: "v6 Causal, Fairness and Hybrids"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+cate = _csv("paper4_v6_cate_gate.csv")
+outcomes = _csv("paper4_v6_causal_outcome_registry.csv")
+fairness = _csv("paper4_v6_fairness_protocol.csv")
+external = _csv("paper4_v6_fairness_external_protocol_checklist.csv")
+hybrids = _csv("paper4_v6_spo_dfl_hybrid_summary.csv")
+claims = _csv("paper4_v6_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v6-causal-fairness-hybrids-question}
+
+Esta página cubre los carriles que no deben forzarse: CATE, fairness y
+SPO+/DFL hybrids. La meta v6 es mantenerlos vivos con artifacts claros, no
+hacer claims que los datos no sostienen.
+
+## CATE y outcomes causales
+
+```{python}
+#| label: tbl-paper4-v6-cate-gate
+#| tbl-cap: "CATE v6 gate"
+
+cate
+```
+
+```{python}
+#| label: tbl-paper4-v6-causal-outcomes
+#| tbl-cap: "Causal outcome registry v6"
+
+outcomes
+```
+
+CATE sigue bloqueado para policy value. El artifact actual muestra que la gran
+mayoría de intervalos cruza cero y que el tratamiento es observacional. V6
+agrega un registry de outcomes para no confundir rutas: default, prepayment,
+net return y LGD son posibles outcomes diagnósticos; approval/funding no está
+disponible porque no vemos rechazados.
+
+## Fairness proxy governance
+
+```{python}
+#| label: tbl-paper4-v6-fairness-protocol
+#| tbl-cap: "Fairness v6 protocol"
+
+fairness
+```
+
+```{python}
+#| label: tbl-paper4-v6-fairness-external
+#| tbl-cap: "External protected-attribute protocol checklist"
+
+external
+```
+
+La decisión sigue siendo explícita: no hay fair-lending legal claim. Paper 4
+solo tiene proxy governance con variables disponibles como grade, state, income,
+DTI y source families. Cualquier proxy de race/ethnicity/sex/age queda bloqueado
+sin aprobación externa.
+
+## SPO+/DFL hybrids
+
+```{python}
+#| label: tbl-paper4-v6-hybrids
+#| tbl-cap: "SPO/DFL constrained surrogate v6"
+
+_cols(
+    hybrids,
+    [
+        "policy_id",
+        "solver_status",
+        "risk_tolerance",
+        "weak_penalty",
+        "width_penalty",
+        "max_weak_share",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "hybrid_status",
+        "auditability_constraint_retained",
+    ],
+)
+```
+
+V6 no entrena una red DFL. Implementa un surrogate lineal constrained que
+representa la idea: buscar retorno/regret proxy sin perder auditabilidad,
+source discipline y width discipline. El resultado es útil porque produce tres
+perfiles: return-oriented, balanced y auditability-oriented. Pero sigue siendo
+surrogate; el entrenamiento decision-loss real queda pendiente.
+
+## Claim matrix
+
+```{python}
+#| label: tbl-paper4-v6-claim-matrix
+#| tbl-cap: "V6 claim-artifact matrix"
+
+claims
+```
+
+## Interpretación
+
+CATE y fairness siguen gated, pero mejor documentados. Los hybrids avanzan como
+arquitectura de solver, no como entrenamiento final. Esta separación importa:
+Paper 4 puede crecer con muchas ideas sin convertir cada idea en claim.
+
+## Next Step
+
+El siguiente paso de hybrids es entrenar un modelo decision-loss real que use
+las restricciones CRPTO/MDCP/IFRS9 como regularizadores o constraints. Causal y
+fairness solo deben entrar al objetivo si cambia la evidencia de identificación
+o aparecen atributos/protocolos externos válidos.

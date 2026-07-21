@@ -1,0 +1,5 @@
+online_method_v6,deployable_without_outcomes,method_interpretation,coverage_policy_month_mean,coverage_policy_month_min,coverage_source_month_min,avg_width_loan,avg_width_policy_month,share_rows_widened,gate_pass_80,gate_pass_90,efficiency_gate_width_95,efficiency_gate_width_98,promotion_eligible
+audit_targeted_weak_cell_rescue_v6,False,ex_post_diagnostic_upper_bound,0.9816045004155403,0.8,0.8,0.9303409916567096,0.9222902374722326,0.025080027018296085,True,False,True,True,False
+v4_reference_width_floor,True,deployable_reference,0.9583500259523102,0.6666666666666666,0.5,0.9285203485163063,0.9203774618317221,0.0,False,False,True,True,False
+oracle_min_width_cell_rescue_v6,False,ex_post_oracle_lower_bound,0.9664829176078727,0.6666666666666666,0.8,0.9291883720670286,0.920836160208051,0.011776452967607412,False,False,True,True,False
+predecision_risk_pooling_v6,True,deployable_feature_guard,0.97836523243365,0.6666666666666666,0.75,0.9806383076006667,0.9740157905025153,1.0,False,False,False,False,False

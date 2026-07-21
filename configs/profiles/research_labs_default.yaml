@@ -2,12 +2,13 @@ schema_version: "2026-03-31.1"
 profile_name: research_labs_default
 pipeline_family: research_labs
 description: >
-  Perfil research-only para causal, GPU y notebooks. Nunca debe sobrescribir
-  artefactos del champion.
+  Perfil research-only para causal y notebooks. Nunca debe sobrescribir
+  artefactos del champion. GPU/RAPIDS queda retirado como frente editorial y
+  solo puede reabrirse mediante un protocolo historico explicito.
 execution:
   writes_canonical_artifacts: false
   promotion_state: insight_only
-  include_rapids: true
+  include_rapids: false
   include_notebooks: true
   include_conformal_sensitivity: false
 defaults:

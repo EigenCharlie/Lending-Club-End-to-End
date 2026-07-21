@@ -1,0 +1,4 @@
+policy_id,n_funded,funded_exposure,realized_cashflow_return,mean_loan_loss,cvar90_loan_loss,cvar95_loan_loss,cvar99_loan_loss,share_grade_dplus,claim_boundary
+cashflow_economic_proxy,59,993050.0,20527.971836815803,1733.1140677966102,16491.585000000003,22084.623333333333,25000.0,1.0,diagnostic_cashflow_repricing_not_champion_replacement
+cashflow_cvar_tail_proxy,60,984850.0,101588.9913974603,416.6666666666667,416.6666666666667,416.6666666666667,25000.0,0.36666666666666664,diagnostic_cashflow_repricing_not_champion_replacement
+cashflow_oce_tail_proxy,57,992175.0,92249.20376607828,438.5964912280702,438.5964912280702,438.5964912280702,25000.0,0.2807017543859649,diagnostic_cashflow_repricing_not_champion_replacement

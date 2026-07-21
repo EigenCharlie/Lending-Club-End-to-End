@@ -1,0 +1,12 @@
+blocker_id,status_v30,current_diagnosis,next_action
+dynamic_engine_scale,resolved,v27 larger-path replay and champion stress implemented,512 paths only if manuscript requires narrower intervals
+champion_stress,resolved,direct CVaR challenger stress memo implemented,use paired robustness gate for champion changes
+sample_paths_v4,near_resolved_with_plateau,v29 internal path calibration plus macro cache/failure registry,external forecast validation remains out of scope
+dla_adp_rollout,near_resolved_with_plateau,v28 ADP rollout v2 and underperformance diagnosis implemented,exact Bellman proof remains future work
+cvar_column_generation,near_resolved_with_plateau,v28 column-generation v2 and certificate implemented,no exact full-universe optimality claim
+spo_dfl,dependency_blocked,v28 oracle-regret v2 implemented,differentiable SPO stack remains blocked unless dependencies are isolated
+ifrs9_contractual,data_blocked,v29 proxy panel/SICR scenarios improved,contractual IFRS9 blocked by servicing/DPD/cure/timing/macros
+cate_policy_value,theory_blocked,v29 diagnostics improved,reject-inference/identification unresolved
+fair_lending,prohibited_claim,v29 proxy source governance implemented,no protected attributes/protocol
+artifact_registry,resolved,v30 artifact registry implemented,keep updated on future waves
+candidate_registry,resolved,v30 candidate registry implemented,working champion is Paper 4 only

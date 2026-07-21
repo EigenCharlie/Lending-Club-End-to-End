@@ -1,0 +1,15 @@
+{
+  "schema_version": "2026-05-14.12",
+  "generated_at_utc": "2026-05-14T16:00:34.088384+00:00",
+  "policy_id": "v12_cvar_mdcp_colgen_relaxed_k24000_floor125000_cap360000",
+  "lane_v12": "cvar_mdcp_colgen",
+  "registry_rank_v12": 1,
+  "working_candidate_score_v12": 0.6444444444444445,
+  "scope": "paper4_working_champion_only",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_allowed": false,
+  "paper4_final_promotion_created": false,
+  "contractual_ifrs9_claim_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "caveat": "column-generation top-k with MDCP caps; not exact full-universe proof"
+}

@@ -14,6 +14,14 @@ searches:
       - models/monotonic_competitor_best_fairness_aware.json
     target_pipeline: search_pd
     can_promote: true
+  - search: pd_hpo_local_refine
+    scripts: [scripts/search/run_pd_hpo_local.py, scripts/build_pd_hpo_local_config.py, scripts/train_pd_model.py]
+    artifacts:
+      - models/search_pd/<run_tag>/pd_model_hpo_local.yaml
+      - models/search_pd/<run_tag>/pd_training_record.pkl
+      - models/search_pd/<run_tag>/pd_hpo_seed_replay_status.json
+    target_pipeline: search_pd
+    can_promote: true
   - search: challenger_promotion
     scripts: [scripts/build_pd_challenger_artifacts.py, scripts/train_pd_model.py]
     artifacts:
@@ -28,6 +36,21 @@ searches:
       - models/conformal_policy_status.json
     target_pipeline: search_conformal
     can_promote: true
+  - search: conformal_reopen_exhaustive
+    scripts:
+      - scripts/search/run_conformal_reopen_search.py
+      - scripts/generate_conformal_intervals.py
+      - scripts/benchmark_conformal_variants.py
+      - scripts/benchmark_pd_set_prediction.py
+      - scripts/validate_conformal_experiment.py
+      - scripts/validate_conformal_policy.py
+    artifacts:
+      - models/conformal_gap/<run_tag>/conformal_reopen_status.json
+      - data/processed/conformal_gap/<run_tag>/conformal_reopen_inner_aggregate.parquet
+      - data/processed/conformal_gap/<run_tag>/conformal_reopen_phase1_final_candidates.parquet
+      - data/processed/conformal_gap/<run_tag>/pd_set_prediction_benchmark.parquet
+    target_pipeline: search_conformal
+    can_promote: true
   - search: conformal_alpha_sweep
     scripts: [scripts/run_alpha_sweep.py]
     artifacts:
@@ -40,6 +63,18 @@ searches:
       - models/cqr_comparison_status.json
       - models/cqr_mondrian_status.json
     target_pipeline: search_conformal
+    can_promote: false
+  - search: paper2_ifrs9_exhaustive
+    scripts:
+      - scripts/run_survival_analysis.py
+      - scripts/train_lgd_ead.py
+      - scripts/run_ifrs9_sensitivity.py
+      - scripts/run_ifrs9_diagnostics.py
+    artifacts:
+      - models/survival_summary.pkl
+      - models/lgd_ead_status.json
+      - models/ifrs9_diagnostics_status.json
+    target_pipeline: search_paper2_ifrs9
     can_promote: false
   - search: portfolio_selector
     scripts:
@@ -61,7 +96,7 @@ searches:
     scripts: [scripts/run_survival_analysis.py]
     artifacts:
       - models/survival_summary.pkl
-    target_pipeline: paper2_e2e
+    target_pipeline: search_paper2_ifrs9
     can_promote: false
   - search: causal_estimator_selection
     scripts:
@@ -79,5 +114,30 @@ searches:
       - scripts/run_rapids_insight_factory.py
     artifacts:
       - reports/gpu_benchmark
-    target_pipeline: research_labs
+    target_pipeline: retired_historical_infrastructure
     can_promote: false
+    status: retired_2026_06_06
+  - search: paper1_crpto_ijds_champion_tournament
+    scripts:
+      - scripts/search/audit_crpto_reopen_env.py
+      - scripts/search/run_paper1_crpto_ijds_reopen_2026_05_25.sh
+      - scripts/search/summarize_paper1_crpto_ijds_reopen.py
+      - scripts/search/monitor_paper1_crpto_reopen.sh
+      - scripts/search/run_pd_hpo_local.py
+      - scripts/search/run_conformal_reopen_search.py
+      - scripts/search/run_portfolio_bound_aware_search.py
+      - scripts/search/run_portfolio_bound_exact_eval.py
+    artifacts:
+      - configs/run_profiles/paper1_crpto_ijds_champion_tournament_2026_05_25.yaml
+      - docs/research/paper1_crpto_ijds_champion_tournament_protocol_2026-05-25.md
+      - reports/run_logs/<run_root>/predeclared_candidate_registry.json
+      - reports/run_logs/<run_root>/phase_gate_status.json
+      - reports/run_logs/<run_root>/selection_rule.json
+      - reports/run_logs/<run_root>/negative_results_registry.csv
+      - reports/run_logs/<run_root>/summary_current.json
+      - reports/run_logs/<run_root>/summary_current.csv
+      - reports/paper_material/paper1/tables/paper1_crpto_ijds_tournament_final_summary_2026-05-25.csv
+      - reports/paper_material/paper1/tables/paper1_crpto_ijds_negative_results_registry_2026-05-25.csv
+      - docs/research/paper1_crpto_ijds_champion_decision_memo_2026-05-25.md
+    target_pipeline: paper1_crpto_ijds
+    can_promote: true

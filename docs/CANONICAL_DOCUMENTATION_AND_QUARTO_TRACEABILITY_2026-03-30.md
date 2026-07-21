@@ -2,9 +2,20 @@
 
 Date: 2026-03-30
 
+> **SUPERSEDED FOR SCIENTIFIC CLAIMS (2026-07-20).** This ledger preserves the
+> March--April local runtime freeze and its then-current promotion vocabulary.
+> It is not the authority for external CRPTO/IJDS, Paper 2 or Paper 4. Use
+> `docs/research/crpto_external_contract_2026-07-20.yml`,
+> `reports/paper_material/paper2/paper2_claim_contract.yml`, the current Paper 4
+> findings/boundaries CSVs and
+> `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`. Every
+> `champion`, winner, IFRS9 or downstream statement below is historical unless
+> separately reauthorized by one of those current contracts.
+
 ## Purpose
 
-This document is the canonical editorial ledger for the current project state. It consolidates:
+This document was the canonical editorial ledger for the 2026-03-30 local
+project state. It consolidates:
 
 - the live champion and active diagnostic layers;
 - the ADSFCR adoption already implemented in this repository;
@@ -13,7 +24,40 @@ This document is the canonical editorial ledger for the current project state. I
 - the primary references that should support those claims in the book;
 - the legacy claims that should no longer be narrated as current state.
 
-The book should use this document as an editorial source of truth together with live artifacts in `models/`, `data/processed/`, `reports/mrm/`, and `reports/run_comparisons/`.
+The book may use this document for historical runtime provenance together with
+the corresponding artifacts. It must not use it to override the current claim
+contracts listed above.
+
+## Final Closure Overlay (2026-04-05)
+
+The repository now has an additional final closure layer that sits **on top of** the canonical monotonic base:
+
+- canonical operational base: `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`
+- final paper/thesis promoted closure: `paper-thesis-final-economic-2026-04-06`
+
+This overlay does not replace the canonical PD/governance stack. It replaces the old portfolio/paper narrative by adding:
+
+- conformal reopen winner: `rank1_score_decile_raw_bins5_mgs100`
+- `portfolio_bound_aware` progression: `5k -> 25k -> 276k`
+- final promoted economic champion:
+  - `risk_tolerance=0.175`
+  - `policy_mode=blended_uncertainty`
+  - `gamma=0.45`
+  - `uncertainty_aversion=0.10`
+
+Editorial source-of-truth for this closure:
+
+- `models/final_project_promotion.json`
+- `data/processed/final_project_summary.parquet`
+- `models/champion_portfolio_policy.json`
+- `models/champion_registry.json`
+
+Conformal interpretation rule for the whole repo:
+
+- **single final conformal winner**: `score_decile_mondrian`
+- **necessary explanatory baseline**: `grade Mondrian`
+
+`grade` remains necessary because it is the natural economic/regulatory partition that motivates Mondrian in credit. It should keep appearing in theory, diagnostics and governance prose. But it must no longer be narrated as a co-winner or as the final promoted conformal variant.
 
 ## Current Canonical State
 
@@ -26,6 +70,16 @@ The book should use this document as an editorial source of truth together with 
 - Internal PD screening/search threshold: `0.05`
 - Promotion closeout: `reports/run_comparisons/canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129/comparison.json`
 - Registry source: `models/champion_registry.json`
+
+### Final paper/thesis overlay
+
+- Final promotion run tag: `paper-thesis-final-economic-2026-04-06`
+- Promotion basis: `economic_champion_within_exact_robust_region`
+- Robust region summary: `45/45` policies pass `alpha=0.01` exactly in the `276k` full-OOT mini-grid
+- Economic comparator retained in docs only:
+  - `0.175 / blended_uncertainty / gamma=0.45 / aversion=0.10`
+- Balanced comparator retained in docs only:
+  - `0.170 / blended_uncertainty / gamma=0.45 / aversion=0.10`
 
 ### Core live evidence
 
@@ -53,7 +107,7 @@ The book should explicitly document the following as part of the live system, no
 | Monotonic champion constraints | Economic coherence, interpretability, structurally safer score behavior | `models/champion_registry.json`, `models/monotonicity_audit_status.json` | vigente |
 | Official fairness on approval decisions | Align search, audit, and business semantics around approval rather than raw PD thresholding | `models/fairness_audit_status.json`, `models/threshold_semantics.json` | vigente |
 | Venn-Abers calibration selection | Stronger probabilistic fidelity for downstream policy, IFRS9 and uncertainty | `data/processed/pipeline_summary.json`, `data/processed/model_comparison.json` | vigente |
-| Mondrian conformal intervals | Group-conditional uncertainty for robust decisions and monitoring | `models/conformal_policy_status.json` | vigente |
+| Mondrian conformal intervals | Group-conditional uncertainty for robust decisions and monitoring; `grade` is the natural baseline and `score_decile_mondrian` is the final promoted winner | `models/conformal_policy_status.json`, `models/conformal_gap/.../conformal_reopen_status.json` | vigente |
 | Representativeness C2ST with drivers | Drift/representativeness diagnosis beyond PSI only | `models/governance_status.json` | vigente con warning |
 | Monotonicity audit | Post-promotion defense of structural monotone behavior | `models/monotonicity_audit_status.json` | vigente |
 | PD backtesting suite | Stronger validation language than a single aggregate calibration metric | `models/pd_backtesting_status.json` | vigente con diagnostic fail |
@@ -63,6 +117,7 @@ The book should explicitly document the following as part of the live system, no
 | IFRS9 diagnostics | Stress-sign coherence, recursive stability, ADF power, scenario uncertainty | `models/ifrs9_diagnostics_status.json` | vigente con diagnostic fail |
 | Encoding/binning stability audit | Structural robustness of WOE/bucketed transformations | `models/encoding_stability_status.json` | vigente |
 | Model-shift and p-value interpretation | Separate structural representativeness shift from predictive degradation | `models/model_shift_status.json`, `models/governance_status.json` | vigente |
+| Portfolio bound-aware final closure | Align theorem, funded set, and promoted policy on full OOT | `models/final_project_promotion.json`, `data/processed/final_project_summary.parquet` | vigente |
 
 ## ADSFCR Adoption Status
 
@@ -101,13 +156,16 @@ The book should explicitly document the following as part of the live system, no
 | Model shift semantics and warning posture | `10e`, `10f` | `model_shift_status.json`, `governance_status.json` | MRM / diagnostic interpretation references |
 | IFRS9 diagnostics and open risks | `10d`, `10e`, `10f` | `ifrs9_diagnostics_status.json`, `ifrs9_sensitivity_grid.parquet` | recursive regressions, unit-root testing, scenario analysis |
 | Encoding/binning stability | `05c`, `10e`, `10f` | `encoding_stability_status.json` | WOE/binning stability references |
-| Research-lane separation | `01`, `06d`, `10e`, `14c`, GPU / paper chapters | `champion_registry.json`, `paper_grade_protocol_status.json` | project internal canons + paper references |
+| Research-lane separation | `01`, `06d`, `10e`, `14c`, GPU / paper chapters | `champion_registry.json` | project internal canons + paper references |
 
 ## Claim To Evidence Ledger
 
 | Claim | Evidence artifact | Source type | Quarto location |
 |---|---|---|---|
+| `score_decile_mondrian` is the single final conformal winner, while `grade Mondrian` remains the necessary interpretable baseline | `models/final_project_promotion.json`, `models/champion_registry.json`, `models/conformal_gap/.../conformal_reopen_status.json` | internal canonical + derived promotion artifacts | `02c`, `07c`, `07d`, `14a`, `16a`, `16c` |
 | The monotonic model is the current champion | `models/champion_registry.json`, `reports/run_comparisons/canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129/comparison.json` | internal canonical artifact | `06d`, `10e`, `F` |
+| The final paper/thesis portfolio champion is the economic champion inside the exact robust region, while theorem-tight remains a comparator | `models/final_project_promotion.json`, `data/processed/final_project_summary.parquet` | internal derived promotion artifact | `09`, `14c`, `14d`, `14e` |
+| The 276k final closure revealed a full robust region instead of a single lucky point | `models/final_project_promotion.json`, `data/processed/portfolio_bound_aware/.../portfolio_bound_aware_bound_eval.parquet` | internal derived promotion artifact | `14d`, `14e` |
 | Fairness is audited on approval decisions, not on raw PD exceedance | `models/fairness_audit_status.json`, `models/threshold_semantics.json` | internal canonical artifact | `06d`, `10e`, `10f` |
 | The champion remains operationally valid despite some diagnostic warnings | `reports/mrm/mrm_validation_report.json` | internal canonical artifact | `01`, `10e`, `10f` |
 | C2ST is intentionally diagnostic and should be interpreted with PSI/performance context | `models/governance_status.json` | internal canonical artifact + primary methodology | `10e`, `10f` |
@@ -123,12 +181,15 @@ The book should explicitly document the following as part of the live system, no
 
 | Legacy claim | Why it is now wrong or misleading | Editorial action |
 |---|---|---|
+| `grade Mondrian` and `score_decile_mondrian` are both “winners” | the project now distinguishes baseline interpretability from objective final promotion; only `score_decile_mondrian` is the final winner | rewrite |
 | The monotonic challenger was useful but not promoted | the monotonic lane is now the promoted champion | rewrite everywhere |
+| The canonical monotonic portfolio policy is also the final Paper Estrella champion | the final paper/thesis closure promotes a later economic policy on top of the canonical base | rewrite |
 | The active champion run is `paper-grade-2026-03-13-final-heavy-...` or `champion-2026-03-12-mega-definitive` | those are historical milestones, not the current canonical champion | replace with current run tag or downgrade to historical context |
 | Fairness semantics should be read on the old PD-threshold logic | current audit/search/policy semantics are approval-based | rewrite |
 | C2ST should be described as a pure failure signal | in the current governance stack it is an informative/severe diagnostic with driver context | rewrite |
 | IFRS9 sensitivity is dominated by PD | current diagnostic surface says `lgd_mult` dominates the sensitivity slope | rewrite |
 | The book is structurally complete and only needs minor polishing | the project evolved materially after the earlier Quarto closure; multiple chapters require live-state refresh | replace with maintenance reality |
+| The final bound story is “conformal-only almost works” | the full story is monotonic base -> conformal reopen -> bound-aware region -> economic champion, with theorem-tight retained as comparator | rewrite |
 
 ## Internal Discovery Sources Used For This Refresh
 

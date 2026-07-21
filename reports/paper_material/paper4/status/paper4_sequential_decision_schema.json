@@ -1,0 +1,117 @@
+{
+  "schema_version": "2026-05-12.1",
+  "generated_at_utc": "2026-05-13T00:39:00.604999+00:00",
+  "paper4_mode": "living_lab_not_publication_first",
+  "elements": {
+    "R_t": {
+      "name": "resource_state",
+      "description": "Committed and available credit resources.",
+      "examples": [
+        "budget_remaining",
+        "capital_used",
+        "funded_exposure",
+        "stage_balances"
+      ],
+      "current_artifacts": [
+        "paper4_policy_level_evidence.parquet"
+      ]
+    },
+    "I_t": {
+      "name": "information_state",
+      "description": "Observable data at decision time.",
+      "examples": [
+        "loan_applications",
+        "pd_point",
+        "pd_high",
+        "grade",
+        "period",
+        "scenario"
+      ],
+      "current_artifacts": [
+        "paper4_loan_level_policy_evidence.parquet"
+      ]
+    },
+    "B_t": {
+      "name": "belief_state",
+      "description": "Updatable uncertainty beliefs.",
+      "examples": [
+        "conformal_quantile",
+        "macro_forecast",
+        "ecl_proxy",
+        "drift_status",
+        "cate_belief"
+      ],
+      "current_artifacts": [
+        "online_conformal_coverage_regret.parquet"
+      ]
+    },
+    "x_t": {
+      "name": "decision",
+      "description": "Approval, funded-set, selector, threshold, or intervention.",
+      "examples": [
+        "funded_flag",
+        "policy_id",
+        "alpha_schedule",
+        "ifrs9_selector"
+      ],
+      "current_artifacts": [
+        "paper4_policy_class_registry.csv"
+      ]
+    },
+    "W_t_plus_1": {
+      "name": "exogenous_information",
+      "description": "Information observed after the decision.",
+      "examples": [
+        "default",
+        "repayment",
+        "recovery",
+        "miscoverage",
+        "new_macro"
+      ],
+      "current_artifacts": [
+        "paper4_monthly_replay.parquet"
+      ]
+    },
+    "S_M": {
+      "name": "transition_model",
+      "description": "State update from decision and new information.",
+      "examples": [
+        "stage_update",
+        "budget_update",
+        "conformal_recalibration",
+        "drift_update"
+      ],
+      "current_artifacts": [
+        "paper4_post_decision_state_schema.json"
+      ]
+    },
+    "C_t": {
+      "name": "contribution",
+      "description": "Reward/cost contribution for evaluation.",
+      "examples": [
+        "robust_return",
+        "ecl",
+        "cvar_loss",
+        "fairness_penalty",
+        "coverage_regret"
+      ],
+      "current_artifacts": [
+        "paper4_table2_net_return_after_ecl.csv"
+      ]
+    },
+    "X_pi": {
+      "name": "policy",
+      "description": "Policy class with declared parameters.",
+      "examples": [
+        "PFA",
+        "CFA",
+        "VFA",
+        "DLA"
+      ],
+      "current_artifacts": [
+        "paper4_policy_class_registry.csv"
+      ]
+    }
+  },
+  "gate": "Every Paper 4 claim must map to at least one SDAM element or remain future work."
+}

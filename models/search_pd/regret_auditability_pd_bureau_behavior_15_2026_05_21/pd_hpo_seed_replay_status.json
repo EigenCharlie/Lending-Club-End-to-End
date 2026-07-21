@@ -1,0 +1,17 @@
+{
+  "selected_calibration_method": "venn_abers",
+  "validation_auc": 0.7280827433559496,
+  "oot_auc": 0.7206787352232472,
+  "brier": 0.15316074834071589,
+  "ece": 0.007688869061412672,
+  "replay": {
+    "enabled": false,
+    "reason": "study_load_failed: 'Record does not exist.'",
+    "rows": [],
+    "selected_trial": null,
+    "selected_params": null
+  },
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-05-21T09:46:51.075770+00:00",
+  "run_tag": "regret_auditability_20260513_v3_resource_tuned"
+}

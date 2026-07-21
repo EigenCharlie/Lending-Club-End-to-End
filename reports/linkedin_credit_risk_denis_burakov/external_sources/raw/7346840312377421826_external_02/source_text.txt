@@ -1,0 +1,368 @@
+AWS Training & Certification | LinkedIn
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at AWS Training & Certification
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Join now
+Sign in
+AWS Training & Certification
+IT Services and IT Consulting
+Seattle, Washington 1,501,484 followers
+This account is no longer active. Follow @amazonwebservices for the latest updates from AWS.
+Follow
+Report this product
+About us
+This account is no longer active. Follow @amazonwebservices for the latest updates from AWS.
+Website
+https://aws.amazon.com/training/
+External link for AWS Training & Certification
+Industry
+IT Services and IT Consulting
+Company size
+10,001+ employees
+Headquarters
+Seattle, Washington
+Updates
+AWS Training & Certification
+1,501,484 followers
+2w
+Report this post
+This account is no longer active, but you can still get the latest AWS news, announcements, and updates by following us on Amazon Web Services (AWS) & our other active channels
+Thank you for being a part of our community!
+87
+8 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+1mo
+Report this post
+🚀 Build Multi-Channel AI Agents with AWS & Twilio | How to Build Like AWS
+Join us for an exciting deep dive into building production-ready multi-channel AI agents that meet customers where they are! Learn how AWS and Twilio partnered to create intelligent conversational experiences across voice, text, and email channels with persistent context and memory.
+In this episode, we explore a real-world solution that combines AWS Bedrock's generative AI capabilities with Twilio's communication services to build a sophisticated agent that handles customer interactions seamlessly across multiple channels. Discover how to leverage speech-to-text, text-to-speech, and streaming APIs to create responsive, context-aware customer experiences.
+**🎯 Key Takeaways:**
+✅ How to architect multi-channel AI agents using AWS Bedrock and Twilio services
+✅ Best practices for handling different communication channels (voice, text, email) with varying latency requirements
+✅ Technical implementation details including web-socket streaming, async tools, and knowledge base integration
+✅ Real-world demo of an AI agent maintaining context across channels
+✅ AWS PACE team's "working backwards" approach to rapid prototyping
+**💡 What You'll Learn:**
+- Building event-driven text interactions vs. real-time voice conversations
+- Choosing the right LLM for your use case (value over novelty)
+- Managing persistent memory across customer conversations
+- Scaling from small prototypes to production-ready solutions
+- Trade-offs between development speed and production requirements
+**🔧 Technologies Covered:**
+AWS Bedrock | Bedrock Knowledge Base | Converse Stream API | Twilio Voice | Twilio Messaging | Multi-Channel Architecture | Generative AI | Conversational AI
+Perfect for developers, solution architects, and technical leaders interested in building scalable AI-powered customer engagement solutions!
+**🔗 Resources:**
+GitHub Sample Code | AWS PACE Program | Career Opportunities
+#AWS #Twilio #GenerativeAI #AWSBedrock #MultiChannelAI #ConversationalAI #AIAgents #CloudComputing #DeveloperTools #MachineLearning #CustomerExperience #VoiceAI #Chatbots #AWSArchitecture #BuildOnAWS #TechLivestream #AIIntegration #CloudArchitecture #EnterpriseAI #DeveloperCommunity
+Build a multi-channel agent with Twilio | How to Build with AWS
+www.linkedin.com
+242
+139 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+2mo
+Report this post
+Join us for a comprehensive session on PostgreSQL performance tuning and optimization. In this technical deep dive, we'll explore proven strategies for identifying performance bottlenecks, optimizing query execution, and configuring PostgreSQL for maximum efficiency. Whether you're managing high-traffic production databases or looking to squeeze more performance out of your existing infrastructure, this session will equip you with practical techniques and best practices for PostgreSQL performance optimization.
+PostgreSQL Performance Mastery: Tuning and Optimization Strategies
+www.linkedin.com
+233
+132 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+2mo
+Report this post
+In this episode, you'll explore the operational side of GenAI: cost optimization, troubleshooting approaches, and monitoring best practices. We'll work through practice exam questions that test your knowledge and wrap up with final exam tips and insights from real-world operational experiences to help you prepare for certification success.
+Resource links:
+- Monitoring the performance of Amazon Bedrock: https://lnkd.in/ejSPWHff
+- Optimizing Cost for Generative AI with AWS: https://lnkd.in/eU29juMt
+- Amazon Bedrock Evaluations: https://lnkd.in/gys4tyw8
+- AWS Generative AI Developer - Troubleshoot Generative AI Applications: https://lnkd.in/emBvY7jV
+Generative AI For Developers | S1 E4 | Operations and Troubleshooting
+www.linkedin.com
+179
+54 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+3mo
+Report this post
+In this episode, you'll explore how to secure and govern your GenAI applications. Our hosts will demonstrate Amazon Bedrock Guardrails in action. You'll observe how to implement input and output safety controls and learn defense-in-depth security architectures that protect both users and data. We'll also cover compliance requirements and responsible AI principles that build trust in production systems.
+Generative AI For Developers | S1 E3 | AI Safety, Security, and Governance
+www.linkedin.com
+184
+69 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+3mo
+Report this post
+In this episode, our hosts will discuss how to build production-ready GenAI applications and integrate them into enterprise systems. We'll present agentic AI architectures, demonstrate Model Context Protocol (MCP) servers for agent-tool interactions, and walk through deployment strategies for GenAI systems on AWS. You'll explore live demos, tackle exam-style scenarios, and join engaging discussions about the challenges and opportunities of bringing GenAI to production on AWS.
+Generative AI For Developers | S1 E2 | Implementation and Integration
+www.linkedin.com
+203
+52 Comments
+Like
+Comment
+Share
+AWS Training & Certification
+1,501,484 followers
+3mo
+Report this post
+"Never stay static"... hear from Sr. AWS Technical Instructor Eyal Tamir as he shares his AWS career journey and certification advice for those looking to break into tech!
+#AWS #Techcareer #Developer #SolutionsArchitect #AWSSkillBuilder
+…more
+Eyal Tamir, AWS Sr. Technical Instructor
+169
+25 Comments
+Like
+Comment
+Share
+AWS Training & Certification reposted this
+Amazon Web Services (AWS)
+10,762,133 followers
+3mo
+Report this post
+In this episode, our hosts will break down the exam format, share study strategies, and guide you through designing resilient GenAI architectures. You'll learn how to build data processing pipelines for foundation models, implement vector stores for RAG systems, and apply prompt engineering strategies. The hosts will also analyze sample exam questions and discuss real-world solutions for advanced GenAI systems.
+Generative AI For Developers | S1 E1 | Exam Overview and FM Integrations
+www.linkedin.com
+287
+110 Comments
+Like
+Comment
+Share
+AWS Training & Certification reposted this
+AWS Events
+54,550 followers
+3mo
+Report this post
+Don't miss out—register now: go.aws/4qae09M
+Last chance to join our free virtual event for an exclusive AWS re:Invent experience. Get the biggest cloud innovations of the year delivered straight to your desk.
+…more
+Best of re:Invent
+212
+5 Comments
+Like
+Comment
+Share
+AWS Training & Certification reposted this
+AWS Startups
+126,614 followers
+3mo
+Report this post
+Supercharge your startup with GenAIOps: Discover the 3-part AWS guide. ⚡️ https://go.aws/4qAtX9S
+✅ Investing in generative AI? Turn spend into impact & learn how to put a GenAIOps framework into action.
+🦾 From planning your pipeline & navigating challenges to managing everything from data engineering & governance to deployment, monitoring & maintenance. Success starts here.
+…more
+GenAIOps 3-part guide
+64
+1 Comment
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at AWS Training & Certification
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Affiliated pages
+Amazon
+Software Development
+Seattle, WA
+Amazon Web Services (AWS)
+IT Services and IT Consulting
+Seattle, WA
+AWS AI
+IT Services and IT Consulting
+Seattle, Washington
+AWS Careers
+IT Services and IT Consulting
+Seattle, Washington
+AWS Databases & Analytics
+IT Services and IT Consulting
+Seattle, Washington
+AWS Startups
+IT Services and IT Consulting
+AWS Executive Insights
+Information Technology & Services
+Seattle, Washington
+AWS Developers
+Technology, Information and Internet
+AWS Events
+IT Services and IT Consulting
+AWS Partners
+IT Services and IT Consulting
+Seattle, Washington
+Kiro
+Technology, Information and Internet
+AWS Newsroom
+Technology, Information and Internet
+Machine Learning
+IT Services and IT Consulting
+AWS for Telecom
+IT Services and IT Consulting
+Seattle, WA
+AWS for Healthcare & Life Sciences
+IT Services and IT Consulting
+AWS for M&E
+Software Development
+Seattle, Washington
+AWS for Financial Services
+IT Services and IT Consulting
+AWS for Energy & Utilities
+IT Services and IT Consulting
+Seattle, WA
+AWS for Retail and Consumer Goods
+IT Services and IT Consulting
+Seattle, WA
+AWS for Automotive
+IT Services and IT Consulting
+Seattle, WA
+AWS for Manufacturing
+IT Services and IT Consulting
+Seattle, WA
+Amazon Quick
+Technology, Information and Internet
+AWS On Air
+Technology, Information and Internet
+Amazon re:MARS
+Information Technology & Services
+AWS Products
+Technology, Information and Internet
+Artificial Intelligence Machine Learning
+IT Services and IT Consulting
+AWS for Aerospace & Satellite
+IT Services and IT Consulting
+AWS Support
+Technology, Information and Internet
+Machine Learning
+IT Services and IT Consulting
+For Industries
+Entertainment Providers
+T V
+IT Services and IT Consulting
+AWS News
+IT Services and IT Consulting
+AWS Japan
+IT Services and IT Consulting
+For TV
+IT Services and IT Consulting
+AWS Builders
+Technology, Information and Internet
+AWS Builder
+Technology, Information and Internet
+KiroCodes
+Technology, Information and Internet
+Amazon Quick Suite
+Technology, Information and Internet
+Show more affiliated pages
+Show fewer affiliated pages
+Similar pages
+Amazon
+Software Development
+Seattle, WA
+Google
+Software Development
+Mountain View, CA
+Microsoft
+Software Development
+Redmond, Washington
+Meta
+Software Development
+Menlo Park, CA
+IBM
+IT Services and IT Consulting
+Armonk, New York, NY
+Deloitte
+Business Consulting and Services
+Oracle
+IT Services and IT Consulting
+Austin, Texas
+NVIDIA
+Computer Hardware Manufacturing
+Santa Clara, CA
+Apple
+Computers and Electronics Manufacturing
+Cupertino, California
+Netflix
+Entertainment Providers
+Los Gatos, CA
+Show more similar pages
+Show fewer similar pages
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language

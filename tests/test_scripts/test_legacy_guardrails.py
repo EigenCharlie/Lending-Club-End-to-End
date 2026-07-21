@@ -9,7 +9,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 def test_current_scripts_do_not_reference_legacy_step_names() -> None:
     current_files = [
-        PROJECT_ROOT / "scripts" / "run_paper_grade_final.py",
         PROJECT_ROOT / "scripts" / "run_insights_factory.py",
         PROJECT_ROOT / "scripts" / "build_clean_baseline_manifest.py",
         PROJECT_ROOT / "scripts" / "monitor_pipeline_eta.py",

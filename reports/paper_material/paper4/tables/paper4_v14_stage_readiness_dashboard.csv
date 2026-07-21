@@ -1,0 +1,13 @@
+lane_id,lane_name,stage1_framing_readiness,stage2_modeling_readiness,stage3_implementation_readiness,status_v14,blocker_category,current_diagnosis,next_action
+L01,Paper Estrella frozen baseline,resolved,resolved,resolved,resolved,none_or_managed,Paper Estrella freeze remains intact,continue Paper 4 only
+L02,CRPTO policy universe,resolved,resolved,near_resolved,implemented,none_or_managed,CRPTO policy universe is auditable,keep as baseline/evidence
+L03,online conformal,resolved,resolved,near_resolved,resolved,none_or_managed,online gate resolved historically,future-period validation
+L04,MDCP/source coverage,resolved,near_resolved,proxy_only,near_resolved,none_or_managed,MDCP is source governance not legal fairness,calibrate caps against coverage/support
+L05,CVaR/OCE,resolved,near_resolved,proxy_only,near_resolved,none_or_managed,larger pools worked but strict feasibility remains hard,full-universe/dual certificate
+L06,DLA/FVI,resolved,near_resolved,implementation_blocked,near_resolved,none_or_managed,DLA/FVI is working champion but representative,true dynamic stress engine
+L07,SPO/DFL,resolved,near_resolved,implementation_blocked,near_resolved,none_or_managed,SPO/DFL remains non-differentiable surrogate,optimization layer or stronger oracle validation
+L08,sample paths,resolved,near_resolved,proxy_only,near_resolved,none_or_managed,paths good for paired comparison,external calibration
+L09,IFRS9/SICR proxy,resolved,proxy_only,data_blocked,data_blocked,data_blocked,contractual IFRS9 data missing,servicing/DPD/EAD/recovery/macro
+L10,Causal/CATE,near_resolved,theory_blocked,theory_blocked,theory_blocked,theory_blocked,identification/sensitivity not enough for policy value,stronger causal design
+L11,fairness proxy governance,near_resolved,proxy_only,data_blocked,data_blocked,data_blocked,protected attributes/protocol absent,external valid protocol
+L12,selector/claim governance,resolved,resolved,resolved,implemented_v14,none_or_managed,claim governance is now Powell-framed,maintain every wave

@@ -1,0 +1,7 @@
+scenario,ifrs9_stage_v4,loans,exposure,ecl
+optimistic,Stage 1 12m,296,75427476.33240914,994270.8648736875
+optimistic,Stage 2 SICR relative,77,18926523.667590857,1485783.901119014
+optimistic,Stage 2 grade risk,22,5646000.0,214154.9523253696
+baseline,Stage 2 SICR relative,395,100000000.0,9203680.6321165
+adverse,Stage 2 SICR relative,395,100000000.0,31259723.098285858
+severe,Stage 2 SICR relative,395,100000000.0,33266079.43753754

@@ -1,0 +1,10 @@
+state_feature,non_null_share,role,section,policy_id,n_paths,final_state_value_mean,delta_state_value_vs_static,delta_loss_vs_static,adp_scope_v11
+issue_month,1.0,cohort timing only,raw_state_surface,,,,,,
+out_prncp_raw,1.0,terminal/current outstanding proxy,raw_state_surface,,,,,,
+last_pymnt_d_raw,0.9982324464574766,"last observed payment date, not monthly path",raw_state_surface,,,,,,
+last_credit_pull_d_raw,0.9999650681118079,servicing recency proxy,raw_state_surface,,,,,,
+hardship_flag_raw,0.9949445496580974,hardship state marker,raw_state_surface,,,,,,
+,,,retained_v11_rollout,v11_adp_bellman_proxy,32.0,993810.08172603,210593.95458364417,-94479.1091322181,linear_value_proxy_rollout_not_bellman_optimality
+,,,retained_v11_rollout,v11_adp_capital_guarded,32.0,996563.901546578,213347.77440419237,-96517.22126119144,linear_value_proxy_rollout_not_bellman_optimality
+,,,retained_v11_rollout,v11_adp_return_recovery,32.0,997737.3472703196,214521.220127934,-94664.87423068604,linear_value_proxy_rollout_not_bellman_optimality
+,,,retained_v11_rollout,v11_static_reference,32.0,783216.1271423857,0.0,0.0,linear_value_proxy_rollout_not_bellman_optimality

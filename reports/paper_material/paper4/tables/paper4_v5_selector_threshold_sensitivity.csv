@@ -1,0 +1,4 @@
+committee_scenario,source_month_floor,mdcp_floor,fairness_gap_max,sample_path_prob_floor,n_pass,best_policy_id,best_score
+research_review,0.8,0.8,0.35,0.5,9,paper4_v4_local_rt0p1725_g0p500_u0p100,0.811868101116766
+committee_base,0.85,0.8,0.3,0.6,9,paper4_v4_local_rt0p1725_g0p500_u0p100,0.811868101116766
+publication_strict,0.9,0.85,0.25,0.7,0,,

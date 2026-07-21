@@ -1,29 +1,37 @@
 ---
 title: "Supervivencia, Series de Tiempo e Inferencia Causal"
 page-layout: article
-close_takeaway: "La predicción cross-sectional responde quién puede incumplir; esta parte añade cuándo, hacia dónde y por qué, que son las preguntas que vuelven útil el score en provisión, pricing y política."
-close_connects: "Supervivencia alimenta PD lifetime, series de tiempo alimenta escenarios agregados y causalidad convierte asociaciones en decisiones de política."
-close_reuse: "Estas señales vuelven a aparecer en IFRS9, en los experimentos A/B y en la defensa de por qué el proyecto no se queda en clasificación binaria."
 ---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-Si ya tenemos una PD calibrada con intervalos conformales, ¿qué sigue faltando para una lectura de riesgo realmente útil? Faltan tres dimensiones: **cuándo** ocurre el default, **hacia dónde** se mueve el sistema agregado y **por qué** algunas intervenciones cambian el resultado.
+El pipeline histórico conectó un score calibrado e intervalos conformales con
+tres preguntas adicionales: **cuándo** ocurre el default, **hacia dónde** se
+mueve una serie agregada y qué diseño permitiría estudiar **por qué** una
+intervención cambia un resultado. Ninguna respuesta se hereda del score.
 
-Ejemplo concreto: dos préstamos pueden compartir la misma PD puntual, pero diferir en horizonte temporal, sensibilidad a shocks de tasa y respuesta esperada a una política de precio. Esta parte existe para abrir esas tres capas sin romper el hilo del pipeline.
+Dos préstamos pueden compartir un score puntual y diferir en horizonte. La
+sensibilidad a shocks y la respuesta a una política son estimandos adicionales,
+no propiedades ya validadas por este libro.
 :::
 
-![Serie temporal agregada de la tasa de default mensual del portafolio, usada como input del bloque de forecasting.](../../assets/figures/editorial/ts_default_rate_series.png){fig-alt="Serie temporal agregada del portafolio para forecasting de defaults."}
+El gráfico legacy titulado “tasa de default mensual” se conserva como
+procedencia, pero se retira de la navegación: agrega outcomes terminales por
+vintage y no eventos observados por mes calendario.
 
-![Backtest mensual de la política causal OOT, con trayectoria del valor neto y suavizado trimestral.](../../assets/figures/editorial/causal_policy_monthly_net.png){fig-alt="Valor neto mensual de la política causal aplicada al portafolio."}
+La figura legacy del “backtest OOT de la política causal” se conserva en
+`book/assets/` como procedencia, pero se retira de la superficie activa porque
+su texto incrustado afirma causalidad y policy value que el diseño no identifica.
 
 | Bloque | Pregunta que responde | Señal editorial |
 |---|---|---|
-| Supervivencia | ¿cuándo ocurre el default? | PD lifetime y lectura de horizonte para Stage 2 |
-| Series de Tiempo | ¿hacia dónde va la tasa agregada? | escenarios, drift temporal y lectura macro |
-| Causalidad | ¿qué conviene intervenir? | políticas por segmento y valor económico |
-| Simulación A/B | ¿cuánto vale la robustez? | contraste retrospectivo y evidencia económica |
+| Supervivencia | ¿cuándo ocurre el evento? | diagnóstico histórico de horizonte; no PD lifetime validada para Stage 2 |
+| Series de Tiempo | ¿cómo varió la tasa agregada? | escenarios retrospectivos y drift descriptivo |
+| Causalidad | ¿qué requeriría identificar una intervención? | CATE y reglas por segmento como laboratorio, sin policy validada |
+| Simulación A/B | ¿cómo comparar reglas bajo supuestos? | contraste retrospectivo, no evidencia económica causal |
 
 : Lo que agrega esta parte sobre el pipeline PD principal {#tbl-temporal-causal-editorial}
 
@@ -33,9 +41,24 @@ Ejemplo concreto: dos préstamos pueden compartir la misma PD puntual, pero dife
 <div class="chapter-landing-grid">
   <div class="chapter-card"><h4><a href="08a-survival-analysis.html">30. Supervivencia</a></h4><p>Cox PH, RSF y PD lifetime bajo horizonte temporal.</p></div>
   <div class="chapter-card"><h4><a href="08b-time-series-forecasting.html">31. Series de Tiempo</a></h4><p>Forecasting agregado, cobertura y estado canónico de intervalos.</p></div>
-  <div class="chapter-card"><h4><a href="08c-causal-inference.html">32. Causalidad</a></h4><p>DML, CATE y valor económico de las políticas.</p></div>
-  <div class="chapter-card"><h4><a href="08d-ab-testing-simulation.html">33. Simulación A/B</a></h4><p>Validación retroactiva robusta vs no robusta.</p></div>
+  <div class="chapter-card"><h4><a href="08c-causal-inference.html">32. Causalidad</a></h4><p>DML y CATE como laboratorio de estimandos, sin policy validada.</p></div>
+  <div class="chapter-card"><h4><a href="08d-ab-testing-simulation.html">33. Simulación A/B</a></h4><p>Comparación retroactiva de reglas bajo supuestos declarados.</p></div>
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+Supervivencia, forecasting y causalidad permanecen como módulos históricos de
+diagnóstico; no validan provisión, pricing, policy ni valor económico.
+
+## Esto conecta con…
+
+Cada módulo responde a un objeto distinto y exige datos, estimandos y
+validación propios antes de conectarse.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Las cifras sirven como procedencia para los prototipos IFRS9 y comparaciones
+retroactivas, no como resultados vigentes.
+:::

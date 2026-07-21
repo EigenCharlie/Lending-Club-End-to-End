@@ -1,0 +1,129 @@
+{
+  "schema_version": "2026-04-05.1",
+  "generated_at_utc": "2026-04-05T19:32:57.330296+00:00",
+  "run_label": "rank1_alpha01_bound_aware_refine_cpu_2026-04-05-1337",
+  "conformal_intervals_path": "data/processed/conformal_gap/conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612__phase1__final__rank-1/conformal_intervals_mondrian.parquet",
+  "search_space": {
+    "risk_grid": [
+      0.15,
+      0.155,
+      0.16,
+      0.165,
+      0.17,
+      0.175,
+      0.18
+    ],
+    "aversion_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.25
+    ],
+    "gamma_grid": [
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.7
+    ],
+    "delta_cap_grid": [
+      0.5,
+      0.75,
+      0.9,
+      1.0
+    ],
+    "tail_focus_grid": [
+      0.85,
+      0.9,
+      0.95,
+      1.0
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      },
+      {
+        "name": "floored_budget",
+        "min_budget_utilization": 0.05,
+        "pd_cap_slack_penalty": 1.5
+      }
+    ],
+    "alpha_grid": [
+      0.01,
+      0.03,
+      0.05,
+      0.1
+    ],
+    "max_candidates": 5000
+  },
+  "selection_policy": {
+    "rank_order": [
+      "alpha01_exact_pass(desc)",
+      "alpha03_exact_pass(desc)",
+      "ab_pass(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(desc)",
+      "alpha01_weighted_miscoverage_V(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.18,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.7,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.85,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "solver_backend": "highs"
+  },
+  "selected_metrics": {
+    "risk_tolerance": 0.18,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.7,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.85,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "budget_profile_name": "floored_budget",
+    "price_of_robustness": -36056.69077469084,
+    "price_of_robustness_pct": -46.28624311045416,
+    "ab_diff_total_return": 54041.20881623142,
+    "ab_pass": true,
+    "solver_status": "TerminationCondition.optimal",
+    "solver_backend": "highs",
+    "objective_value": 93720.52075386979,
+    "n_funded": 159,
+    "total_allocated": 1000000.0,
+    "expected_return_gross": 189055.8225692918,
+    "expected_loss_point": 75099.76396691857,
+    "expected_return_net_point": 113956.05860237323,
+    "realized_total_return": 124487.79506929181,
+    "worst_case_loss": 277455.1424519535,
+    "uncertainty_penalty_cost": 20235.537848503496,
+    "pd_cap_slack": 0.0,
+    "worst_case_pd": 0.6165669832259467,
+    "point_pd": 0.16688836437076324,
+    "candidate_rank": 1,
+    "alpha01_exact_pass": false,
+    "alpha03_exact_pass": true,
+    "alpha10_exact_pass": true,
+    "alpha01_gamma_cp": 0.359385,
+    "alpha01_weighted_miscoverage_V": 0.16035,
+    "alpha01_violation": 0.0,
+    "alpha01_weighted_pd_true": 0.16035,
+    "alpha01_weighted_pd_constraint_used": 0.18,
+    "alpha01_empirical_coverage_funded": 0.8869,
+    "alpha03_weighted_miscoverage_V": 0.16035,
+    "alpha10_weighted_miscoverage_V": 0.118075
+  },
+  "selection_reason": "selected_fallback_alpha03_exact_pass",
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_refine_cpu_2026-04-05-1337/portfolio_bound_aware_frontier.parquet",
+  "shortlist_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_refine_cpu_2026-04-05-1337/portfolio_bound_aware_shortlist.parquet",
+  "bound_eval_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_refine_cpu_2026-04-05-1337/portfolio_bound_aware_bound_eval.parquet"
+}

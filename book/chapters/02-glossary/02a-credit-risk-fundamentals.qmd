@@ -1,3 +1,5 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Fundamentos de Riesgo Crediticio {#sec-credit-risk-fundamentals}
 
 ### Probabilidad de Default (PD)
@@ -10,7 +12,10 @@ La **Probabilidad de Default** (PD) es la probabilidad estimada de que un deudor
 - **PD de por vida (PD_lifetime)**: Probabilidad de default durante toda la vida restante del préstamo. Se usa para préstamos en Stage 2. Se estima típicamente con modelos de supervivencia (Cox PH, Random Survival Forest).
 :::
 
-En este proyecto, el modelo PD se entrena como un clasificador binario (default/no-default) sobre datos de Lending Club resueltos. La salida es una probabilidad continua en [0, 1] que se calibra para reflejar frecuencias reales de default.
+En el pipeline histórico de este repositorio, el modelo se entrenó como un
+clasificador binario (default/no-default) sobre datos de Lending Club resueltos.
+Su score calibrado describe frecuencias observadas bajo ese diseño; no queda
+validado por ello como PD individual vigente ni como input contable de ECL.
 
 ### Loss Given Default (LGD)
 
@@ -28,13 +33,19 @@ La **Exposición al Default** (EAD) es el monto total que el prestamista tiene e
 
 ### Expected Credit Loss (ECL)
 
-La **Pérdida Crediticia Esperada** (ECL) es el producto de los tres componentes anteriores, descontado al valor presente:
+Una aproximación de modelado común expresa la **Pérdida Crediticia Esperada**
+mediante componentes PD, LGD y EAD descontados:
 
 $$
 \text{ECL} = \text{PD} \times \text{LGD} \times \text{EAD} \times \text{Factor de Descuento}
 $$ {#eq-ecl}
 
-Este es el cálculo central de IFRS9 y determina las provisiones que un banco debe reservar para cubrir pérdidas anticipadas.
+Esta identidad es pedagógica, no el cálculo contable completo. IFRS 9 mide cash
+shortfalls esperados ponderados por probabilidad, incorpora escenarios,
+información prospectiva razonable y sustentable y el valor temporal del dinero
+[@iasb2014].
+Horizontes, exposición, recoveries y descuento deben ser coherentes con la
+fecha de reporte y el instrumento.
 
 ### IFRS9 y el Modelo de Tres Stages
 
@@ -42,9 +53,9 @@ IFRS9 (International Financial Reporting Standard 9) es la norma contable intern
 
 | Stage | Condición | PD Utilizada | Provisión |
 |-------|-----------|-------------|-----------|
-| **Stage 1** | Sin deterioro significativo | PD a 12 meses | ECL a 12 meses |
-| **Stage 2** | Incremento significativo de riesgo (SICR) | PD de por vida | ECL de por vida |
-| **Stage 3** | Default confirmado (≥90 DPD) | PD ≈ 1.0 | ECL total |
+| **Stage 1** | sin incremento significativo desde reconocimiento inicial | horizonte de defaults a 12 meses dentro de la medición | 12-month ECL |
+| **Stage 2** | incremento significativo de riesgo (SICR) | horizonte lifetime | lifetime ECL |
+| **Stage 3** | activo credit-impaired | cash shortfalls lifetime según el caso | lifetime ECL; tratamiento específico de interés |
 
 : Modelo de deterioro de tres stages de IFRS9 {#tbl-ifrs9-stages}
 
@@ -53,12 +64,19 @@ IFRS9 (International Financial Reporting Standard 9) es la norma contable intern
 El **SICR** (Significant Increase in Credit Risk) es el trigger que mueve un préstamo de Stage 1 a Stage 2. IFRS9 no prescribe un método único para detectarlo --- cada institución define sus propios criterios. Criterios comunes incluyen:
 
 - Incremento absoluto o relativo de PD respecto a la originación
-- Días de mora (30+ DPD como backstop)
+- días de mora; 30+ DPD opera como presunción refutable de SICR, no definición automática
 - Downgrade de calificación interna
 
-::: {.callout-tip}
-## Innovación del proyecto
-En este proyecto proponemos usar el **ancho del intervalo conformal** como señal adicional de SICR. Un intervalo más ancho indica mayor incertidumbre sobre la PD, lo que puede señalar deterioro antes de que se refleje en el punto estimado. Esta es una contribución original --- no existen papers previos que usen el ancho conformal como trigger SICR.
+De forma análoga, 90+ DPD es una presunción refutable en la definición de
+default, no una identidad universal entre mora, Stage 3 y `PD = 1`.
+
+::: {.callout-warning}
+## Hipótesis histórica, no señal SICR validada
+Los artefactos históricos exploraron el **ancho del intervalo conformal** como
+proxy adicional. Ese ancho pertenece al objeto predictivo sobre el resultado
+binario observado $Y$: no mide por sí solo incertidumbre sobre la PD latente ni
+identifica deterioro, SICR o transición a Stage 2. Convertirlo en trigger
+requeriría un estimando de staging, datos a reporting date y validación propia.
 :::
 
 ### Basilea III y Capital Regulatorio
@@ -71,7 +89,11 @@ El **marco de Basilea III** establece requerimientos mínimos de capital que los
 
 ### Grados de Riesgo (Credit Grades)
 
-En Lending Club, los préstamos se clasifican en grados de A (menor riesgo) a G (mayor riesgo), basados en la evaluación crediticia del solicitante al momento de la originación. Estos grados determinan la tasa de interés y se utilizan en este proyecto como **variable de partición Mondrian** para predicción conformal condicional.
+En Lending Club, los préstamos se clasifican en grados de A (menor riesgo) a G
+(mayor riesgo), basados en la evaluación crediticia del solicitante al momento
+de la originación. Esos grados determinaron la tasa de interés y se usaron como
+**variable de partición Mondrian** en una capa histórica del repositorio; esa
+elección no es una taxonomía seleccionada por el CRPTO vigente.
 
 | Grado | Tasa de Default Típica | Tasa de Interés Típica |
 |-------|----------------------|----------------------|

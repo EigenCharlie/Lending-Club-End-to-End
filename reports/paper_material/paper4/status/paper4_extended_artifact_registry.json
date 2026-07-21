@@ -1,0 +1,181 @@
+{
+  "schema_version": "2026-05-12.2",
+  "generated_at_utc": "2026-05-13T02:24:35.285424+00:00",
+  "artifacts": [
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_loan_level_evidence.parquet",
+      "exists": true,
+      "bytes": 257471,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_loan_matrix.parquet",
+      "exists": true,
+      "bytes": 81119,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_funded_set_composition.csv",
+      "exists": true,
+      "bytes": 121378,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_ifrs9_loan_policy_grid.parquet",
+      "exists": true,
+      "bytes": 818052,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_ifrs9_policy_stage_mix.csv",
+      "exists": true,
+      "bytes": 47851,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table12_ifrs9_policy_full_eval.csv",
+      "exists": true,
+      "bytes": 32536,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_monthly_policy_replay.parquet",
+      "exists": true,
+      "bytes": 49844,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table13_monthly_policy_replay_summary.csv",
+      "exists": true,
+      "bytes": 6654,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_diagnostic_selector_config.json",
+      "exists": true,
+      "bytes": 616,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_diagnostic_selector_results.csv",
+      "exists": true,
+      "bytes": 34932,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table14_ifrs9_tail_satisficing_selector.csv",
+      "exists": true,
+      "bytes": 34932,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_return_ecl_tail_frontier.csv",
+      "exists": true,
+      "bytes": 9361,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/figures/paper4_fig5_return_ecl_tail_frontier.png",
+      "exists": true,
+      "bytes": 100658,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/figures/paper4_fig6_gamma_return_frontier.png",
+      "exists": true,
+      "bytes": 85125,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_pairwise_bootstrap_ci.csv",
+      "exists": true,
+      "bytes": 9355,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_robust_satisficing_policy_eval.csv",
+      "exists": true,
+      "bytes": 7207,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_online_conformal_aci_replay.parquet",
+      "exists": true,
+      "bytes": 8438,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_online_conformal_grade_replay.parquet",
+      "exists": true,
+      "bytes": 15241,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_source_segment_registry.csv",
+      "exists": true,
+      "bytes": 161293,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_mdcp_worst_source_coverage.csv",
+      "exists": true,
+      "bytes": 18072,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_fairness_policy_stress.csv",
+      "exists": true,
+      "bytes": 74905,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_fairness_constraint_screen.csv",
+      "exists": true,
+      "bytes": 5970,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_dla_toy_state_replay.parquet",
+      "exists": true,
+      "bytes": 13696,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_state_transition_toy.parquet",
+      "exists": true,
+      "bytes": 13696,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_dla_toy_horizon_summary.csv",
+      "exists": true,
+      "bytes": 28616,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_multi_period_toy_policy.json",
+      "exists": true,
+      "bytes": 654,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_cate_policy_value_toy.csv",
+      "exists": true,
+      "bytes": 7531,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/notes/paper4_causal_identification_dossier.md",
+      "exists": true,
+      "bytes": 901,
+      "role": "paper4_extended_experiment_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_extended_lanes_status.json",
+      "exists": true,
+      "bytes": 2862,
+      "role": "paper4_extended_experiment_artifact"
+    }
+  ],
+  "promotion_json_created": false
+}

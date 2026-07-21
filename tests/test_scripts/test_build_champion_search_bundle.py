@@ -49,7 +49,6 @@ def test_build_champion_search_bundle_carries_threshold_semantics_and_baseline(
         "pd_set_prediction_status.json": {"summary": {"ambiguity_rate": 0.5}},
         "pd_rare_event_calibration_status.json": {"global": {"pr_auc": 0.4}},
         "pd_calibration_diagnostics.json": {"selected_method": "venn_abers"},
-        "paper_grade_protocol_status.json": {"pd_conformal": {"closed_for_paper_grade": True}},
         "threshold_semantics.json": {
             "run_tag": "run-live",
             "pd_internal_selected_threshold": 0.05,

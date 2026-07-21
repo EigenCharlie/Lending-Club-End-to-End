@@ -1,0 +1,14 @@
+{
+  "schema_version": "2026-05-15.36",
+  "generated_at_utc": "2026-05-15T02:13:20.103399+00:00",
+  "phase": "v36_ifrs9_sicr_upgrade",
+  "contractual_ifrs9_claim_allowed": false,
+  "data_audit_rows_v36": 8,
+  "proxy_panel_rows_v36": 582660,
+  "sicr_rows_v36": 70,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "IFRS9 proxy and SICR sensitivity only; contractual IFRS9 remains data-blocked",
+  "runtime_seconds": 2.232
+}

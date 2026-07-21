@@ -1,0 +1,315 @@
+                       Another Way to Model LGD
+           Probabilistic Regression via Quantile-Based Classification
+
+
+                                      Denis Burakov
+
+                                     February 8, 2026
+
+
+
+1    Introduction
+Loss Given Default (LGD) is a foundational concept in credit risk modeling. LGD measures
+the credit loss a bank is likely to incur due to an obligor default [2], and is widely used for
+regulatory capital calculation, pricing, and management reporting.
+
+In statistical modeling, LGD is defined as follows:
+
+                                                     Pn      Rt
+                                          EAD −        t=1 (1+r)t
+                                 LGD =                                                      (1)
+                                                     EAD
+Where:
+
+ • EAD = Exposure at Default (total outstanding balance at default)
+
+ • Rt = Recovery cash flow received at time t
+
+ • Ct = Workout/collection costs incurred at time t
+
+ • r = Discount rate (effective interest rate or cost of funds)
+
+ • t = Time period index (t = 1, 2, . . . , n)
+
+ • n = Final recovery period (time of last cash flow)
+
+ •    t=1 = Summation over all time periods from 1 to n
+     Pn
+
+
+LGD has a non-standard distribution, usually bimodal, with concentration around 0 (no
+credit loss) and 1 (full credit loss) as Figure 1 illustrates based on the dataset from [1].
+
+                                                 1
+                         Figure 1: Loss Given Default (LGD) Distribution
+
+
+This particular aspect of the LGD distribution motivates several alternative methodologies
+for statistical modeling of this risk parameter.
+
+
+
+2       LGD Modeling
+In this section we cover conventional approaches to statistical modeling of LGD1 and offer an
+alternative methodology focused on modern machine learning applications.
+
+
+2.1     Conventional Approaches
+
+The most common approach to modeling LGD is a linear regression model. It relies on the
+assumption of normality of errors, which is typically violated. However, due to its simplicity
+and interpretability of results, it is often the go-to method in many situations.
+
+Alternative methodologies include modeling LGD in two steps:
+
+ • Estimating the probability of loss: P (LGD > 0)
+
+ • Modeling the expected loss given default: E[LGD | LGD > 0, X]
+    1
+    Note that depending on model design and modularity, LGD estimates can further incorporate cure events,
+debt sales, and other outcomes within a single modeling framework, though such extensions are beyond the
+scope of this paper.
+
+
+
+
+                                                    2
+The resulting LGD estimate is then obtained by combining these components:
+
+
+                  E[LGD | X] = P (LGD > 0 | X) · E[LGD | LGD > 0, X]                          (2)
+
+While this approach better captures the bimodal nature of LGD and accounts for zero-loss
+events, it introduces additional complexity: two separate models must be estimated and
+validated, each requiring its own set of assumptions and diagnostics.
+
+
+2.2     Probabilistic Regression via Quantile-Based Classification
+
+Standard regression assumes constant variance. However, LGD exhibits distributional
+complexities:
+
+ • Some borrowers display low-or-high LGD patterns, leading to bimodality
+
+ • Different tail behaviors by segment result in skewness
+
+To account for this, we can reformulate the problem as multiclass classification over discretized
+LGD bins, following the approach outlined in [3].
+
+2.2.1   Methodology
+
+Rather than predicting a point estimate ŷ = E[LGD | X], this method predicts the full
+conditional distribution P (LGD ∈ bink | X) for k = 1, . . . , K bins:
+
+ • Discretize the LGD variable into K bins using quantile-based binning
+
+ • Train a multiclass classifier to predict P (LGD ∈ bink | X)
+
+ • Obtain probability distribution of LGD: p(X) = [p1 (X), p2 (X), . . . , pK (X)]
+
+ • Compute LGD point estimate: ŷ =          k=1 pk (X) · vk
+                                           PK
+
+
+Here vk is the midpoint of the k-th bin. Unlike standard regression with homoscedastic
+assumptions, this approach naturally models the characteristic bimodal LGD distribution
+with mass at 0 and 1.
+
+
+
+
+                                                3
+2.2.2   Calculation Example
+
+For example, let’s consider 8 quantile bins (K = 8), whose midpoint values vk are shown in
+Table 1.
+
+             k     q1            q2          q3            q4          q5       q6           q7           q8
+            vk   0.0007        0.0065      0.0209        0.0558      0.1790   0.3989     0.6982      0.9375
+
+                                        Table 1: Bin values vk (8 bins).
+
+
+Table 2 shows five sample rows of multiclass probabilities p(X) = P (bink | X) for k =
+1, . . . , K.
+
+                 ID       q1          q2          q3       q4         q5       q6       q7         q8
+                  1     0.095     0.058      0.066        0.075      0.162    0.163    0.151      0.229
+                  2     0.326     0.119      0.126        0.112      0.082    0.096    0.076      0.063
+                  3     0.312     0.099      0.108        0.115      0.096    0.116    0.081      0.074
+                  4     0.412     0.132      0.124        0.114      0.078    0.048    0.052      0.041
+                  5     0.097     0.111      0.035        0.043      0.060    0.234    0.248      0.172
+
+                  Table 2: Five sample rows of multiclass probabilities p(X).
+
+The LGD point estimate is then computed as:
+
+                                                         K
+                                                  ŷ =          pk (X) · vk                                    (3)
+                                                         X
+
+                                                         k=1
+
+
+where vk is the bin value.
+
+For row 1 in Table 2, the LGD point estimate is:
+
+        ŷ = 0.095 · 0.0007 + 0.058 · 0.0065 + 0.066 · 0.0209 + 0.075 · 0.0558
+            + 0.162 · 0.1790 + 0.163 · 0.3989 + 0.151 · 0.6982 + 0.229 · 0.9375 = 0.421
+
+
+2.2.3   Applications
+
+Below we outline some of the advantages of this approach in practical risk management
+applications.
+
+Regulatory capital calculations
+
+Direct extraction of any percentile for stress testing and expected shortfall:
+
+                                                                4
+                 LGD99 = F −1 (0.99 | X),      ES = E[LGD | LGD > VaR, X]                (4)
+
+
+Stress testing
+
+Probability mass can be shifted toward higher LGD bins under stress scenarios without
+retraining.
+
+                                         
+                                         1.5 · pk (X)
+                                         
+                                                         k ∈ {top 3 bins}
+                       pstressed
+                        k        (X) =                                                   (5)
+                                         pk (X)
+                                         
+                                                         otherwise
+
+Followed by softmax normalization:
+
+                                                pstressed (X)
+                               pstressed (X) ←   k
+                                                                 .
+                                k                   stressed
+                                                             (X)
+                                               P
+                                                j pj
+
+
+
+
+Economic capital and IFRS 9
+
+The model supports both point-in-time (PIT) and through-the-cycle (TTC) estimates:
+
+ • Downturn LGD: 90th percentile for economic capital under Basel requirements
+
+ • Scenario-based ECL: Reweight probability distributions across macroeconomic scenarios
+   for IFRS 9 lifetime expected credit loss calculations
+
+By maintaining the full conditional distribution rather than point estimates, this approach
+enables flexible adaptation to diverse regulatory and business use cases from a single model.
+
+2.2.4   Experiments
+
+In our experiments, we use the LGD dataset provided in [1] to model LGD as a function of
+Loan-to-Value (LTV) and loan purpose. The dataset is split into 70% training and 30% test
+sets. For the quantile multiclass model, we use 10 quantile bins for the LGD target.
+
+We compare the proposed method against a baseline CatBoost regressor on the original LGD
+and log-transformed LGD distribution:
+
+ • Quantile-based (midpoint): Bin representatives are the midpoints of bin edges
+
+ • Baseline regressor: Standard CatBoost regression with squared loss
+
+                                                   5
+We evaluate model performance using Somers’ D (Dxy ), a standard rank-ordering measure for
+LGD models, and Root Mean Squared Error (RM SE), which quantifies prediction accuracy.
+
+In Table 3 we report the results of experiments on the test set.
+
+         Model                            Dxy     RMSE     Dxy (log)   RMSE (log)
+         Quantile Multiclass CatBoost 0.3185      0.3299     0.3171       0.3100
+         CatBoost Regression          0.2885      0.2905     0.3523       0.3877
+                              Table 3: Performance summary
+
+
+Experimental results indicate that the quantile-based multiclass approach delivers comparable
+rank-ordering performance to standard regression as measured by Dxy while achieving better
+calibration, as evidenced by lower RM SE across both original and log-transformed scales.
+In addition, we examine the calibration of the resulting estimates with Expected Calibration
+Error (ECE) on the original LGD distribution.
+
+Figures 2 and 3 show the calibration results: the quantile multiclass approach achieves an
+ECE of 1.4%, compared to 11% for standard regression.
+
+
+
+
+                          Figure 2: Quantile Multiclass Calibration
+
+
+The quantile multiclass approach matches standard regression on predictive metrics while
+achieving 87% better calibration (ECE: 1.4% vs 11%), demonstrating its suitability for
+applications requiring well-calibrated probability distributions.
+
+
+
+
+                                             6
+                               Figure 3: Regression Calibration
+
+
+3     Conclusion
+This paper presented a quantile-based multiclass classification approach for LGD modeling
+that addresses the inherent bimodality and skewness of LGD distributions.
+
+Our experimental results demonstrate that this framework achieves competitive predictive per-
+formance compared to standard regression while providing substantially superior calibration
+and native support for probability distributions.
+
+The key advantage of this approach lies in its ability to serve multiple regulatory and business
+requirements from a single model: computing downturn LGD percentiles for capital adequacy,
+performing stress testing through distribution shifting, and enabling scenario-based expected
+credit loss calculations under IFRS 9.
+
+By reformulating LGD estimation as classification over quantile bins, the method provides the
+interpretability and efficiency of traditional approaches while addressing their fundamental
+limitation, the inability to capture distributional uncertainty.
+
+Future work will explore LGD prediction intervals and Risk Weighted Assets (RWA) simula-
+tions using the proposed methodology.
+
+
+
+
+                                               7
+A     Appendix
+All code and data used in this study are available at: https://github.com/deburky/
+lgd-scoring-models/.
+
+
+
+
+                                        8
+References
+[1] Baesens, Bart and Roesch, Daniel and Scheule, Harald (2016). Credit Risk Analytics:
+    Measurement Techniques, Applications, and Examples in SAS. John Wiley & Sons.
+
+[2] Engelmann, Bernd and Rauhmeier, Robert (2011). The Basel II Risk Parameters:
+    Estimation, Validation, Stress Testing–with Applications to Loan Risk Management.
+    Springer Science & Business Media.
+
+[3] Grisel, Olivier (2025). Probabilistic regression models: let’s compare different modeling
+    strategies and discuss how to evaluate them. Talk at PyData Paris 2025, October 1.
+    Slides:       https://docs.google.com/presentation/d/1FwMMHPGWzMnEb3eoDpDd_
+    XR7wik-MJUtiOrSj6C3ofE/edit?usp=sharing.             Code:        https://github.com/
+    ogrisel/notebooks/blob/master/probabilistic_regression_figures.ipynb.
+
+
+
+
+                                             9

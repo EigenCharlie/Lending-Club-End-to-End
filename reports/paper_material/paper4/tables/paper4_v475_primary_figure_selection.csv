@@ -1,0 +1,5 @@
+figure_slot_v475,manuscript_section_v475,source_figure_v475,recommended_figure_title_v475,supports_domain_lane_v475,selected_for_manuscript_draft_v475,final_figure_v475,required_caveat_v475,claim_boundary_v475
+F1,results_evidence,paper4_fig5_return_ecl_tail_frontier.png,"Return, ECL and Tail-Risk Frontier",cvar_tail_risk,True,False,legacy frontier figure; align caption to v467 local claim,visual context only; v467 table carries current claim
+F2,results_evidence,paper4_fig10_mdcp_worst_source_v2.png,Worst-Source Governance Coverage,source_governance,True,False,source-governance visual context only,no cap relaxation or legal fairness certification
+F3,results_evidence,paper4_fig12_online_method_search.png,Online Conformal Method Search,online_monitoring,True,False,internal replay-selected method search,no external holdout or production monitoring claim
+F4,methods_protocol,paper4_fig4_regret_auditability_frontier.png,Regret-Auditability Frontier,spo_dla,True,False,historical audit positioning only,no formal SPO-DLA theorem claim

@@ -1,0 +1,368 @@
+Cursor | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Cursor
+Software Development
+See jobs
+Follow
+View all 895 employees
+Report this company
+About us
+We'd like to automate coding. To advance that mission, we're building Cursor.
+Our work includes training the world’s most widely used coding models, creating infrastructure that supports billions of requests per day, and building better ways for humans and AIs to work together.
+Website
+http://cursor.com
+External link for Cursor
+Industry
+Software Development
+Company size
+201-500 employees
+Type
+Privately Held
+Employees at Cursor
+Benjamin Caller
+Derek Power
+Toni Adams
+Nikos Patsis
+See all employees
+Updates
+Cursor
+306,606 followers
+11h
+Report this post
+You can now create and manage automations in the same workspace as your agents.
+Automations are now available in the Agents Window. For the next 7 days, all agent runs for newly created automations are 50% off.
+This release also introduces the ability for users to attach multiple repos to an automation, or create automations without any repos at all.
+Download Cursor 3.5 to try these new features: cursor.com/download
+…more
+191
+5 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1d
+Report this post
+Cursor is now available in Jira.
+Assign Cursor to work items, or mention @Cursor in a comment to kick off a cloud agent.
+Cursor uses the title, description, comments, and your team's repository settings to create a merge-ready PR.
+Learn more: https://lnkd.in/ecZQvG48
+…more
+1,109
+33 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+2d
+Report this post
+Introducing Composer 2.5, our most powerful model yet.
+It's more intelligent, better at sustained work on long-running tasks, and more reliable at following complex instructions.
+For the next week, we’re doubling the included usage of the model.
+Learn more about Composer 2.5: https://lnkd.in/esfiRv7F
+1,809
+70 Comments
+Like
+Comment
+Share
+Cursor reposted this
+Sualeh A.
+6d
+Report this post
+A conversation with Simon Hørup Eskildsen on scaling Shopify, building turbopuffer, and the future of databases.
+Watch it here: https://lnkd.in/gwsXmmdJ
+…more
+235
+10 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1w
+Report this post
+Starting today, you can run cloud agents inside fully configured development environments.
+Set them up the same way you'd set up a laptop for an engineer: cloned repos, installed dependencies, and toolchain credentials. Agents can test and verify their work, not just write code.
+Customers like Decagon, Amplitude, Bilt, and Snyk are already using development environments to ship agents that handle tasks end-to-end.
+Learn more: https://lnkd.in/gCxg-Psd
+…more
+422
+17 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1w
+Report this post
+Fast mode for Claude Opus 4.7 is now available in Cursor!
+It's 2.5x the speed at 6x the cost. For most tasks, we recommend using the standard speed.
+425
+20 Comments
+Like
+Comment
+Share
+Cursor reposted this
+Jordan Topoleski
+1w
+Report this post
+It was great to chat with Chris Kasten (Intuit), Ryan Sokol (DoorDash), and Taroon Mandhana (Atlassian) at our inaugural Cursor Conversations event on how teams are changing the way they build software with AI.
+A few topics we discussed: why human coordination costs stay fixed even as technical costs collapse, what happens to code review when AI produces more code than humans can read, and how to rethink team structure when designers and PMs are submitting PRs.
+Listen to the full conversation: https://lnkd.in/gGgHQg-8
+…more
+How Intuit, DoorDash, and Atlassian are adopting AI coding
+https://www.youtube.com/
+219
+1 Comment
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1w
+Report this post
+Cursor is now available in Microsoft Teams.
+Mention @Cursor in any channel to delegate tasks to an agent or pull information from Cursor into Teams.
+Learn more: https://lnkd.in/gdsmEC_c
+…more
+524
+16 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1w
+Report this post
+You can now customize how deeply Bugbot thinks during a PR review.
+At Cursor, we use high effort for changes to our infrastructure and backend so Bugbot detects more issues. Other PRs get default effort.
+Effort levels are now available to all users on usage-based Bugbot and can be configured from your Bugbot dashboard.
+Learn more: https://lnkd.in/gTixsJvF
+…more
+240
+8 Comments
+Like
+Comment
+Share
+Cursor
+306,606 followers
+1w
+Edited
+Report this post
+PayPal is shipping like a startup again with Cursor.
+The company could deliver 40% more capabilities in 2026 and recently completed a large-scale 3,000-app Java upgrade 6x faster than expected.
+"The most important thing is our developers are participating in the AI journey. They want to come work for us because PayPal supports tools like Cursor," said Prakhar Mehrotra, SVP and Global Head of AI at PayPal.
+Learn more here: cursor.com/blog/paypal
+…more
+808
+23 Comments
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at Cursor
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Affiliated pages
+Cursor Community
+Technology, Information and Internet
+Similar pages
+Anysphere
+Software Development
+Lovable
+Software Development
+Anthropic
+Research Services
+Perplexity
+Software Development
+San Francisco, California
+Cursor
+Technology, Information and Internet
+Crystal Lake, Illinois
+OpenAI
+Research Services
+San Francisco, CA
+Replit
+Software Development
+Foster City, California
+Vercel
+Software Development
+San Francisco, California
+ElevenLabs
+Research Services
+n8n
+Software Development
+Berlin, BE
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Engineer jobs
+555,845 open jobs
+Developer jobs
+258,935 open jobs
+Product Designer jobs
+45,389 open jobs
+User Experience Designer jobs
+13,659 open jobs
+Frontend Developer jobs
+17,238 open jobs
+Associate jobs
+1,091,945 open jobs
+President jobs
+92,709 open jobs
+Community Lead jobs
+80,271 open jobs
+Scientist jobs
+48,969 open jobs
+Associate Product Manager jobs
+76,300 open jobs
+Lead jobs
+1,965,194 open jobs
+Manager jobs
+1,880,925 open jobs
+Project Manager jobs
+253,048 open jobs
+Mobile Application Developer jobs
+11,599 open jobs
+Delivery Manager jobs
+215,065 open jobs
+Analyst jobs
+694,057 open jobs
+Solutions Engineer jobs
+92,218 open jobs
+Software Engineer jobs
+300,699 open jobs
+Solutions Architect jobs
+100,488 open jobs
+Intern jobs
+71,196 open jobs
+Show more jobs like this
+Show fewer jobs like this
+More searches
+More searches
+Engineer jobs
+Developer jobs
+Junior Developer jobs
+Designer jobs
+Account Executive jobs
+Junior Software Engineer jobs
+Full Stack Engineer jobs
+User Experience Designer jobs
+Analyst jobs
+Software Engineer jobs
+Associate Software Engineer jobs
+Client Engineer jobs
+Associate jobs
+Technical Designer jobs
+Software Engineer Intern jobs
+Web Engineer jobs
+Senior Product Designer jobs
+Chief of Staff jobs
+Senior Director Sales Operations jobs
+Director of Product Management jobs
+Investment Associate jobs
+Manager jobs
+Chief Information Officer jobs
+Vice President Operations jobs
+Vice President Sales Operations jobs
+Founder jobs
+Development Representative jobs
+Business Manager jobs
+Chief Technology Officer jobs
+Senior Advisor jobs
+Operations Manager jobs
+Tester jobs
+Commercial Account Executive jobs
+Product Designer jobs
+Director of Operations jobs
+Alliances Manager jobs
+Marketing Strategist jobs
+Brand Strategist jobs
+Enterprise Account Executive jobs
+System Analyst jobs
+Senior Product Manager jobs
+Content Manager jobs
+Partnerships Manager jobs
+Data Scientist jobs
+Senior Software Engineer jobs
+Machine Learning Engineer jobs
+Representative jobs
+Business Analyst jobs
+Product Manager jobs
+Administrator jobs
+Scientist jobs
+Account Manager jobs
+Marketing Manager jobs
+Specialist jobs
+Vice President of Sales jobs
+Vice President jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at Cursor
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

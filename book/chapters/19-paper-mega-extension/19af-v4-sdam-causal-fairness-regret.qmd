@@ -1,0 +1,191 @@
+---
+title: "v4 Dynamic SDAM, Causal Dossier, Fairness Proxy and Regret"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+from IPython.display import Image
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+FIG_DIR = ROOT / "reports" / "paper_material" / "paper4" / "figures"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+sdam = _csv("paper4_sdam_v4_dynamic_solver_summary.csv")
+causal = _csv("paper4_causal_high_rate_v4_dossier.csv")
+balance = _csv("paper4_causal_high_rate_v4_balance.csv")
+placebo = _csv("paper4_causal_high_rate_v4_placebo.csv")
+sensitivity = _csv("paper4_causal_high_rate_v4_sensitivity.csv")
+outcomes = _csv("paper4_causal_high_rate_v4_outcomes.csv")
+fair_strategy = _csv("paper4_fairness_v4_proxy_strategy.csv")
+fair_summary = _csv("paper4_fairness_v4_proxy_summary.csv")
+frontier = _csv("paper4_regret_auditability_v4_frontier.csv")
+```
+
+## Pregunta {#sec-paper4-v4-sdam-causal-question}
+
+Esta página cubre los carriles más ambiciosos de v4: pasar de replay estático a
+decisión dinámica loan-level, mejorar el dossier causal de
+`high_rate_within_grade`, declarar fairness como proxy governance y formalizar
+la frontera regret-auditability.
+
+## Multi-period SDAM real
+
+```{python}
+#| label: tbl-paper4-v4-sdam-summary
+#| tbl-cap: "Dynamic loan-level SDAM v4 summary"
+
+sdam
+```
+
+V4 ya no selecciona retrospectivamente una policy fija. El solver toma
+decisiones por préstamo cada mes, actualiza cash budget, outstanding exposure,
+repayments proxy, pérdidas, ECL en decisión, stage mix y coverage state.
+
+El resultado favorece `dynamic_return` en cash neto, seguido por
+`dynamic_online_guarded`; `dynamic_ifrs9` despliega menos retorno porque se
+vuelve más prudente. Esto no prueba optimalidad dinámica, pero sí mueve Paper 4
+a la clase correcta del problema: decisión secuencial con estado financiero.
+
+## Causal dossier: `high_rate_within_grade`
+
+```{python}
+#| label: tbl-paper4-v4-causal-dossier
+#| tbl-cap: "Causal high_rate_within_grade v4 dossier"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v4-causal-balance
+#| tbl-cap: "Causal balance after trimming and IPW ATT"
+
+balance
+```
+
+El dossier causal mejoró frente a v3: `pd_point_alpha01` queda por debajo del
+threshold 0.10 después de trimming e IPW ATT. Ese era uno de los pendientes
+exactos. Pero el resultado sigue sin autorizar CATE policy value, porque la
+sensibilidad no es estable ante sesgos ocultos de 6 puntos porcentuales.
+
+```{python}
+#| label: tbl-paper4-v4-causal-placebo
+#| tbl-cap: "Causal placebo diagnostics"
+
+placebo
+```
+
+```{python}
+#| label: tbl-paper4-v4-causal-sensitivity
+#| tbl-cap: "Causal sensitivity diagnostics"
+
+sensitivity
+```
+
+```{python}
+#| label: tbl-paper4-v4-causal-outcomes
+#| tbl-cap: "Candidate causal outcomes and estimates"
+
+outcomes
+```
+
+El carril causal queda más limpio: default, prepago, net return, loss y approval
+proxy tienen definición explícita. Lo que todavía no tenemos es identificación
+lo bastante fuerte para usar CATE dentro del selector.
+
+## Fairness proxy governance
+
+```{python}
+#| label: tbl-paper4-v4-fairness-strategy
+#| tbl-cap: "Fairness v4 proxy strategy"
+
+fair_strategy
+```
+
+```{python}
+#| label: tbl-paper4-v4-fairness-summary
+#| tbl-cap: "Fairness proxy summary v4"
+
+fair_summary.sort_values("max_proxy_gap_v4").head(20)
+```
+
+La decisión queda explícita: sin `race`, `ethnicity`, `sex`, `gender`, edad o
+atributos protegidos válidos, Paper 4 no hace claim legal de fair lending. Lo
+que sí hace es proxy governance de concentración por sources observables. El
+selector puede usar `max_proxy_gap_v4`, pero esa métrica no equivale a
+cumplimiento legal.
+
+## Regret-auditability frontier
+
+```{python}
+#| label: fig-paper4-v4-regret-auditability
+#| fig-cap: "Regret-auditability frontier v4."
+
+Image(filename=str(FIG_DIR / "paper4_v4_regret_auditability_frontier.png"))
+```
+
+```{python}
+#| label: tbl-paper4-v4-regret-frontier
+#| tbl-cap: "Regret-auditability v4 frontier"
+
+_cols(
+    frontier.sort_values(["pareto_candidate_v4", "auditability_score_v4", "regret_gross_v4"], ascending=[False, False, True]),
+    [
+        "policy_id",
+        "frontier_family",
+        "realized_return_proxy_lgd45",
+        "net_return_after_contractual_ecl_v4",
+        "regret_gross_v4",
+        "regret_net_ifrs9_v4",
+        "auditability_score_v4",
+        "online_min",
+        "mdcp_worst",
+        "max_proxy_gap_v4",
+        "pareto_candidate_v4",
+    ],
+).head(30)
+```
+
+La frontera v4 formaliza el intercambio que veníamos describiendo: retorno y
+regret no son el único eje; auditabilidad combina cobertura online, MDCP,
+fairness proxy y penalización por regret. Esto permite comparar CRPTO local,
+SPO+, CVaR policies e híbridos sin cambiar el CRPTO/Paper_CRPTO externo.
+
+## Interpretación
+
+V4 avanzó en los tres puntos que definen el potencial real del mega paper:
+
+- SDAM ya tiene decisión mensual loan-level y estado financiero, aunque con
+  transiciones proxy;
+- causalidad tiene balance aceptable, pero no sensibilidad suficiente;
+- fairness queda correctamente limitado a proxy governance;
+- regret-auditability ya existe como tabla y figura Pareto.
+
+## Caveats
+
+El solver dinámico usa timing proxy de repayment/default. El dossier causal no
+autoriza CATE policy value. La auditability score es una métrica de gobernanza
+de Paper 4, no una garantía matemática equivalente al bound conformal original.
+
+## Next Step
+
+El siguiente bloque debe atacar dos cosas: un panel de servicing mensual real
+para SDAM/IFRS9 y una sensibilidad causal más fuerte antes de reabrir CATE.

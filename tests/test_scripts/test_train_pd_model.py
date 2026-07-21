@@ -240,6 +240,73 @@ def test_venn_abers_score_calibrator_outputs_valid_probabilities() -> None:
     assert np.all(preds >= 0.0)
     assert np.all(preds <= 1.0)
     assert np.allclose(proba.sum(axis=1), 1.0, atol=1e-8)
+    point, p0, p1 = calibrator.predict_with_bounds(scores)
+    assert np.allclose(preds, point)
+    assert np.allclose(preds, p1 / (1.0 - p0 + p1))
+    assert np.allclose(proba[:, 1], preds)
+
+
+def test_venn_abers_score_calibrator_rejects_unknown_point_rule() -> None:
+    with pytest.raises(ValueError, match="Unsupported Venn-Abers point rule"):
+        train_mod.VennAbersScoreCalibrator(point_rule="ambiguous")
+
+
+def test_venn_abers_point_rule_is_versioned_for_search_and_replay() -> None:
+    cls = train_mod.VennAbersScoreCalibrator
+
+    assert (
+        train_mod._resolve_calibration_point_rule("venn_abers", run_mode="search")
+        == cls.LOG_LOSS_POINT_RULE
+    )
+    assert (
+        train_mod._resolve_calibration_point_rule(
+            "venn_abers",
+            run_mode="replay",
+            replay_cfg={},
+        )
+        == cls.LEGACY_POINT_RULE
+    )
+    assert (
+        train_mod._resolve_calibration_point_rule(
+            "venn_abers",
+            run_mode="replay",
+            replay_cfg={"selected_calibration_point_rule": cls.LOG_LOSS_POINT_RULE},
+        )
+        == cls.LOG_LOSS_POINT_RULE
+    )
+    assert train_mod._resolve_calibration_point_rule("platt", run_mode="replay") is None
+
+
+def test_fit_calibrator_can_reproduce_explicit_legacy_midpoint() -> None:
+    scores = np.linspace(0.02, 0.98, 200)
+    y = (scores > 0.55).astype(int)
+    evaluation_scores = np.linspace(0.05, 0.95, 31)
+    calibrator = train_mod._fit_calibrator_from_scores(
+        "venn_abers",
+        y,
+        scores,
+        point_rule=train_mod.VennAbersScoreCalibrator.LEGACY_POINT_RULE,
+    )
+
+    point, p0, p1 = calibrator.predict_with_bounds(evaluation_scores)
+
+    assert calibrator.point_rule == calibrator.LEGACY_POINT_RULE
+    assert np.allclose(point, (p0 + p1) / 2.0)
+
+
+def test_venn_abers_legacy_pickle_retains_midpoint_rule() -> None:
+    scores = np.linspace(0.02, 0.98, 200)
+    y = (scores > 0.55).astype(int)
+    evaluation_scores = np.linspace(0.05, 0.95, 31)
+    calibrator = train_mod.VennAbersScoreCalibrator().fit(scores, y)
+    del calibrator.point_rule
+
+    restored = pickle.loads(pickle.dumps(calibrator))
+    point, p0, p1 = restored.predict_with_bounds(evaluation_scores)
+
+    assert not hasattr(restored, "point_rule")
+    assert np.allclose(point, (p0 + p1) / 2.0)
+    assert not np.allclose(point, p1 / (1.0 - p0 + p1))
 
 
 def test_venn_abers_score_calibrator_preserves_sorted_score_order() -> None:

@@ -1,0 +1,80 @@
+schema_version: "1.0"
+status: observed_external_contract
+observed_at: "2026-07-20T23:42:20-05:00"
+repository:
+  name: Paper_CRPTO
+  url: https://github.com/EigenCharlie/Paper_CRPTO.git
+  branch: main
+  commit: 69095e05beae282701b4ea38aa69da26a209106f
+  pull_request: https://github.com/EigenCharlie/Paper_CRPTO/pull/104
+scientific_contract:
+  paper_role: retrospective_identification_audit
+  prediction_target: observed_binary_outcome_Y
+  selected_learner: null
+  selected_residual_window: null
+  selected_taxonomy: null
+  selected_gamma: null
+  selected_ruler: null
+  selected_coordinate: null
+  selected_cap: null
+  selected_comparator: null
+  selected_policy: null
+  registered_dvc_pointers: 33
+  active_claims: 20
+  primary_oot_candidates: 376890
+  primary_oot_resolved: 364814
+  primary_oot_unresolved: 12076
+  residual_windows: 8
+  credit_risk_specifications: 5
+  policies_reported: 9
+  frontier_caps: 3067
+  required_boundaries:
+    - Coverage of observed binary Y is not an interval for latent individual PD.
+    - Coverage of observed binary Y does not identify ECL, SICR, or expected loss.
+    - Candidate coverage does not establish selected-set validity.
+    - No learner, comparator, ruler, coordinate, cap, or policy is selected.
+surfaces:
+  companion_config:
+    path: book/_quarto.yml
+    sha256: 6e0f31d068b706447d7f7df6f7457ae3626b9bdda4007d184bcd3931874331e3
+  companion_index:
+    path: book/index.qmd
+    sha256: b10e1fd7128051ff3c2c3c830ab5516ee3add9cca1b1169d2955a556ba9a9419
+  companion_blueprint:
+    path: book/chapters/06-blueprint-manuscrito.qmd
+    sha256: 569c7c78861154d18cc61ca20ffbc146655b36f6426c824b20466706c93c2360
+  companion_claim_guide:
+    path: book/chapters/06b-guia-editorial-claims.qmd
+    sha256: bfe6bd9c08a78ef014e7c0f86d1bf81a2ea133a6499f34f911741e57fbfa2464
+  retired_chapter_contract:
+    path: book/chapters/README.md
+    sha256: ab01422a36708e1e5abe5bed57acfed6dd9b20f5659b0423e1dfb31632b988a9
+  paper_body:
+    path: paper/CRPTO_ijds.qmd
+    sha256: fd8071894810bd10a3893475da5367bfb70679ad655094e3c37e681303d75f18
+  supplement:
+    path: paper/supplement_ijds.qmd
+    sha256: c0805cd1ec7c4efeaaa781398c8e815447b344dbfcd07f209ef8ba4606b4f09f
+  active_claims:
+    path: docs/research/active_claims_2026-07-14.md
+    sha256: a8c8ed711cf8c557ba05d85d30eced94b8be7d2aa3fdc78b2c4ee249c13af3bb
+  evidence_registry:
+    path: configs/ijds_active_evidence_sources.yaml
+    sha256: 0bbdc7d320f985c4b356804e99326a41bb7e069ff2a59fc6366c9fa7f1ece344
+  claim_ledger:
+    path: configs/ijds_claim_ledger.yaml
+    sha256: b5fe8e07f8663bf9e213fc3e0e012206201a34f92c92ed2cd6a32ceedbbe1f10
+  evidence_manifest:
+    path: reports/crpto/ijds_binary_geometry_frontier_v4_evidence.json
+    sha256: 576497cabf6ae253e9c05ed7495af90ede3c3fcae26659af5548f7b92b4768a0
+  generated_submission_tex:
+    path: paper/submission/CRPTO_ijds_submission.tex
+    sha256: 09232f4e963554fe2bc72d79e71410e2d43c0b4f8e156483148f70f597446f7a
+  reproducibility_package:
+    path: paper/submission/REPRODUCIBILITY_PACKAGE.md
+    sha256: fe0419a85ce2021201a306c22af72d5bbc50a96c119855eca066b356a7229240
+local_integration:
+  quarto_book: historical_diagnostic_companion
+  paper2: parked_ifrs9
+  paper4: living_lab_no_promotion
+  substantive_imports_into_crpto: []

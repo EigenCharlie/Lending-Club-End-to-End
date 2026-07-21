@@ -1,0 +1,236 @@
+---
+title: "v5 Tail Risk, MDCP, Selector and SDAM"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+cvar = _csv("paper4_v5_cvar_topk_expanded_frontier.csv")
+mdcp = _csv("paper4_v5_mdcp_aware_search.csv")
+protocol = _csv("paper4_v5_selector_threshold_protocol.csv")
+sensitivity = _csv("paper4_v5_selector_threshold_sensitivity.csv")
+memo = _csv("paper4_v5_selector_committee_memo.csv")
+sdam = _csv("paper4_v5_sdam_realistic_transition_summary.csv")
+dla = _csv("paper4_v5_dla_endogenous_policy_trace.csv")
+```
+
+## Pregunta {#sec-paper4-v5-tail-mdcp-sdam-question}
+
+Esta página responde el segundo bloque de v5: si CVaR/OCE, MDCP-aware search,
+gobernanza de selector y SDAM dinámico ya pueden sostener un candidato interno
+de Paper 4 sin tocar el CRPTO/Paper_CRPTO externo.
+
+La respuesta corta es: sí pueden sostener revisión, no promoción final.
+
+## Artefactos
+
+| Artefacto | Rol |
+|---|---|
+| `paper4_v5_cvar_topk_expanded_frontier.csv` | evaluación de cola sobre 100 allocations exactas locales |
+| `paper4_v5_mdcp_aware_search.csv` | score que penaliza source débil, MDCP débil, ECL y CVaR |
+| `paper4_v5_selector_threshold_protocol.csv` | thresholds con justificación tipo MRM/comité |
+| `paper4_v5_selector_threshold_sensitivity.csv` | decisiones bajo escenarios research/base/publication |
+| `paper4_v5_selector_committee_memo.csv` | memo de decisión de selector |
+| `paper4_v5_dla_endogenous_policy_trace.csv` | trace DLA por horizonte, estrategia, mes y acción |
+| `paper4_v5_sdam_realistic_transition_summary.csv` | cash, principal, interest, pérdida observada y pérdida esperada |
+
+## Resultado: CVaR/OCE top-k expandido
+
+```{python}
+#| label: tbl-paper4-v5-cvar-expanded
+#| tbl-cap: "CVaR/OCE v5 sobre allocations exactas locales"
+
+_cols(
+    cvar.sort_values(["pareto_cvar_return_v5", "return_after_cvar90_v5"], ascending=[False, False]),
+    [
+        "policy_id",
+        "realized_return_proxy_lgd45",
+        "expected_loss_mean",
+        "cvar90_expected_loss_v5",
+        "return_after_cvar90_v5",
+        "prob_beats_paper1_correlated_baseline",
+        "pareto_cvar_return_v5",
+        "risk_tolerance",
+        "gamma",
+        "uncertainty_aversion",
+    ],
+).head(20)
+```
+
+V5 no resuelve todavía un LP CVaR full-universe. Lo que sí hace es ampliar el
+diagnóstico de cola a las 100 allocations exactas locales y conectar retorno,
+CVaR y sample paths correlacionados. Esto sirve para ordenar candidates y para
+ver si el retorno bruto sobrevive un castigo de cola más severo.
+
+El resultado sigue confirmando una tensión central: las policies con más retorno
+no son automáticamente las mejores después de CVaR. Paper 4 debe tratar CVaR
+como una dimensión de frontera, no como un adorno del ranking.
+
+## Resultado: MDCP-aware search
+
+```{python}
+#| label: tbl-paper4-v5-mdcp-aware-top
+#| tbl-cap: "Top MDCP-aware v5"
+
+_cols(
+    mdcp.sort_values("mdcp_aware_score_v5", ascending=False),
+    [
+        "policy_id",
+        "risk_tolerance",
+        "gamma",
+        "uncertainty_aversion",
+        "realized_return_proxy_lgd45",
+        "v5_source_month_min",
+        "v5_width_mean",
+        "mdcp_worst_v4",
+        "max_proxy_gap_v4",
+        "prob_beats_paper1",
+        "net_return_after_contractual_ecl_v5",
+        "cvar90_expected_loss_v5",
+        "mdcp_aware_score_v5",
+        "mdcp_aware_decision_v5",
+    ],
+).head(20)
+```
+
+El mejor candidate por score MDCP-aware es
+`paper4_v4_local_rt0p1725_g0p500_u0p100`. Está dentro de la zona sugerida por
+la búsqueda local: `gamma` alto, `uncertainty_aversion` alta y
+`risk_tolerance` cerca de 0.1725.
+
+Esto no contradice el bloqueo online. El score v5 ve cobertura source-month
+perfecta porque usa el método ancho de v5. Por eso la decisión correcta es
+`review_strong_candidate`, no `promote`.
+
+## Resultado: selector governance
+
+```{python}
+#| label: tbl-paper4-v5-selector-protocol
+#| tbl-cap: "Protocolo de thresholds v5"
+
+protocol
+```
+
+```{python}
+#| label: tbl-paper4-v5-selector-sensitivity
+#| tbl-cap: "Sensibilidad de decisión por comité"
+
+sensitivity
+```
+
+```{python}
+#| label: tbl-paper4-v5-selector-memo
+#| tbl-cap: "Memo de comité v5"
+
+memo
+```
+
+El selector queda calibrado en tres niveles:
+
+- `research_review`: permite seguir iterando con floor 0.80;
+- `committee_base`: exige source/MDCP más fuertes y menor gap proxy;
+- `publication_strict`: exige source-month 0.90, MDCP 0.85 y probabilidad de
+  superar referencia más alta.
+
+La utilidad de este bloque es que ya no hay thresholds mudos. Cada gate tiene
+una razón operacional y una lectura estadística. La publicación futura podrá
+endurecerlos; el laboratorio puede usarlos para priorizar búsquedas.
+
+## Resultado: SDAM/DLA v5
+
+```{python}
+#| label: tbl-paper4-v5-sdam-summary
+#| tbl-cap: "SDAM v5: transición financiera por horizonte"
+
+_cols(
+    sdam.sort_values(["horizon_months", "net_cash_result_v5"], ascending=[True, False]),
+    [
+        "horizon_months",
+        "strategy",
+        "net_cash_result_v5",
+        "cumulative_interest_v5",
+        "cumulative_principal_v5",
+        "cumulative_losses_v5",
+        "cumulative_expected_loss_v5",
+        "cumulative_recovery_v5",
+        "loss_audit",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v5-dla-trace
+#| tbl-cap: "DLA action trace v5, primeras decisiones"
+
+_cols(
+    dla.sort_values(["horizon_months", "strategy", "month_idx"]),
+    [
+        "horizon_months",
+        "strategy",
+        "month_idx",
+        "state_cash",
+        "coverage_signal",
+        "cumulative_losses",
+        "cumulative_expected_loss",
+        "chosen_action",
+    ],
+).head(30)
+```
+
+V5 corrige una lectura peligrosa del summary anterior. La pérdida observada
+puede seguir en cero durante horizontes cortos por el timing proxy de default,
+pero eso no significa que la política no tenga riesgo. Por eso la tabla separa
+`cumulative_losses_v5` de `cumulative_expected_loss_v5`.
+
+En gramática SDAM, este bloque ya tiene:
+
+```text
+S_t = cash, outstanding, repayments, losses, expected loss, coverage state
+x_t = fund_return / coverage_guard / capital_preservation
+W_{t+1} = default/prepayment/recovery/coverage signal
+S^M = actualización de cash, principal, interest y pérdidas
+```
+
+Todavía no es un Bellman solve ni un DLA con aprendizaje rico. Es un DLA sobre
+action library, útil para auditar estado y para mostrar dónde falta transición
+financiera real.
+
+## Interpretación
+
+La arquitectura v5 ya tiene selector, cola, MDCP y transición dinámica
+conectados. Eso permite decir que Paper 4 tiene un candidate interno fuerte
+para seguir investigando. Pero cada bloque conserva un caveat material:
+
+- CVaR es top-k expandido, no full-universe LP;
+- MDCP-aware usa la cobertura online v5 que aún es demasiado ancha;
+- selector committee no equivale a política de publicación;
+- SDAM/DLA actual no decide préstamos nuevos con un estado aprendido completo.
+
+## Next Step
+
+El siguiente paso técnico es meter MDCP y eficiencia online dentro del solve,
+no solo en el selector posterior. El siguiente paso SDAM es construir una
+decisión loan-level mensual con budget, ECL, coverage state y reinvestment como
+estado endógeno, no solo action library.

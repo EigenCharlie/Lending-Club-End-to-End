@@ -1,0 +1,12 @@
+sdam_element,definition_v12,role
+S_t.cash,liquid cash before month-t decision,state
+S_t.outstanding,remaining funded principal,state
+S_t.expected_loss,one-step expected loss under macro state,state
+S_t.capital_used,capital proxy consumed by outstanding loans,state
+S_t.stage2_share,IFRS9 SICR proxy share in current book,state
+S_t.coverage_state,online conformal defended coverage gate state,state
+x_t,loan-level funding decision for available issue-month loans,decision
+S_t^x,post-decision cash/outstanding/capital/stage mix,post_decision_state
+W_{t+1}.macro,macro/default/LGD/prepayment shock,exogenous_information
+R_t,"interest, principal, losses, recoveries and reward proxy",reward
+V(S_t),fitted value function approximating continuation value,value_function

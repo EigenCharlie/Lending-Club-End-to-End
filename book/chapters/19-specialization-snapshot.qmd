@@ -1,0 +1,85 @@
+{{< include ../includes/_scientific-scope-contract.qmd >}}
+
+## Retrospectiva de la Especialización {#sec-specialization-snapshot}
+
+La defensa de especialización presentó una integración conformal de PD, LGD,
+EAD y ECL. Esa integración fue valiosa como prototipo de software, pero la
+auditoría posterior corrigió su interpretación: el intervalo binario cubre
+$Y$, las capas LGD/EAD tienen targets y poblaciones distintos, y el producto de
+endpoints no es una banda ECL con cobertura.
+
+### Modelo PD
+
+| Elemento histórico | Valor documental | Estado actual |
+|---|---|---|
+| modelo/calibrador | freeze local | provenance, no selección CRPTO |
+| métricas OOT | readout del split resuelto | descriptivas |
+| label `champion` | nombre runtime | no promoción científica |
+
+: Lectura auditada del modelo de la especialización. {#tbl-snapshot-pd}
+
+### Conformal para el outcome binario
+
+| Antes | Ahora |
+|---|---|
+| “intervalo de PD” | intervalo predictivo de $Y$ centrado en score |
+| “garantía por grade en OOT” | cobertura empírica; teoría condicionada a intercambio |
+| “variante promovida” | familias reportadas sin winner vigente |
+
+: Revisión del claim conformal. {#tbl-snapshot-conformal-pd}
+
+### LGD y EAD
+
+| Componente | Aporte del prototipo | Límite |
+|---|---|---|
+| LGD | pipeline de regresión y cobertura del target observado | defaults resueltos/censoring |
+| EAD | alineación y stress de exposición | sin cash-flow as-of |
+| combinación | fórmula reproducible | sin cobertura conjunta |
+
+: Estado de LGD/EAD. {#tbl-snapshot-lgd-ead}
+
+### ECL y stages
+
+Los escenarios y recuentos de stage de la defensa se conservan como outputs de
+una fórmula estilizada. No son provisiones IFRS9 ni staging válido: se derivó
+DPD de `loan_status` terminal y no existe unidad préstamo--fecha de reporte.
+
+| Superficie | Estado |
+|---|---|
+| escenario ECL | elasticidad mecánica |
+| low/high | no banda con cobertura |
+| SICR por ancho | retirado |
+| recomendación prudencial | bloqueada |
+
+: Contrato de lectura ECL. {#tbl-snapshot-ecl}
+
+| Stage proxy | Problema de identificación |
+|---|---|
+| Stage 1/2 | no se observa incremento desde originación as-of |
+| Stage 3 | default terminal reconstruido retrospectivamente |
+
+: Staging proxy de la defensa. {#tbl-snapshot-stages}
+
+### Relación con los papers
+
+| Superficie | Decisión vigente |
+|---|---|
+| CRPTO/IJDS | auditoría de identificación; no policy |
+| Paper 2 | `parked_ifrs9` |
+| Paper 4 | living lab sin promoción |
+
+: Puente desde la especialización. {#tbl-snapshot-papers}
+
+### Infraestructura que sí permanece
+
+| Componente | Valor durable |
+|---|---|
+| artefactos versionados | trazabilidad y reproducción |
+| Quarto | narrativa auditable |
+| tests/registries | límites de claims ejecutables |
+| separación de estados | histórico, diagnóstico y activo no se mezclan |
+
+: Infraestructura reutilizable. {#tbl-snapshot-infra}
+
+La retrospectiva no borra la defensa: documenta qué se aprendió y evita que una
+integración de código sea confundida con identificación científica.

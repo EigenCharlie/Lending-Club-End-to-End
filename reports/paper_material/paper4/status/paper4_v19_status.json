@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.19",
+  "generated_at_utc": "2026-05-14T20:49:51.578706+00:00",
+  "phase": "v19_dynamic_engine_v2",
+  "dynamic_policy_count_v19": 14,
+  "dynamic_path_count_v19": 64,
+  "horizon_months_v19": 36,
+  "dynamic_trace_rows_v19": 61824,
+  "no_temporal_leakage_min_rate_v19": 1.0,
+  "working_reference_policy_id_v18": "paper1_economic_champion",
+  "best_gate_variant_policy_id_v19": "v13_spo_regret_audit_guarded",
+  "external_macro_context_status_v19": "fetch_failed",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "internal dynamic replay with common random numbers; no forecast or deployment claim",
+  "runtime_seconds": 450.431
+}

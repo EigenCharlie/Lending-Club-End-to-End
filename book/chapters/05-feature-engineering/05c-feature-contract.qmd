@@ -1,3 +1,5 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Contrato de Features y Validación {#sec-feature-contract}
 
 ### El Concepto de Contrato Canónico
@@ -113,20 +115,29 @@ schemas = [
      "Validaciones clave": "ds es datetime, y ∈ [0,1] (default_rate), loan_count > 0"},
     {"Schema": "ead_schema", "Dataset": "ead_dataset.parquet",
      "Validaciones clave": "default_flag = 1 (solo defaults), loan_amnt > 0"},
-    {"Schema": "prediction_schema", "Dataset": "Predicciones PD",
-     "Validaciones clave": "pd_low ≤ pd_point ≤ pd_high, todos en [0,1]"},
-    {"Schema": "conformal_output_schema", "Dataset": "Intervalos conformales",
-     "Validaciones clave": "y_pred, pd_low_90, pd_high_90 ∈ [0,1], width_90 ≥ 0, low ≤ high"},
+    {"Schema": "prediction_schema", "Dataset": "Salidas legacy con nombres PD",
+     "Validaciones clave": "orden low ≤ point ≤ high y rango [0,1]; no valida el estimando"},
+    {"Schema": "conformal_output_schema", "Dataset": "Endpoints legacy para Y binario",
+     "Validaciones clave": "rango [0,1], width_90 ≥ 0 y low ≤ high; cobertura se refiere a Y"},
 ]
 
 pd.DataFrame(schemas)
 ```
 
-El `prediction_schema` incluye una validación crítica para predicción conformal: la relación de orden `pd_low ≤ pd_point ≤ pd_high` se verifica con checks de DataFrame que cruzan columnas. Si un intervalo conformal tiene el límite inferior por encima del punto estimado, el schema falla y detiene el pipeline.
+El `prediction_schema` incluye una validación estructural: la relación de orden
+`pd_low ≤ pd_point ≤ pd_high` se verifica con checks de DataFrame que cruzan
+columnas. Si el límite inferior queda por encima del punto, el schema falla y
+detiene el pipeline. Los nombres `pd_*` son una interfaz legacy: el orden y el
+rango no demuestran que los extremos sean intervalos para la PD individual
+latente ni transportan cobertura de $Y$ a ECL o a una decisión.
 
 ### Estabilidad estructural de encoding y binning
 
-Después de la promoción del champion monotónico, el proyecto añadió una capa diagnóstica inspirada en ADSFCR para responder una objeción frecuente de gobernanza: que el contrato parezca estable por nombres y orden, pero esconda fragilidad en los encodings o discretizaciones. El artefacto `models/encoding_stability_status.json` resume esa lectura estructural.
+Después de la congelación local histórica del modelo monotónico, el proyecto
+añadió una capa diagnóstica inspirada en ADSFCR para responder una objeción
+frecuente de gobernanza: que el contrato parezca estable por nombres y orden,
+pero esconda fragilidad en los encodings o discretizaciones. El artefacto
+`models/encoding_stability_status.json` resume esa lectura estructural.
 
 ```{python}
 #| label: tbl-encoding-stability
@@ -150,7 +161,7 @@ pd.DataFrame(rows)
 
 La lectura importante es que el contrato no solo llega íntegro; también llega **estable en semántica transformada**. Eso fortalece tres historias a la vez:
 
-- la defensa del champion monotónico;
+- la trazabilidad del modelo monotónico congelado localmente;
 - la consistencia del contrato a través de train/calibration/test;
 - la decisión de **no** reabrir todavía el espacio de bins o encodings como workstream principal.
 
@@ -178,7 +189,7 @@ La validación se integra en el pipeline como un *gate* entre etapas:
     <div class="book-flow__arrow">→</div>
     <div class="book-flow__card">
       <strong>Train PD Model</strong>
-      <span>Entrena el champion sobre una interfaz de features ya estable y validada.</span>
+      <span>Entrena el modelo local congelado sobre una interfaz de features estructuralmente validada.</span>
     </div>
   </div>
   <div class="book-flow__row" style="margin-top:0.8rem;">
@@ -189,7 +200,7 @@ La validación se integra en el pipeline como un *gate* entre etapas:
     <div class="book-flow__arrow">→</div>
     <div class="book-flow__card">
       <strong>Predicción Conformal</strong>
-      <span>Produce intervalos con la misma semántica y el mismo orden de columnas del champion.</span>
+      <span>Produce endpoints legacy con el mismo orden de columnas; su claim de cobertura se limita a Y binario.</span>
     </div>
     <div class="book-flow__arrow">→</div>
     <div class="book-flow__card">

@@ -387,10 +387,24 @@ def _estimate_portfolio_subphases(run_dir: Path, survival_status: dict | None) -
 
 
 def _step_order(run_info: dict) -> list[str]:
+    allowed = [
+        str(step).strip()
+        for step in list(run_info.get("allowed_step_groups", []) or [])
+        if str(step).strip()
+    ]
+    forbidden = {
+        str(step).strip()
+        for step in list(run_info.get("forbidden_step_groups", []) or [])
+        if str(step).strip()
+    }
     include_rapids = bool(run_info.get("include_rapids", True))
     include_notebooks = bool(run_info.get("include_notebooks", True))
     out = []
     for step in BASE_STEP_ORDER:
+        if allowed and step not in allowed:
+            continue
+        if step in forbidden:
+            continue
         if step == "research_rapids" and not include_rapids:
             continue
         if step == "research_notebooks" and not include_notebooks:
@@ -403,6 +417,13 @@ def _step_estimate_seconds(step: str, run_tag: str, run_dir: Path) -> tuple[floa
     hist = _collect_completed_history(step, exclude_run_tag=run_tag)
     if hist:
         return float(statistics.median(hist)), f"hist n={len(hist)}"
+    if step == "core_data_pd":
+        pd_status = _load_status(run_dir, "core_data_pd")
+        command = str((pd_status or {}).get("command", "") or "")
+        if "scripts/search_monotonic_competitor.py" in command:
+            if "blockwise_exhaustive" in command:
+                return 30.0 * 3600.0, "heuristic(monotonic_blockwise_exhaustive)"
+            return 18.0 * 3600.0, "heuristic(monotonic_search)"
     if step == "paper2_survival":
         survival_status = _load_status(run_dir, "paper2_survival")
         return _estimate_survival_seconds(run_dir, survival_status), "heuristic(survival)"

@@ -1,0 +1,5 @@
+online_method_v7,gate_scope,min_effective_sample_size,raw_cells,standalone_defended_cells,pooled_small_cells,raw_min_coverage,defended_min_coverage
+v7_reference_defended_pooling,policy_month,5,3220,2328,892,0.6666666666666666,0.7142857142857143
+v7_targeted_dti_score_or_gradeD_d0.076_m1.000,policy_month,5,3220,2328,892,0.6666666666666666,0.9
+v7_reference_defended_pooling,source_month,5,65792,13853,51939,0.0,0.5
+v7_targeted_dti_score_or_gradeD_d0.076_m1.000,source_month,5,65792,13853,51939,0.0,0.8

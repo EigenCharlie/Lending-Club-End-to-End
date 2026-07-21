@@ -1,0 +1,33 @@
+{
+  "asset": "urn:li:digitalmediaAsset:D4D1FAQG8E3yKvbVTgA",
+  "transcriptManifestUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-transcript/B4DZm6SMhDIEA4-/0/1759766961143?e=1780531200&v=beta&t=n0tBxvd1PQbQHy-jRu3uAtgBaRTPDrM9kPseBZuB0MA",
+  "transcribedDocumentUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-pdf-analyzed/B4DZm6SMhDIEAY-/0/1759766961143?e=1780531200&v=beta&t=QYGUqL1l7Lpkjnw2uUmO0iiR6jqIe7lrkWQXO2roNBw",
+  "scanRequiredForDownload": true,
+  "perResolutions": [
+    {
+      "width": 374,
+      "height": 484,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-images_480/B4DZm6SMhDIEAg-/0/1759766961143?e=1780531200&v=beta&t=fHsGM2rz1Zg36RkvNVyFzK3p4-cW1lMdkyYCnvcWEAU"
+    },
+    {
+      "width": 994,
+      "height": 1287,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-images_1280/B4DZm6SMhDIEAs-/0/1759766961143?e=1780531200&v=beta&t=TCH7NGqe43MYgWjhkroQomdwR9XNhSJTkCG2geXnV1o"
+    },
+    {
+      "width": 127,
+      "height": 165,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-images_160/B4DZm6SMhDIEAo-/0/1759766961143?e=1780531200&v=beta&t=Hd1Noc1Ga4T6mgVFyHd6qMqRIVHnSiZzouHD--mze10"
+    },
+    {
+      "width": 620,
+      "height": 802,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-images_800/B4DZm6SMhDIEAc-/0/1759766961143?e=1780531200&v=beta&t=W09fgycYw6F19GIOar8P444n_D6Hvi8k32LaJVxqHlk"
+    },
+    {
+      "width": 1487,
+      "height": 1925,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQG8E3yKvbVTgA/feedshare-document-images_1920/B4DZm6SMhDIEAU-/0/1759766961143?e=1780531200&v=beta&t=8jPNMe0TZc3nZeiye2lTHgDfpxdHZLJt9oBIXpzbTAI"
+    }
+  ]
+}

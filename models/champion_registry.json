@@ -1,12 +1,12 @@
 {
   "schema_version": "2026-03-13.2",
-  "generated_at_utc": "2026-03-30T19:29:49.231159+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "generated_at_utc": "2026-04-07T05:06:26.498757+00:00",
+  "run_tag": "canonical-audit-rebuild-2026-04-06-r2",
   "upstream_canonical_run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
   "threshold_semantics": {
     "schema_version": "2026-03-13.1",
-    "generated_at_utc": "2026-03-30T19:29:17.275700+00:00",
-    "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+    "generated_at_utc": "2026-04-07T04:03:55.242901+00:00",
+    "run_tag": "canonical-audit-rebuild-2026-04-06-r2",
     "pd_internal_selected_threshold": 0.05,
     "pd_internal_fallback_threshold": 0.35,
     "fairness_primary_threshold": 0.35,
@@ -1802,8 +1802,8 @@
       "secondary_validation_rows": 237584,
       "calibration_method": "venn_abers",
       "schema_version": "2026-03-01.1",
-      "generated_at_utc": "2026-03-30T16:42:21.022973+00:00",
-      "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+      "generated_at_utc": "2026-04-07T03:58:03.518297+00:00",
+      "run_tag": "canonical-audit-rebuild-2026-04-06-r2"
     },
     "decision_threshold_semantics": {
       "pd_internal_selected_threshold": 0.05,
@@ -1812,89 +1812,126 @@
     }
   },
   "portfolio": {
-    "selection_stage": "monotonic_economic_promotion_v1",
-    "selection_universe_path": "data/processed/champion_candidate_universe.parquet",
-    "decision_scenario": "baseline",
-    "selection_outcome": "robust_selected",
+    "selection_stage": "paper_thesis_final_economic_v1",
+    "selection_universe_path": "data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_276k_full_2026-04-05-1734/portfolio_bound_aware_bound_eval.parquet",
+    "decision_scenario": "paper_thesis_final",
+    "selection_outcome": "economic_champion_selected",
     "selected_policy": {
-      "source": "frontier_actual_ab_search",
-      "risk_tolerance": 0.18,
-      "uncertainty_aversion": 0.25,
+      "source": "portfolio_bound_aware_276k_exact_region",
+      "risk_tolerance": 0.175,
+      "uncertainty_aversion": 0.1,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
-      "policy_mode": "segment_relative_tail_blended_uncertainty",
-      "gamma": 0.05,
+      "policy_mode": "blended_uncertainty",
+      "gamma": 0.45,
       "delta_cap_quantile": 1.0,
-      "tail_focus_quantile": 0.9
+      "tail_focus_quantile": 1.0
     },
     "economic_metrics": {
-      "diff_total_return": 16150.09128334801,
-      "passed_no_regression": true,
-      "passed_cross_scenario_gate": false,
-      "funded_ratio": 1.1601731601731602,
-      "avg_return_per_funded_delta": -42.495652278094326
+      "realized_total_return": 170464.5429284627,
+      "price_of_robustness": -14465.688162534818,
+      "price_of_robustness_pct": -10.557772959426375,
+      "alpha01_exact_pass": true,
+      "alpha03_exact_pass": true,
+      "alpha10_exact_pass": true,
+      "ab_pass_all": true
     },
     "robustness_metrics": {
-      "worst_case_pd_reduction_bps": 1670.7215683292975,
-      "price_of_robustness_pct": -2.2225586646481164,
-      "allocation_similarity": 0.8217975739614838,
-      "breadth_score": 0.9643595147922968
+      "alpha01_weighted_miscoverage_V": 0.03645,
+      "alpha01_gamma_cp": 0.18591,
+      "alpha01_violation": 0.0,
+      "robust_region_cardinality": 45,
+      "alpha01_passer_count": 45
     },
     "research_alternatives": {
-      "promotion_first": {
-        "risk_tolerance": 0.18,
-        "policy_mode": "segment_relative_tail_blended_uncertainty",
-        "gamma": 0.05,
+      "theorem_tight_comparator": {
+        "label": "bound_aware_276k_theorem_tight_champion",
+        "family": "portfolio_bound_aware",
+        "champion_role": "theorem_tight_champion",
+        "source_path": "data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_276k_full_2026-04-05-1734/portfolio_bound_aware_bound_eval.parquet",
+        "risk_tolerance": 0.175,
+        "policy_mode": "blended_uncertainty",
+        "gamma": 0.55,
         "delta_cap_quantile": 1.0,
-        "uncertainty_aversion": 0.25,
+        "tail_focus_quantile": 1.0,
+        "uncertainty_aversion": 0.1,
         "min_budget_utilization": 0.0,
         "pd_cap_slack_penalty": 0.0,
-        "pd_cap_slack": 0.0,
-        "solver_backend": "highs"
+        "alpha01_exact_pass": true,
+        "alpha03_exact_pass": true,
+        "alpha10_exact_pass": true,
+        "alpha01_weighted_miscoverage_V": 0.030034,
+        "alpha01_gamma_cp": 0.159714,
+        "alpha01_violation": 0.0,
+        "realized_total_return": 166269.82231927008,
+        "price_of_robustness": -10392.606222081755,
+        "price_of_robustness_pct": -7.585036793039396,
+        "selection_reason": "theorem_tight_champion",
+        "seed_count": 1,
+        "sample_random_states": "42"
       },
-      "robustness_aware": {
-        "risk_tolerance": 0.14,
-        "policy_mode": "tail_blended_uncertainty",
-        "gamma": 0.5,
+      "balanced_region_compromise": {
+        "label": "bound_aware_276k_balanced_comparator",
+        "family": "portfolio_bound_aware",
+        "champion_role": "balanced_comparator",
+        "source_path": "data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_276k_full_2026-04-05-1734/portfolio_bound_aware_bound_eval.parquet",
+        "risk_tolerance": 0.17,
+        "policy_mode": "blended_uncertainty",
+        "gamma": 0.45,
         "delta_cap_quantile": 1.0,
-        "uncertainty_aversion": 0.25,
+        "tail_focus_quantile": 1.0,
+        "uncertainty_aversion": 0.1,
         "min_budget_utilization": 0.0,
         "pd_cap_slack_penalty": 0.0,
-        "pd_cap_slack": 0.0,
-        "solver_backend": "highs"
+        "alpha01_exact_pass": true,
+        "alpha03_exact_pass": true,
+        "alpha10_exact_pass": true,
+        "alpha01_weighted_miscoverage_V": 0.03545,
+        "alpha01_gamma_cp": 0.177578,
+        "alpha01_violation": 0.0,
+        "realized_total_return": 169389.5810115051,
+        "price_of_robustness": -14258.848529110983,
+        "price_of_robustness_pct": -10.484017592046209,
+        "selection_reason": "balanced_comparator",
+        "seed_count": 1,
+        "sample_random_states": "42"
       },
-      "balanced_robustness": {
-        "risk_tolerance": 0.18,
-        "policy_mode": "segment_relative_tail_blended_uncertainty",
-        "gamma": 0.05,
-        "delta_cap_quantile": 1.0,
-        "uncertainty_aversion": 0.25,
-        "min_budget_utilization": 0.0,
-        "pd_cap_slack_penalty": 0.0,
-        "pd_cap_slack": 0.0,
-        "solver_backend": "highs"
-      },
-      "guardrail_robustness": {
+      "upstream_alpha01_safe_incumbent_5k": {
+        "label": "bound_aware_5k",
+        "family": "portfolio_bound_aware",
+        "champion_role": "small_scale_proof",
+        "source_path": "",
         "risk_tolerance": 0.16,
         "policy_mode": "blended_uncertainty",
         "gamma": 0.5,
         "delta_cap_quantile": 1.0,
+        "tail_focus_quantile": 1.0,
         "uncertainty_aversion": 0.0,
         "min_budget_utilization": 0.0,
         "pd_cap_slack_penalty": 0.0,
-        "pd_cap_slack": 0.0,
-        "solver_backend": "highs"
+        "alpha01_exact_pass": true,
+        "alpha03_exact_pass": true,
+        "alpha10_exact_pass": true,
+        "alpha01_weighted_miscoverage_V": 0.077725,
+        "alpha01_gamma_cp": 0.169994,
+        "alpha01_violation": 0.0,
+        "realized_total_return": 90529.78249984664,
+        "price_of_robustness": -10261.651925194703,
+        "price_of_robustness_pct": -13.641597411213333,
+        "selection_reason": "selected_best_alpha01_exact_pass",
+        "seed_count": 1,
+        "sample_random_states": "42"
       }
     },
-    "schema_version": "2026-03-10.1",
-    "generated_at_utc": "2026-03-30T15:42:17.540811+00:00",
-    "run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
-    "selected_policy_source": "actual_ab_guarded",
-    "ab_status_path": "models/ab_simulation_status_actual_ab_guarded_baseline.json",
+    "schema_version": "2026-04-05.1",
+    "generated_at_utc": "2026-04-06T14:42:13.607561+00:00",
+    "run_tag": "paper-thesis-final-economic-2026-04-06",
+    "selected_policy_source": "economic_champion_within_exact_robust_region",
     "promotion_decision": {
-      "selector": "actual_ab_guarded",
-      "scenario": "baseline"
-    }
+      "selector": "paper_thesis_final",
+      "scenario": "economic_unified_promotion"
+    },
+    "upstream_canonical_run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
   },
   "fairness": {
     "overall_pass": true,
@@ -1912,7 +1949,7 @@
     "fallback_applied": true
   },
   "time_series": {
-    "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+    "run_tag": "canonical-audit-rebuild-2026-04-06-r2",
     "status": "warn"
   },
   "governance": {
@@ -1950,7 +1987,9 @@
       "min_reason_code_stability": 1.0,
       "fairness_overall_pass": true,
       "fairness_primary_threshold": 0.35,
-      "challenger_promotable": false
+      "challenger_promotable": false,
+      "model_shift_type": "mixed_shift",
+      "governance_posture": "candidate_gate"
     }
   }
 }

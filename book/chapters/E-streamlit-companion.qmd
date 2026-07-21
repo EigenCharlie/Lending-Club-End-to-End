@@ -12,7 +12,12 @@ listing:
   filter-ui: false
 ---
 
-Quarto es la superficie oficial, citable y actualizada del proyecto. El Streamlit local deja de ser un dashboard narrativo amplio y pasa a ser un companion reducido: un laboratorio opcional para explorar interacción real que no vale la pena duplicar en el libro.
+{{< include ../includes/_scientific-scope-contract.qmd >}}
+
+Quarto es el registro editorial de las superficies locales. El Streamlit local
+deja de ser un dashboard narrativo amplio y pasa a ser un companion reducido:
+un laboratorio opcional para explorar interacción sin promover artefactos a
+claims científicos.
 
 El showcase público desplegado en Streamlit Cloud queda tratado como un snapshot histórico congelado. Puede seguir siendo útil como demo externa, pero ya no es la fuente oficial ni el destino natural de la evolución editorial del proyecto.
 
@@ -26,18 +31,18 @@ El showcase público desplegado en Streamlit Cloud queda tratado como un snapsho
 
 La nueva frontera es deliberada:
 
-- Quarto absorbe narrativa estable, resultados oficiales y claims defendibles.
+- Quarto conserva narrativa, procedencia y límites de Paper 2 y Paper 4.
 - Streamlit local conserva simulación, slicing, exploración de casos y sensibilidad interactiva.
 - El showcase público ya no define el roadmap del companion.
 
 ## Mapeo Companion → Libro
 
-| Lab local | Qué conserva Streamlit | Capítulos del libro que fijan la versión oficial |
+| Lab local | Qué conserva Streamlit | Capítulos del libro que fijan la lectura local |
 |---|---|---|
 | `PD & Uncertainty Lab` | comparación dinámica de modelos, calibración, cobertura, set prediction y sensibilidad de incertidumbre | @sec-model-champion, @sec-backtest-monitoring, `13a-uncertainty-baselines`, `13b-alpha-sweep-pareto` |
 | `Explainability Explorer` | navegación de drivers globales, casos locales, bins WOE y reason codes | @sec-global-explanations, @sec-local-explanations, @sec-explanation-drift, @sec-woe-iv |
-| `Portfolio & IFRS9 Simulator` | sliders y comparaciones para capital, provisiones, escenarios y costo económico de robustez | @sec-robust-portfolio, `09c-policy-selection`, @sec-ab-testing, @sec-ecl-calculation, `10d-sensitivity-stress` |
-| `Causal Policy Lab` | exploración segmentada de CATE, reglas causales, tail risk y sensibilidad económica | @sec-causal-inference, @sec-cate-portfolio |
+| `Diagnostic Simulator` | sensibilidad mecánica de proxies históricos de portafolio y escenarios; no ECL, SICR ni policy | @sec-robust-portfolio, `09c-policy-selection`, @sec-ab-testing, @sec-ecl-calculation, `10d-sensitivity-stress` |
+| `Causal Stress Lab` | scores etiquetados CATE y replays observacionales; no intervención ni policy value | @sec-causal-inference, @sec-cate-portfolio |
 | `Data Explorer` | slicing rápido del dataset, mezcla temporal/geográfica y navegación ligera de dataset/linaje útil para análisis | `12a-eda-highlights`, `12b-geographic-temporal`, `04a-data-ingestion-lineage` |
 
 : Superficie final del companion local frente al libro Quarto {#tbl-streamlit-book-map}
@@ -51,9 +56,16 @@ Ya no se mantienen como producto final del companion:
 - backlog, tooling y research management;
 - páginas cuya interactividad era ligera o redundante respecto al libro.
 
-La clasificación auditable página por página y bloque por bloque vive en `docs/STREAMLIT_QUARTO_MIGRATION_REGISTRY.yml`.
+La clasificación histórica página por página y bloque por bloque vive en el
+[snapshot de migración Streamlit--Quarto](../../docs/STREAMLIT_QUARTO_MIGRATION_REGISTRY.yml).
+Ese registro documenta decisiones editoriales de marzo de 2026, no gobierna
+claims científicos actuales; `SESSION_STATE.md` y los contratos de cada paper
+lo sustituyen para ese propósito.
 
 ::: {.callout-note}
 ## Regla de frontera editorial
-Quarto es el source of truth oficial. Streamlit local es un companion opcional de laboratorio. Ambos leen los mismos artefactos canónicos (`models/`, `data/processed/`), pero los claims oficiales deben vivir en el libro.
+Quarto y Streamlit leen artefactos locales compartidos, pero no son autoridad
+sobre CRPTO ni convierten un resultado runtime en evidencia vigente. Los claims
+de Paper 2, Paper 4 y CRPTO se gobiernan por sus contratos separados; Streamlit
+permanece como explorador histórico.
 :::

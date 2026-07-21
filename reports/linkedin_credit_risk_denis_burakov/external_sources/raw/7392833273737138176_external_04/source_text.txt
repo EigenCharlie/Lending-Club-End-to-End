@@ -1,0 +1,1110 @@
+Adrian Olszewski - 2KMM | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Sign in to view Adrian’s full profile
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Adrian Olszewski
+Sign in to view Adrian’s full profile
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Poland
+Contact Info
+Sign in to view Adrian’s full profile
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+39K followers
+500+ connections
+See your mutual connections
+View mutual connections with Adrian
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Join to view profile
+Message
+Sign in to view Adrian’s full profile
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+2KMM
+Uniwersytet Śląski w Katowicach
+Other
+Report this profile
+About
+For 𝟭𝟱 𝘆𝗲𝗮𝗿𝘀 I've been developing my skills in clinical trials biostatistics…
+see more
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+Articles by Adrian
+Type-M and Type-S errors in underpowered studies
+Jun 13, 2025
+Type-M and Type-S errors in underpowered studies
+In clinical trials we make a lot of efforts to properly design studies to make it "powered" enough. Why do we do this?…
+165
+31 Comments
+The role of the frequentist framework, p-values, statistical (NHST) and practical significance (MID) in randomised controlled (clinical) trials
+May 11, 2025
+The role of the frequentist framework, p-values, statistical (NHST) and practical significance (MID) in randomised controlled (clinical) trials
+Despite frequent calls to “ban p-values” and “ditch/abandon statistical significance,” the NHST framework remains one…
+150
+30 Comments
+Importance of statistical significance and p-values in clinical trials
+May 3, 2025
+Importance of statistical significance and p-values in clinical trials
+Despite trendy calls to "ban p-values" and "abandon statistical significance", supported by petitions signed by "800…
+62
+8 Comments
+What key statistical tools dedicated to clinical trial biostatistics exist in R but are missing (or too limited) in Python?
+Mar 28, 2025
+What key statistical tools dedicated to clinical trial biostatistics exist in R but are missing (or too limited) in Python?
+Every now and then I get asked, “Adrian, what statistical package should I learn to join your field (clinical research…
+160
+20 Comments
+Pearson's χ2 for 2×2 contingency table IS the 2-sample Wald’s z test for proportions with pooled variances
+Mar 27, 2025
+Pearson's χ2 for 2×2 contingency table IS the 2-sample Wald’s z test for proportions with pooled variances
+In my previous articles I explained how "Logistic regression can replicate multiple parametric and non-parametric tests…
+70
+4 Comments
+Model-based hypotheses testing, part 2: the 2-sample z-statistic for proportions with pooled variances IS the Rao test of logistic regression
+Mar 21, 2025
+Model-based hypotheses testing, part 2: the 2-sample z-statistic for proportions with pooled variances IS the Rao test of logistic regression
+In my two previous articles: “Is logistic regression a regression? It has been a regression since its birth — and is…
+139
+6 Comments
+Model-based hypotheses testing, part I: the 2-sample Wald’s z-statistic for proportions with un-pooled variances IS the AME of logistic regression
+Mar 9, 2025
+Model-based hypotheses testing, part I: the 2-sample Wald’s z-statistic for proportions with un-pooled variances IS the AME of logistic regression
+In my two previous articles: “Is logistic regression a regression? It has been a regression since its birth — and is…
+42
+1 Comment
+Logistic regression can replicate multiple parametric and non-parametric tests of proportions
+Mar 8, 2024
+Logistic regression can replicate multiple parametric and non-parametric tests of proportions
+Today we will continue the topic about logistic regression. In the previous part "Logistic regression has been a…
+120
+12 Comments
+Logistic regression has been a regression since its birth - and is used this way every day.
+Mar 6, 2024
+Logistic regression has been a regression since its birth - and is used this way every day.
+TL;DR Is the linear or quantile regression a regression to you? I bet you say "yes, because it predicts numerical…
+288
+26 Comments
+Why is transforming the response in regression analysis and hypothesis testing so dangerous? ☠️
+Oct 10, 2022
+Why is transforming the response in regression analysis and hypothesis testing so dangerous? ☠️
+Introduction When reading scientific articles, blogs, tutorials and even textbooks, you will quickly notice, that…
+422
+43 Comments
+Show more
+See all articles
+Activity
+39K followers
+Posts
+Comments
+Reactions
+No more previous content
+Adrian Olszewski
+Adrian Olszewski
+18h
+Report this post
+Adrian Olszewski shared this
+Data science is not only about predictions and classification. It has "data" and "science" in name, so other elements of analysis such as inference, estimation, causal analysis, etc are part of it as well.
+One of the regression methods often mentioned by data scientists, logistic regression is often referred to as "classification only", described typically like "despite its confusing name...".
+In statistics, on which data science is based, there's nothing confusing about this name, it's a core regression algorithm 🤷‍♂️
+➡️ by its history: invented for (surprise) regression purposes years before used in ML,
+➡️ by statistical considerations about conditional expectation - the core of Cox, McFadden, Berkson, Nelder and Wedderburn's work on the Generalized Linear Model, where the linear, Poisson, logistic, gamma and several other special cases follow same logic, differing just by the distribution of conditional response and link
+➡️ by numerous applications in research, including advanced hypothesis testing, analysis of model effects, implementing matching and weighting algorithms, detecting missingness patterns, etc.
+It's worth knowing to not limit ourselves when switching domain, for example in experimental research, like clinical trials.
+Let me say, I've never used it for classification while using it at work on daily basis for testing hypotheses about treatment efficacy and safety.
+💡Remember and share with others: Classification may be the only application in ML but only there.
+Curious about the longer story about the logistic regression? Check this out:
+https://lnkd.in/dMcE4SQj
+Or you may find interesting how it's used in experimental trials: https://lnkd.in/dFrtDBep
+public_profile__posts
+18
+4 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+23h
+Report this post
+Adrian Olszewski shared this
+The biggest challenge with rank test (Mann-Whitney/Wilcoxon, Kruskal-Wallis, Brunner-Munzel, Fligner-Pocello, ATS, WTS, etc) is its null hypothesis: stochastic superiority. It's neither about means nor medians, nor eCDFs in general (like Anderson-Darling would do).
+It means that unless strong distributional assumptions hold, the IID + symmetry around medians we are unable to say how two samples differ: by means? Medians? Variances? Skewness? Modes?
+It's very easy to obtain p>0.999 for very different means or medians and p<0.00..01 for equal means or medians even for small samples.
+Stochastic superiority may be able to detect most kind of changes (in shape, dispersion, central tendency) but won't tell you what precisely. If you need to look at the details, consider quantile regression at different quantiles. This will tell how the data "behave" at different place of their distribution and will miss fewer details and keep the interpretation.
+Rank-based methods are OK for ordinal data or if the nature of difference and the magnitudes can be ignored entirely.
+If, despite non-normally looking samples, you need to compare means (if it's meaningful) - the permutation Welch t, Freedman-Lane ANOVA, or wild bootstrap with Rademacher weights ANOVA will compares means without normality: https://lnkd.in/dA5ZGdHW
+Ananya Singh Chauhan, Doctoral PhD Researcher
+Ananya Singh Chauhan, Doctoral PhD Researcher
+2w
+Adrian Olszewski shared this
+If choosing the right statistical test stresses you out…
+Save & share this quick cheat sheet of commonly used tests ⤵️
+[Descriptive stats set the context—they’re not a test]
+✅ Z-test: For large samples with known population variance
+✅ T-test: Comparing means, usually with smaller samples
+✅ ANOVA: When comparing 3 or more groups
+✅ Pearson correlation: Measures linear relationships between continuous variables
+✅ Mann–Whitney U: A non-parametric option when normality assumptions don’t hold
+The key isn’t memorizing tests—it’s understanding why a test matches your data and research question.
+💬 Which statistical test would you add to this list?
+PS: Want this as a PDF? Just say the word.
+— — — — —
+Found this helpful? Share it with someone who might need it.
+#phd #researcher
+public_profile__posts
+7
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+1d
+Report this post
+Adrian Olszewski shared this
+Name a statistical method, test, procedure, etc., and you'll likely find an article, blog post, book, forum discussion that screams in title: "controversial", "ditch", "dangerous", "dislike", "fails", "does not", "be careful", "wrong", "replace", "misconception", "dangerous", "do never", "should we..." and so on.
+I ♥️ statistics 🙂
+A few random topics where I saw such content:
+- any kind of data imputation (mean, LOCF, MICE)
+- matching
+- weighting
+- GLMM, GEE
+- XYZ test "is not a test of..."
+- (non) normality test
+- estimand framework
+- marginal effects, conditional effects
+- LS-means / EM-means
+- p-value
+- confidence interval
+- standardized effect size (e.g. Cohen D)
+- Bayes factors
+- testing (against) normality and other assumptions
+- not testing (against) normality and other assumptions
+- several residual diagnostic tests (X doesn't do Y)
+- rank based tests
+- data transformations (e.g. Box-Cox)
+- Fine-Gray for competing risk
+- Cox for hazards
+- frailty models
+- variable standarization (--> SD units)
+- testing using Wald, LRT
+- detecting outliers
+- dealing with outliers
+- not dealing with outliers
+- testing on the linear predictor scale, on the response scale
+- sample size calculations
+- adjusting for multiple comparisons
+- name-of-any-multiple-comparisons-adjustment-method
+- not adjusting for multiple comparisons
+- randomization (yes, saw somewhere such paper)
+- lack of randomization
+- G-calculation
+- p-values in Table 1
+- parametric methods
+- non-parametric methods
+- Pearl's vs Rubin causality
+- resampling methods (and here: BCa, percentile...)
+- Type-1 ANOVA, Type-3 ANOVA
+- SMOTE 😁
+....
+And that's a good thing!
+There's no one-size-fits-all tool. Even the best multi-tool can't replace a solid hammer, pliers, screwdriver, or saw. Sometimes you can drive a nail with pliers, and sometimes you can make a hole with a screwdriver when you don't have a drill.
+A hammer drill may destroy a drywall, and a concrete drill won't work well on wood. Whatever you use, the best you can know about it is its weaknesses.
+And sometimes it's simply a matter of preference, ideology, and a dogmatic approach - which we all like because - well it simplifies overly complicated world 🤷‍♂️
+public_profile__posts
+17
+2 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+1d
+Report this post
+Adrian Olszewski shared this
+The more I learn about the estimand framework (ICH E9 R1) the more I appreciate it. So far I found two books about the framework. The one I'm reading now is "Estimands, Estimators and Sensitivity Analysis in Clinical Trials": https://lnkd.in/dZZhkuyR and the other is mentioned below ⬇️
+#clinicaltrials #biostatistics #pharma #clinicalresearch
+Jonathan Siegel
+Jonathan Siegel
+4mo
+Adrian Olszewski shared this
+I am pleased to announce that Estimands in Clinical Trials: A Practical Guide, has been published by Springer. This book, with five editors and over seventy co-authors, is a comprehensive guide to understanding and applying the estimands framework in clinical trials.
+I had a very small part in this book. I’m one of eight co-authors of Chapter 21, “Leveraging the Estimand Framework for Integrated Evidence Planning.”
+https://lnkd.in/e22rGwRg
+Estimands in Clinical Trials
+Estimands in Clinical Trials
+6
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+reacted on this
+Report this post
+Adrian Olszewski reacted on this
+Farewell geepack! While there are over 20 packages for GEE in R ( https://lnkd.in/dwyTCECt ), each focused on something special, but there's one superb package ➡️ 𝙜𝙡𝙢𝙩𝙤𝙤𝙡𝙗𝙤𝙭 👑. I've been using it on daily basis at work in clinical trials since its first days and has never disappointed me (unlike geepack).
+Advantages:
+✔️ author reacts relatively quickly and fix the issues
+✔️ capabilities beat those of geepack totally. To name a few:
+👉 families: gaussian, binomial, poisson, gamma, inverse gaussian, negative binomial, tweedie
+👉 stationary and non-stationary M-dependent and AR-M-dependent residual covariance structures
+👉 correct weighting for MAR (WGEE) - observation and cluster/subject-specific weights
+👉 Mancl-DeRouen bias-corrected sandwich for small sample inference! Also: standard sandwich, jacknife, df-adjusted, naive model-based
+👉 Model selection criteria like QIC, CIC, RJ, SGPC, GHYC, PAC, AGPC (Akaike-type penalized Gaussian pseudo-likelihood)
+👉 Global and local influence diagnostics; Cook's distance, DFBETA, leverage
+👉 Comparing nested models - stepwise selection (I never recommend it but if you want it - it is there), based on: QIC, QICU, AGPC, SGPC, Wald's and Score p-values
+👉 Pearson, Deviance and Mahalanobis residuals
+👉 nonlinear predictors (gnmgee)!
+✔️ doesn't crash! warns about unstable estimates 😍 (both unlike geepack)
+✔️ lots of stuff for the GLM family!
+✔️ talks with these packages - essential for clinical trials! (that was my initiative to ask authors of these packages for their support)
+- broom
+- mice
+- emmeans
+- marginaleffects
+- easystat::insight
+- easystat::parameters
+- ggeffects
+The main paper for glmtoolbox is attached below.
+Consider switching - I'm pretty sure you won't regret it.
+public_profile__posts
+24
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+2d
+Report this post
+Adrian Olszewski shared this
+Farewell geepack! While there are over 20 packages for GEE in R ( https://lnkd.in/dwyTCECt ), each focused on something special, but there's one superb package ➡️ 𝙜𝙡𝙢𝙩𝙤𝙤𝙡𝙗𝙤𝙭 👑. I've been using it on daily basis at work in clinical trials since its first days and has never disappointed me (unlike geepack).
+Advantages:
+✔️ author reacts relatively quickly and fix the issues
+✔️ capabilities beat those of geepack totally. To name a few:
+👉 families: gaussian, binomial, poisson, gamma, inverse gaussian, negative binomial, tweedie
+👉 stationary and non-stationary M-dependent and AR-M-dependent residual covariance structures
+👉 correct weighting for MAR (WGEE) - observation and cluster/subject-specific weights
+👉 Mancl-DeRouen bias-corrected sandwich for small sample inference! Also: standard sandwich, jacknife, df-adjusted, naive model-based
+👉 Model selection criteria like QIC, CIC, RJ, SGPC, GHYC, PAC, AGPC (Akaike-type penalized Gaussian pseudo-likelihood)
+👉 Global and local influence diagnostics; Cook's distance, DFBETA, leverage
+👉 Comparing nested models - stepwise selection (I never recommend it but if you want it - it is there), based on: QIC, QICU, AGPC, SGPC, Wald's and Score p-values
+👉 Pearson, Deviance and Mahalanobis residuals
+👉 nonlinear predictors (gnmgee)!
+✔️ doesn't crash! warns about unstable estimates 😍 (both unlike geepack)
+✔️ lots of stuff for the GLM family!
+✔️ talks with these packages - essential for clinical trials! (that was my initiative to ask authors of these packages for their support)
+- broom
+- mice
+- emmeans
+- marginaleffects
+- easystat::insight
+- easystat::parameters
+- ggeffects
+The main paper for glmtoolbox is attached below.
+Consider switching - I'm pretty sure you won't regret it.
+public_profile__posts
+28
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+3d
+Report this post
+Adrian Olszewski shared this
+Someone: "Adrian, really, you can't contradict hundreds of authorities, authors of books, recognized monographs, university professors, etc." (from one of my recent discussions)
+Me: Even if I'm right?
+Someone: Adrian, do you REALLY think that all these people didn't figure out what you did before, and you were the only one who came up with these discoveries? Doesn't that sound funny, even narcissistic?
+Me: First of all, I don't know if they did or didn't 🤷‍♂️
+Their publications certainly don't indicate that they did.
+And NO - I'm not the only one. There are plenty of sources (including monographs) and articles that explain the problem.
+Besides, all it takes is a moment with your favorite statistical package that allows you to program a simulation - and you'll see for yourself.
+Humility is needed when you think you know everything when you don't even know the basics. And I'm talking about the basics - first principles.
+Someone: Well, you're brave. And what if someone mocks you?
+Me: Well, people can mock me for many things. Should I care? Maybe.
+But let me tell, a brave guy is someone who, without a second thought, trusted something they used in their work, without visually assessing the data, without looking at the results from a broader perspective of mutual CONSISTENCY, and then... based a publication on it. And then, some time later, it turned out they published nonsense. Tell me, who's gonna laugh?🙄
+No, don't look at me. I don't wish bad things on people. But their jealous "colleagues" or competitors - they certainly can....
+I'm warning people over and over, day after day, because I've failed in the past with the problem I'm describing. And I've seen plenty of other people's bloopers. So instead of mocking me, moralizing, or denying me, just say, "Thanks, buddy, for being so annoying*" 😂
+/* I can imaging how many people "welcome" my repetitive posts about the same topic with "Oh man, YOU AGAIN... 🤦‍♂️". I understand your frustration, but someone has to be the pain in the as.... neck 🙂 /
+public_profile__posts
+90
+9 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+3d
+Report this post
+Adrian Olszewski shared this
+Be very careful when following the information about non-parametric statistical tests in this book. For example it wrongly claims it compares medians with Mann-Whitney(-Wilcoxon) or Kruskal-Wallis which is wrong in general.
+One may fail their dissertation, work assignment or research when believing that!
+https://lnkd.in/dzcR2uAx
+#statistics #nonparametric #datascience
+MOHAMUD ABDULLAHI MOHAMED
+MOHAMUD ABDULLAHI MOHAMED
+4d
+Adrian Olszewski shared this
+R for Basic Biostatistics in Medical Research
+The book R for Basic Biostatistics in Medical Research is a specialized and practical resource that introduces the R programming language as a powerful tool for biostatistical analysis in clinical and medical research. It provides a structured pathway from foundational concepts to advanced applications, making it invaluable for medical researchers, statisticians, and healthcare professionals.
+📘 Why This Book Matters
+Biostatistics is the backbone of evidence‑based medicine. With R, researchers can design studies, analyze clinical data, and validate findings with precision and reproducibility. This book bridges statistical theory with practical implementation, ensuring that medical research is both rigorous and impactful.
+📑 Key Content Covered
+Foundations of R: Why R is essential and prospects of learning it.
+Clinical Study Design: Statistical analysis plans for medical research.
+Data Handling: Manipulation, descriptive statistics, and visualization.
+Inferential Statistics: Parametric and non‑parametric hypothesis testing.
+Sample Size Computation: Essential for clinical trial design.
+Regression Analysis: Linear and logistic regression for continuous and categorical outcomes.
+Diagnostic Studies: ROC curve analysis.
+Survival Analysis: Time‑to‑event outcomes in clinical trials.
+Randomization: Conducting randomized clinical trials.
+R Shiny Applications: Developing interactive web‑based tools for medical research.
+💡 Key Benefits
+Medical Focus: Tailored to biostatistics in healthcare and clinical studies.
+Hands‑On Learning: Practical examples with R code for real medical datasets.
+Comprehensive Coverage: From basics to advanced statistical methods.
+Applied Utility: Supports clinical trial design, diagnostics, and survival analysis.
+👥 Who Should Read It
+Medical Researchers & Clinicians: To apply biostatistics in evidence‑based studies.
+Biostatisticians & Data Analysts: To strengthen R programming skills in healthcare contexts.
+Graduate Students in Medicine & Public Health: To build a strong foundation in applied biostatistics.
+Healthcare Policy Makers: To interpret statistical evidence for decision‑making.
+🌍 The Professional Edge
+This book is more than a programming guide—it is a strategic toolkit for medical research. By mastering R’s biostatistical capabilities, professionals can design credible studies, analyze clinical data responsibly, and contribute to advancing healthcare outcomes.
+🔖 Hashtags
+#RProgramming #Biostatistics #MedicalResearch #ClinicalTrials #HealthcareAnalytics #EvidenceBasedMedicine #DataScienceInHealthcare #ProfessionalDevelopment
+public_profile__posts
+69
+10 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+Adrian Olszewski
+4d
+Report this post
+Adrian Olszewski shared this
+I read yeaterday: "That’s why you should embrace non-parametric statistics and start loving ranks 🙂". This is in spirit "Non-parametric = no problems" claim, which I hardly disagree with if made generally.
+Think about it.
+What hypothesis will we assess? You lose simple interpretation in most cases.
+Let's take the Mann-Whitney(-Wilcoxon): it's not about means, not about medians, not even entire distributions. It's about stochastic superiority and this is not something we easily use, say, in clinical non-inferiority or bioequivalence studies.
+Ranks have no connection to any common measure unless a strong (and often unrealistic assumption) holds: identically distributed, leading to shift-location model.
+And even this isn't fully true for Mann-Whitney(-Wilcoxon), because if variances are different (which happens almost always), the type-1 error is compromised.
+So yes, IT DOES make some assumption 😉
+And we need then the Brunner-Munzel just like Welch-Satterthwaite for the t-test case.
+But why not employing a distribution-free test that preserve a meaningful outcome, e.g. expressed in means (assuming they DO make sense for such data) like permutation Welch t test, Freedman-Lane AN(C)OVA, wild bootstrap AN(C)OVA? Or quantile regression maybe, giving you well-interpretable outcomes?
+This is important for example in my field - clinical trials, where the key analyses must be planned in advance and use concrete estimators aligned with the clinical question. If comparison of means for clinical superiority testing was planned, switching to a rank-based test changes that. In other words, you obtain a technically valid answer to a never asked question.
+/ *it' s easy to find cases where p < 0.0..01 for equal means or medians at low N, and p>0.999 for different means or medians - even at large N. /
+Maybe you'll be very lucky and the IID holds + also the distributions are close to Gaussian - but then hey! Probably either version of the CLT would do the job fine, without even reaching for ranks and lowering power or compromising Type-1 error (so important in clinical trials).
+Rank-based methods like DO have their deserved place in case of difficult distributions (where a single-number summary doesn't suffice) or ordinal data, but at the cost of harder interpretation.
+For ordinal data stochastic superiority (probabilist index) is the most useful information we can obtain, but for numerical data? We can do much better!
+Visit my thread on the ResearchGate for a discussion, examples and important literature (books, papers): https://lnkd.in/dzcR2uAx
+Take my challenge about embracing the permutation Welch t test: https://lnkd.in/dBwCQz3P
+(Yep, an AI-generated pic, but - surprisingly - quite well handled :) )
+public_profile__posts
+32
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+Slide to item 4
+Slide to item 5
+Slide to item 6
+Slide to item 7
+Slide to item 8
+Slide to item 9
+Adrian Olszewski replied to a comment
+8h
+Jakub Bielikowski Jeśli to możliwe to tak. Choć w przypadku mojej pracy od 15 lat to biuro jest w Teamsach albo na Webexie* :) Ciężko byłoby pozbierać wszystkich uczestników spotkania z kilku krajów w jednym biurze, a tak niemal zawsze jest... nierzadko to późne godziny wieczorne by pogodzić strefy czasowe. Zresztą i tak większość pytań idzie mailem, a spotkanie to głównie "kickoff" żeby powiedzieć "hej, to ja" :)
+--
+* a czasem któryś z uczestników dodatkowo jest jeszcze "na głośnomówiącym", bo nie korzysta ze smartfona a jest w terenie).
+Adrian Olszewski commented on a post
+9h
+Richard Hahn In clinical trials:
+- marginal: population-average (G-calculated or per-arm AME, MEM (EM-mean at mean covariates)
+- marginal model (GEE-fit, GLS-fit, a GLMM model with random effects integrated out) for repeated data, meaning the estimates are not subject-specific (like in mixed models)
+- marginal distribution
+- marginal importance...
+Adrian Olszewski replied to a comment
+9h
+Floe Foxon or GLS-fit MMRM for the general (Gaussian) linear model. That's the most common way to approach repeated observations in clinical trials :) We use GEE:
+- when the Cholesky de-correlated normalized residuals from GLS fail normality (GEE doesn't need this)
+- when we deal with non-Gaussian GLMs, like logistic regression, but need population-average rather than subject-specific treatment effects.
+No more previous content
+Adrian Olszewski
+liked this
+Report this post
+Adrian Olszewski liked this
+Gabriel Ryan, FRM
+Gabriel Ryan, FRM
+5h
+Adrian Olszewski liked this
+I remember this 😁.
+Legendary classic.
+public_profile__reactions
+136
+15 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+liked this
+Report this post
+Adrian Olszewski liked this
+Richard Hahn
+Richard Hahn
+13h
+Adrian Olszewski liked this
+This post is about the different uses of the word "marginal" in economics versus in statistics.
+In economics, we have expression like "marginal cost" and "marginal utility" and it refers to "marginal" in the sense of "incremental". It is a margin in the sense that an onion is composed of many layers and you can peel off the outermost layer, lying at the outmost edge or periphery.
+Mathematically the onion picture corresponds to differentiation (ie differencing). Marginal cost and marginal utility are essentially rates of change at a given level.
+Statisticians use the term "marginal distribution" or "marginal probabilities". It comes from the idea that if you have a two dimensional random variable that takes discrete values, then you have a table (array) of numbers (probabilities) that sum up to one. If you sum across each rows (resp. column) you can write the aggregated probabilities along the “margin” of the table.
+Mathematically, this sense of margin corresponds to integration (i.e. summation). "Marginalizing" a random variable is to integrate it out of the joint distribution.
+Therefore, depending on who you are talking among, "margin" is its own mathematical antonym!
+[The image is created from the text of this post by GPT5.5...it is the best illustration I've managed -- but maybe I just haven't spotted the snafus yet.]
+public_profile__reactions
+168
+18 Comments
+Copy
+LinkedIn
+Facebook
+X
+Adrian Olszewski
+reacted on this
+Report this post
+Adrian Olszewski reacted on this
+Michal Chlebiej
+Michal Chlebiej
+2mo
+Adrian Olszewski reacted on this
+Uczestniczę w wydarzeniu BioStat Community. To ogólnopolska inicjatywa społecznościowa, która łączy osoby pracujące z danymi biologicznymi i medycznymi w nauce, ochronie zdrowia i biznesie.
+🔗 https://lnkd.in/dkUGQxCP
+#girlscodefun #biostatcommunity
+public_profile__reactions
+14
+1 Comment
+Copy
+LinkedIn
+Facebook
+X
+No more next content
+Slide to item 1
+Slide to item 2
+Slide to item 3
+See all activities
+Experience & Education
+2KMM
+********* *************** * *********** * **********
+********* **********
+********
+***
+*************** * *********** * **********
+*********** ****** * **********
+****** ** ******* ***** ******** ******* undefined
+2003 - 2005
+*********** ****** * **********
+******** ** ******* ***** ******** *******
+2000 - 2003
+View Adrian’s full experience
+See their title, tenure and more.
+Sign in
+Welcome back
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+New to LinkedIn? Join now
+or
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Publications
+Sequence of procedures used in management of disc displacement without reduction
+Folia Medica Cracoviensia
+December 26, 2024
+Temporomandibular disorder (TMD), occurring in the form of articular disc displacement with- out reduction is one of the most serious and common forms of dysfunction. The aim of this article was to present a complete sequence of procedures and intervention that consequently led to the resolution of symptoms in most patients, associated with disc displacement without reduction and the resolution of joint's pain, as well as favorable results of treatment of disc displacement with reduction.
+See publication
+Routine use of denosumab for prevention of skeletal-related events in patients with bone metastases from prostate carcinoma in Bulgaria: a prospective observational study
+[Taylor & Francis] Biotechnology & Biotechnological Equipment
+July 1, 2024
+See publication
+Statistical analysis in "Effectiveness, Adherence, and Safety of Evolocumab in a Swiss Multicenter Prospective Observational Study"
+Springer Verlag
+November 18, 2021
+See publication
+Familial Hypercholesterolaemia in a Bulgarian Population of Patients with Dyslipidaemia and Diabetes: An Observational Study
+Springer Verlag
+January 1, 2020
+Other authors
+See publication
+Courses
+Analysis of qualitative data in medicine (StatSoft)
+-
+CDISC ADaM bundle
+-
+CDISC SDTM IG V3.1.3 bundle
+-
+DOE - computer-aided design of experiments (StatSoft)
+-
+Data mining - models and methods (StatSoft)
+-
+Data mining methodologies (StatSoft)
+-
+Data processing with SAS: part I (SAS Institute)
+-
+Effective employee management (ComArch)
+-
+Forecasting and analysis of time series (StatSoft)
+-
+Fraud and misconduct in clinical research
+-
+ICH GCP Addendum on updates published in Nov 2016
+-
+ICH Good Clinical Practice (POLCRO)
+-
+Meta-analysis (StatSoft)
+-
+QbD - design of experiments as a tool of quality assurance for drug development (StatSoft)
+-
+SAS: basics (SAS Institute)
+-
+Projects
+Validation of the R statistical package for the use in pharma (Clinical Research)
+Jan 2018 - Present
+Languages
+Russian
+Elementary proficiency
+English
+Professional working proficiency
+Polish
+Native or bilingual proficiency
+Organizations
+International Society for Clinical Biostatistics - Polish National Group
+Regular member
+Jan 2018 - Present
+Recommendations received
+Marie-Pierre Malice
+“I have worked with Adrian for more than 3 years. I have been impressed by his knowledge in different fields: statistics and more specifically statistics applied to clinical trials, computer science, and programming in various languages. His skills in R are outstanding. He is very eager to constantly learn new concepts or methods. It was a real pleasure to work with him.
+”
+1 person has recommended Adrian
+Join now to view
+View Adrian’s full profile
+See who you know in common
+Get introduced
+Contact Adrian directly
+Join to view full profile
+Other similar profiles
+Anna Łabno-Żywno
+Anna Łabno-Żywno
+AstraZeneca
+317 followers
+Warsaw
+View Profile
+Michał Bednarski
+Michał Bednarski
+Covance
+55 followers
+Warsaw
+View Profile
+Michał Klos
+Michał Klos
+elderbrook solutions GmbH
+411 followers
+Warsaw
+View Profile
+Jakub Mikulski
+Jakub Mikulski
+AstraZeneca
+425 followers
+Warsaw Metropolitan Area
+View Profile
+Lukasz Palka
+Lukasz Palka
+iTeos Therapeutics
+428 followers
+Poland
+View Profile
+Lukasz Spychaj
+Lukasz Spychaj
+Roche Pharmaceuticals
+130 followers
+Bydgoski
+View Profile
+Anna Marcisz
+Anna Marcisz
+Stowarzyszenie na Rzecz Edukacji i Rodziny Węgielek
+229 followers
+Rybnik III
+View Profile
+Anna Komotajtys
+Anna Komotajtys
+Plus-Project Partnership
+382 followers
+Warsaw
+View Profile
+Iwona Kojder
+Iwona Kojder
+AstraZeneca
+346 followers
+Warsaw
+View Profile
+Maciej Mac
+Maciej Mac
+AstraZeneca
+181 followers
+Warsaw
+View Profile
+Joanna Sasin-Kurowska
+Joanna Sasin-Kurowska
+AstraZeneca
+609 followers
+Warsaw
+View Profile
+Bartosz Wylot
+Bartosz Wylot
+AstraZeneca
+618 followers
+Warsaw
+View Profile
+Aneta Chabowska
+Aneta Chabowska
+AstraZeneca
+471 followers
+Warsaw
+View Profile
+Ewa Śleszyńska-Dopiera
+Ewa Śleszyńska-Dopiera
+Quanticate
+389 followers
+Warsaw
+View Profile
+Karolina Kolasa
+Karolina Kolasa
+AstraZeneca
+484 followers
+Warsaw
+View Profile
+Karol Nienałtowski
+Karol Nienałtowski
+Data4Cure, Inc.
+183 followers
+Warsaw
+View Profile
+Lech Martyniszyn
+Lech Martyniszyn
+Icon plc
+605 followers
+Warsaw Metropolitan Area
+View Profile
+Magdalena Lim
+Magdalena Lim
+AstraZeneca
+417 followers
+Warsaw
+View Profile
+Agnieszka Gajewska
+Agnieszka Gajewska
+Pfizer
+134 followers
+Poland
+View Profile
+Kalina Pawłowska
+Kalina Pawłowska
+336 followers
+Warsaw
+View Profile
+Show more profiles
+Show fewer profiles
+Explore more posts
+Prague Scientific
+406 followers
+Driving Excellence in Pharmacovigilance & Regulatory Affairs Across Central & Eastern Europe
+At Prague Scientific, we are committed to elevating patient safety and regulatory compliance through robust pharmacovigilance and regulatory affairs expertise.
+In our latest video, Jana Dubravčíková, Head of Regulatory Affairs, and Jan Skrle, Head of Pharmacovigilance, share how our team supports companies navigating complex markets with confidence and clarity.
+Together, they highlight our strengths:
+🔹 Expertise spanning generics to value‑added medicines
+🔹 Deep understanding of the Central & Eastern European regulatory landscape
+🔹 A Prague‑based team ensuring quality, consistency, and alignment across countries
+🔹 Comprehensive pharmacovigilance systems built for evolving global regulations
+🔹 A robust local PV network for scientific literature screening and regulatory intelligence
+🔹 Hands‑on experience with audits, inspections, and regulatory interactions
+🔹 Regulatory affairs support that transforms complex requirements into practical, actionable pathways to approval and compliance
+Whether you're preparing to enter a new region or seeking a reliable partner to manage your local pharmacovigilance and regulatory activities, Prague Scientific is here to help you stay ahead of the curve.
+Watch the full video to learn how our experts support your success across the entire regulatory and safety lifecycle.
+Learn more at www.praguescientific.com.
+11
+Confitura Conference
+975 followers
+💡 In clinical trials, a single failure can cost $5–25M.
+With today’s AI models hitting only ~67% accuracy, that’s a lot of risk left on the table.
+At #Confitura2025 Piotr Ćwikliński, PhD, Data & AI expert with 13+ years in life sciences, pharma, and banking, will share how an AI-powered early warning system can flag high-risk trials before they launch.
+🔬 Powered by four specialized BERT models + novel text analysis
+💰 Portfolio savings estimated at $125M+
+✅ Predictions that are interpretable and actionable
+Don’t miss this session if you care about AI turning into real business impact, not just hype.
+📅 September 19–20, Warsaw
+🎟 Tickets: https://lnkd.in/dffNJZhj
+#AI #ClinicalTrials
+5
+CEE Legal Matters
+17K followers
+Wolf Theiss: "Clinical trials are and will remain crucial to drug development and the improvement of patient health. In Europe, approximately 80 per cent of clinical trials experience difficulties in obtaining or retaining an adequate number of participants, leading to increased costs and delays in bringing a medicinal product to market or even abandonment of the project altogether. Despite the increasing number of clinical trials and maintaining a strong position in the global clinical trials market, Poland is no exception."
+By Joanna Jagiełło (Wajdzik)
+#CEELegalMatters #Poland #ClinicalTrials #LifeSciences
+Palleos
+3K followers
+Why do so many sponsors choose Central and Eastern Europe for their clinical trials?
+Discover the key advantages — from fast patient recruitment to cost-effective operations and robust regulatory support.
+Watch our new video to learn how your project can benefit from running clinical studies in this dynamic region.
+#ClinicalTrials #Palleos #CentralEasternEurope #palleos #CRO
+5
+Software Mind
+86K followers
+Our webinar recording “Scaling digital innovation in drug discovery and clinical trials” is now available to watch!
+Just last week, our speakers, Baris Ersezer from Novartis and our expert, Damian Adamczyk, went deep on critical questions, including:
+-How do you make sure your innovation efforts are grounded in actual business impact, not just technical success?
+-What is the biggest challenge when organizations try to scale AI?
+-What is the role of leadership in moving projects from the lab into production?
+-What are the biggest misconceptions about using AI in life sciences?
+-When should you "reuse" existing tools versus "build new" solutions?
+The discussion was packed with real-world strategies for R&D and clinical transformation.
+For those of you who couldn't make it or just want to revisit the discussion, here's the link to the recording: https://lnkd.in/d-nxWyTK
+Tony Butler, as usual, you did a remarkable job hosting and guiding our conversation!
+#AI #LifeSciences #DrugDiscovery #ClinicalTrials #Innovation
+18
+KomplexLabor Clinical
+243 followers
+Valuable insights from the X. Clinical Trial Conference
+Last week's X. Clinical Trial Conference and GCP Training Course provided an inspiring opportunity to gain deeper insight into the dynamically evolving world of clinical research in Hungary.
+Key highlights from the conference:
+🔬 Professional presentations and panel discussions on strengthening collaboration between research sites
+💡 Economic aspects of clinical trials and their societal added value
+📋 Latest regulatory changes in contracting and authorization processes
+It was particularly motivating to see how committed the profession is to collaborative thinking and knowledge sharing. These events not only serve our professional development but also contribute to making future clinical trials more successful and efficient – ultimately for the benefit of patients.
+Thank you to the organizers Magyarországi Klinikai Vizsgálatszervezők Társasága – MKVT and all participants for the valuable dialogue! 🙏
+#MKVT2025 #ClinicalTrials #GCP #HealthcareInnovation #ClinicalResearch #Pharma
+18
+Avenga
+189K followers
+Pharma CRM transformation doesn’t start with implementation, it starts with readiness. Roman Bevz, Principal IT Domain Consultant for Life Sciences at Avenga, shares 12 key areas every organization should assess before moving to Salesforce Life Sciences Cloud.
+🎬 Watch the video, save the checklist, and get ready for the future of intelligent engagement.
+Together with Iurii O. and Liubomyr Chukhrai, Roman will be at #Dreamforce, October 14–16, to share more about building a future-ready pharma CRM and unlocking the next generation of intelligent engagement. Let’s connect in San Francisco!
+#Avenga #Salesforce #LifeSciences #PharmaCRM
+375
+The Bucharest International Clinical Trials Symposium
+672 followers
+Global Experts Convene in Bucharest to Advance Patient‑Centric Clinical Trials and EU Harmonisation
+Bucharest, Romania – 14 November 2025 – The Bucharest International Clinical Trials Symposium (BICS) 2025 brought together regulators, researchers, industry executives and patient advocates to shape the future of clinical research. Now in its 17th year, the Clinical Trials Symposium is recognised as one of Europe’s most important forums and Romania’s leading platform for advancing harmonisation, innovation and patient‑centricity.
+Hosted by the Avantyo Institute of Clinical Research, the symposium highlighted the urgent need to modernise trial design, reduce regulatory complexity and strengthen collaboration across borders. “Clinical research must evolve to be more transparent, collaborative and patient‑focused. BICS continues to serve as a vital forum for shaping this transformation,” said Dr Cristina Florescu Moraid, President of BICS and Director of Avantyo Institute of Clinical Research.
+Key themes included the unveiling of the final ICH GCP E6 (R3) Guideline, new models for patient enrolment and decentralised trials, and stronger sponsor–site–patient partnerships. “Patients must be active partners, not passive participants,” said Rozalina Lăpădatu, President of the Autoimmune Patients Association (APAA). “Rebuilding trust in clinical research depends on transparent sponsor–site–patient relationships, with clear communication, predictable processes and co‑designed studies that place patients at the centre,” said Dr Alina Codrescu, Director of Clinical Operations, Balkan Cluster, Bristol Myers Squibb.
+Organisers also announced the upcoming IMPACT Conference 2026, dedicated to patients as active partners in clinical research, scheduled for April 2026 in Romania.
+About BICS The Bucharest International Clinical Trials Symposium (BICS) is one of Europe’s most important forums for clinical research and Romania’s leading symposium in the field. Founded in 2008 as the Clinical Trials Symposium, it has been guided from the very beginning by Dr Cristina Florescu Moraid and proudly hosted under Avantyo’s leadership since 2019. Over its 17‑year history, BICS has championed modernisation and internationalisation of clinical trials, with a strong focus on patient‑centricity and EU harmonisation.
+7
+Camina Medical Experts
+207 followers
+Global Experts Convene in Bucharest to Advance Patient‑Centric Clinical Trials and EU Harmonisation
+Bucharest, Romania – 14 November 2025 – The Bucharest International Clinical Trials Symposium (BICS) 2025 brought together regulators, researchers, industry executives and patient advocates to shape the future of clinical research. Now in its 17th year, the Clinical Trials Symposium is recognised as one of Europe’s most important forums and Romania’s leading platform for advancing harmonisation, innovation and patient‑centricity.
+Hosted by the Avantyo Institute of Clinical Research, the symposium highlighted the urgent need to modernise trial design, reduce regulatory complexity and strengthen collaboration across borders. “Clinical research must evolve to be more transparent, collaborative and patient‑focused. BICS continues to serve as a vital forum for shaping this transformation,” said Dr Cristina Florescu Moraid, President of BICS and Director of Avantyo Institute of Clinical Research.
+Key themes included the unveiling of the final ICH GCP E6 (R3) Guideline, new models for patient enrolment and decentralised trials, and stronger sponsor–site–patient partnerships. “Patients must be active partners, not passive participants,” said Rozalina Lăpădatu, President of the Autoimmune Patients Association (APAA). “Rebuilding trust in clinical research depends on transparent sponsor–site–patient relationships, with clear communication, predictable processes and co‑designed studies that place patients at the centre,” said Dr Alina Codrescu, Director of Clinical Operations, Balkan Cluster, Bristol Myers Squibb.
+Organisers also announced the upcoming IMPACT Conference 2026, dedicated to patients as active partners in clinical research, scheduled for April 2026 in Romania.
+About BICS The Bucharest International Clinical Trials Symposium (BICS) is one of Europe’s most important forums for clinical research and Romania’s leading symposium in the field. Founded in 2008 as the Clinical Trials Symposium, it has been guided from the very beginning by Dr Cristina Florescu Moraid and proudly hosted under Avantyo’s leadership since 2019. Over its 17‑year history, BICS has championed modernisation and internationalisation of clinical trials, with a strong focus on patient‑centricity and EU harmonisation.
+6
+Biokinetica
+2K followers
+🎯 Meet the Experts Shaping Poland's Clinical Research Future 🎯
+Following our announcement about CEO Marek Kiecana's participation in the Karpacz panel, we're thrilled to introduce the complete lineup of distinguished experts who will tackle the critical question: "How to accelerate clinical research development in Poland?"
+🔬 The Panel Dream Team:
+Marek Kiecana - CEO, Biokinetica Bringing frontline experience from Phase I clinical operations and international pharmaceutical partnerships
+Ireneusz Staroń - Vice President, Agencja Badań Medycznych (Agency for Medical Research – ABM) Leading Poland's medical research transformation and public sector innovation initiatives
+Michał Byliniak - INFARMA - The Employers’ Union of Innovative Pharmaceutical Companies perspective on market dynamics and regulatory challenges
+Wiktor Janicki - AstraZeneca Global pharmaceutical perspective on Poland's competitive positioning and market opportunities
+Aleksandra Wilk - Patient Association Representative Ensuring patient voice and access to innovative therapies remain at the center of discussions
+Prof. Paweł Łuków - National Bioethics Committee Balancing ethical considerations with research acceleration and patient safety
+Natalia Miller - Medical University of Warsaw (Panel Moderator) Guiding the discussion with academic expertise and research development insights
+🎪 Why This Lineup Is Game-Changing:
+This panel represents the complete ecosystem of Polish clinical research:
+✅ Operational expertise (clinical sites)
+✅ Regulatory authority (government agencies)
+✅ Industry perspective (pharmaceutical sector)
+✅ Patient advocacy (patient organizations)
+✅ Ethical oversight (bioethics committees)
+✅ Academic leadership (university research)
+⚡ The Perfect Storm for Change: When operators, regulators, industry leaders, patient advocates, ethicists, and academic institutions align on solutions – real transformation happens. This is exactly the multi-stakeholder collaboration Poland needs to unlock its clinical research potential.
+💡 What to Expect: Concrete, actionable insights from every angle of the clinical research value chain. No theoretical discussions – just real solutions from real practitioners.
+The future of Polish clinical research starts with conversations like these! 🚀
+#Karpacz2025 #ClinicalResearch #ExpertPanel #Collaboration #Poland #Innovation #Stakeholders #Healthcare #Transformation
+9
+Transforming Breast Cancer Together (TBCT)
+84 followers
+#TBCT’s updated infographics highlight critical challenges in Poland:
+📍 No structured metastatic breast cancer data – registries are essential for better outcomes.
+📍 Patients wait 723 days for innovative oncology medicines after EU approval.
+📍 Advanced testing remains scarce, limiting precision treatment.
+See the infographic in this carousel and explore all updated materials on our website. Let’s push for equal access to innovation and better data collection across Europe.
+#BreastCancerAwareness #PinkOctober #HealthEquity
+2
+1 Comment
+TechMedBuddy
+4K followers
+Biostatistics is quickly becoming one of the most in-demand skills in healthcare.
+But the real question is... how fast can you become job-ready?
+Our 3-month "Biostatistics for Healthcare Specialization" programme focuses on:
+✔ Practical, project-based learning
+✔ Beginner-friendly approach (no coding background needed)
+✔ Industry-relevant skills
+If you're serious about building a career in healthcare data science, this is a great place to start.
+Comment “Details” to know more.
+#Biostatistics #HealthcareCareers #DataScience #HealthcareData #LifeSciences #Biotech #CareerGrowth #Upskilling #Students #HealthcareIndustry #DataAnalytics #SkillIndia #TechMedBuddy
+3
+Flex Databases
+5K followers
+Looking for the right ePRO software for your clinical trials?
+We’ve just published an article highlighting the must-have features every ePRO solution should offer - usability, compliance, integration, real-time data access, and more.
+✔️ What to look for
+⚠️ What to avoid
+🤝 How Flex Databases' ePRO can be easily integrated with our EDC or the tools you already use.
+Whether you're evaluating vendors or planning your clinical tech stack, this guide will help you make the right decision.
+📖 Read the article and explore the full checklist for selecting the right ePRO software 👉 https://lnkd.in/eYRxnej4
+#ePRO #ClinicalTrials #EDC #ClinicalResearch #FlexDatabases #eClinical
+9
+Molecular Devices
+50K followers
+By modeling diseases in human-derived organoids, researchers can spot candidate therapies earlier, identify potential neurotoxic effects, and improve the predictiveness of preclinical testing—reducing time, cost, and risk in drug development.
+Discover how this approach is helping channel scientific curiosity into transformative therapies in Oksana Sirenko's latest Biocompare article: https://hubs.la/Q03zkb0W0.
+#LifeSciences #DrugDevelopment #Organoids #HumanRelevantModels #3DBiology #NeuroScienceResearch #Alzheimer #Parkinsons #ForWhatsNext #ShiftingParadigmsTogether #DanaherNews
+68
+Persistent Systems
+2M followers
+What if the cure you’re searching for isn’t in a lab – but buried in your clinical data?
+Not anymore.
+Persistent, together with Google Cloud, brings you Pi-OmniKG – a knowledge graph solution that transforms multi-modal medical data into actionable intelligence.
+Imagine linking a patient’s genomic profile to drug interactions and designing precision treatment plans – all in one intelligent framework.
+The result?
+- Smarter decisions
+- Better patient outcomes
+- Hyper-personalized treatments
+Watch the video to see how Pi-OmniKG helps turn overlooked insights into real clinical impact.
+Learn more here: https://lnkd.in/gdWmJPE4
+#ReAImaginingTheWorld
+21
+1 Comment
+ClinEssentials
+6K followers
+Efficiency isn’t about cutting corners — it’s about working smarter.
+For CRAs, creating efficiencies in monitoring can transform the way you work. When your processes are streamlined, you:
+✔️ Save time
+✔️ Stay organized and productive
+✔️ Deliver quality results — on time and within budget
+Efficiency takes your monitoring to the next level and helps your entire team succeed.
+Get practical tips to enhance your efficiency https://lnkd.in/eS9rWrxj
+Looking for tools to help you work more efficiently? Visit our online shop https://lnkd.in/gA7fG8Mm
+💬 What’s one thing you do that helps increase your efficiency in Clinical Research? Share it in the comments!
+CuMinds Innovations
+2K followers
+Why Learn R in 2025?
+The clinical research industry is changing fast and R is setting the pace for innovation.
+✅ Free & open-source
+✅ Powerful for AI, ML and Automation
+✅ Great for dashboards and Data Visualization
+✅ Expands your career beyond SAS
+🎯 SAS + R = Future-ready clinical programmer
+📚 Start learning now: https://lnkd.in/gDkNpuKT
+#RProgramming #SAS #ClinicalResearch #ClinicalTrials #DataScience #CuMinds #getcertified
+7
+Maxis AI
+46K followers
+Today’s Clinical Data Managers must navigate growing data volumes, fragmented systems, evolving protocols, and increasing compliance requirements — all while maintaining data quality and operational efficiency.
+At Maxis AI, our Data Management Workbench (DMW) — powered by the Agentic AI platform - is built to address these realities head-on.
+In our latest blog, we explore:
+✅ How the Clinical Data Managers role is evolving
+✅ Core bottlenecks in clinical trial operations
+✅ How AI agents optimize clinical data workflows
+✅ How DMW transforms data ops in Pharma & Biotech
+🔗 𝗥𝗲𝗮𝗱 𝘁𝗵𝗲 𝗳𝘂𝗹𝗹 𝗯𝗹𝗼𝗴: https://hubs.ly/Q03wCXC80
+#AgenticAI #ClinicalDataManagement #ClinicalTrials #Biotech #Pharma #CRO #ClinicalResearch #MaxisAI
+19
+Adrian Olszewski
+2KMM
+• 39K followers
+"What (NOT) to do with (NON-) “null” results" is an excellent series in statistics written by Dr Mircea Zloteanu. I recommend it to everyone who's dealing with (frequentist) testing hypotheses in "difficult scenarios".
+Why do I recommend it?
+Well, because:
+a) it's truly an eye-opener,
+b) such content is relatively rare and poorly advertised in social media,
+c) it covers important cases,
+d) most -if not all- of us faced either of these problems at least once in our work. We searched for advices but either we hesitated to ask or there was nobody to ask...
+It consists of 3 parts:
+1️⃣ What to do with "null" results - Part I: Nonsignificant and underpowered: https://lnkd.in/d5xRmc4c
+2️⃣ What to do with "null" results - Part II: Nonsignificant but with sufficient data: https://lnkd.in/dYStx9Kp
+3️⃣ What NOT to do with NON-“null” results Part III: Underpowered study, but significant results: https://lnkd.in/dXJYZJfb
+Of course there's more to read on prof. Zloteanu's blog, so check it out too.
+#statistics #datascience
+67
+4 Comments
+Axcelerant
+88 followers
+How do you create consistent clinical trial documents each and every time with now additional effort?
+⏱️ Consistency checking is the hidden tax in clinical trials documentation. Hours lost to cross-refs, n-numbers, visit windows and mismatched wording across protocol, PIS/ICF and site packs.
+With Momentum’s automation, one change updates every linked section and every linked document.
+✅ Protocol ↔ PIS/ICF ↔ SoA ↔ Pharmacy text stay in sync
+✅ Reviewers see the same facts—wherever they look
+✅ Fewer avoidable queries and faster ethics/committee cycles
+This isn’t another dashboard; it’s a single source that writes your clinical trials documents coherently and keeps them coherent through amendments.
+🔁 Edit once. Update everywhere. Eliminate the scavenger hunt.
+📌 Takeaway: in clinical trials, clarity isn’t cosmetic—it’s compliance. When automation removes consistency checks, your team gets hours back and your submission reads like one brain wrote it.
+✍️📦
+Show more posts
+Show fewer posts
+Explore top content on LinkedIn
+Find curated posts and insights for relevant topics all in one place.
+View top content
+Others named Adrian Olszewski in Poland
+Adrian Olszewski
+Poland
+Adrian Olszewski
+Ostrołęka
+Adrian Olszewski
+Wroclaw Metropolitan Area
+Adrian Olszewski
+Elbląg
+34 others named Adrian Olszewski in Poland are on LinkedIn
+See others named Adrian Olszewski
+Add new skills with these courses
+2h 22m
+Tableau and R for Analytics Projects
+2h 12m
+Data Pipeline Automation with GitHub Actions Using R and Python
+3h 40m
+Using Snowflake with Tableau
+See all courses
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+View Adrian’s full profile
+Adrian can introduce you to 8 people at 2KMM
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

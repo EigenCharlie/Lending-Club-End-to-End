@@ -1,4 +1,4 @@
-"""Execute paper-support notebooks in non-destructive reference mode.
+"""Execute active local paper-support notebooks in non-destructive reference mode.
 
 This script delegates execution to scripts/run_all_notebooks.py and keeps
 canonical pipeline artifacts untouched by routing notebook writes into the
@@ -14,11 +14,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
-NOTEBOOKS = (
-    "10_paper1_cp_robust_opt.ipynb",
-    "11_paper2_ifrs9_e2e.ipynb",
-    "12_paper3_mondrian.ipynb",
-)
+NOTEBOOKS = ("11_paper2_ifrs9_e2e.ipynb",)
 
 
 def build_command(repo_root: Path, *, timeout_s: int, output_dir: str) -> list[str]:

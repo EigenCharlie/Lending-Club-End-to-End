@@ -1,0 +1,82 @@
+---
+title: "v17 IFRS9, CATE and Fairness Gates"
+page-layout: article
+---
+
+## Pregunta
+
+V17 no intenta forzar tres claims que todavía no tenemos derecho a hacer:
+IFRS9 contractual, CATE policy value y fair-lending legal claim. La pregunta es
+qué evidencia sí existe, qué proxy se puede usar y qué queda bloqueado.
+
+## Qué intentamos
+
+Para IFRS9, v17 audita los componentes requeridos: servicing panel mensual, DPD
+mensual, default timing, cure/forbearance, recovery timing, prepayment timing,
+EAD mensual y macro scenarios coherentes. Con la data actual solo se puede
+construir un panel proxy IFRS9-inspired.
+
+Para CATE, v17 fija outcome primario y blockers: default/loss observado en
+accepted loans, pero sin contrafactual de rechazados. Eso mantiene el problema
+de identificación/reject inference.
+
+Para fairness, v17 mantiene la decisión correcta: proxy governance only. Hay
+monitoreo por fuentes como grade, month, state, income, DTI y score decile, pero
+no hay atributos protegidos ni protocolo externo aprobado para inferirlos.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v17_ifrs9_proxy_panel_readiness.csv` | auditoría de requisitos IFRS9 contractual |
+| `paper4_v17_ifrs9_proxy_monthly_panel.parquet` | panel mensual proxy por policy/month/grade |
+| `paper4_v17_ifrs9_sicr_sensitivity.csv` | sensibilidad ECL/SICR proxy |
+| `paper4_v17_causal_identification_dossier.csv` | dossier de identificación causal |
+| `paper4_v17_cate_gate_report.csv` | gate CATE policy value |
+| `paper4_v17_fairness_proxy_only_protocol.csv` | protocolo proxy-only permanente |
+
+## Resultado
+
+IFRS9 queda `data_blocked`: de 8 requisitos contractuales, solo hay 1
+componente usable como proxy. El resultado correcto es no reclamar IFRS9
+contractual.
+
+CATE queda `theory_blocked`: hay outcome observado para préstamos aceptados,
+pero no identificación suficiente para decir que una policy tiene valor causal.
+
+Fairness queda `prohibited_claim` para legal claim: no hay atributos protegidos
+directos ni protocolo externo aprobado. Sí se permite source governance.
+
+## Interpretación
+
+Este es un avance real aunque no produzca un nuevo champion. Una parte importante
+del Paper 4 es aprender a no sobredecir. Si el paper futuro quiere ser serio,
+debe poder decir: "esto es proxy", "esto está bloqueado por datos", "esto está
+bloqueado por identificación" y "esto no se puede reclamar legalmente".
+
+## Qué mejoró
+
+- IFRS9 proxy queda separado de IFRS9 contractual.
+- CATE policy value queda bloqueado con razón explícita.
+- Fairness proxy governance queda separado de fair-lending legal claim.
+
+## Qué falló
+
+No apareció la data necesaria para desbloquear estas lanes: servicing mensual,
+DPD mensual, recoveries timing, prepayment timing, atributos protegidos o
+protocolo externo validado.
+
+## Claim permitido
+
+Paper 4 puede decir que usa ECL/SICR proxy y source governance como monitores de
+investigación.
+
+## Claim no permitido
+
+No puede decir IFRS9 contractual, CATE policy value ni fair-lending legal claim.
+
+## Qué queda pendiente
+
+Estas lanes solo avanzan de verdad si entra nueva data o un protocolo externo
+válido. Mientras tanto, deben quedarse como gates académicos y no como claims
+centrales.

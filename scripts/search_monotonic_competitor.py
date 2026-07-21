@@ -35,14 +35,22 @@ def _load_yaml(path: str | Path) -> dict[str, Any]:
     return dict(payload) if isinstance(payload, dict) else {}
 
 
-def _fit_calibrator(method: str, y_true: np.ndarray, scores: np.ndarray) -> Any:
+def _fit_calibrator(
+    method: str,
+    y_true: np.ndarray,
+    scores: np.ndarray,
+    *,
+    point_rule: str | None = None,
+) -> Any:
     method_norm = str(method).strip().lower()
     if method_norm == "isotonic":
         model = IsotonicRegression(y_min=0, y_max=1, out_of_bounds="clip")
         model.fit(scores, y_true)
         return model
     if method_norm == "venn_abers":
-        model = VennAbersScoreCalibrator()
+        model = VennAbersScoreCalibrator(
+            point_rule=point_rule or VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+        )
         model.fit(scores, y_true)
         return model
     if method_norm == "platt":
@@ -319,6 +327,7 @@ def _variant_params(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Search serious monotonic CatBoost competitors.")
     parser.add_argument("--config", default="configs/monotonic_competitor.yaml")
+    parser.add_argument("--run-tag", default="untracked")
     args = parser.parse_args(argv)
 
     cfg = _load_yaml(args.config)
@@ -347,6 +356,11 @@ def main(argv: list[str] | None = None) -> int:
     categorical = [str(x) for x in pd_manifest.get("categorical_features", [])]
     params_base = dict(pd_manifest.get("selected_params") or {})
     calibration_method = str(pd_manifest.get("selected_calibration_method", "venn_abers"))
+    calibration_point_rule = str(
+        pd_manifest.get("selected_calibration_point_rule", "") or ""
+    ).strip()
+    if calibration_method == "venn_abers" and not calibration_point_rule:
+        calibration_point_rule = VennAbersScoreCalibrator.LEGACY_POINT_RULE
     expected = dict(pd_manifest.get("expectations") or {})
     calibration_methods = [
         str(x).strip()
@@ -417,7 +431,17 @@ def main(argv: list[str] | None = None) -> int:
                         verbose=False,
                     )
                     cal_scores = model.predict_proba(X_cal)[:, 1]
-                    calibrator = _fit_calibrator(calibrator_method, y_cal, cal_scores)
+                    candidate_point_rule = (
+                        calibration_point_rule or VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE
+                        if calibrator_method == "venn_abers"
+                        else None
+                    )
+                    calibrator = _fit_calibrator(
+                        calibrator_method,
+                        y_cal,
+                        cal_scores,
+                        point_rule=candidate_point_rule,
+                    )
                     test_scores = model.predict_proba(X_test)[:, 1]
                     test_prob = _apply_calibrator(calibrator, test_scores)
 
@@ -512,6 +536,7 @@ def main(argv: list[str] | None = None) -> int:
                             "profile": profile_name,
                             "variant_id": str(variant.get("id", "base")),
                             "calibration_method": calibrator_method,
+                            "calibration_point_rule": candidate_point_rule,
                             "seed": seed,
                             "seed_offset": int(seed_offset),
                             "auc": auc,
@@ -549,12 +574,17 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     aggregate_rows: list[dict[str, Any]] = []
-    aggregate_keys = ["profile", "variant_id", "calibration_method"]
+    aggregate_keys = [
+        "profile",
+        "variant_id",
+        "calibration_method",
+        "calibration_point_rule",
+    ]
     grouped = pd.DataFrame(search_rows).groupby(aggregate_keys, dropna=False, as_index=False)
     for keys, frame in grouped:
         if not isinstance(keys, tuple):
             keys = (keys,)
-        profile_name, variant_id, calibrator_method = keys
+        profile_name, variant_id, calibrator_method, calibrator_point_rule = keys
         auc_values = frame["auc"].astype(float).to_numpy()
         brier_values = frame["brier"].astype(float).to_numpy()
         ece_values = frame["ece"].astype(float).to_numpy()
@@ -568,6 +598,9 @@ def main(argv: list[str] | None = None) -> int:
                 "profile": str(profile_name),
                 "variant_id": str(variant_id),
                 "calibration_method": str(calibrator_method),
+                "calibration_point_rule": (
+                    None if pd.isna(calibrator_point_rule) else str(calibrator_point_rule)
+                ),
                 "n_runs": int(len(frame)),
                 "n_seeds": int(len(frame)),
                 "n_constrained": int(frame["n_constrained"].max()),
@@ -618,13 +651,16 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     best = dict(aggregate_rows[0])
+    resolved_run_tag = str(args.run_tag or "untracked").strip() or "untracked"
     payload = {
         "schema_version": "2026-03-29.1",
         "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "baseline_manifest": str(defaults.get("replay_manifest", "")),
         "baseline_expectations": expected,
         "promotion_policy": policy,
         "calibration_methods": calibration_methods,
+        "calibration_point_rule": calibration_point_rule or None,
         "seed_offsets": seed_offsets,
         "decision_threshold_candidates": threshold_candidates,
         "detail_results": detail_rows,
@@ -633,11 +669,18 @@ def main(argv: list[str] | None = None) -> int:
         "best_variant_promotable": bool(best["promotable_all_seeds"]),
     }
 
-    output_path = Path(defaults.get("output_path", "models/monotonic_competitor_search.json"))
+    output_path = Path(
+        str(defaults.get("output_path", "models/monotonic_competitor_search.json")).format(
+            run_tag=resolved_run_tag
+        )
+    )
     best_output_path = Path(
-        defaults.get("best_output_path", "models/monotonic_competitor_best.json")
+        str(defaults.get("best_output_path", "models/monotonic_competitor_best.json")).format(
+            run_tag=resolved_run_tag
+        )
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    best_output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
     best_output_path.write_text(json.dumps(best, indent=2, default=str), encoding="utf-8")
     print(

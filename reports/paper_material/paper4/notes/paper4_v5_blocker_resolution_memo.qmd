@@ -1,0 +1,45 @@
+---
+title: "Paper 4 v5 Blocker Resolution Memo"
+format: html
+---
+
+# Paper 4 v5 Blocker Resolution Memo
+
+V5 addresses the current blocker list without touching Paper Estrella.  It
+adds guarded source-month online conformal search, monthly contractual IFRS9
+proxy, SICR rule comparison, expanded CVaR evaluation, MDCP-aware selection,
+selector committee thresholds, DLA action-library traces, causal/fairness gates,
+correlated sample paths and screens for SPO/DFL, temporal ECL and CQR.
+
+The layer can improve Paper 4 internal review candidates, but it still does not
+create a final promotion artifact.
+
+## Main Decisions
+
+- Online source-month: coverage floor passes, but only with very wide intervals.
+  This is a coverage success and an efficiency blocker.
+- IFRS9: ECL uses marginal monthly PD and discounted cash shortfall proxy. It is
+  materially better than summing lifetime PD in every monthly row, but still not
+  an audited servicing ledger.
+- SICR: v5 compares relative, absolute, PD12 and hybrid rules. Stage 2 is now a
+  rule comparison instead of an unexplained high-PD proxy.
+- MDCP-aware search: `paper4_v4_local_rt0p1725_g0p500_u0p100` is a strong
+  review candidate inside Paper 4, not a final champion.
+- SDAM/DLA: v5 separates observed losses from expected losses so short-horizon
+  zero realized loss is not misread as zero risk.
+- Causal, fairness, temporal TS/ECL and CQR remain gated research lanes.
+
+## Promotion Rule
+
+No v5 artifact may be interpreted as changing the Paper Estrella champion. The
+status JSON explicitly keeps:
+
+```text
+paper1_artifacts_modified = false
+paper4_final_promotion_created = false
+```
+
+Paper 4 can continue to iterate working candidates, but promotion requires a
+future run where online coverage and efficiency pass together, MDCP is
+endogenous rather than post-hoc, IFRS9 gets a stronger servicing panel, and
+SDAM decisions are loan-level and dynamic.

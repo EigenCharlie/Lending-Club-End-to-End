@@ -1,0 +1,22 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "frontier_running",
+  "state": "running",
+  "updated_at_utc": "2026-05-25T03:42:43.505807+00:00",
+  "run_tag": "paper1_champion_replacement_2026_05_23_r3__canonical_4__final__portfolio",
+  "frontier_total_units": 37632,
+  "frontier_completed_units": 5096,
+  "frontier_pct_complete": 0.13541666666666666,
+  "bound_total_checks": 0,
+  "bound_completed_checks": 0,
+  "bound_pct_complete": 0.0,
+  "global_total_units": 37632,
+  "global_completed_units": 5096,
+  "global_pct_complete": 0.13541666666666666,
+  "elapsed_sec": 45114.490743525,
+  "eta_sec": 288038.67167019803,
+  "phase_random_state": 42,
+  "latest_policy_mode": "capped_blended_uncertainty",
+  "latest_risk_tolerance": 0.155,
+  "latest_gamma": 0.55
+}

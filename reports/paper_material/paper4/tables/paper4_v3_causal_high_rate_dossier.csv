@@ -1,0 +1,2 @@
+treatment_id,treatment_definition,outcome_definition,n,n_treated,n_control,prevalence,overlap_ok_share_grade_period,max_smd_unweighted,max_smd_ipw_att,naive_default_delta,att_ipw_default_delta,placebo_pass_share,sensitivity_sign_stable_max_bias_5pp,promotion_allowed,decision
+high_rate_within_grade,int_rate above within-grade median,observed default flag in OOT replay,276869,129405,147464,0.4673871036482958,0.9310344827586207,0.26543159210401196,0.1161050675345649,0.014516171014478357,-0.03788212635376931,1.0,False,False,pass_for_dossier_only_no_policy_promotion

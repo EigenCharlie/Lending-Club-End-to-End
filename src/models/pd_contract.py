@@ -9,6 +9,7 @@ Defines a single source of truth for:
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -21,13 +22,30 @@ CANONICAL_CALIBRATOR_PATH = Path("models/pd_canonical_calibrator.pkl")
 CONTRACT_PATH = Path("models/pd_model_contract.json")
 
 
+def _upstream_search_pd_candidates() -> list[Path]:
+    run_tag = str(os.environ.get("UPSTREAM_CANONICAL_RUN_TAG", "") or "").strip()
+    if not run_tag:
+        return []
+    base_dir = Path("models/search_pd") / run_tag
+    return [
+        base_dir / "pd_candidate_model.cbm",
+        base_dir / "pd_local_hpo_tuned.cbm",
+        base_dir / "pd_candidate_calibrator.pkl",
+        base_dir / "pd_local_hpo_calibrator.pkl",
+    ]
+
+
 def resolve_model_path() -> Path:
     """Resolve canonical PD model path with fallback candidates."""
+    upstream_candidates = _upstream_search_pd_candidates()
     candidates = [
+        upstream_candidates[0] if len(upstream_candidates) > 0 else None,
+        upstream_candidates[1] if len(upstream_candidates) > 1 else None,
         CANONICAL_MODEL_PATH,
         Path("models/pd_catboost.cbm"),
         Path("models/pd_catboost_tuned.cbm"),
     ]
+    candidates = [candidate for candidate in candidates if candidate is not None]
     path = next((p for p in candidates if p.exists()), None)
     if path is None:
         raise FileNotFoundError("No PD model artifact found in models/.")
@@ -36,10 +54,14 @@ def resolve_model_path() -> Path:
 
 def resolve_calibrator_path() -> Path | None:
     """Resolve canonical calibrator path with fallback candidates."""
+    upstream_candidates = _upstream_search_pd_candidates()
     candidates = [
+        upstream_candidates[2] if len(upstream_candidates) > 2 else None,
+        upstream_candidates[3] if len(upstream_candidates) > 3 else None,
         CANONICAL_CALIBRATOR_PATH,
         Path("models/pd_calibrator.pkl"),
     ]
+    candidates = [candidate for candidate in candidates if candidate is not None]
     return next((p for p in candidates if p.exists()), None)
 
 

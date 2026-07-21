@@ -1,0 +1,220 @@
+---
+title: "v4 IFRS9 Contractual, CVaR and Selector Governance"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+from IPython.display import Image
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+FIG_DIR = PAPER4_DIR / "figures"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+ifrs9 = _csv("paper4_ifrs9_v4_contractual_policy_summary.csv")
+ifrs9_quality = _csv("paper4_ifrs9_v4_input_quality.csv")
+stage = _csv("paper4_ifrs9_v4_stage_summary.csv")
+cvar = _csv("paper4_cvar_oce_v4_constraint_frontier.csv")
+thresholds = _csv("paper4_selector_v4_governance_protocol.csv")
+selector = _csv("paper4_selector_v4_results.csv")
+sensitivity = _csv("paper4_selector_v4_sensitivity.csv")
+working = _json("paper4_v4_working_champion.json")
+```
+
+## Pregunta {#sec-paper4-v4-ifrs9-selector-question}
+
+Esta página responde si los candidates brutos sobreviven una lectura prudencial:
+ECL contractual disponible, CVaR/OCE formal dentro de solver, y un selector con
+reglas de comité en vez de thresholds implícitos.
+
+## IFRS9 contractual disponible
+
+```{python}
+#| label: tbl-paper4-v4-ifrs9-input-quality
+#| tbl-cap: "IFRS9 v4 input quality"
+
+ifrs9_quality
+```
+
+```{python}
+#| label: tbl-paper4-v4-ifrs9-baseline-top
+#| tbl-cap: "Top policies por net return after contractual ECL v4, escenario baseline"
+
+_cols(
+    ifrs9[ifrs9["scenario"].eq("baseline")]
+    .sort_values("net_return_after_contractual_ecl_v4", ascending=False),
+    [
+        "policy_id",
+        "scenario",
+        "n_funded",
+        "contractual_ecl_v4",
+        "realized_return_proxy_lgd45",
+        "stage1_share",
+        "stage2_share",
+        "stage3_share",
+        "net_return_after_contractual_ecl_v4",
+    ],
+).head(15)
+```
+
+IFRS9 v4 mejora el proxy anterior porque usa lo que está disponible:
+`loan_status`, LGD observada/proxy, `installment`, CIF/ECL y escenarios macro
+cuando existen. Aun así, sigue siendo contractual proxy, no servicing panel real
+con prepago, cure, recovery y default timing completos.
+
+El ranking prudencial cambia la narrativa. El máximo bruto no es el máximo neto
+IFRS9. Por ejemplo, `paper4_v4_local_rt0p1725_g0p500_u0p100` lidera net return
+baseline, mientras el top bruto `paper4_v4_local_rt0p1700_g0p425_u0p050` queda
+alto pero no domina. Esa diferencia es exactamente el valor de Paper 4: no
+mirar retorno sin provisión.
+
+```{python}
+#| label: tbl-paper4-v4-ifrs9-stage
+#| tbl-cap: "Stage mix IFRS9 v4"
+
+stage.head(20)
+```
+
+## CVaR/OCE formal
+
+```{python}
+#| label: fig-paper4-v4-cvar-frontier
+#| fig-cap: "Frontera CVaR-constrained en el pool local v4."
+
+Image(filename=str(FIG_DIR / "paper4_v4_cvar_constraint_frontier.png"))
+```
+
+```{python}
+#| label: tbl-paper4-v4-cvar-frontier
+#| tbl-cap: "CVaR/OCE v4 constraint frontier"
+
+_cols(
+    cvar.sort_values(["cvar_cap", "return_floor"]),
+    [
+        "cvar_policy_id",
+        "risk_tolerance",
+        "cvar_cap",
+        "return_floor",
+        "solver_status",
+        "n_funded",
+        "objective_return",
+        "formal_cvar_loss",
+        "realized_return_proxy_lgd45",
+    ],
+).head(30)
+```
+
+CVaR ya no es solo penalización diagnóstica. V4 resuelve un LP con restricción
+de CVaR y piso de retorno dentro del candidate pool. El patrón esperado aparece:
+cap muy bajo y piso alto genera infeasibilidad; cap moderado produce soluciones
+con menor retorno bruto pero cola controlada.
+
+La limitación sigue siendo clara: esto todavía no es CVaR full-universe 276k.
+Es un solver formal sobre el pool local usado para investigar arquitectura.
+
+## Selector governance v4
+
+```{python}
+#| label: tbl-paper4-v4-selector-thresholds
+#| tbl-cap: "Selector v4 governance protocol"
+
+thresholds
+```
+
+```{python}
+#| label: tbl-paper4-v4-selector-top
+#| tbl-cap: "Selector v4 results, top-ranked policies"
+
+_cols(
+    selector.sort_values("selector_v4_rank"),
+    [
+        "policy_id",
+        "paper4_v4_decision",
+        "selector_v4_score",
+        "gate_online_global_method",
+        "gate_online_worst_cell",
+        "gate_mdcp",
+        "gate_sample_path",
+        "delta_vs_paper1_frozen_full_exact",
+        "net_return_after_contractual_ecl_v4",
+        "online_min_v4",
+        "mdcp_worst_v4",
+        "prob_beats_paper1",
+        "selector_v4_rank",
+    ],
+).head(25)
+```
+
+El selector queda deliberadamente conservador. Hay 44 `review_candidate` y 56
+`park_for_more_tests`, pero cero promociones finales. La razón no es falta de
+retorno: muchos candidates tienen retorno bruto y neto IFRS9 positivos. La
+razón es gobernanza online: `gate_online_global_method=False` porque el mejor
+método todavía falla peor source-month.
+
+```{python}
+#| label: tbl-paper4-v4-working-champion
+#| tbl-cap: "Paper 4 working champion JSON"
+
+pd.DataFrame([working])
+```
+
+El working champion interno queda como
+`paper4_v4_local_rt0p1725_g0p475_u0p075`. Es `review_candidate`, no promoción.
+Tiene buen net return IFRS9, pasa MDCP y sample paths, pero queda bloqueado por
+el gate online global. Esa distinción es la pieza de gobernanza más importante
+de v4.
+
+```{python}
+#| label: tbl-paper4-v4-selector-sensitivity
+#| tbl-cap: "Selector v4 threshold sensitivity"
+
+sensitivity.head(40)
+```
+
+## Interpretación
+
+V4 convierte "thresholds razonables" en protocolo explícito:
+
+- `promote` requiere retorno, IFRS9, online local, online global, MDCP,
+  fairness proxy y sample paths;
+- `review` permite seguir iterando cuando la policy pasa gates locales pero el
+  sistema global todavía no está listo;
+- `park` conserva candidates con retorno interesante pero falla de cobertura o
+  gobernanza;
+- `kill_or_rework` queda para candidates que ni siquiera cumplen los básicos.
+
+## Caveats
+
+IFRS9 v4 no reemplaza un ledger mensual real. CVaR v4 no usa el universo
+completo. El working champion no toca el CRPTO/Paper_CRPTO externo y no debe citarse como
+champion de tesis o journal.
+
+## Next Step
+
+El selector ya tiene dientes. Lo que falta es alimentar esos dientes con mejor
+online source-month y con un IFRS9 servicing panel más realista.

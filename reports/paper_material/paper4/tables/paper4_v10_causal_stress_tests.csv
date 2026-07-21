@@ -1,0 +1,4 @@
+test_id,pass_v10,diagnosis
+outcome_registry_cleanliness,False,"default/net-return outcomes are observable, but treatment assignment remains observational"
+overlap_stability,False,overlap remains the causal bottleneck
+sensitivity_stability,False,hidden-bias sensitivity still blocks policy value

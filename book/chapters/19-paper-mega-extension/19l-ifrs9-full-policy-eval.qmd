@@ -1,0 +1,139 @@
+---
+title: "IFRS9 Full Policy Evaluation"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _pq(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_parquet(path) if path.exists() else pd.DataFrame()
+
+ifrs9_grid = _pq("paper4_ifrs9_loan_policy_grid.parquet")
+stage_mix = _csv("paper4_ifrs9_policy_stage_mix.csv")
+summary = _csv("paper4_table12_ifrs9_policy_full_eval.csv")
+monthly = _pq("paper4_monthly_policy_replay.parquet")
+monthly_summary = _csv("paper4_table13_monthly_policy_replay_summary.csv")
+```
+
+## Pregunta {#sec-paper4-ifrs9-full-question}
+
+La versión anterior de IFRS9 en Paper 4 era un proxy agregado. Esta página
+documenta la mejora:
+
+> ¿Qué pasa si evaluamos ECL, provisión, stage mix y retorno neto por préstamo,
+> policy y escenario?
+
+El cálculo sigue siendo diagnóstico porque hereda la reconstrucción proxy para
+policies no champion, pero ya opera en granularidad loan-level.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-ifrs9-full-artifacts
+#| tbl-cap: "Artefactos IFRS9 full policy evaluation"
+
+pd.DataFrame(
+    [
+        {"artifact": "paper4_ifrs9_loan_policy_grid.parquet", "rows": len(ifrs9_grid), "columns": len(ifrs9_grid.columns)},
+        {"artifact": "paper4_ifrs9_policy_stage_mix.csv", "rows": len(stage_mix), "columns": len(stage_mix.columns)},
+        {"artifact": "paper4_table12_ifrs9_policy_full_eval.csv", "rows": len(summary), "columns": len(summary.columns)},
+        {"artifact": "paper4_monthly_policy_replay.parquet", "rows": len(monthly), "columns": len(monthly.columns)},
+        {"artifact": "paper4_table13_monthly_policy_replay_summary.csv", "rows": len(monthly_summary), "columns": len(monthly_summary.columns)},
+    ]
+)
+```
+
+## Resultado
+
+La tabla principal cruza `policy_id × scenario` y calcula ECL/provisión con
+tres escenarios: baseline, adverse y severe.
+
+```{python}
+#| label: tbl-paper4-ifrs9-full-summary
+#| tbl-cap: "Top policies por retorno neto después de ECL baseline"
+
+if not summary.empty:
+    summary[summary["scenario"].eq("baseline")].sort_values(
+        "net_return_after_ecl_full", ascending=False
+    ).head(12)
+else:
+    summary
+```
+
+El stage mix permite ver si el costo viene de Stage 2 proxy o default observado:
+
+```{python}
+#| label: tbl-paper4-ifrs9-stage-mix
+#| tbl-cap: "Stage mix IFRS9 por policy y escenario"
+
+if not stage_mix.empty:
+    stage_mix.sort_values(["policy_id", "scenario", "ifrs9_stage"]).head(18)
+else:
+    stage_mix
+```
+
+El replay mensual lleva la evaluación a tiempo:
+
+```{python}
+#| label: tbl-paper4-monthly-policy-replay-summary
+#| tbl-cap: "Resumen mensual por policy"
+
+monthly_summary.head(12) if not monthly_summary.empty else monthly_summary
+```
+
+## Interpretación
+
+Este paso cambia la calidad de la evidencia. Antes Paper 4 podía decir:
+"tenemos un proxy agregado de ECL". Ahora puede decir:
+
+> Para cada funded set reconstruido, calculamos ECL y stage proxy préstamo por
+> préstamo, agregamos por policy/scenario y lo reexpresamos en replay mensual.
+
+Esto permite probar preguntas más finas:
+
+- si el champion económico se mantiene fuerte neto de provisión;
+- si una policy menos rentable reduce bastante ECL;
+- si la fragilidad aparece en meses específicos;
+- si el severe scenario vuelve negativo el net return de algunas policies;
+- si Stage 2 domina todo y por tanto el threshold SICR necesita mejor diseño.
+
+::: {.callout-warning}
+## Lectura correcta
+
+`Stage 2 proxy` aquí no es una implementación completa de IFRS9. Es un
+criterio diagnóstico basado en PD de escenario y uplift relativo. Para claim
+prudencial fuerte se necesita definición SICR formal, lifetime ECL y escenarios
+macro calibrados.
+:::
+
+## Next Step
+
+El siguiente paso IFRS9 es separar:
+
+- **ECL 12-month** para Stage 1;
+- **lifetime ECL proxy** para Stage 2;
+- **observed loss / LGD** para Stage 3;
+- escenarios macro conectados a PD/LGD, no solo multiplicadores de PD.
+
+Eso convertiría esta página de overlay diagnóstico en un motor IFRS9 más serio
+para selector futuro.

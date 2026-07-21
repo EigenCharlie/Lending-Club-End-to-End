@@ -1,0 +1,4 @@
+Working on credit risk models, you can discover a whole parallel shelf of metrics typically hidden from mainstream data science.
+Beyond accuracy, ordinal association measures are a whole different world extending well past the familiar perils of FPR-based AUC and other myths.
+This collection is a binder of lesser-known papers covering ranking methods, calibration, and performance measures that don't get enough attention. No pun intended, one highlight is the use of Somers' D for LLM reasoning trust.
+#Credit #DataScience #Collection #Research #Metrics

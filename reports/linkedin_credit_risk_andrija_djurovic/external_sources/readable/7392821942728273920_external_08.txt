@@ -1,0 +1,187 @@
+source_asset_id: 7392821942728273920_external_08
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/vasicek_distribution/tr_and_z_factor.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/vasicek_distribution/tr_and_z_factor.pdf
+source_type: github
+
+ The Vasicek PD Model and Transition Matrices
+
+                   Optimization of the Systemic Factor Z
+
+
+                               Andrija Djurovic
+
+
+
+
+                   www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic          The Vasicek PD and Transition Matrices   1/6
+The Vasicek PD Model in IFRS9 Modeling
+   The Vasicek Probability of Default (PD) model is one of the most commonly used approaches for
+   modeling PD for IFRS9 purposes. Essentially, it relies on the assumption that observed default rates
+   follow the Vasicek distribution.
+
+   Vasicek distribution is a two-parameter ( 0 < p < 1 and 0 < ρ < 1) continuous distribution on the
+   range 0 to 1. If a variable x has a Vasicek distribution, then x (observed default rate) can be represented
+   as:
+                                                                √
+                                                  −1                 
+                                                     Φ (p) − ρZ
+                                          x =Φ           √
+                                                           1−ρ
+
+   where:
+
+            p and ρ are the parameters of the distribution, commonly referred to as the average default rate
+            and asset correlation, respectively;
+            Z represents the systemic factor drawn from the standard normal distribution;
+            Φ and Φ−1 denote the distribution and quantile function of the standard normal distribution,
+            respectively.
+
+   Given the parameters p and ρ, which are commonly estimated at the portfolio level, the systemic factor
+   Z is derived by manipulating the equation of the Vasicek distribution.
+
+   But what if we shift the focus to transition matrices instead of deriving Z from the portfolio level?
+
+   The following slides present an approach to deriving the systemic factor Z based on grade transition
+   matrices. This approach is particularly attractive as it aligns with the common practice of applying the
+   Vasicek model’s results to grade transition rates in IFRS9 PD modeling.
+
+
+     Andrija Djurovic              The Vasicek PD and Transition Matrices                                  2/6
+The Transition Rates and Z Factor Optimization
+   Rather than deriving Z at the portfolio level, practitioners can instead derive the Z factor at the
+   transition matrix level by utilizing ρ, as well as Through-the-Cycle (TtC) and Point-in-Time (PiT)
+   Grade-to-grade (G-to-g) transition rates.
+
+   The usual approach is optimization by solving a least-squares problem. One way to define this
+   optimization problem is as follows:
+                                                             G
+                                                                               2
+                                      X X nt,g Pt (G, g) − ∆(xg+1 , xgG , Zt )
+                                min                  G , x G , Z )[1 − ∆(x G , x G , Z )]
+                                 Zt               ∆(xg+1  g     t         g+1   g     t
+                                       G     g
+
+   where:
+            Pt (G, g) is the PiT probability of moving from grade G to grade g between two periods;
+                                                   x G −√ρZ             G √         
+               G                                    g+1         t         xg −   ρZt
+            ∆(xg+1 , xgG , Zt ) is defined as Φ      √              −Φ     √               ;
+                                                          1−ρ                   1−ρ
+            G and g are the indices of the grades in the transition matrices at the beginning and end of the
+            period, respectively;
+            xgG is the inverse standard normal transformation of the cumulative transition rate probabilities for
+            grades G and g;
+            Φ denotes the standard normal distribution;
+            nt,g is the number of obligors in grade g at the time t;
+            Zt is the systemic factor being optimized.
+
+   The optimization procedure finds the optimal Zt factor that best approximates the PiT transition matrix,
+   given the TtC matrix and the parameter ρ.
+
+   More details on this approach can be found here.
+    Andrija Djurovic                   The Vasicek PD and Transition Matrices                                 3/6
+Simulation Setup
+For an asset correlation value of ρ = 0.0163 and the TtC and PiT transition matrices provided
+below, this simulation aims to find the Zt factor that best approximates the PiT matrix. The
+number of obligors (Obs) from the PiT matrix is used as an additional input in the optimization
+process described in the previous slide.
+
+TtC transition matrix:
+##   G-to-g    AAA    AA     A   BBB    BB     B    CCC      D
+##      AAA 91.13% 8.00% 0.70% 0.10% 0.05% 0.01% 0.01% 0.01%
+##       AA 0.70% 91.03% 7.47% 0.60% 0.10% 0.07% 0.02% 0.01%
+##        A 0.10% 2.34% 91.54% 5.08% 0.61% 0.26% 0.01% 0.05%
+##      BBB 0.02% 0.30% 5.65% 87.98% 4.75% 1.05% 0.10% 0.15%
+##       BB 0.01% 0.11% 0.55% 7.77% 81.77% 7.95% 0.85% 1.00%
+##        B 0.00% 0.05% 0.25% 0.45% 7.00% 83.50% 3.75% 5.00%
+##      CCC 0.00% 0.01% 0.10% 0.30% 2.59% 12.00% 65.00% 20.00%
+
+
+
+PiT transition matrix:
+##   G-to-g Obs   AAA     AA     A   BBB    BB      B   CCC     D
+##      AAA 85 92.94% 4.71% 2.35% 0.00% 0.00% 0.00% 0.00% 0.00%
+##       AA 220 0.46% 92.52% 6.08% 0.47% 0.47% 0.00% 0.00% 0.00%
+##        A 480 0.00% 4.45% 84.95% 9.54% 0.64% 0.00% 0.00% 0.42%
+##      BBB 298 0.37% 0.37% 3.26% 85.52% 9.78% 0.37% 0.00% 0.34%
+##       BB 168 0.00% 0.68% 0.00% 2.68% 82.42% 10.05% 0.00% 4.17%
+##        B 161 0.00% 0.00% 0.72% 0.72% 2.89% 87.50% 5.06% 3.11%
+##      CCC 16 0.00% 0.00% 0.00% 0.00% 0.00% 7.39% 73.86% 18.75%
+
+
+
+
+         Andrija Djurovic          The Vasicek PD and Transition Matrices                    4/6
+Simulation Results
+
+
+       Given the simulation inputs, the optimal value of Zt is 0.87.
+       The matrix below presents the resulting transition rates that best approximate the observed
+       PiT matrix under the described optimization process.
+       The following slide visualizes the TtC to fitted PiT transformation procedure using the
+       optimized Zt value for the grade A.
+
+Fitted Matrix
+##   G-to-g Obs   AAA     AA     A   BBB    BB     B   CCC      D
+##      AAA 85 89.40% 9.49% 0.89% 0.13% 0.07% 0.01% 0.01% 0.00%
+##       AA 220 0.48% 89.61% 8.88% 0.76% 0.13% 0.09% 0.03% 0.01%
+##        A 480 0.06% 1.73% 90.91% 6.10% 0.77% 0.34% 0.01% 0.07%
+##      BBB 298 0.01% 0.20% 4.42% 88.04% 5.68% 1.32% 0.13% 0.20%
+##       BB 168 0.01% 0.07% 0.38% 6.23% 81.66% 9.34% 1.05% 1.26%
+##        B 161 0.00% 0.03% 0.17% 0.32% 5.59% 83.43% 4.36% 6.10%
+##      CCC 16 0.00% 0.01% 0.06% 0.21% 1.96% 10.14% 64.57% 23.06%
+
+
+
+
+         Andrija Djurovic         The Vasicek PD and Transition Matrices                        5/6
+Simulation Results cont.
+                                          Z factor for Grade A in TtC (with Probabilities) and PiT Transition Rate Matrices
+
+                                                                             TtC           PiT
+
+
+
+                                                                             Z = 0.87
+          0.4
+
+
+
+
+          0.3
+Density
+
+
+
+
+          0.2
+
+
+
+
+                                                                    A
+                                                                (91.54%)
+
+          0.1                                                                                                BBB
+                                                                                                           (5.08%)
+                                  AA                                                                                     BB
+                               (2.34%)                                                                                (0.61%)
+                                                                                                                                   B
+                                                                                                                                (0.26%)
+                                                                                                                                       CCC      D
+                    AAA
+                   (0.1%)                                                                                                            (0.01%) (0.05%)
+          0.0
+
+
+                                   −2.5                                0.0                                             2.5                             5.0
+                                                           Quantiles of the Standard Normal Distribution
+
+
+
+
+                Andrija Djurovic               The Vasicek PD and Transition Matrices                                                                        6/6

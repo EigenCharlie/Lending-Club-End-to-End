@@ -1,0 +1,4 @@
+env_name,python,dependency,suggested_pin,reason
+paper4_spo_isolated_candidate,3.12.12,numpy,numpy<2.0 if using old cvxpy wheels; otherwise test NumPy-2 compatible cvxpy,current cvxpy ABI error references NumPy 1.x compiled extension
+paper4_spo_isolated_candidate,3.12.12,cvxpy,latest compatible with chosen NumPy plus solver backend,"needed only for differentiable/SPO+ prototype, not for oracle-regret path"
+paper4_spo_isolated_candidate,3.12.12,cvxpylayers torch,install only in isolated env after cvxpy import is clean,formal differentiable SPO+ claim remains false until validated

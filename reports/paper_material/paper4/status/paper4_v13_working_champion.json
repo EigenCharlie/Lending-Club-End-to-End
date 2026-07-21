@@ -1,0 +1,17 @@
+{
+  "schema_version": "2026-05-14.13",
+  "generated_at_utc": "2026-05-14T17:15:03.853401+00:00",
+  "policy_id": "v13_fvi_return_recovery",
+  "lane_v13": "dla_fvi_policy_iteration",
+  "registry_rank_v13": 1,
+  "working_candidate_score_v13": 0.7777777777777778,
+  "previous_champion_policy_id_v12": "v12_cvar_mdcp_colgen_relaxed_k24000_floor125000_cap360000",
+  "champion_changed_vs_v12": true,
+  "scope": "paper4_working_champion_only",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_allowed": false,
+  "paper4_final_promotion_created": false,
+  "contractual_ifrs9_claim_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "caveat": "fitted-value rollout, not exact Bellman optimality"
+}

@@ -1,0 +1,6 @@
+manuscript_section_v477,asset_bundle_v477,visual_delta_v477,main_text_claim_allowed_v477,appendix_only_v477,required_caveat_v477,claim_boundary_v477
+methods_protocol,T5;F4,Use T5 and F4 to introduce the formal claim-boundary protocol before results.,True,False,historical/oracle-surrogate audit only; no SPO+/DLA theorem,method visual callouts only
+results_evidence_cvar,T1;F1,Use the T1/F1 pair to state the local return/CVaR frontier claim with legacy visual context.,True,False,local v338-v347-v353 chain only,no full-v55 optimality or champion claim
+results_evidence_governance_online,T2;F2;T4;F3,"Use source-governance and online-proxy assets as bounded diagnostics, not deployment evidence.",True,False,source blocker and internal monitoring proxy language only,"no cap approval, external holdout or production claim"
+discussion_limitations,T3;T6,Use T3 and T6 to make the dynamic replay and IFRS9 contractual gaps visible inside limitations.,True,False,dynamic replay and contractual/accounting blockers remain open,gap evidence only
+appendix_reproducibility,T5;F4;T1;F1;T2;F2;T4;F3;T3;T6,"Index the v475-v477 visual-selection, caption and caveat provenance for reproducibility.",False,True,appendix index is not a venue-ready supplement,provenance index only

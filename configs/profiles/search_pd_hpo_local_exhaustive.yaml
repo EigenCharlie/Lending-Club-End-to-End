@@ -1,0 +1,18 @@
+schema_version: "2026-04-03.1"
+profile_name: search_pd_hpo_local_exhaustive
+pipeline_family: search_pd
+description: >
+  Refinamiento HPO local del challenger PD monotónico/blockwise ganador.
+  Reusa la topología search_pd pero con config generado y outputs namespaced.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: mega64plus
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  pd:
+    config_path: configs/pd_model.champion.yaml

@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.28",
+  "generated_at_utc": "2026-05-15T00:57:54.746621+00:00",
+  "phase": "v28_cvar_dla_spo_upgrade",
+  "adp_policy_count_v28": 7,
+  "adp_trace_rows_v28": 61824,
+  "cvar_frontier_rows_v28": 15,
+  "cvar_exact_full_universe_claim_v28": false,
+  "spo_formal_differentiable_claim_allowed": false,
+  "dependency_blocker_rows_v28": 7,
+  "champion_decomposition_rows_v28": 12,
+  "working_champion_reference_v28": "paper1_economic_champion",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "CVaR/DLA/SPO v28 remain Paper 4 lab diagnostics/challengers only",
+  "runtime_seconds": 1179.824
+}

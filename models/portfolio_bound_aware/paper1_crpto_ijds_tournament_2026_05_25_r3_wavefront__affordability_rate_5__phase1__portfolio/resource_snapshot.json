@@ -1,0 +1,35 @@
+{
+  "schema_version": "2026-04-05.2",
+  "run_label": "paper1_crpto_ijds_tournament_2026_05_25_r3_wavefront__affordability_rate_5__phase1__portfolio",
+  "solver_backend": "cuopt",
+  "exact_solver_backend": "highs",
+  "start": {
+    "captured_at_utc": "2026-05-28T18:55:16.597944+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714556,
+    "memory_available_kib": 56943404,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 1570.0,
+      "memory_free_mb": 8484.0,
+      "gpu_util_pct": 3.0,
+      "memory_util_pct": 25.0
+    }
+  },
+  "backend_validation": {
+    "validated_at_utc": "2026-05-28T18:55:11.620693+00:00",
+    "python": "/home/eigenlinux/miniforge3/envs/rapids/bin/python",
+    "supported_cuopt_releases": [
+      "26.02",
+      "26.04"
+    ],
+    "cuopt": "26.04.00",
+    "cudf": "26.04.00",
+    "cupy": "14.1.0",
+    "pyomo": "6.10.0",
+    "loguru": "0.7.3"
+  }
+}

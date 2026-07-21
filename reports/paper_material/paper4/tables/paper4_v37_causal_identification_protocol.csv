@@ -1,0 +1,9 @@
+gate,requirement_v37,status_v37,cate_policy_value_allowed,claim_boundary_v37
+treatment_definition,high_rate_within_grade or better-defined loan term treatment,diagnostic_available,False,accepted-loan causal diagnostic only; no policy-value claim
+primary_outcome,realized default/loss,available_proxy,False,accepted-loan causal diagnostic only; no policy-value claim
+accepted_loan_selection,reject inference and application selection,theory_blocked,False,accepted-loan causal diagnostic only; no policy-value claim
+overlap,propensity/feature overlap after trimming,needs_stronger_evidence,False,accepted-loan causal diagnostic only; no policy-value claim
+balance,SMD <= 0.10 after trimming/IPW/DR,partially_passed_prior,False,accepted-loan causal diagnostic only; no policy-value claim
+placebo_falsification,placebo outcomes and pre-treatment tests,diagnostic_available,False,accepted-loan causal diagnostic only; no policy-value claim
+hidden_bias_sensitivity,robustness to unobserved confounding,not_stable_enough,False,accepted-loan causal diagnostic only; no policy-value claim
+cate_intervals,useful intervals for policy value,blocked,False,accepted-loan causal diagnostic only; no policy-value claim

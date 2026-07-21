@@ -1,0 +1,51 @@
+---
+title: "Sequential Decision Framework"
+page-layout: article
+---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
+## Por que Powell/SDAM si el dataset es estatico
+
+Powell/SDAM no se usa aqui para fingir produccion. Se usa como contrato de
+framing academico: declara que incluso con dataset historico, las comparaciones
+de policies deben diferenciar estado, decision, informacion exogena,
+post-decision state, transicion y politica.
+
+## Elementos SDAM
+
+| Elemento | Interpretacion en Paper 4 |
+|---|---|
+| `S_t` | cash, outstanding, legacy loss/accounting-labelled fields, coverage state, source exposure; no ECL o staging identificado |
+| `x_t` | financiar, no financiar, seleccionar policy, ajustar caps o thresholds |
+| `S_t^x` | exposicion financiada, capital usado, budget restante, composicion |
+| `W_{t+1}` | defaults, prepayments, recoveries, macro/internal shocks, drift |
+| `S_{t+1}` | estado simulado despues de pagos, perdidas y recuperaciones; cualquier campo historically labelled ECL es aritmetica mecanica, no un estimando contable |
+| `X^pi` | clase exploratoria: referencia legacy, CVaR, DLA heuristico, DFL teacher-cost |
+
+## Contribucion del framework
+
+El framework vale porque fuerza a separar lo que antes se mezclaba: metricas
+base, metricas de riesgo, decisiones, incertidumbre, evidencia y claims. En un
+paper academico futuro, esto puede ser una contribucion de gobernanza
+secuencial incluso si el dataset no es productivo.
+
+## Regla de cierre para SDAM
+
+La pieza que sobrevive al cierre del loop no es otro builder ni otra cola de
+aprobacion: es el contrato conceptual. SDAM/Powell queda como lenguaje para
+ordenar el problema:
+
+- El CRPTO IJDS activo se mantiene como contrato externo de identificacion; su
+  LP mensual no se reetiqueta aqui como politica secuencial.
+- Paper 4 usa el lenguaje SDAM para separar `S_t`, `x_t`, `W_{t+1}` y
+  transiciones, pero no afirma que haya estimado un optimizer, una funcion de
+  valor, Bellman optimality ni DLA productiva.
+- Los replays dinamicos son comparaciones internas de politicas sobre sample
+  paths historicos; no son forecast externo.
+- Todo claim que no pueda mapearse a estado, decision, informacion, transicion,
+  costo o clase de politica queda como future work.
+
+Esta frontera funciona como checklist de diseño y gobernanza dentro de Paper 4.
+No constituye un resultado para transferir al CRPTO IJDS ni un sistema
+secuencial completo.

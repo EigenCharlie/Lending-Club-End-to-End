@@ -1,0 +1,29 @@
+{
+  "best_params": {
+    "iterations": 4200,
+    "learning_rate": 0.057321202729872456,
+    "l2_leaf_reg": 119.37272987133554,
+    "min_data_in_leaf": 135,
+    "random_strength": 1.3208942645900998e-07,
+    "border_count": 254,
+    "leaf_estimation_iterations": 5,
+    "rsm": 0.5716653769355704,
+    "depth": 8,
+    "subsample": 0.678878683066026,
+    "feature_weight__loan_to_income": 1.3,
+    "feature_weight__annual_inc": 1.2,
+    "feature_weight__dti": 1.2,
+    "feature_weight__installment": 1.0,
+    "first_use_penalty__delinq_recency": 0.0,
+    "penalties_coefficient": 0.75
+  },
+  "hpo_trials_executed": 122,
+  "hpo_best_validation_auc": 0.722336975744382,
+  "seed_replay_report": {
+    "enabled": false,
+    "reason": "study_load_failed: 'Record does not exist.'",
+    "rows": [],
+    "selected_trial": null,
+    "selected_params": null
+  }
+}

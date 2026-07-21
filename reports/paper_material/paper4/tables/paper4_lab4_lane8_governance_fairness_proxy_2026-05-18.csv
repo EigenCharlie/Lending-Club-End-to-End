@@ -1,0 +1,7 @@
+evidence_block,metric,value,decision,claim_boundary
+observable_dispersion,top_interest_rate_dispersion_dimension,grade,append_governance_only,Observable source dispersion is not protected-attribute disparity.
+observable_dispersion,top_interest_rate_range,20.84922967001463,append_governance_only,"Use as source governance, not legal fair-lending evidence."
+v37_protocol,allowed_protocol_items,observable_source_caps,append_governance_only,Only observable source caps are allowed as governance diagnostics.
+v37_protocol,legal_fair_lending_claim_allowed,False,block_legal_claim,No legal claim without protected attributes and approved proxy protocol.
+source_governance_appendix,high_support_source_cells,121,append_governance_only,Support-aware source governance; protected attributes are not inferred.
+proxy_fairness_policy_eval,proxy_attributes_pass_all,True,append_proxy_diagnostic,Proxy fairness diagnostic is not protected-attribute proof.

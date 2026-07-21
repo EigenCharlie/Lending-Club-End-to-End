@@ -1,0 +1,11 @@
+package,available_v32,version_v32,import_error_v32,formal_differentiable_spo_claim_allowed,decision_v32,future_install_path
+numpy,True,2.4.3,,False,environment_context_only,no action for v32
+cvxpy,False,,ImportError: numpy.core.multiarray failed to import,False,dependency_blocked_for_differentiable_spo,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested
+cvxpylayers,False,,ModuleNotFoundError,False,dependency_blocked_for_differentiable_spo,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested
+torch,False,,ModuleNotFoundError,False,dependency_blocked_for_differentiable_spo,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested
+pyomo,True,6.10.0,,False,usable_for_oracle_or_surrogate_route,no action for v32
+highspy,True,installed,,False,usable_for_oracle_or_surrogate_route,no action for v32
+catboost,True,1.2.10,,False,usable_for_oracle_or_surrogate_route,no action for v32
+sklearn,True,1.8.0,,False,usable_for_oracle_or_surrogate_route,no action for v32
+pandas,True,2.3.3,,False,environment_context_only,no action for v32
+scipy,True,1.15.3,,False,environment_context_only,no action for v32
