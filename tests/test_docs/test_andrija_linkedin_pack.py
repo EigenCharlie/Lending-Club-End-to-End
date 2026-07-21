@@ -7,7 +7,7 @@ DATA_DIR = PACK_DIR / "data"
 LOGGED_DIR = PACK_DIR / "logged_in_review"
 LOGGED_DATA_DIR = LOGGED_DIR / "data"
 BIG_BOOK = REPO_ROOT / "book"
-EXTERNAL_CRPTO = Path("/mnt/c/Users/carlos/Documents/Paper_CRPTO")
+EXTERNAL_CRPTO_CONTRACT = REPO_ROOT / "docs" / "research" / "crpto_external_contract_2026-07-20.yml"
 RETIREMENT_MEMO = REPO_ROOT / "docs" / "research" / "crpto_retirement_and_paper4_role_2026-06-06.md"
 
 
@@ -107,8 +107,11 @@ def test_andrija_intake_is_reflected_in_crpto_book_and_research_memo() -> None:
     assert "Paper CRPTO reviewer-defense" in decisions
     assert "Andrija Djurovic / ADSFCR Addendum" in memo
     assert "58 external links" in memo
-    assert "fuente de verdad para CRPTO" in retirement
-    assert (EXTERNAL_CRPTO / "book/_quarto.yml").exists()
+    assert "autoridad\nautocontenida para CRPTO" in retirement
+    assert EXTERNAL_CRPTO_CONTRACT.exists()
+    assert "69095e05beae282701b4ea38aa69da26a209106f" in (
+        EXTERNAL_CRPTO_CONTRACT.read_text(encoding="utf-8")
+    )
 
 
 def test_andrija_logged_in_opera_pass_is_closed_and_curated() -> None:
@@ -189,7 +192,7 @@ def test_andrija_logged_in_findings_are_propagated_to_main_book() -> None:
     assert "tamaño efectivo de muestra" in backtesting
     assert "segment.vld" in mrm
     assert "umbral heredado" in mrm
-    assert "fuente de verdad para CRPTO" in retirement
+    assert "autoridad\nautocontenida para CRPTO" in retirement
     assert "Gobernanza de heuristicas crediticias" in thesis
     assert "rojas2026_iv_hypothesis_testing" in references
     assert "djurovic2026_pdtoolkit" in references

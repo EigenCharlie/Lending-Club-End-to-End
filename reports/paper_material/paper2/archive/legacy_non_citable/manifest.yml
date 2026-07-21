@@ -1,0 +1,23 @@
+schema_version: "2026-07-20.1"
+claim_status: historical_non_citable
+estimand_status: mechanical_proxy_not_ifrs9
+superseded_by:
+  - reports/paper_material/paper2/paper2_claim_contract.yml
+  - SESSION_STATE.md
+source_notebook: notebooks/11_paper2_ifrs9_e2e.ipynb
+files:
+  - tables/paper2_table0_key_metrics.csv
+  - tables/paper2_table0_key_metrics.tex
+  - tables/paper2_table1_scenario_summary.csv
+  - tables/paper2_table1_scenario_summary.tex
+  - tables/paper2_table2_sensitivity_grid.csv
+  - tables/paper2_table2_sensitivity_grid.tex
+  - tables/paper2_tableA1_grade_summary.csv
+  - tables/paper2_tableA1_grade_summary.tex
+forbidden_claims:
+  - reporting_date_pd
+  - twelve_month_ecl
+  - lifetime_ecl
+  - sicr
+  - ifrs9_stage
+  - provision

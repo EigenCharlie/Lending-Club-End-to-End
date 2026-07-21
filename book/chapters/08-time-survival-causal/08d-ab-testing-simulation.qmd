@@ -1,204 +1,48 @@
-## Simulación A/B: Robusto vs No-Robusto {#sec-ab-testing}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-### Motivación: Medir el Valor de la Robustez
+## Replay Retroactivo, no A/B Experimental {#sec-ab-testing}
 
-Los capítulos anteriores construyeron un portafolio robusto que utiliza `pd_high` (intervalo conformal superior) en lugar de `pd_point` para la restricción de PD. La pregunta operativa es directa: *vale la pena la robustez?* Es decir, la estrategia que incorpora incertidumbre cuantificada genera mejores retornos realizados que la estrategia que ignora la incertidumbre?
+El módulo denominado A/B aplica reglas sobre un OOT histórico con defaults ya
+observados. No hubo randomización de policies, intervención, competencia real
+por funding ni feedback de decisiones. Debe llamarse **replay retrospectivo**.
 
-La simulación A/B retroactiva responde esta pregunta aplicando ambas estrategias al conjunto OOT (2018--2020) y usando los **defaults reales** como ground truth. No es un experimento aleatorizado en producción, pero proporciona evidencia empírica cuantificable sobre el valor económico de la predicción conformal.
+### Qué hizo el código
 
-### Diseño del Experimento Retroactivo
+- separó o comparó filas por grade dentro del mismo universo resuelto;
+- evaluó una regla basada en el score puntual y otra basada en un endpoint alto;
+- calculó retornos ex post y resúmenes bootstrap/permutación/t-test;
+- aplicó un margen de no regresión definido por el proyecto.
 
-El framework de A/B testing (`src/evaluation/ab_testing.py`) implementa tres componentes:
+Los endpoints altos fueron evaluados contra $Y$; no son PD adversas. Como el
+calibrador y la conformalización reutilizaron labels, tampoco existe aquí una
+garantía split activa. El contraste no estima “valor de la predicción
+conformal” ni efecto de robustez.
 
-#### 1. Análisis de Potencia
-
-Antes de comparar estrategias, se verifica algo básico: que el universo OOT sea lo bastante grande para distinguir una mejora real de una fluctuación de ruido. La idea es la misma que en cualquier A/B serio: evitar cantar victoria por azar.
-
-#### 2. Split Estratificado
-
-La asignación control/tratamiento se realiza con **estratificación por grade**, garantizando que ambos grupos tengan la misma distribución de riesgo base:
-
-- **Grupo A (control)**: Asignación de portafolio usando `pd_point` --- estrategia no robusta.
-- **Grupo B (tratamiento)**: Asignación usando `pd_high` (conformal upper bound) --- estrategia robusta.
-
-#### 3. Comparación Estadística
-
-Los retornos realizados de cada estrategia se comparan mediante tres métodos:
-
-| Método | Descripción | Supuestos |
-|--------|-------------|-----------|
-| **Bootstrap** | Remuestreo con reemplazo (1,000 iteraciones) | No paramétrico |
-| **Permutación** | Intercambio aleatorio de etiquetas A/B | H0: distribuciones idénticas |
-| **t-test (Welch)** | Comparación de medias con varianzas desiguales | Normalidad asintótica |
-
-El resultado incluye: diferencia de medias, intervalo de confianza al 95%, p-value y veredicto de significancia.
-
-### Métricas de Comparación
-
-Cada estrategia se evalúa sobre múltiples dimensiones:
-
-```{python}
-#| label: tbl-ab-metrics
-#| tbl-cap: "Métricas comparadas en la simulación A/B"
-
-import pandas as pd
-
-metrics = [
-    {"Métrica": "Total return ($)", "Definición": "Suma de retornos realizados por préstamo",
-     "Favorece": "Mayor es mejor"},
-    {"Métrica": "Default rate (%)", "Definición": "Tasa de incumplimiento en préstamos seleccionados",
-     "Favorece": "Menor es mejor"},
-    {"Métrica": "Loans funded (#)", "Definición": "Número de préstamos aprobados",
-     "Favorece": "Trade-off: más funding vs más riesgo"},
-    {"Métrica": "Avg return per loan ($)", "Definición": "Retorno promedio por préstamo seleccionado",
-     "Favorece": "Mayor es mejor"},
-    {"Métrica": "Sharpe-like ratio", "Definición": "Return / volatilidad de retornos",
-     "Favorece": "Mayor es mejor"},
-]
-
-pd.DataFrame(metrics)
-```
-
-### Interpretación de Resultados
-
-La estrategia robusta (B) típicamente selecciona **menos préstamos** que la no robusta (A), porque `pd_high > pd_point` hace que la restricción de PD sea más estricta. El trade-off fundamental es:
-
-- **Estrategia A (no robusta)**: Más préstamos aprobados, mayor funding, pero mayor exposición a defaults inesperados.
-- **Estrategia B (robusta)**: Menos préstamos aprobados, menor funding, pero defaults realizados más cercanos a lo esperado.
-
-| Si gana la estrategia robusta | Si gana la no robusta |
+| Lectura permitida | Lectura prohibida |
 |---|---|
-| está pagando un costo razonable por estabilizar pérdidas y selección | la aversión a incertidumbre pudo ser demasiado conservadora para ese corte |
-| conviene mirar retorno ajustado por riesgo, no solo funding | conviene verificar si la “mejora” viene de tomar más riesgo oculto |
+| diferencia descriptiva entre dos reglas en el panel resuelto | efecto causal de asignar la policy |
+| sensibilidad por grade/cohorte/monto | heterogeneidad de tratamiento |
+| estabilidad numérica del código | validación prospectiva |
+| bootstrap condicionado al replay | evidencia de deployment |
 
-: Lectura ejecutiva del contraste A/B {#tbl-ab-business-reading}
+: Frontera de interpretación del replay. {#tbl-ab-business-reading}
 
-::: {.callout-note}
-## Significancia estadística e intervalo de confianza
-Si el intervalo de confianza al 95% de la diferencia no cruza cero, la diferencia es estadísticamente significativa al nivel $\alpha = 0.05$. Esto no garantiza que la diferencia sea *económicamente* significativa --- el tamaño del efecto y su relevancia operativa deben evaluarse por separado.
-:::
+### Por qué los p-values no resuelven el problema
 
-### Atribución por Segmento
+Una prueba estadística puede cuantificar variación bajo su esquema de muestreo,
+pero no crea la intervención ausente ni corrige selección de la policy con los
+mismos outcomes. Si se probaron muchas reglas y se conservó una por su retorno,
+el p-value nominal posterior tampoco incorpora esa multiplicidad.
 
-Además de la comparación global, el framework descompone la diferencia de retorno por tres dimensiones de atribución:
+### Diseño necesario para una evaluación futura
 
-- **Por grade**: Permite identificar en qué segmentos de riesgo la robustez agrega más valor (típicamente grades C--E, donde la incertidumbre es mayor).
-- **Por cohorte temporal**: Revela si la ventaja de la robustez varía según el periodo de originación dentro del OOT.
-- **Por monto del préstamo**: Muestra si los préstamos de mayor monto se benefician más de la asignación robusta.
+1. fijar policies y outcome económico antes de la evaluación;
+2. usar una unidad de decisión y horizonte temporal definidos;
+3. separar selección, validación y final OOT;
+4. evitar reutilizar préstamos entre unidades inferenciales;
+5. en despliegue real, randomizar o justificar un diseño cuasiexperimental;
+6. reportar pérdidas realizadas y efectos con intervalos compatibles con el
+   diseño.
 
-```{python}
-#| label: tbl-ab-design-summary
-#| tbl-cap: "Diseño de la simulación A/B retroactiva"
-
-import pandas as pd
-
-design = [
-    {"Parámetro": "Universo de evaluación", "Valor": "Conjunto OOT (2018-01 a 2020-09)"},
-    {"Parámetro": "Tamaño del universo", "Valor": "276,869 préstamos"},
-    {"Parámetro": "Estratificación", "Valor": "Por grade (A--G)"},
-    {"Parámetro": "Ratio control/tratamiento", "Valor": "50/50"},
-    {"Parámetro": "Ground truth", "Valor": "Defaults reales observados"},
-    {"Parámetro": "Métodos estadísticos", "Valor": "Bootstrap, permutación, Welch t-test"},
-    {"Parámetro": "Nivel de significancia", "Valor": "α = 0.05 (bilateral)"},
-    {"Parámetro": "PD control (A)", "Valor": "pd_point (estimación puntual calibrada)"},
-    {"Parámetro": "PD tratamiento (B)", "Valor": "pd_high (bound conformal superior @ 90%)"},
-]
-
-pd.DataFrame(design)
-```
-
-### Veredicto canónico del replay A/B
-
-El companion local enriquecía este capítulo con el resultado operativo ya empaquetado en artefactos. Esa lectura merece entrar al libro porque traduce la simulación a una decisión: en el snapshot oficial, la estrategia robusta **no gana** en retorno total, pero tampoco dispara una regresión material bajo el gate definido.
-
-```{python}
-#| label: tbl-ab-official-status
-#| tbl-cap: "Veredicto canónico del replay A/B robusto vs no robusto"
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-from book._helpers.load_artifacts import try_load_json
-
-import pandas as pd
-
-status = try_load_json("ab_simulation_status", directory="models", default={})
-comparison = status.get("comparison", {})
-metrics_a = status.get("metrics_a", {})
-metrics_b = status.get("metrics_b", {})
-no_reg = status.get("no_regression", {})
-
-rows = [
-    {"Métrica": "Total return A", "Valor": f"${metrics_a.get('total_return', 0):,.0f}", "Lectura": "Estrategia control no robusta."},
-    {"Métrica": "Total return B", "Valor": f"${metrics_b.get('total_return', 0):,.0f}", "Lectura": "Estrategia robusta champion."},
-    {"Métrica": "Diff medio A-B", "Valor": f"{comparison.get('diff', 0):.4f}", "Lectura": "Uplift promedio bootstrap."},
-    {"Métrica": "CI 95%", "Valor": f"[{comparison.get('ci_low', 0):.4f}, {comparison.get('ci_high', 0):.4f}]", "Lectura": "El intervalo cruza cero."},
-    {"Métrica": "p-value", "Valor": f"{comparison.get('p_value', 1):.4f}", "Lectura": "No hay superioridad estadística."},
-    {"Métrica": "No-regression gate", "Valor": str(no_reg.get('passed', False)), "Lectura": "La robustez no se bloquea por regresión material."},
-]
-
-pd.DataFrame(rows)
-```
-
-La lectura prudente no es “la robustez fracasó”, sino que el champion robusto quedó **económicamente comparable pero no estadísticamente superior** en este replay. Eso importa porque desplaza la conversación desde “ganar siempre en retorno” hacia “cuánto downside estamos comprando y a qué costo”.
-
-### Atribución por grade, cohorte y monto
-
-El companion también hacía visible dónde se concentra la diferencia económica entre estrategias. Aunque el universo financiado en este replay es pequeño, la descomposición sigue siendo valiosa porque muestra que la discusión de robustez no es uniforme por segmento.
-
-```{python}
-#| label: tbl-ab-attribution-grade
-#| tbl-cap: "Atribución del replay A/B por grade"
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-from book._helpers.load_artifacts import try_load_parquet
-
-grade = try_load_parquet("ab_attribution_by_grade")
-if not grade.empty:
-    grade = grade[["grade", "n_funded", "mean_pd", "actual_return_k", "actual_default_rate", "return_on_capital_pct"]]
-grade
-```
-
-```{python}
-#| label: tbl-ab-attribution-cohort-amount
-#| tbl-cap: "Atribución del replay A/B por cohorte y bucket de monto"
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-from book._helpers.load_artifacts import try_load_parquet
-
-import pandas as pd
-
-cohort = try_load_parquet("ab_attribution_by_cohort")
-amount = try_load_parquet("ab_attribution_by_amount")
-
-frames = []
-if not cohort.empty:
-    tmp = cohort[["temporal_segment", "n_funded", "actual_return_k", "return_on_capital_pct"]].copy()
-    tmp.insert(0, "Dimensión", "cohort")
-    tmp = tmp.rename(columns={"temporal_segment": "Segmento"})
-    frames.append(tmp)
-if not amount.empty:
-    tmp = amount[["amount_bucket", "n_funded", "actual_return_k", "return_on_capital_pct"]].copy()
-    tmp.insert(0, "Dimensión", "amount")
-    tmp = tmp.rename(columns={"amount_bucket": "Segmento"})
-    frames.append(tmp)
-
-pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-```
-
-::: {.callout-warning}
-## Limitaciones del diseño retroactivo
-Esta simulación no es un A/B test aleatorizado en producción. Las principales limitaciones son: (1) no hay efecto de feedback --- en producción, aprobar/rechazar un préstamo afecta la composición futura del portafolio; (2) ambas estrategias se aplican al mismo pool de candidatos, sin competencia real por funding; (3) si se prueban muchas variantes de política sin corrección por multiplicidad, la probabilidad de encontrar mejoras espurias aumenta.
-:::
-
-::: {.callout-tip}
-## Conexión con el pipeline
-La simulación A/B cierra el ciclo del pipeline **predict-then-optimize**: los intervalos conformal (@sec-split-conformal) alimentan la optimización robusta (@sec-robust-portfolio), y la simulación A/B valida retrospectivamente si esa robustez genera valor económico real. Los CATE de @sec-causal-inference permiten una variante adicional: la optimización CATE-adjusted, evaluable con el mismo framework A/B.
-:::
+Hasta entonces, los artefactos A/B son provenance de ingeniería y no una
+contribución causal o evidencia económica confirmatoria.

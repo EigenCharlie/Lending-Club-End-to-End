@@ -1,15 +1,17 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Regresión Logística: Baseline Interpretable {#sec-lr-baseline}
 
 ### ¿Por qué un Baseline Lineal?
 
-Toda investigación rigurosa en machine learning requiere un **baseline simple** contra el cual medir el valor agregado de modelos más complejos. En credit scoring, la regresión logística no es solo un baseline académico --- es el **estándar regulatorio**: la mayoría de los scorecards en producción bancaria global siguen siendo regresiones logísticas, y los reguladores evalúan modelos de ML comparándolos contra este benchmark.
+Una comparación rigurosa en machine learning necesita un **baseline simple** contra el cual medir el valor agregado de modelos más complejos. En credit scoring, la regresión logística es una referencia frecuente por su trazabilidad y familiaridad; usarla aquí no implica aprobación regulatoria ni que exista un estándar universal de despliegue.
 
 El baseline de regresión logística cumple cuatro funciones en el pipeline:
 
 1. **Benchmark de discriminación**: ¿CatBoost realmente supera a un modelo lineal, o la ganancia de AUC es marginal?
-2. **Referencia de interpretabilidad**: Los coeficientes de la LR son directamente interpretables como odds ratios, proporcionando una narrativa que los reguladores entienden.
-3. **Validación de features**: Si una feature tiene un coeficiente significativo en la LR, tiene poder predictivo real. Si CatBoost la usa pero la LR no, el efecto puede ser una interacción no lineal.
-4. **Lower bound de rendimiento**: Cualquier modelo desplegado debe superar *significativamente* a la LR para justificar la complejidad adicional.
+2. **Referencia de interpretabilidad**: bajo la especificación declarada, los coeficientes pueden expresarse como odds ratios condicionales; no son efectos causales.
+3. **Diagnóstico de features**: coeficientes y estabilidad ayudan a detectar señal lineal. Sin inferencia y controles adicionales, un coeficiente distinto de cero no demuestra significancia, causalidad ni poder predictivo transportable.
+4. **Comparador de complejidad**: el gap observado ayuda a valorar si un challenger añade discriminación en el mismo experimento, pero no constituye un gate de despliegue.
 
 ### Especificación del Modelo
 
@@ -36,14 +38,14 @@ A diferencia de CatBoost, la regresión logística requiere preprocesamiento exp
 
 ::: {.callout-warning}
 ## Limitación del fillna(0)
-Reemplazar NaN con cero es una estrategia subóptima porque introduce un sesgo: un DTI faltante (que podría indicar datos incompletos o un autoempleado) se trata igual que un DTI de cero (sin deuda). Para la LR baseline, esta simplificación es aceptable porque el objetivo es establecer un lower bound, no maximizar rendimiento. CatBoost no sufre esta limitación al tratar NaN como un valor informativo propio.
+Reemplazar NaN con cero es una estrategia subóptima porque introduce un sesgo: un DTI faltante se trata igual que un DTI de cero. Para la LR baseline, esta simplificación documenta un comparador deliberadamente básico. CatBoost admite valores faltantes de forma nativa, pero eso no elimina por sí solo sesgo de selección, missingness informativo o drift.
 :::
 
 ### Métricas del Baseline
 
 ```{python}
 #| label: tbl-lr-metrics
-#| tbl-cap: "Métricas del baseline de Regresión Logística (test OOT)"
+#| tbl-cap: "Métricas del baseline de Regresión Logística (partición temporal retrospectiva etiquetada test OOT)"
 
 import pandas as pd
 
@@ -59,19 +61,19 @@ lr_metrics = {
 pd.DataFrame(list(lr_metrics.items()), columns=["Métrica", "Valor"])
 ```
 
-El AUC de 0.683 está en el rango típico para regresión logística aplicada a credit scoring con datos de Lending Club. Estudios publicados reportan AUC de 0.66--0.70 para modelos lineales sobre este dataset [@lessmann2015].
+El AUC de 0.683 es el valor puntual registrado para este baseline en el snapshot local. La literatura de benchmarking motiva conservar comparadores lineales [@lessmann2015], pero este artefacto no aporta un intervalo de incertidumbre ni una comparación externa que permita declarar el resultado típico o transportable.
 
 ::: {.callout-note}
 ## D² Brier negativo: ¿qué significa?
-El D² Brier Score es análogo al R² --- mide la mejora relativa sobre un predictor naive (que siempre predice la frecuencia marginal de default). Un D² negativo (-0.349) indica que el Brier Score del modelo es **peor** que el predictor naive. Esto no significa que la LR sea inútil --- su AUC es 0.683, indicando buena discriminación. El problema es la **calibración**: los scores brutos de la LR no son probabilidades bien calibradas. Este es precisamente el problema que la etapa de calibración post-hoc resuelve.
+El D² Brier Score es análogo al R² --- mide la mejora relativa sobre un predictor naive (que siempre predice la frecuencia marginal de default). Un D² negativo (-0.349) indica que el Brier Score del modelo es **peor** que el predictor naive. El AUC de 0.683 describe separación moderada en este snapshot, sin umbral universal de suficiencia. La calibración post-hoc redujo Brier en la corrida; no valida transporte, una PD latente ni uso operacional.
 :::
 
 ### Valor del Baseline
 
-La comparación LR vs. CatBoost justifica el uso de un modelo más complejo:
+La comparación LR vs. CatBoost documenta las siguientes diferencias puntuales dentro del experimento histórico:
 
-- **AUC**: 0.683 → 0.713 (+0.030, +4.4% relativo). Una mejora de 3 puntos de AUC es considerada significativa en credit scoring aplicado.
+- **AUC**: 0.683 → 0.713 (+0.030, +4.4% relativo). Es una diferencia descriptiva; aquí no se reporta un test de significancia ni incertidumbre pareada.
 - **Gini**: 0.366 → 0.426 (+0.060). El Gini amplifica la diferencia.
 - **Brier**: 0.231 → 0.154 (después de calibración). Una reducción del 33% en error cuadrático.
 
-Estas mejoras justifican la complejidad adicional de CatBoost para un modelo de producción, mientras que la LR queda como referencia interpretable para auditoría regulatoria.
+Estas diferencias explican por qué el pipeline histórico congeló CatBoost como comparador preferido y retuvo la LR como referencia interpretable. No bastan para declarar superioridad general, aprobación regulatoria o aptitud de producción.

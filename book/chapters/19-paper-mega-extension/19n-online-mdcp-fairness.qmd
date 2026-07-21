@@ -3,19 +3,25 @@ title: "Online Conformal MDCP And Source Governance"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Online conformal
 
-El resultado historico importante es doble. Primero, el gate nominal se resolvio
-en la ola online: source-month, policy-month y ancho quedaron en zona operativa.
-Segundo, la validacion v35 mostro que el resultado no sobrevive de forma
-universal a holdouts source-family. Por eso el claim oficial debe ser cuidadoso.
+La ola v9 busco retrospectivamente `1,010` reglas de ajuste sobre un mismo
+replay; `503` pasaron sus gates nominales y la regla de menor ancho fue
+seleccionada en esos mismos datos. V35 examino luego sus ultimos seis meses y
+sus grupos por source family sin refit ni exclusion durante el entrenamiento.
+Son slices post-seleccion y un diagnostico de fragilidad, no holdouts estrictos.
+La vista activa `paper4_v35_online_postselection_slices.csv` fija
+`strict_holdout=False` en cada fila; el archivo legacy cuyo nombre incluia
+`temporal_holdout` queda solo como procedencia historica.
 
 ## MDCP y source governance
 
-MDCP/source coverage sirve como gobernanza de cobertura por familias: grade,
-month, period, state, income, DTI, score decile e intersecciones con soporte
-suficiente. Esto es evidencia de robustez operacional, no evidencia legal de
-fair lending.
+MDCP/source coverage describe heterogeneidad retrospectiva de cobertura por
+familias: grade, month, period, state, income, DTI, score decile e
+intersecciones con soporte suficiente. Es un diagnóstico post-selección, no
+evidencia de robustez operacional ni de fair lending legal.
 
 ## Fairness
 
@@ -36,9 +42,11 @@ Census tract. Eso permite source/geography governance, no BISG completo ni
 claim legal.
 
 Para online conformal, la misma auditoria autoriza solo un experimento acotado:
-source-family holdout retrospectivo por issue-month, grade, state, income/DTI
-bins y zip3, con una lectura MDCP/defended-source. Si no mejora el peor source
-sin inflar demasiado el ancho, el resultado se archiva como limitacion.
+un split prospectivo o leave-family-out con particiones y grupos definidos sin
+mirar outcomes, y con labels separados para calibración probabilística,
+conformalización, selección y evaluación final. Puede estratificarse por
+issue-month, grade, state, income/DTI bins y zip3. Los slices v35 existentes no
+satisfacen ese diseño y se conservan como limitacion.
 
 ## Intake Angelopoulos para online/source
 

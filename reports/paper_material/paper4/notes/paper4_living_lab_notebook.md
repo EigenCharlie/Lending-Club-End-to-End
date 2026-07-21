@@ -2,14 +2,21 @@
 
 Updated: 2026-05-18
 
+> **Historical memo — superseded for claims.** This note records the closure
+> vocabulary used on 2026-05-18. Paper 4 remains a non-promoted living lab;
+> the external CRPTO paper is autonomous and its active dossier does not import
+> F03/F04/F05/SDAM or any other claim from this repository. `SESSION_STATE.md`,
+> `paper4_current_claim_boundaries.csv` and the external CRPTO contract govern
+> the current reading.
+
 ## Closure Decision
 
-Paper 4 is closed as a long-horizon living lab, not promoted into the official
-Paper Estrella surface. Paper Estrella remains the official publication and
-thesis champion route.
+Paper 4 was closed as a long-horizon living lab and was not promoted. The
+labels “Paper Estrella”, “official publication” and “champion” below are
+historical project vocabulary, not current CRPTO authority.
 
-The only Paper 4 material exported to Paper Estrella is the bounded
-F03/F04/F05/SDAM package:
+The May memo proposed a bounded F03/F04/F05/SDAM export. That transfer is now
+superseded and no claim was imported into the active external CRPTO dossier:
 
 - F03: dynamic stress replay as robustness context for the retained champion.
 - F04: CVaR/OCE challenger evidence as a caveat supporting the economic
@@ -48,5 +55,5 @@ F03/F04/F05/SDAM package:
 - Do not reopen `models/final_project_promotion.json`.
 - Do not start another self-directed Paper 4 wave without new external data,
   formal proof, or a concrete journal/thesis revision need.
-- Treat Paper 4 as provenance and robustness evidence. Treat Paper Estrella as
-  the publication/champion surface.
+- Treat Paper 4 and this legacy export memo as provenance only. Neither defines
+  the external CRPTO publication, a champion, a selected policy or its claims.

@@ -3,35 +3,41 @@ title: "Paper 4 Proposal And Scope"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Idea central
 
 Paper 4 estudia si una decision crediticia puede gobernarse como un problema
-secuencial: no basta con predecir PD o maximizar retorno en un libro estatico.
-La pregunta es como elegir, evaluar y auditar politicas bajo incertidumbre,
-cola, cobertura conformal, provision proxy, fuentes debiles y decisiones
-repetidas.
+secuencial: no basta con producir scores o maximizar retorno en un libro
+estatico. La pregunta es como elegir, evaluar y auditar politicas bajo
+incertidumbre, cola, cobertura conformal del resultado binario, fuentes debiles
+y decisiones repetidas.
 
-El CRPTO/Paper_CRPTO sigue siendo la base solida y la referencia oficial. Paper 4
-consume esa base, pero no la reemplaza automaticamente. Su valor academico esta
-en convertir CRPTO en un laboratorio de decision analytics: policies, states,
-uncertainty, sample paths, gates y claim boundaries.
+El CRPTO IJDS activo es una referencia externa de identificacion: audita la
+interfaz entre prediccion, cobertura candidata y asignacion, pero no selecciona
+un learner, comparador o policy. Paper 4 no modifica ese contrato. Su valor
+academico local esta en explorar policies, states, uncertainty, sample paths,
+gates y claim boundaries con etiquetas explicitamente diagnosticas.
 
 ## Tesis defendible hoy
 
-La tesis defendible no es que Paper 4 ya tiene un nuevo champion final. La tesis
-defendible es que el proyecto ya tiene una arquitectura reproducible para
+La tesis defendible no es que Paper 4 ya haya seleccionado una policy. La tesis
+defendible es que el proyecto tiene una arquitectura reproducible para
 comparar familias de politicas bajo gobernanza secuencial:
 
-- CRPTO/Paper_CRPTO como referencia economica.
+- CRPTO IJDS como contrato externo de identificacion y limites de inferencia.
 - CVaR/OCE como challenger de cola.
 - Online conformal y MDCP como gobernanza de cobertura.
-- IFRS9/SICR como proxy prudencial, no contractual.
+- IFRS9/SICR como auditoria negativa de datos y estimandos, sin PD, ECL, SICR o
+  staging identificado.
 - DLA/ADP como representacion dinamica, no Bellman exacto.
-- SPO/DFL como oracle-regret/surrogate, no diferenciable formal.
+- PyEPO/DFL como benchmark teacher-cost descriptivo, no perdida realizada.
 - CATE/fairness como gates bloqueados con evidencia.
 
 ## Lo que queda fuera del claim oficial
 
-No se hacen claims de IFRS9 contractual, CATE policy value, fair-lending legal,
-forecast externo, Bellman optimality ni SPO+ diferenciable formal. Esos carriles
-siguen vivos en el notebook, pero no entran como contribucion oficial todavia.
+No se hacen claims de PD individual, ECL, SICR, staging, IFRS9 contractual,
+CATE policy value, fair-lending legal, forecast externo, Bellman optimality,
+superioridad DFL, perdida realizada ni validez conformal del selected set. Esos
+carriles siguen vivos en el notebook como auditorias o trabajo futuro, pero no
+entran como contribucion positiva oficial.

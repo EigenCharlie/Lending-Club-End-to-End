@@ -1,5 +1,11 @@
 # Metrics for Credit and ML Models - triage 2026-05-18
 
+> **SUPERSEDED FOR CLAIMS (2026-07-20).** This memo preserves the May source
+> triage. Its Paper 2 absorption, `append_strong`, conformal-ECL, SICR-width and
+> Paper Estrella champion recommendations are rejected by the current estimand
+> audit. Use `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`
+> and the Paper 2/Paper 4 claim contracts. The text below is provenance only.
+
 ## Purpose
 
 This memo closes the intake of `C:\Users\carlos\Downloads\Metrics for Credit and ML Models.pdf`.

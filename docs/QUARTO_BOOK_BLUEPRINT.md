@@ -1,17 +1,23 @@
 # Quarto Book Blueprint
 
-> **STATUS: LIVE AND UNDER CONTINUOUS MAINTENANCE** — The Quarto book is the official, citable surface of the project, but it must be maintained against the live canonical artifacts. The monotonic champion promotion plus the ADSFCR-inspired tranches made the earlier “book complete” status insufficient as a maintenance statement.
+> **STATUS: LIVE HISTORICAL/DIAGNOSTIC COMPANION (2026-07-20).** The Quarto
+> book is this repository's principal editorial surface, but it is not the
+> scientific authority for the autonomous CRPTO paper and does not convert
+> runtime labels into current claims. Its navigation is governed by
+> `book/_quarto.yml`; its interpretation is governed by
+> `book/includes/_scientific-scope-contract.qmd` and the surface-specific claim
+> contracts.
 
 ## Objective
 
-- The Quarto book (`book/`) is the master's thesis and the official narrative layer.
+- The Quarto book (`book/`) is the master's historical and diagnostic companion.
 - Streamlit is a reduced companion for interaction, not the primary source of project truth.
-- The book must explain the current champion stack, the current monitoring/governance stack, and the research lanes without mixing them.
+- The book must distinguish the local runtime freeze, CRPTO, Paper 2 and Paper 4 without collapsing their estimands or statuses.
 
 ## Official narrative axes
 
-- `Pipeline Operativo`
-  Data -> PD -> calibration -> fairness semantics -> conformal -> survival/time series -> IFRS9 -> portfolio policy -> governance / MRM.
+- `Pipeline histórico ejecutable`
+  Data -> score/calibration -> interval for binary $Y$ -> stress utilities, with survival, time-series, IFRS9, fairness and MRM retained as diagnostics.
 - `Insight Factory`
   Explainability, causal extensions, notebooks, RAPIDS benchmarks, side projects, extended figures, and paper drafts.
 - `Modernización metodológica`
@@ -21,15 +27,15 @@
 
 - Quarto chapters must read canonical artifacts whenever possible.
 - Hardcoded metric snapshots should be avoided unless clearly marked as historical context.
-- Current-state claims must be traceable through:
-  - canonical runtime artifacts;
-  - `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md`;
-  - primary external references.
-- Research lanes may be described in the book, but must never be narrated as champion behavior when they are not promoted.
+- Current-state claims must be traceable through the relevant current contract,
+  registered evidence and primary external references. The March canonical
+  ledger is historical provenance only.
+- Research lanes may be described, but must not be narrated as current winners,
+  deployed policy, IFRS 9 evidence or independent validation.
 
 ## Maintenance rules
 
-- If a champion changes, the following chapters should be reviewed first:
+- If a runtime freeze or a claim contract changes, the following chapters should be reviewed first:
   - executive map;
   - PD champion narrative;
   - conformal / fairness / MRM sections;
@@ -44,7 +50,10 @@
 
 ## Primary maintenance companion
 
-Use `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md` as the living editorial ledger that maps:
+Use `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`, the
+portable CRPTO contract, the Paper 2 claim contract and the current Paper 4
+findings/boundaries as the live editorial hierarchy. The March ledger preserves
+the historical mapping:
 
 - technique -> artifact;
 - artifact -> Quarto chapter;

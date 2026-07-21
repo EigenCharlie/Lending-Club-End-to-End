@@ -3,11 +3,14 @@ title: "Paper 4 Appendix Registers"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Rol de este apendice
 
 Este registro separa la evidencia de soporte de la sintesis paper-facing de
 Paper 4. El cuerpo futuro vive en `19ca-v38-final-synthesis.qmd`; este apendice
-mantiene trazabilidad de cleanup, Lab 4, metricas binder y absorcion de Paper 2.
+mantiene trazabilidad de cleanup, Lab 4, metricas binder y la auditoria negativa
+de la antigua absorcion de Paper 2.
 
 ## Cleanup y procedencia
 
@@ -23,15 +26,13 @@ La decision queda registrada en:
   `outcome_decision=accept`;
 - `paper4_loop_closure_cleanup_manifest_2026-05-17.csv`: manifest de los
   artefactos retirados;
-- `paper4_loop_closure_status_2026-05-17.json`: frontera de cierre sin
-  promocion final;
-- `docs/research/paper4_to_estrella_export_2026-05-17.md`: memo de exportacion
-  hacia CRPTO/Paper_CRPTO.
+- `paper4_loop_closure_status_2026-05-17.json`: frontera historica de cierre;
+- `docs/research/paper4_to_estrella_export_2026-05-17.md`: memo historico hoy
+  marcado como `superseded`.
 
-El cierre no crea `paper4_final_promotion.json`, no reabre el champion de Paper
-Estrella y no transforma Paper 4 en protocolo de promocion. Paper 4 queda como
-laboratorio vivo largo plazo; CRPTO/Paper_CRPTO absorbe solamente F03, F04, F05 y
-SDAM como robustez, caveat y framing.
+El cierre no transforma Paper 4 en protocolo de seleccion. La exportacion
+propuesta en 2026-05-17 no se incorporo al CRPTO IJDS activo: F03, F04, F05 y
+SDAM permanecen como evidencia interna, diagnosticos o framing de Paper 4.
 
 ## Auditoria de datos post-cierre
 
@@ -45,90 +46,86 @@ Eso permite cuatro experimentos acotados y mantiene tres claims bloqueados:
 
 | lane | decision | regla de cierre |
 | --- | --- | --- |
-| IFRS9/SICR | bounded_experiment | una tabla raw-enriched; no IFRS9 contractual |
-| online conformal | bounded_experiment | un source-family holdout; no despliegue real |
-| CATE | diagnostic_only | sensibilidad observacional; no policy value |
-| CVaR/OCE | tail_challenger_only | cashflow repricing; no champion replacement |
-| fair lending | proxy_only | source governance; no legal claim |
-| SPO/DFL | isolated_prototype | ambiente separado; no pipeline principal |
-| DLA/ADP | rollout_only | simulador representativo; no Bellman optimality |
+| IFRS9/SICR | auditoria negativa | auditar ausencia de unidad prestamo-fecha, labels y estimandos; no PD/ECL/SICR |
+| online conformal | diagnostico | slices post-seleccion por tiempo/fuente; no holdout ni despliegue real |
+| CATE | diagnostico | sensibilidad observacional; no policy value |
+| CVaR/OCE | diagnostico | cashflow repricing condicional al simulador; no dominancia externa |
+| fair lending | proxy | source governance; no legal claim |
+| SPO/DFL | diagnostico | benchmark teacher-cost; no perdida realizada ni claim CRPTO |
+| DLA/ADP | rollout | simulador representativo; no Bellman optimality |
 
-El memo completo queda en
-`docs/research/paper4_data_frontier_research_proposal_2026-05-18.md`.
+El detalle queda en el
+[memo de propuesta de frontera](../../../docs/research/paper4_data_frontier_research_proposal_2026-05-18.md).
 
 ## Cierre experimental acotado del frontier
 
 El goal posterior ejecuto los siete carriles con un runner consolidado y scratch
 fuera del repo. Los resultados estan en
-`paper4_frontier_goal_summary_2026-05-18.csv`, con fuentes en
-`paper4_frontier_source_log_2026-05-18.csv` y cierre narrativo en
-`docs/research/paper4_frontier_goal_closure_2026-05-18.md`.
+[resumen del cierre](../../../reports/paper_material/paper4/tables/paper4_frontier_goal_summary_2026-05-18.csv),
+con su [registro de fuentes](../../../reports/paper_material/paper4/tables/paper4_frontier_source_log_2026-05-18.csv)
+y el [memo narrativo](../../../docs/research/paper4_frontier_goal_closure_2026-05-18.md).
 
 | lane | decision | resultado que queda |
 | --- | --- | --- |
-| IFRS9/SICR | append | combined_raw_sicr lift=73.6416, share=0.2936; proxy fuerte, no contractual |
+| IFRS9/SICR | auditoria negativa | el flag raw usa outcomes terminales y no valida SICR/staging; lift y share no son citables |
 | online conformal | park | best source_grade_shrinkback queda en defended_min_coverage=0.7788, no pasa gate |
-| CVaR/OCE | append | cashflow tail proxy baja CVaR95, pero no supera wealth del champion oficial |
+| CVaR/OCE | append | cashflow tail proxy baja CVaR95, pero no supera wealth de la referencia legacy |
 | CATE | park | AIPW senala 0.007132, pero overlap=0.2838 bloquea policy value |
 | fair lending proxy | append | dispersion observable documentada; legal fair lending sigue prohibido |
 | DLA/ADP | append | v11_adp_return_recovery retiene delta vs static de 214521.2201 |
-| SPO/DFL | park | PyEPO/cvxpylayers disponibles solo en aislamiento; no integracion CRPTO |
+| SPO/DFL | park | PyEPO ejecuta teacher-regret; faltan outcome realizado, baseline comparable y unidades independientes |
 
-La conclusion es estable: Paper 4 gana appendix/metodologia, no un nuevo
-champion. CRPTO/Paper_CRPTO no absorbe ningun claim nuevo de este cierre; conserva
-F03, F04, F05 y SDAM como exportaciones acotadas.
+La conclusion es estable: Paper 4 gana appendix/metodologia, no una policy
+seleccionada. El CRPTO IJDS activo no absorbio claims de este cierre; F03, F04,
+F05 y SDAM permanecen dentro de Paper 4 con fronteras acotadas.
 
-## Paper 2 absorbido como brazo prudencial de Paper 4
+## Paper 2 archivado como auditoria negativa de estimandos
 
-Paper 4 nace de combinar el CRPTO/Paper_CRPTO con Paper 2 y luego extender esa
-base hacia decision secuencial, cola, source governance, CATE, DLA/ADP y
-SPO/DFL. Por eso, si Paper 4 se convierte en un paper completo futuro, no debe
-depender de publicar Paper 2 por separado. Debe traer dentro de su arquitectura
-todo el valor prudencial de Paper 2: como la incertidumbre del score se propaga
-a ECL, staging, SICR, sensibilidad de escenarios y gobernanza de umbrales.
+Paper 4 conserva estos artefactos para registrar una correccion metodologica, no
+para reutilizar sus resultados. El intervalo conformal historico cubre el
+resultado binario observado $Y$; no es un intervalo para PD y no se puede
+propagar como incertidumbre de ECL. El ancho no identifica SICR ni deterioro
+crediticio,
+el default terminal no equivale a Stage 2 y una busqueda de umbral en la misma
+muestra no valida SICR ni una decision economica.
 
-La absorcion queda completa en Paper 4 con una condicion de honestidad: entra el
-modulo como **IFRS9-inspired prudential evidence**, no como implementacion
-contractual IFRS 9. El capitulo 15 puede seguir existiendo como material
-historico o tesis, pero la ruta editorial activa es que Paper 4 sea el contenedor
-principal de ese valor.
+Por tanto, el registro entra como **negative estimand audit** y procedencia no
+citable. Las sensibilidades algebraicas pueden probar que el software ejecuta
+una transformacion, pero no estiman una provision ni autorizan importes,
+thresholds o recomendaciones. Paper 2 permanece `parked_ifrs9` y solo se reabre
+con unidad prestamo-fecha de reporte, outcomes contractuales y test final
+preservado.
 
-La tabla trazable queda en
-`reports/paper_material/paper4/tables/paper4_paper2_absorption_anchors_2026-05-18.csv`.
+La trazabilidad completa queda en la
+[tabla de anclas de Paper 2](../../../reports/paper_material/paper4/tables/paper4_paper2_absorption_anchors_2026-05-18.csv).
 
-| evidencia Paper 2 | lectura en Paper 4 | decision |
+| artefacto Paper 2 | lectura en Paper 4 | decision |
 | --- | --- | --- |
-| ECL baseline `USD 870.3M` y severe `USD 1.479B` | el shock prudencial mueve provisiones agregadas `+69.9%` | append |
-| Rango conformal ECL | baseline point `USD 432.1M`, high conformal `USD 1.408B`, ratio high/point `3.26x` | append |
-| SICR conformal `t*=0.30`, F1 `0.2515`, recall `75.8%`, precision `8.9%`, ECL `+USD 56.6M` | senal prudencial complementaria al trigger puntual | append fuerte |
-| CIF vs Kaplan-Meier en presencia de prepago | baseline KM aprox. `USD 1.003B` cae a `USD 870.3M` con CIF; el analisis retenido reporta aprox. `USD 125.8M` de sobrerreserva | append |
-| Stage misclassification cost | umbral `pd_threshold=0.15` minimiza costo observado en aprox. `USD 97.3M`; la zona `0.13--0.18` es robusta | append |
-| TS->ECL intervals | Jan 2021: point `USD 109.6M`, adverse 90pct `USD 352.2M`, rango aprox. `USD 304.7M` | contexto |
-| Ruta standalone de Paper 2 | valor absorbido por Paper 4; paper separado queda parqueado | supersede near-term |
-| Contractual IFRS9 | bloqueado por falta de DPD mensual, cure, EAD paths, recovery/prepayment timing y macro scenarios productivos | keep false |
+| Aritmetica de escenarios | sensibilidad mecanica sin unidad prestamo-fecha ni estimando contable | auditoria negativa |
+| Endpoints del resultado binario | demuestra la sustitucion indebida entre cobertura de $Y$ e incertidumbre de PD/ECL | auditoria negativa |
+| Heuristica de ancho | usa informacion no validada para staging y seleccion retrospectiva | auditoria negativa |
+| Competing-risk prototype | enumera supuestos de prepago/cure/recovery faltantes | auditoria negativa |
+| Busqueda de umbral y costo | fue seleccionada en la misma muestra y no recomienda staging o monetizacion | auditoria negativa |
+| Transformacion temporal | sensibilidad de software sin forecast contable validado | auditoria negativa |
+| Ruta standalone de Paper 2 | permanece `parked_ifrs9` | parked; no citable |
+| IFRS9 contractual | bloqueado por falta de unidad prestamo-fecha, DPD mensual, cure, EAD paths, recovery/prepayment timing y escenarios macro gobernados | keep false |
 
-La contribucion que Paper 4 hereda de Paper 2 se puede formular asi: un pipeline
-de decision robusta no termina al seleccionar loans; tambien debe mostrar que
-sus probabilidades calibradas y sus bandas de incertidumbre tienen lectura
-prudencial. ECL, SICR, CIF, costo de staging y stress temporal vuelven visible
-el costo de equivocarse bajo uncertainty, pero sin convertir Lending Club en una
-cartera bancaria regulada.
+La version futura publicable de Paper 4 puede conservar solo esta estructura de
+failure analysis:
 
-La version futura publicable de Paper 4 puede usar esta estructura:
-
-| bloque del futuro Paper 4 | contenido heredado de Paper 2 | claim permitido |
+| bloque del futuro Paper 4 | contenido archivado de Paper 2 | claim permitido |
 | --- | --- | --- |
-| Prudential uncertainty propagation | ECL low/point/high por escenario | uncertainty-aware ECL proxy |
-| SICR governance | ancho conformal como trigger complementario | early-warning/staging diagnostic |
-| Lifetime PD caveat | CIF sobre prepago frente a Kaplan-Meier | competing-risk correction matters |
-| Threshold governance | funcion de perdida para Stage 1/2 | staging thresholds are economic decisions |
-| Temporal stress | TS->ECL intervals | macro/temporal stress context |
-| Claim boundary | blockers IFRS9 contractuales | no contractual IFRS9 |
+| Estimand mismatch | endpoints de $Y$ relabelled como PD/ECL | documentar por que la inferencia es invalida |
+| Staging mismatch | ancho/default terminal relabelled como SICR/Stage 2 | documentar por que el proxy no identifica staging |
+| Data-unit audit | ausencia de observaciones prestamo-fecha de reporte | requisito de reapertura, no resultado actual |
+| Selection audit | umbrales y costos elegidos retrospectivamente | no recomendacion ni monetizacion |
+| Mechanical sensitivity | transformaciones de escenarios y tiempo | prueba de software no citable como ECL |
+| Claim boundary | blockers contractuales y de validacion | no PD, ECL, SICR, Stage 2 o IFRS9 claim |
 
-Con esto, Paper 2 deja de ser una dependencia editorial del programa. Si algun
-dia aparecen datos contractuales reales, servicing mensual completo y escenarios
-macro gobernados, podria renacer como paper IFRS9 especifico. Mientras tanto,
-Paper 4 captura todo su valor util.
+Con esto, Paper 2 no es una dependencia editorial activa. Si aparecen datos
+contractuales reales, servicing mensual completo y escenarios macro gobernados,
+podria reabrirse como paper IFRS9 especifico. Mientras tanto, sus artefactos son
+procedencia no citable y una auditoria negativa de Paper 4.
 
 ## Addendum de metricas crediticias
 
@@ -138,43 +135,42 @@ fuentes utiles y tres limites:
 | fuente | uso en Paper 4 | decision |
 | --- | --- | --- |
 | Wuthrich [-@wuthrich2023_gini_autocalibration] | calibration-gated Gini/AUC: ranking se interpreta solo despues de calibracion | append metodologico |
-| Albanesi y Vamossy [-@albanesi2024_credit_scores_equity] | FICO/score proxy vs champion ML, misclassification, ranking difference y grupos observables | append fuerte |
+| Albanesi y Vamossy [-@albanesi2024_credit_scores_equity] | FICO/score proxy vs modelo legacy-root, misclassification, ranking difference y grupos observables | append fuerte |
 | Dinga et al. | taxonomia de metricas: discriminacion, calibracion, utilidad y equity | contexto |
 | Somers' D | bootstrap/tie sensitivity para Gini/AUC/Somers' D | opcional |
 | ReScorer | solo si se auditan razones LLM del workflow de investigacion | park |
 
-El experimento compacto ya queda ejecutado como appendix de gobernanza en
-`reports/paper_material/paper4/tables/paper4_frontier_metric_governance_decision_2026-05-19.csv`.
-Sobre el 40% mas reciente del OOT (`n=103,865`), el champion calibrado supera
+El experimento compacto ya queda ejecutado como appendix de gobernanza en la
+[tabla de decision de metricas](../../../reports/paper_material/paper4/tables/paper4_frontier_metric_governance_decision_2026-05-19.csv).
+Sobre el 40% mas reciente del OOT (`n=103,865`), el modelo legacy-root calibrado supera
 al proxy FICO de origen en AUC (`+0.10757`), Gini/Somers' D (`+0.21514`),
 Brier (`-0.010815`), ECE 10-bin (`-0.022137`) y error medio por decil
 (`-0.020532`). Ademas, `48.65%` de loans cambian al menos 20 puntos
-percentiles de ranking entre el proxy FICO y el champion.
+percentiles de ranking entre el proxy FICO y el modelo legacy-root.
 
-La lectura es fuerte pero acotada: esto apoya un appendix de metric governance
-en Paper 4 y conversa con Wuthrich/Albanesi-Vamossy. No es evidencia de
-fair-lending legal, no infiere atributos protegidos y no cambia el champion de
-CRPTO/Paper_CRPTO.
+La lectura es historica y acotada: apoya un appendix de metric governance en
+Paper 4 y conversa con Wuthrich/Albanesi-Vamossy. No es evidencia de
+fair-lending legal, no infiere atributos protegidos y no informa sobre el
+modelo o los claims del CRPTO IJDS activo.
 
 ## Intake Angelopoulos para bounds y online conformal
 
 La auditoria del 2026-05-19 agrega una capa Angelopoulos/Bates/Barber al lab.
-La tabla canonica queda en
-`reports/paper_material/global/tables/angelopoulos_conformal_intake_2026-05-19.csv`
-y el memo en `docs/research/angelopoulos_conformal_bound_intake_2026-05-19.md`.
+La [tabla canonica](../../../reports/paper_material/global/tables/angelopoulos_conformal_intake_2026-05-19.csv)
+y el [memo de intake](../../../docs/research/angelopoulos_conformal_bound_intake_2026-05-19.md)
+conservan el detalle.
 
-| Fuente | CRPTO/Paper_CRPTO | Paper 4 |
+| Fuente | Relacion con CRPTO IJDS activo | Paper 4 |
 | --- | --- | --- |
-| Gentle Introduction / Theoretical Foundations [@angelopoulos2023; @angelopoulos2026_foundations] | fundamento moderno de split conformal y exchangeability | proof-audit reference |
-| CRC / RCPS / LTT [@bates2021rcps; @angelopoulos2024risk; @angelopoulos2025ltt] | lineage directo del bound sobre `V` | gates de lanes por perdida controlada |
-| Label Noise Robustness [@einbinder2024_label_noise] | threat-to-validity sobre `default_flag` como target observado | label-governance appendix |
-| Non-monotonic CRC [@angelopoulos2026_nonmonotonic_crc] | future work para riesgo compuesto | park hasta implementar perdida multiobjetivo |
-| Gradient Equilibrium [@angelopoulos2025_gradient_equilibrium] | future work online/drift | park hasta split prospectivo |
+| Gentle Introduction / Theoretical Foundations [@angelopoulos2023; @angelopoulos2026_foundations] | no transferencia desde Paper 4 | proof-audit reference |
+| CRC / RCPS / LTT [@bates2021rcps; @angelopoulos2024risk; @angelopoulos2025ltt] | no transferencia desde Paper 4 | gates de lanes por perdida controlada |
+| Label Noise Robustness [@einbinder2024_label_noise] | no transferencia desde Paper 4 | label-governance appendix |
+| Non-monotonic CRC [@angelopoulos2026_nonmonotonic_crc] | no transferencia desde Paper 4 | park hasta implementar perdida multiobjetivo |
+| Gradient Equilibrium [@angelopoulos2025_gradient_equilibrium] | no transferencia desde Paper 4 | park hasta split prospectivo |
 
-La decision es conservadora: CRPTO/Paper_CRPTO fortalece su prueba y sus
-limitaciones; Paper 4 gana mejores rutas experimentales. Ninguna fuente cambia
-el champion ni autoriza claims de online deployment, fair lending legal,
-IFRS9 contractual o decision-risk end-to-end.
+La decision es conservadora: estas fuentes ordenan rutas experimentales de
+Paper 4. No cambian el CRPTO IJDS activo ni autorizan claims de online
+deployment, fair lending legal, IFRS9 contractual o decision-risk end-to-end.
 
 ## Sintesis Lab 4 guiada por literatura
 
@@ -183,43 +179,44 @@ Lab 4 sobre los artefactos retenidos de Paper 4. La regla de absorcion es
 conservadora: entra a Quarto solo lo que cambia la frontera academica del lab;
 lo demas queda parqueado con evidencia y stop rule.
 
-El memo unico es
-`docs/research/paper4_lab4_all_lanes_synthesis_2026-05-18.md`. La tabla de
-decision agregada es `paper4_lab4_all_lane_summary_2026-05-18.csv`, y la tabla
-final del selector CROMS-lite es
-`paper4_lab4_selector_final_table_2026-05-18.csv`.
+El [memo unico](../../../docs/research/paper4_lab4_all_lanes_synthesis_2026-05-18.md),
+la [decision agregada](../../../reports/paper_material/paper4/tables/paper4_lab4_all_lane_summary_2026-05-18.csv)
+y la [tabla final CROMS-lite](../../../reports/paper_material/paper4/tables/paper4_lab4_selector_final_table_2026-05-18.csv)
+conservan el detalle.
 
-| lane | decision | sink Paper 4 | uso CRPTO/Paper_CRPTO |
+| lane | decision | sink Paper 4 | relacion con CRPTO IJDS activo |
 | --- | --- | --- | --- |
 | Lane 1 CRC/LTT gates | append | governance appendix | reviewer-defense only |
 | Lane 2 CROMS-lite selector | append | selector tradeoff table | none |
 | Lane 3 E2E conformal | park | future prototype note | none |
-| Lane 4 online/source conformal | park_with_appendix_limitation | source holdout limitation | caveat only if needed |
+| Lane 4 online/source conformal | park + caveat | post-selection source-slice limitation | none |
 | Lane 5 CVaR/OCE | append | strong tail-risk appendix | appendix caveat only |
-| Lane 6 SPO/DFL | park_integrated_dfl_append_oracle_regret | oracle-regret comparator | related work only |
-| Lane 7 IFRS9 proxy | append | SICR/ECL proxy appendix | none |
+| Lane 6 SPO/DFL | diagnostico | teacher-regret benchmark | none |
+| Lane 7 IFRS9/SICR | auditoria negativa | estimand/readiness failure appendix | none |
 | Lane 8 governance/fairness proxy | append | source/proxy governance appendix | model-risk context only |
 | Lane 9 CATE | park | causal boundary note | none |
 
-La lectura oficial es que Lane 1, Lane 2, Lane 5, Lane 7 y Lane 8 aportan como
-appendix/metodologia de Paper 4. Lane 3, Lane 4, Lane 6 y Lane 9 no deben
+La lectura oficial es que Lane 1, Lane 2, Lane 5 y Lane 8 aportan como
+appendix/metodologia de Paper 4. Lane 7 queda solo como auditoria negativa.
+Lane 3, Lane 4, Lane 6 y Lane 9 no deben
 volverse nuevos loops: solo se reabren con datos nuevos, un prototipo aislado
 que funcione, una prueba formal o una revision externa que cambie un claim.
 
 ## Appendix fuerte recomendado
 
 El appendix fuerte de Paper 4 debe ser selectivo: pocas piezas, cada una con
-rol academico claro y frontera de claim. El registro canonico queda en
-`reports/paper_material/paper4/tables/paper4_strong_appendix_register_2026-05-19.csv`.
+rol academico claro y frontera de claim. El
+[registro canonico](../../../reports/paper_material/paper4/tables/paper4_strong_appendix_register_2026-05-19.csv)
+conserva los codigos exactos.
 
 | Bloque | Estado | Por que queda | Frontera |
 | --- | --- | --- | --- |
-| CRC/LTT gates | `append_strong` | convierte la iteracion en decision-risk governance | no promueve champion |
+| CRC/LTT gates | append fuerte | convierte la iteracion en decision-risk governance | no selecciona policy |
 | CROMS-lite selector | `append` | muestra tradeoffs por objetivo y source defense | no es entrenamiento end-to-end |
-| CVaR/OCE challenger | `append_strong` | explica por que la cola no reemplaza riqueza economica | tail challenger, no champion |
-| IFRS9/SICR proxy | `append_strong` | absorbe el valor prudencial de Paper 2 | proxy, no IFRS9 contractual |
+| CVaR/OCE diagnostic | append fuerte | hace visible el tradeoff cola/wealth del simulador | no dominancia externa |
+| IFRS9/SICR estimand audit | auditoria negativa | documenta por que Paper 2 no identifica PD/ECL/SICR/staging | no citable como resultado prudencial o monetario |
 | source/fairness governance | `append` | separa MRM observable de legal fairness | no protected-attribute claim |
-| metrics/FICO vs champion | `bounded_experiment` | compara scoring tradicional vs ML calibrado | appendix solo si cambia claim de gobernanza |
+| metrics/FICO vs legacy-root | experimento acotado | compara scoring tradicional vs ML calibrado historico | no inferencia sobre CRPTO actual |
 | Angelopoulos/CRC future gates | `context` | ordena CRC/LTT, non-monotonic y online gates | future work, no despliegue |
 
 Esta seleccion es deliberadamente mas estrecha que el inventario historico. Las
@@ -228,16 +225,15 @@ no como diario de investigacion.
 
 ## Auditoria profunda Papers_tesis 2026-06-06
 
-La auditoria nueva del folder `Papers_tesis` agrega una fuente de verdad para
-decidir que entra a Paper 4 y que queda aparcado:
-`reports/paper_material/global/tables/papers_tesis_source_matrix_2026-06-06.csv`.
-El indice de captions extraidas vive en
-`reports/paper_material/global/tables/papers_tesis_figure_caption_index_2026-06-06.csv`
-y sirve para localizar figuras/tablas utiles sin promover automaticamente su
-contenido. La curaduria accionable queda separada en
-`reports/paper_material/global/tables/papers_tesis_curated_visual_sinks_2026-06-06.csv`;
-esa tabla solo autoriza esquemas propios, appendices o respuestas a reviewers,
-no la reproduccion directa de figuras ajenas.
+La auditoria nueva del folder `Papers_tesis` agrega una
+[matriz local trazable](../../../reports/paper_material/global/tables/papers_tesis_source_matrix_2026-06-06.csv)
+para decidir que entra a Paper 4 y que queda aparcado. El
+[indice de captions](../../../reports/paper_material/global/tables/papers_tesis_figure_caption_index_2026-06-06.csv)
+sirve para localizar figuras y tablas utiles sin promover automaticamente su
+contenido. La
+[curaduria de destinos visuales](../../../reports/paper_material/global/tables/papers_tesis_curated_visual_sinks_2026-06-06.csv)
+solo autoriza esquemas propios, appendices o respuestas a reviewers, no la
+reproduccion directa de figuras ajenas.
 
 La lectura para Paper 4 es clara:
 
@@ -248,13 +244,15 @@ La lectura para Paper 4 es clara:
 | Robustness certificates | Conformal Robustness Control [@hu2026_conformal_robustness_control] | future robustness gate sobre `V`/`violation` |
 | AI/OR digital lending | credit portfolio/P2P y AI+OR digital lending [@chi2019_p2p_robust_credit; @torkian2026_ai_or_digital_lending] | related work aplicado, no baseline obligatorio |
 | Credit equity/data quality | credit scores, ML credit markets, consumer credit ML [@albanesi2024_credit_scores_equity; @fuster2022_predictably_unequal; @khandani2010_credit_ml] | metric governance y fairness/source caveat |
-| IFRS9 proxy | guidance ECL Basel [@basel2015_ecl_guidance] | boundary para ECL/SICR proxy, no IFRS9 contractual |
+| IFRS9/SICR audit | guidance ECL Basel [@basel2015_ecl_guidance] | checklist de requisitos ausentes y estimandos invalidos; no proxy positivo |
 
 La matriz marco tres candidatos experimentales: group-weighted conformal,
 utility-directed CP y localized CP. Fueron ejecutados en una corrida acotada
-posterior, sin tocar el champion ni crear `paper4_final_promotion.json`. El
+posterior, sin seleccionar una policy externa. El
 protocolo uso el replay congelado v4 con 2018 como calibracion y 2019--2020
-como holdout. Los artefactos quedan en:
+como slice de evaluacion temporal retrospectiva. Ese slice no es un holdout
+intacto porque el archivo OOT ya habia sido inspeccionado y reutilizado. Los
+artefactos quedan en:
 
 - `paper4_papers_tesis_conformal_candidate_summary_2026-06-06.csv`;
 - `paper4_papers_tesis_conformal_candidate_by_source_2026-06-06.csv`;
@@ -262,7 +260,7 @@ como holdout. Los artefactos quedan en:
 - `paper4_papers_tesis_conformal_candidates_status_2026-06-06.json`;
 - `paper4_papers_tesis_conformal_candidates_2026-06-06.md`.
 
-| Candidato | Resultado holdout | Decision |
+| Candidato | Resultado en slice temporal reutilizado | Decision |
 | --- | --- | --- |
 | Group-weighted source-max | coverage `0.9387`, width `0.9394`, worst-source `0.8602`; cobertura global mejora pero worst-source cae `0.0111` vs Mondrian | appendix mixto; no claim de mejora source sobre Mondrian |
 | Localized score-bin | coverage `0.9497`, width `0.8643`, worst-source `0.9252`; mejora cobertura y worst-source, pero sube width `0.0867` | appendix mixto reviewer-facing |
@@ -271,19 +269,18 @@ como holdout. Los artefactos quedan en:
 La lectura oficial es deliberadamente estrecha: Paper 4 puede usar estos
 resultados como appendix source/shift/localized y como evidencia de por que
 utility-directed CP necesita un diseno mas fino. No autorizan deployment online,
-validez condicional exacta, cambio de selector oficial ni reapertura del
-champion CRPTO.
+validez condicional exacta, seleccion de policy ni cambio del CRPTO IJDS activo.
 
 ## Gate register de experimentos futuros
 
-Los proximos experimentos quedan preacotados en
-`reports/paper_material/paper4/tables/paper4_future_experiment_gate_register_2026-05-19.csv`.
+Los proximos experimentos quedan preacotados en el
+[registro de gates futuros](../../../reports/paper_material/paper4/tables/paper4_future_experiment_gate_register_2026-05-19.csv).
 La regla general es que ningun carril se reabre por curiosidad: debe cambiar un
 claim, responder a un reviewer o traer datos nuevos.
 
 | Experimento | Estado actual | Gate de reapertura | Stop rule |
 | --- | --- | --- | --- |
-| FICO proxy vs champion ML | ejecutado y append | solo rerun con reviewer o nuevo score externo | no fair-lending legal claim |
+| FICO proxy vs modelo legacy-root | ejecutado y append | solo rerun con reviewer o nuevo score externo | no inferencia sobre CRPTO actual ni fair-lending legal |
 | CRC/LTT directo sobre perdida decisional | listo pero no reabierto | split declarado y perdida monotónica fija | park si no cambia claim |
 | Non-monotonic CRC compuesto | park | perdida compuesta y ruta formal seleccionada | park si no mejora la frontera monotónica |
 | Online conformal/drift | park con caveat | split prospectivo o replay temporal que cambie F05 | no deployment claim |
@@ -293,19 +290,19 @@ claim, responder a un reviewer o traer datos nuevos.
 | horizon | lane | status | executable_item |
 | --- | --- | --- | --- |
 | immediate | Quarto governance | active_rule | Keep chapter 19 curated and move each new wave summary to the living notebook first. |
-| immediate | Dynamic stress | resolved_but_rerunnable | Run focused champion-vs-tail challenger stress only when a new candidate changes paired robustness. |
+| immediate | Dynamic stress | resolved_but_rerunnable | Rerun a reference-vs-tail diagnostic only under a new prespecified simulator or candidate. |
 | immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for the seven parked lanes. |
 | short | Academic synthesis | active_rule | Paper 4 becomes a governed sequential decision analytics methodology paper. |
-| short | Raw-enriched diagnostics | completed | Seven compact frontier diagnostics concluded as append or park. |
-| short | Literature-driven Lab 4 lanes | completed | Nine lanes closed as append, park or context-only without new versioned waves. |
-| short | Legal/optimality claims | active_rule | Fairness legal, exact Bellman, CATE policy value, online deployment and integrated differentiable SPO+ claims stay false. |
+| short | Raw-enriched diagnostics | completed | Seven compact frontier lanes concluded as append, park or diagnostic-negative-audit. |
+| short | Literature-driven Lab 4 lanes | completed | Nine lanes closed as append, park, diagnostic-negative-audit or context-only without new versioned waves. |
+| short | Legal/optimality claims | active_rule | Fairness legal, exact Bellman, CATE policy value, online deployment, realized-loss DFL and DFL-superiority claims stay false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |
 
 ## Decision editorial
 
 El Paper 4 vale la pena si se presenta como arquitectura academica de decision
-secuencial gobernada. No debe presentarse todavia como un nuevo champion final
-ni como sistema IFRS9/fairness/causal completo. Su aporte real es mostrar que el
+secuencial gobernada. No debe presentarse como una policy seleccionada ni como
+sistema IFRS9/fairness/causal completo. Su aporte real es mostrar que el
 proceso de decidir bajo incertidumbre puede auditarse por multiples lentes:
-retorno, regret, cola, cobertura, source governance, ECL proxy, dinamica y claim
-safety.
+retorno, regret, cola, cobertura, source governance, dinamica, fallos de
+estimando y claim safety.

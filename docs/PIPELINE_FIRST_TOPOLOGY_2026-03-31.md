@@ -1,5 +1,10 @@
 # Pipeline-First Topology
 
+> **HISTORICAL EXECUTION TOPOLOGY (current boundary added 2026-07-20).** The
+> family names below remain useful for rebuilding the local freeze. They do not
+> define current paper status: external CRPTO has no selected learner or policy,
+> Paper 2 is `parked_ifrs9`, and Paper 4 is a living lab without promotion.
+
 ## Familias oficiales
 - `core_canonical`: rebuild reproducible del champion stack, CPU-only por defecto, sin causal, survival derivado, GPU ni notebooks.
 - `search_pd`: HPO PD, challenger/monotonic y sidecars de evaluación del propio modelo.

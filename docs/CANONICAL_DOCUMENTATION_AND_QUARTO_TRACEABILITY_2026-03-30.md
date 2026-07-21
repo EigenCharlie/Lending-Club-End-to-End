@@ -2,9 +2,20 @@
 
 Date: 2026-03-30
 
+> **SUPERSEDED FOR SCIENTIFIC CLAIMS (2026-07-20).** This ledger preserves the
+> March--April local runtime freeze and its then-current promotion vocabulary.
+> It is not the authority for external CRPTO/IJDS, Paper 2 or Paper 4. Use
+> `docs/research/crpto_external_contract_2026-07-20.yml`,
+> `reports/paper_material/paper2/paper2_claim_contract.yml`, the current Paper 4
+> findings/boundaries CSVs and
+> `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`. Every
+> `champion`, winner, IFRS9 or downstream statement below is historical unless
+> separately reauthorized by one of those current contracts.
+
 ## Purpose
 
-This document is the canonical editorial ledger for the current project state. It consolidates:
+This document was the canonical editorial ledger for the 2026-03-30 local
+project state. It consolidates:
 
 - the live champion and active diagnostic layers;
 - the ADSFCR adoption already implemented in this repository;
@@ -13,7 +24,9 @@ This document is the canonical editorial ledger for the current project state. I
 - the primary references that should support those claims in the book;
 - the legacy claims that should no longer be narrated as current state.
 
-The book should use this document as an editorial source of truth together with live artifacts in `models/`, `data/processed/`, `reports/mrm/`, and `reports/run_comparisons/`.
+The book may use this document for historical runtime provenance together with
+the corresponding artifacts. It must not use it to override the current claim
+contracts listed above.
 
 ## Final Closure Overlay (2026-04-05)
 

@@ -3,38 +3,41 @@ title: "Current Assets And Gaps"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Activos oficiales
 
 | finding_id | finding | status | quarto_page |
 | --- | --- | --- | --- |
-| F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
-| F02 | CRPTO/Paper_CRPTO remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
-| F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
-| F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
-| F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains isolated-prototype only. | isolated_prototype | 19t-multi-period-solver.qmd |
+| F01 | Paper 4 is a reproducible sequential-decision living lab, not a policy-selection or deployment protocol. | official | index.qmd |
+| F02 | The active external CRPTO IJDS paper is a retrospective identification audit with no selected learner, comparator or policy. | external_contract | 19ca-v38-final-synthesis.qmd |
+| F03 | The v31 implementation materialized 512 internally generated paths and 494592 policy-month-path rows. | descriptive_artifact | 19t-multi-period-solver.qmd |
+| F04 | The preselected CVaR configuration records a conditional tail-loss/wealth tradeoff in one internal simulator. | diagnostic_only | 19i-regret-auditability-frontier.qmd |
+| F05 | The v35 six-month and source-family views are post-selection slices, not strict holdouts. | diagnostic_only | 19n-online-mdcp-fairness.qmd |
+| F06 | PyEPO is retained as a descriptive teacher-cost benchmark on sampled top-k menus. | diagnostic_only | 19cc-v39-pyepo-real-suite.qmd |
 | F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
-| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
-| F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F08 | Paper 4 retains the former IFRS9/SICR lane only as a negative readiness-and-estimand audit; it does not identify PD, ECL, SICR or staging. | diagnostic_negative_audit | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked; the high-rate-within-grade result is an observational, noncausal sensitivity. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
 | F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
-| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
-| F13 | Paper 4 absorbs the useful prudential value of Paper 2: ECL scenarios, conformal SICR, CIF/prepayment, stage-cost governance and TS->ECL context. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
-| F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park, diagnostic-negative-audit or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Archived Paper 2 artifacts are retained only as non-citable provenance and a negative estimand audit. | diagnostic_negative_audit | 19ca-v38-final-synthesis.qmd |
+| F14 | A legacy-root calibrated model outperformed an origin-time FICO proxy in an archived OOT diagnostic. | append | 19cb-v38-appendix-registers.qmd |
 
 ## Boundaries de claims
 
 | claim | allowed | boundary | current_quarto_page |
 | --- | --- | --- | --- |
 | Paper 4 defines a governed sequential decision analytics lab. | True | Architecture and artifact-backed lab claim only. | index.qmd |
-| CRPTO/Paper_CRPTO official champion remains retained after v38. | True | No new promotion unless future promotion protocol passes. | 19ca-v38-final-synthesis.qmd |
+| The active external CRPTO IJDS paper is an identification audit with no selected learner or policy. | True | External context only; local legacy artifacts cannot define current CRPTO claims. | 19ca-v38-final-synthesis.qmd |
 | Dynamic stress replay compares policies as monthly processes. | True | Internal replay and common sample paths, not forecast validity. | 19t-multi-period-solver.qmd |
-| CVaR/OCE is a serious tail-risk challenger. | True | Tail-governance challenger, not economic champion and not exact full-universe optimum. | 19i-regret-auditability-frontier.qmd |
-| Online conformal coverage is fully deployable under all temporal/source holdouts. | False | Nominal gate passed historically, strict holdouts remain fragile. | 19n-online-mdcp-fairness.qmd |
-| Contractual IFRS9 lifetime ECL is implemented. | False | Only IFRS9-inspired proxy ECL/SICR is allowed. | 19b-current-assets-and-gaps.qmd |
-| Paper 2 remains a required near-term standalone publication. | False | Paper 4 now absorbs the useful Paper 2 prudential evidence; standalone Paper 2 is parked unless better contractual data appears. | 19ca-v38-final-synthesis.qmd |
-| Metric governance shows the champion improves over an origin-time FICO proxy. | True | Calibration-gated score diagnostics only; no legal fair-lending, protected-attribute inference or champion replacement claim. | 19cb-v38-appendix-registers.qmd |
-| Formal differentiable SPO+ is implemented. | False | Oracle-regret/surrogate only until dependencies and validation are resolved. | 19t-multi-period-solver.qmd |
+| The preselected CVaR configuration dominates externally. | False | Conditional internal-simulator diagnostic only; no external probability or policy selection. | 19i-regret-auditability-frontier.qmd |
+| The v35 online-conformal views are strict or independent holdouts. | False | They are post-selection slices without refit or prospective evaluation. | 19n-online-mdcp-fairness.qmd |
+| Paper 4 outcome endpoints or mechanical scenario calculations identify PD, ECL, SICR, staging or allowance uncertainty. | False | They concern the observed binary outcome or software arithmetic and cannot be relabelled as accounting estimands. | 19b-current-assets-and-gaps.qmd |
+| Archived Paper 2 artifacts can support prudential, threshold or monetary claims in Paper 4. | False | They are non-citable provenance used only to document invalid estimands and missing report-date data. | 19ca-v38-final-synthesis.qmd |
+| Paper 2 remains a required near-term standalone publication. | False | Paper 2 remains parked unless report-date contractual data and a prespecified validation protocol become available. | 19ca-v38-final-synthesis.qmd |
+| A legacy-root calibrated model improves over an origin-time FICO proxy in an archived diagnostic. | True | Historical appendix only; no inference about current CRPTO or legal fair lending. | 19cb-v38-appendix-registers.qmd |
+| PyEPO establishes realized-loss or current-CRPTO policy performance. | False | Teacher-cost benchmark with unmatched model classes and overlapping sampled menus. | 19cc-v39-pyepo-real-suite.qmd |
 | CATE policy value is ready for decision selection. | False | Causal diagnostics only; no policy-value claim. | 19b-current-assets-and-gaps.qmd |
 | Fair-lending legal claim is supported. | False | Proxy/source governance only; no protected-attribute legal claim. | 19n-online-mdcp-fairness.qmd |
 
@@ -49,12 +52,12 @@ optimalidad exacta.
 
 | lane | decision post-audit | uso permitido |
 | --- | --- | --- |
-| IFRS9/SICR | bounded_experiment | ECL/SICR lifetime diagnostic con raw cashflows, no IFRS9 contractual |
-| online conformal | bounded_experiment | source-family holdout retrospectivo, no despliegue real |
+| IFRS9/SICR | diagnostic_negative_audit | documentar ausencia de unidad prestamo-fecha, labels de staging y estimandos validos; no PD/ECL/SICR |
+| online conformal | diagnostic_only | slices post-seleccion por tiempo/fuente, no holdout ni despliegue real |
 | CATE | diagnostic_only | sensibilidad high-rate-within-grade, no policy value |
-| CVaR/OCE | tail_challenger_only | repricing de cola con cashflows raw, no champion replacement |
+| CVaR/OCE | diagnostic_only | repricing de cola condicional al simulador, sin dominancia externa |
 | fair lending | proxy_only | source/geography governance, no legal claim |
-| SPO/DFL | isolated_prototype | PyEPO/cvxpylayers fuera del pipeline principal |
+| SPO/DFL | diagnostic_only | teacher-cost benchmark fuera de cualquier claim CRPTO |
 | DLA/ADP | rollout_only | simulador representativo, no Bellman optimality |
 
 ## Cierre frontier ejecutado
@@ -66,30 +69,33 @@ olas `paper4_v###`. La evidencia promovida queda en
 
 | lane | decision | lectura editorial |
 | --- | --- | --- |
-| IFRS9/SICR | append | raw servicing fortalece el proxy SICR/ECL; no IFRS9 contractual |
+| IFRS9/SICR | diagnostic_negative_audit | los campos raw no forman un panel mensual ni validan staging; los lifts legacy no son citables |
 | online conformal | park | mejor metodo llego a defended_min_coverage=0.7788, bajo el gate 0.80 |
-| CVaR/OCE | append | mejora cola cashflow, pero queda 68875.55 debajo del champion oficial |
+| CVaR/OCE | append | mejora el proxy de cola en el replay, pero queda 68875.55 debajo de la referencia legacy |
 | CATE | park | overlap 10-90 de 0.2838 bloquea cualquier policy-value claim |
 | fair lending proxy | append | sirve para source governance; BISG/legal sigue bloqueado |
 | DLA/ADP | append | rollout retenido; exact Bellman sigue falso |
-| SPO/DFL | park | PyEPO/cvxpylayers instalan aislados, pero el oracle gap bloquea integracion |
+| SPO/DFL | park | PyEPO ejecuta un benchmark teacher-cost; faltan outcome realizado, baseline comparable y unidades independientes |
 
-## Absorcion de Paper 2
+## Auditoria negativa de la antigua absorcion de Paper 2
 
-Paper 4 ya no usa Paper 2 como dependencia externa. Lo absorbe como modulo
-prudencial `IFRS9-inspired`: ECL por escenarios, bandas conformales, SICR por
-ancho, correccion CIF por prepago, costo de misclasificacion de stages y
-stress temporal a ECL. La tabla de anchors queda en
-`paper4_paper2_absorption_anchors_2026-05-18.csv`.
+Paper 4 conserva el registro
+`paper4_paper2_absorption_anchors_2026-05-18.csv` para documentar por que la
+antigua absorcion no era cientificamente valida. El target observado es un
+resultado binario terminal: sus endpoints conformales cubren ese resultado, no
+acotan una PD; tampoco identifican ECL, SICR, Stage 2 o incertidumbre de una
+provision. Las sensibilidades de escenarios son aritmetica mecanica y sus
+importes historicos quedan no citables.
 
-| componente absorbido | uso permitido en Paper 4 | frontera |
+| componente archivado | uso permitido en Paper 4 | frontera |
 | --- | --- | --- |
-| ECL y rangos conformales | appendix de propagacion de incertidumbre | no allowance productivo |
-| SICR conformal | trigger complementario de gobernanza | no reemplazo de staging contractual |
-| CIF/prepayment | caveat de lifetime PD | no modelo contractual validado |
-| Stage cost | umbral como decision economica | no regla contable oficial |
-| TS->ECL | stress temporal | no forecast mensual desplegado |
-| Paper 2 separado | parqueado | solo reabrir con datos contractuales mejores o venue explicito |
+| Aritmetica de escenarios | prueba mecanica del software | no es ECL ni una provision estimada |
+| Endpoints del resultado binario | contraejemplo de sustitucion de estimando | no son limites de PD ni un rango de ECL |
+| Heuristica basada en ancho | auditoria de leakage y seleccion en la misma muestra | no es senal SICR ni trigger de Stage 2 |
+| Competing-risk prototype | inventario de supuestos faltantes | no identifica lifetime PD ni una correccion CIF validada |
+| Busqueda de umbral/costo | ejemplo de seleccion retrospectiva | no recomienda staging, threshold o decision monetaria |
+| Sensibilidad temporal | procedencia de una transformacion mecanica | no es forecast de ECL ni intervalo de allowance |
+| Paper 2 separado | `parked_ifrs9` | solo reabrir con unidad prestamo-fecha, outcomes contractuales y test final preservado |
 
 ## Backlog resumido
 
@@ -99,5 +105,5 @@ stress temporal a ECL. La tabla de anchors queda en
 | immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for seven parked lanes. |
 | short | Academic synthesis | active_rule | Treat Paper 4 as a governed sequential decision analytics methodology paper. |
 | short | Raw-enriched diagnostics | completed | Seven bounded frontier lanes concluded as append or park. |
-| short | Legal/optimality claims | active_rule | Keep fairness legal, exact Bellman, CATE policy value, online deployment and integrated differentiable SPO+ claims false. |
+| short | Legal/optimality claims | active_rule | Keep fairness legal, exact Bellman, CATE policy value, online deployment, DFL superiority and realized-loss claims false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |

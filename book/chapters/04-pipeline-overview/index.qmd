@@ -1,36 +1,45 @@
 ---
 title: "Visión General del Pipeline"
 page-layout: article
-close_takeaway: "El valor del pipeline no está en tener muchas etapas, sino en que cada una produce un artefacto reutilizable que resuelve un problema claro antes de pasar al siguiente bloque."
-close_connects: "Este capítulo abre ingeniería de variables, modelado PD, conformal, portafolio e IFRS9 como una sola cadena y no como módulos independientes."
-close_reuse: "Las tablas y figuras aquí se reutilizan como mapa de lectura en defensa, papers, companion y validación de trazabilidad."
 ---
+
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-¿Cómo se convierte un CSV crudo de Lending Club en una decisión de portafolio, provisión y gobernanza defendible? Esta parte existe para mostrar la cadena completa antes de entrar a los detalles de cada bloque.
+¿Qué transformaciones ejecutó históricamente el repositorio desde el CSV crudo
+de Lending Club hasta sus salidas de portafolio, provisión y gobernanza, y qué
+claim permite realmente cada transición? Esta parte muestra la cadena completa
+antes de entrar a los detalles de cada bloque.
 
-Ejemplo concreto: un préstamo entra como fila cruda del marketplace, pasa por limpieza, recibe features, se transforma en una PD calibrada, luego en un intervalo conformal, después en un conjunto de incertidumbre y finalmente en una policy de aceptación, capital y provisión. Este capítulo dibuja esa ruta y explica por qué cada transición importa.
+Ejemplo concreto: una fila pasa por limpieza, features, score calibrado,
+endpoints conformales para el resultado binario y artefactos locales de estrés.
+El hecho de que el software conecte esas etapas no transporta automáticamente
+cobertura de $Y$ a PD latente, ECL, SICR ni a una policy seleccionada.
 :::
 
-El pipeline sigue una adaptación del marco CRISP-DM extendido con optimización robusta, IFRS9 y gobernanza de modelos. La idea no es “hacer más pasos”, sino introducir controles de leakage, trazabilidad y reutilización de artefactos en cada transición:
+El pipeline histórico sigue una adaptación del marco CRISP-DM extendido con
+optimización robusta, prototipos inspirados en IFRS9 y gobernanza de modelos. La
+idea no es “hacer más pasos”, sino introducir controles de leakage, trazabilidad
+y reutilización de artefactos, además de auditar qué estimando cambia en cada
+transición:
 
-![Diagrama editorial del pipeline end-to-end, desde datos crudos hasta decisiones de portafolio y provisiones.](../../assets/figures/poster/methods_flowchart.png){#fig-pipeline-architecture fig-alt="Diagrama del pipeline end-to-end con datos, modelado, conformal, optimización, IFRS9 y gobernanza."}
-
-![Muestra ordenada de intervalos conformales sobre PD calibrada, usada como evidencia operacional del carril predictivo.](../../assets/figures/editorial/pipeline_interval_sample.png){#fig-pipeline-interval-sample fig-alt="Muestra de intervalos conformales sobre PD calibrada en el pipeline end-to-end."}
-
-La figura @fig-pipeline-interval-sample aporta la segunda capa de lectura: al diagrama editorial de arquitectura le sigue el objeto que realmente se propaga aguas abajo hacia portafolio e IFRS9, es decir, el intervalo de predicción conformal.
+Los dos diagramas legacy se conservan en `book/assets/` como procedencia y se
+retiran de esta superficie: sus rótulos internos presentaban endpoints de $Y$
+como incertidumbre de PD y la cadena downstream como decisión/provisión. El
+objeto sí se propagó computacionalmente como coeficiente de stress; esa
+reutilización no constituye garantía para PD, ECL o una decisión.
 
 | Paso del pipeline | Artefacto principal | Problema que resuelve |
 |---|---|---|
 | Ingesta y limpieza | `lending_club_cleaned.parquet` | Convertir el CSV crudo en una base utilizable, con estados resueltos y tipos consistentes |
-| Splits temporales | `train.parquet`, `calibration.parquet`, `test.parquet` | Evitar leakage temporal y reservar una ventana honesta para calibración y evaluación OOT |
+| Splits temporales | `train.parquet`, `calibration.parquet`, `test.parquet` | Preservar orden cronológico; la ventana OOT fue reutilizada downstream y no quedó como holdout final intacto |
 | Feature engineering | `loan_master.parquet` + contrato Pandera | Traducir columnas crudas en señales reutilizables y auditables |
-| Modelado PD | `pd_canonical.cbm`, `model_comparison.json` | Obtener una PD calibrada y defendible como insumo base |
-| Predicción conformal | `conformal_intervals_mondrian.parquet` | Convertir la PD puntual en una banda de incertidumbre útil para decisión |
-| Optimización | `portfolio_allocations.parquet`, `champion_portfolio_policy.json` | Elegir préstamos y capital bajo una lectura robusta del riesgo |
-| IFRS9 y gobernanza | `ifrs9_*.parquet`, `mrm_validation_report.json` | Traducir el riesgo a provisiones, controles y trazabilidad prudencial |
+| Modelado de score | `pd_canonical.cbm`, `model_comparison.json` | Congelar el score y la calibración del runtime local histórico |
+| Predicción conformal | `conformal_intervals_mondrian.parquet` | Construir endpoints y auditar cobertura del resultado binario observado $Y$ |
+| Optimización | `portfolio_allocations.parquet`, `champion_portfolio_policy.json` | Ejecutar escenarios locales de estrés; el nombre `champion` no prueba selección vigente |
+| IFRS9 y gobernanza | `ifrs9_*.parquet`, `mrm_validation_report.json` | Conservar prototipos diagnósticos y trazabilidad, no una estimación IFRS9 validada |
 
 : Paso, artefacto y problema resuelto en la cadena end-to-end {#tbl-pipeline-step-artifact}
 
@@ -45,7 +54,11 @@ La figura @fig-pipeline-interval-sample aporta la segunda capa de lectura: al di
 
 ::: {.callout-note}
 ## Cómo leer esta parte
-Si vienes de negocio, quédate con la tabla `paso → artefacto → problema`. Si vienes de ingeniería, quédate con la separación `src/` / `scripts/` / `configs/`. Si vienes de investigación, quédate con la idea de que el intervalo conformal es el puente entre predicción y decisión.
+Si vienes de negocio, quédate con la tabla `paso → artefacto → límite de
+inferencia`. Si vienes de ingeniería, quédate con la separación `src/` /
+`scripts/` / `configs/`. Si vienes de investigación, el bloque conformal es una
+frontera de auditoría entre predicción y decisión, no un puente mágico que
+transporte validez entre estimandos.
 :::
 
 ## Navegación curada
@@ -63,4 +76,19 @@ Si vienes de negocio, quédate con la tabla `paso → artefacto → problema`. S
 </div>
 ```
 
-{{< include ../../includes/_whole-game-close.qmd >}}
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+
+Cada etapa produce un artefacto auditable, pero una flecha computacional no
+transporta automáticamente el estimando ni la validez de la etapa anterior.
+
+## Esto conecta con…
+
+Abre ingeniería de variables, modelado PD, conformal, portafolio e IFRS9 como
+interfaces que deben declarar contratos separados.
+
+## Dónde se reutiliza esta señal o artefacto
+
+Las tablas y figuras funcionan como mapa de procedencia para defensa, papers,
+companion y validación de trazabilidad.
+:::

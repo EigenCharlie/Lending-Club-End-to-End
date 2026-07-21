@@ -1,5 +1,11 @@
 # Paper Estrella Backlog - 2026-05-04
 
+> **HISTORICAL BACKLOG — SUPERSEDED 2026-07-20.** The autonomous CRPTO paper is
+> now an identification audit with no selected learner or policy. Every
+> `official`, `champion`, `winner` and promotion instruction below records the
+> May workflow only. Current authority is pinned in
+> `docs/research/crpto_external_contract_2026-07-20.yml`.
+
 This backlog separates improvements that are already applied in the current
 Paper Estrella from future work that requires new experiments, proofs, or
 external validation. The current official champion remains

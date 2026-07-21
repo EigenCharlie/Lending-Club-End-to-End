@@ -1,5 +1,7 @@
 # Chapter 3 Memo: Classification Conformal Ideas To Port Into This Repo
 
+> **HISTORICAL / SUPERSEDED — NO TRANSFER TO ACTIVE CRPTO (2026-07-20).** This memo preserves a past project decision or proposal. It does not govern the autonomous external CRPTO dossier, select a learner/comparator/policy, or reactivate Paper 2/Paper 4 claims. Current authority: `SESSION_STATE.md`, `docs/research/crpto_external_contract_2026-07-20.yml` and `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`.
+
 Date: 2026-04-03
 
 Source reviewed: local PDF `/home/eigenlinux/documentos/Applied_Conformal_Prediction (2).pdf`, Chapter 3, especially Sections 3.2-3.5 (pp. 63-87 in the PDF pagination shown by the text extract).

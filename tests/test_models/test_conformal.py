@@ -501,3 +501,75 @@ def test_venn_abers_bounds_valid():
     assert np.all(p0 <= p1)
     assert np.all(y_pred >= p0)
     assert np.all(y_pred <= p1)
+
+
+class DeterministicScoreClassifier:
+    """Binary classifier whose positive score is the first input column."""
+
+    classes_ = np.array([0, 1])
+
+    def predict_proba(self, X):
+        score = np.clip(np.asarray(X, dtype=float)[:, 0], 0.0, 1.0)
+        return np.column_stack([1.0 - score, score])
+
+
+def test_venn_abers_uses_public_multiprobabilities_and_logloss_point_rule(monkeypatch):
+    """The helper must not reinterpret class probabilities as Venn--Abers bounds."""
+    pytest.importorskip("venn_abers")
+    import mapie.calibration
+    from venn_abers import VennAbers
+
+    from src.models.conformal import create_pd_intervals_venn_abers
+
+    mapie_calls = {"count": 0}
+
+    class ForbiddenMapieVennAbers:
+        def __init__(self, *args, **kwargs):
+            mapie_calls["count"] += 1
+            raise TypeError("MAPIE class probabilities are not Venn-Abers bounds")
+
+    monkeypatch.setattr(
+        mapie.calibration,
+        "VennAbersCalibrator",
+        ForbiddenMapieVennAbers,
+    )
+
+    cal_scores = np.linspace(0.02, 0.98, 200)
+    test_scores = np.linspace(0.05, 0.95, 31)
+    X_cal = pd.DataFrame({"score": cal_scores})
+    X_test = pd.DataFrame({"score": test_scores})
+    y_cal = pd.Series((cal_scores > 0.55).astype(int))
+
+    y_pred, p0, p1 = create_pd_intervals_venn_abers(
+        DeterministicScoreClassifier(), X_cal, y_cal, X_test
+    )
+
+    p_cal = np.column_stack([1.0 - cal_scores, cal_scores])
+    p_test = np.column_stack([1.0 - test_scores, test_scores])
+    direct = VennAbers().fit(p_cal, y_cal.to_numpy())
+    direct_point, direct_bounds = direct.predict_proba(p_test)
+
+    assert mapie_calls["count"] == 0
+    assert np.allclose(p0, direct_bounds[:, 0])
+    assert np.allclose(p1, direct_bounds[:, 1])
+    assert np.allclose(y_pred, direct_point[:, 1])
+    assert np.allclose(y_pred, p1 / (1.0 - p0 + p1))
+    assert not np.allclose(y_pred, (p0 + p1) / 2.0)
+    assert not np.allclose(y_pred, 0.5)
+    assert not np.allclose(p0, 1.0 - p1)
+
+
+def test_apply_probability_calibrator_uses_versioned_venn_abers_point_rule():
+    pytest.importorskip("venn_abers")
+    from src.models.venn_abers import VennAbersScoreCalibrator
+
+    cal_scores = np.linspace(0.02, 0.98, 200)
+    y_cal = (cal_scores > 0.55).astype(int)
+    test_scores = np.linspace(0.05, 0.95, 31)
+    calibrator = VennAbersScoreCalibrator().fit(cal_scores, y_cal)
+
+    point, p0, p1 = calibrator.predict_with_bounds(test_scores)
+    applied = apply_probability_calibrator(calibrator, test_scores)
+
+    assert np.allclose(point, p1 / (1.0 - p0 + p1))
+    assert np.allclose(applied, point)

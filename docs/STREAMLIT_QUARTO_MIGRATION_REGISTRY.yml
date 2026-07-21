@@ -1,6 +1,8 @@
 version: "2026-03-25"
-status: "approved_baseline"
-source_of_truth: "Quarto book"
+status: "historical_migration_snapshot"
+scientific_authority: "none"
+superseded_for_claims_by: "SESSION_STATE.md"
+source_of_truth_at_snapshot: "Quarto book"
 companion_role: "Local Streamlit companion lab"
 public_showcase_role: "Historical frozen snapshot"
 decision_rubric:
@@ -130,7 +132,7 @@ pages:
     blocks:
       - block_id: "champion_selection_story"
         artifacts: ["model_comparison.json", "pipeline_summary.json"]
-        valor_defendible: "Define por qué el champion PD es defendible."
+        valor_defendible: "Conserva la comparación histórica que produjo la etiqueta legacy champion; no valida una PD vigente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -141,7 +143,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "rare_event_and_slice_diagnostics"
         artifacts: ["pd_rare_event_calibration_status.json", "pd_rare_event_calibration_report.parquet", "pd_slice_performance.json", "pd_set_prediction_by_slice.parquet"]
-        valor_defendible: "Diagnóstico fino del champion, útil para validación y tesis."
+        valor_defendible: "Diagnóstico retrospectivo del score etiquetado champion; no constituye validación independiente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -165,7 +167,7 @@ pages:
     blocks:
       - block_id: "official_conformal_policy"
         artifacts: ["conformal_policy_status.json", "conformal_policy_checks.parquet", "conformal_backtest_monthly.parquet"]
-        valor_defendible: "Cobertura, ancho y política conformal oficial."
+        valor_defendible: "Cobertura y ancho retrospectivos del outcome binario; la etiqueta policy del artefacto no es autoridad vigente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -224,7 +226,7 @@ pages:
     blocks:
       - block_id: "official_portfolio_policy"
         artifacts: ["portfolio_robustness_frontier.parquet", "pipeline_summary.json", "champion_portfolio_policy.json"]
-        valor_defendible: "Define frontera, policy y price of robustness."
+        valor_defendible: "Conserva una frontera y una policy históricas bajo un objetivo estilizado; no selecciona una decisión vigente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -248,7 +250,7 @@ pages:
     blocks:
       - block_id: "official_ecl_and_sensitivity"
         artifacts: ["ifrs9_scenario_summary.parquet", "ifrs9_sensitivity_grid.parquet", "ifrs9_ecl_comparison.parquet"]
-        valor_defendible: "Impacto prudencial y de provisiones."
+        valor_defendible: "Sensibilidad mecánica de proxies históricos; no estima ECL, SICR ni impacto prudencial."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -272,7 +274,7 @@ pages:
     blocks:
       - block_id: "official_ab_verdict"
         artifacts: ["ab_simulation_status.json"]
-        valor_defendible: "Cierra la discusión de robustez con evidencia retrospectiva."
+        valor_defendible: "Replay retrospectivo del carril; no cierra robustez ni aporta evaluación prospectiva."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -283,7 +285,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "attribution_breakdowns"
         artifacts: ["ab_attribution_status.json", "ab_attribution_by_grade.parquet", "ab_attribution_by_cohort.parquet", "ab_attribution_by_amount.parquet"]
-        valor_defendible: "Atribución económica que vale la pena citar."
+        valor_defendible: "Descomposición histórica del replay; no identifica atribución causal ni valor económico desplegable."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -307,7 +309,7 @@ pages:
     blocks:
       - block_id: "official_causal_story"
         artifacts: ["causal_effect_status.json", "causal_refutation_summary.json"]
-        valor_defendible: "ATE, CATE y lectura honesta de identificabilidad."
+        valor_defendible: "Estimados etiquetados ATE/CATE y diagnósticos observacionales; sin identificación causal validada."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -318,7 +320,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "rule_frontier_and_tail_risk"
         artifacts: ["causal_policy_rule.json", "causal_policy_rule_candidates.parquet", "causal_policy_rule_selected.parquet", "causal_oot_tail_risk.parquet", "causal_policy_oot_status.json"]
-        valor_defendible: "Regla causal seleccionada, frontera económica y tail risk OOT."
+        valor_defendible: "Regla y frontera históricas en un replay etiquetado OOT; no policy causal seleccionada ni holdout independiente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -329,7 +331,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "segment_level_explorer"
         artifacts: ["cate_estimates.parquet", "causal_policy_segment_summary.parquet", "causal_policy_grade_summary.parquet"]
-        valor_defendible: "Permite navegar heterogeneidad y segmentos de intervención."
+        valor_defendible: "Permite navegar heterogeneidad modelada por segmento; no identifica segmentos de intervención."
         cobertura_quarto: "partial"
         interactividad_real: "strong"
         estabilidad_editorial: "exploratory"
@@ -342,7 +344,7 @@ pages:
     blocks:
       - block_id: "threshold_semantics_and_contracts"
         artifacts: ["threshold_semantics.json", "pd_model_contract_validation.parquet", "pd_model_contract.json"]
-        valor_defendible: "Aclara thresholds y validez contractual del champion."
+        valor_defendible: "Conserva thresholds y contratos legacy para auditoría; no valida un champion vigente."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -353,7 +355,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "fairness_and_shap_fairness"
         artifacts: ["fairness_audit_status.json", "fairness_threshold_frontier.parquet", "shap_fairness_status.json"]
-        valor_defendible: "Guardrails prudenciales y de explicabilidad fairness-aware."
+        valor_defendible: "Diagnósticos por proxies y explicabilidad; no fair-lending, protección legal ni guardrail prudencial."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"
@@ -364,7 +366,7 @@ pages:
         target_streamlit_lab: ""
       - block_id: "drift_and_challenger_promotion"
         artifacts: ["drift_monitoring.parquet", "explanation_drift.parquet", "challenger_promotion_report.json", "mrm_report_status.json"]
-        valor_defendible: "Conecta drift, promotion y estado MRM."
+        valor_defendible: "Conecta campos históricos de drift, promotion y MRM; no autoriza promoción ni producción."
         cobertura_quarto: "partial"
         interactividad_real: "light"
         estabilidad_editorial: "stable"

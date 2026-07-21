@@ -1,49 +1,86 @@
-## Riesgos Competitivos y su Impacto en ECL {#sec-competing-risks}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-Un préstamo de Grade A que se prepaga en el mes 18 nunca incumple. Este es un hecho irreversible: salió del libro sin generar pérdida. Kaplan-Meier no lo sabe. Trata el prepago como censura —observación interrumpida— y redistribuye la probabilidad de default de ese préstamo sobre los meses restantes, como si el prestatario todavía pudiera incumplir en el mes 60. La *Cumulative Incidence Function* (CIF) respeta el mecanismo real: si el préstamo salió por prepago, su default ya no es posible. Esta distinción tiene nombre en la literatura: el modelo de riesgos competitivos.
+## Riesgos competitivos: definición y auditoría histórica {#sec-competing-risks}
 
-El análisis usa el artefacto `cif_ecl_impact.parquet`, que compara el ECL de Stage 2 calculado bajo ambos enfoques para el mismo universo OOT.
+::: {.callout-warning}
 
-### KM vs CIF por grade
+## Estado P0/P1
 
-| Grade | Stage 2 ECL KM | Stage 2 ECL CIF | Exceso por préstamo | Exceso portafolio |
-|---|---:|---:|---:|---:|
-| A | \$1,124.89 | \$824.74 | \$300.14 | \$21.73M |
-| B | \$1,593.57 | \$1,168.37 | \$425.20 | \$32.02M |
-| C | \$2,265.11 | \$1,660.73 | \$604.38 | \$42.65M |
-| D | \$3,173.29 | \$2,326.59 | \$846.71 | \$38.64M |
+**P0**: ninguna cifra monetaria histórica de esta comparación es una estimación
+validada de ECL IFRS 9 o de reserva. **P1**: los artefactos siguen siendo útiles
+para mostrar que Kaplan--Meier (KM) y la función de incidencia acumulada (CIF)
+responden a estimandos distintos cuando el prepago compite con el default.
 
-: Impacto de riesgos competitivos sobre ECL Stage 2. El exceso de KM sobre CIF es el capital sobreprovisional que KM genera por ignorar el prepago. {#tbl-cif-ecl}
-
-El patrón no es aleatorio: **Grade A tiene la sobreprovisión más alta en términos relativos** porque sus prestatarios prepagan con mayor frecuencia — es el comportamiento del buen deudor que renegocia cuando bajan las tasas o liquida anticipadamente. Grade D tiene el mayor exceso por préstamo en valor absoluto ($846.71), pero el portafolio de Grade D es más pequeño, de ahí que el exceso agregado sea menor que Grade B o C. El total acumulado en Grades A–D supera los $135M de sobreprovisión potencial.
-
-### Por qué KM infla el ECL y CIF lo corrige
-
-KM asume que la censura (salida por prepago) es *no informativa*: el préstamo censurado tendría la misma trayectoria de default que los préstamos observados hasta el final. Esta asunción es razonable cuando la censura es aleatoria (por ejemplo, fin del período de seguimiento), pero **sistemáticamente incorrecta** cuando la censura ocurre por un evento que *compite* con el default. Un prepago no es una observación incompleta — es un resultado final que exluye el default.
-
-La CIF modela explícitamente la tasa de incidencia acumulada de cada evento: $F_k(t) = P(T \leq t, \varepsilon = k)$, donde $k$ indexa el tipo de evento (default vs prepago). Bajo CIF, la probabilidad de default lifetime de un préstamo Grade A es genuinamente menor porque parte de su “masa de supervivencia” se absorbe en prepago antes de que ocurra el default.
-
-### Implicación para IFRS9 y gobernanza
-
-IFRS9 exige una estimación *razonable y sustentable* de pérdidas esperadas. Si dos metodologías producen diferencias de decenas de millones en ECL de Stage 2 por grade, la elección del método deja de ser un detalle técnico y se convierte en una decisión de gobernanza. Un comité de provisiones que usa KM está potencialmente reservando $125.8M en exceso por un artefacto estadístico — capital inmovilizado que podría cubrir riesgo real o desplegarse en el negocio.
-
-::: {.callout-note}
-## Resultado del capítulo de supervivencia
-
-El análisis de supervivencia (Capítulo @sec-survival) documentó que el RSF tiene un c-index de 0.6797. La corrección CIF construida sobre esas curvas de supervivencia es lo que produce la estimación de exceso de provisiones de $125.8M. La lección encadenada: mejores modelos de supervivencia → mejores estimaciones de lifetime PD → provisiones IFRS9 más precisas.
 :::
 
-### Limitación y agenda de validación
+### Qué cambia con un evento competitivo
 
-La implementación actual es un análisis comparativo congelado sobre el período OOT, no la política oficial de provisión. Para promover CIF como estándar productivo se requiere:
+Un préstamo que se prepaga deja de estar en riesgo de default dentro de ese
+contrato. Si el objetivo es la probabilidad acumulada de default en presencia de
+prepago, tratar este último como un evento competitivo forma parte de la
+definición del estimando.
 
-1. **Validación multi-escenario**: verificar que la corrección CIF sea estable bajo escenarios macro adversos (donde el prepago puede colapsar y el exceso de KM podría invertirse).
-2. **Trazabilidad regulatoria**: documentar el modelo CIF bajo el marco SR 11-7 y IFRS9 párrafo B5.5.42 (que permite usar técnicas estadísticas para estimar PDs).
-3. **Comparación contra estándar de industria**: benchmarkar contra las curvas de supervivencia publicadas por agencias de calificación para el mismo universo de préstamos minoristas.
+Kaplan--Meier estima una distribución de supervivencia bajo un contrato de
+censura. Censurar prepagos como si fueran observaciones incompletas requiere una
+hipótesis de censura independiente apropiada para ese objetivo. La CIF, en
+cambio, estima directamente
 
-Ese trabajo de validación es la diferencia entre un resultado analítico prometedor y un cambio en la política de provisión.
+$$
+F_k(t)=\Pr(T\leq t,\varepsilon=k),
+$$
 
-::: {.callout-tip}
-## Integración canónica
-La corrección CIF ya está integrada en el pipeline IFRS9 canónico como factor multiplicativo configurable (ver @sec-cif-correction). El factor $CF_{\text{lifetime}} = 0.7332$ se aplica a la PD lifetime de Stage 2, reduciendo la ECL baseline de \$1,003M (sin corrección) a \$870M — una reducción del 13.3% que refleja el reconocimiento correcto del prepago como evento competitivo.
-:::
+donde $k$ identifica el tipo de evento. Ningún método es “correcto” sin nombrar
+primero el estimando; para incidencia real de default con prepago excluyente, la
+CIF representa de manera explícita esa competencia.
+
+### Qué conserva el artefacto histórico
+
+`data/processed/cif_ecl_impact.parquet` aplicó ambas rutas a un universo OOT y
+después monetizó la diferencia mediante supuestos de Stage 2. La comparación de
+curvas puede conservarse como diagnóstico metodológico. La monetización queda
+retirada porque el archivo no ofrece un panel préstamo-fecha-de-reporte ni el
+contrato completo de censura, cash flows, EIR, EAD y LGD necesario para ECL.
+
+| Componente | Lectura histórica permitida | Claim bloqueado |
+|---|---|---|
+| Curva KM | Estimación bajo su convención de censura | Probabilidad lifetime contractual sin auditar censura |
+| Curva CIF | Incidencia de default con prepago competitivo | PD regulatoria validada por préstamo |
+| Diferencia por grade | Sensibilidad al estimando y a la composición | Sesgo causal atribuible solo al prepago |
+| Transformación monetaria | Prueba de integración del software | Exceso de reserva o capital liberable |
+| Factor multiplicativo | Parámetro histórico configurable | Corrección canónica para IFRS 9 |
+
+: Decisión claim--evidence para la comparación KM/CIF. {#tbl-cif-ecl}
+
+### Por qué no se promueve la diferencia monetaria
+
+La población conserva préstamos resueltos y mezcla plazos y madurez. No existe
+una secuencia de snapshots de reporte que separe información disponible,
+censura administrativa, prepago, default y exposición remanente. Además, la
+salida monetaria hereda la regla retrospectiva de staging auditada en
+@sec-ecl-calculation.
+
+Por tanto, una diferencia numérica entre rutas implementadas solo demuestra que
+el software es sensible a la elección de curva. No demuestra sobreprovisión, una
+reserva incorrecta ni un efecto sobre capital.
+
+### Requisitos antes de reabrir una evaluación IFRS 9
+
+1. Definir origen temporal, fecha as-of, horizonte y eventos de forma
+   predeclarada.
+2. Conservar préstamos vigentes y aplicar censura administrativa sin filtrar por
+   outcome final.
+3. Registrar fechas de prepago y default con reglas de calidad y madurez.
+4. Estimar curvas por una partición temporal que deje un test final intacto.
+5. Integrar cash flows contractuales, EIR, EAD, LGD y recuperaciones con el mismo
+   reloj.
+6. Evaluar estabilidad por escenario sin fijar una corrección uniforme a partir
+   del test.
+7. Obtener revisión independiente de metodología y uso contable.
+
+### Relación con la implementación
+
+El factor histórico puede permanecer en configuración para reproducir el
+prototipo, pero debe rotularse como parámetro diagnóstico. @sec-cif-correction
+explica por qué multiplicar una curva o endpoints no transporta cobertura hacia
+PD lifetime o ECL. Reabrir esta línea requiere nueva evidencia, no otra
+reimpresión de la misma tabla monetaria.

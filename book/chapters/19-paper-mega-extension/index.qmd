@@ -5,6 +5,8 @@ page-layout: article
 
 {{< include ../../includes/_paper-autocontenido.qmd >}}
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Papel actual del Paper 4 {#sec-paper4-mega-extension}
 
 Paper 4 queda reestructurado como un **laboratorio vivo** con una superficie
@@ -12,10 +14,11 @@ oficial compacta. El libro Quarto ya no intenta renderizar cada ola de
 implementacion; conserva solo los resultados que son tangibles, auditables y
 defendibles para un futuro paper o tesis.
 
-La bitacora canonica del laboratorio es
-`reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`. Ahi viven
-los goals, fracasos, bloqueos, prompts largos, decisiones intermedias y nuevas
-iteraciones. Quarto queda para lo que ya puede sostener una lectura academica.
+La bitacora canonica del laboratorio es el
+[notebook vivo de Paper 4](../../../reports/paper_material/paper4/notes/paper4_living_lab_notebook.md).
+Ahi viven los goals, fracasos, bloqueos, prompts largos, decisiones intermedias
+y nuevas iteraciones. Quarto queda para lo que ya puede sostener una lectura
+academica.
 
 ::: {.callout-note}
 ## Regla editorial
@@ -46,55 +49,53 @@ tesis oficial de Paper 4.
 
 | finding_id | finding | status | quarto_page |
 | --- | --- | --- | --- |
-| F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
-| F02 | CRPTO/Paper_CRPTO remains the external official champion surface after the pool93/A35--A39 IJDS closure; Paper 4 records context and does not replace it. | official | 19ca-v38-final-synthesis.qmd |
-| F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
-| F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
-| F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL now has a formal PyEPO 1.3.7 top-k laboratory suite for Paper 4, while CRPTO/Paper_CRPTO keeps SPO+ only as an appendix comparator. | append | 19cc-v39-pyepo-real-suite.qmd |
+| F01 | Paper 4 is a reproducible sequential-decision living lab, not a policy-selection or deployment protocol. | official | index.qmd |
+| F02 | The active external CRPTO IJDS paper is a retrospective identification audit and selects no learner, residual window, taxonomy, gamma, ruler, coordinate, cap, comparator, or policy. | external_contract | 19ca-v38-final-synthesis.qmd |
+| F03 | The v31 implementation materialized 512 internally generated paths and 494592 policy-month-path rows. | descriptive_artifact | 19t-multi-period-solver.qmd |
+| F04 | Conditional on 512 internally generated paths, the preselected CVaR configuration had mean wealth difference -691.34 and exceeded the legacy reference on 244 paths. | diagnostic_only | 19i-regret-auditability-frontier.qmd |
+| F05 | A rule selected after a 1010-rule replay search was examined in six-month and source-family post-selection slices; these are not strict holdouts. | diagnostic_only | 19n-online-mdcp-fairness.qmd |
+| F06 | PyEPO 1.3.7 provides an exploratory top-k teacher-cost benchmark under randomly sampled menus. | diagnostic_only | 19cc-v39-pyepo-real-suite.qmd |
 | F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
-| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
-| F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F08 | Paper 4 retains the former IFRS9/SICR lane only as a negative readiness-and-estimand audit; it does not identify PD, ECL, SICR or staging. | diagnostic_negative_audit | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked; the high-rate-within-grade result is an observational, noncausal sensitivity. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
 | F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
-| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
-| F13 | Paper 4 absorbs the useful prudential value of Paper 2 as IFRS9-inspired proxy evidence. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
-| F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
-| F15 | PyEPO 1.3.7 now has a formal DFL suite lane for Paper 4, while CRPTO/Paper_CRPTO keeps SPO+ as an appendix comparator. | append | 19cc-v39-pyepo-real-suite.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park, diagnostic-negative-audit or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Archived Paper 2 artifacts are retained only as non-citable provenance and a negative estimand audit. | diagnostic_negative_audit | 19ca-v38-final-synthesis.qmd |
+| F14 | A legacy-root calibrated model outperformed an origin-time FICO proxy in an archived OOT diagnostic. | append | 19cb-v38-appendix-registers.qmd |
 
 ## Como leer ahora el capitulo
 
 1. **Propuesta y alcance** define la tesis academica.
 2. **Activos y gaps** separa resultados oficiales de lanes bloqueadas.
-3. **Arquitectura integrada** explica CRPTO, IFRS9 proxy, SDAM y governance.
+3. **Arquitectura integrada** explica CRPTO, la auditoria IFRS9/SICR negativa, SDAM y governance.
 4. **Marco SDAM** declara estado, decision, informacion exogena y politica.
 5. **Evidence pack** lista la evidencia tangible.
 6. **Regret-auditability** muestra la tension retorno, cola, cobertura y auditabilidad.
 7. **Online/MDCP/fairness** fija cobertura y source governance con limites claros.
 8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
 9. **Sintesis v38** deja la verdad actual, los claims permitidos y la tabla de contribuciones.
-10. **Appendix registers** conserva cleanup, Lab 4, metricas binder, absorcion de Paper 2 y stop rules sin inflar el cuerpo.
-11. **PyEPO v39 suite** separa el entrenamiento DFL formal de Paper 4 del anexo SPO+ de CRPTO/Paper_CRPTO.
+10. **Appendix registers** conserva cleanup, Lab 4, metricas binder, la auditoria negativa de Paper 2 y stop rules sin inflar el cuerpo.
+11. **PyEPO v39 suite** documenta un benchmark exploratorio de teacher-cost sin convertirlo en evidencia de policy o perdida realizada.
 
 ## Direccion academica
 
 La decision post-cierre es tratar Paper 4 como un paper de metodologia y
 gobernanza de investigacion: como definir, auditar y frenar un laboratorio de
-sequential credit decision analytics. No compite con CRPTO/Paper_CRPTO como
-champion empirico; despues del cierre pool93, Paper 4 solo registra que el
-champion vive en la superficie autocontenida de CRPTO. Su aporte es mostrar una
-superficie reproducible de claims, evidencia, bloqueos, source governance,
-stress dinamico y stop rules.
+sequential credit decision analytics. El CRPTO IJDS activo es una auditoria
+externa de identificacion que no selecciona modelo, comparador ni policy. Paper
+4 no extiende esa superficie; su aporte local es mostrar una superficie
+reproducible de claims, evidencia, bloqueos, source governance, stress dinamico
+y stop rules.
 
-Para una ruta de publicacion futura, Paper 4 tambien absorbe el valor
-prudencial de Paper 2. Eso significa que ECL por escenarios, SICR conformal,
-CIF/prepayment, costo de staging y TS->ECL ya no necesitan vivir como paper
-separado en el corto plazo. Quedan dentro de Paper 4 como el brazo
-`IFRS9-inspired` del laboratorio, siempre con la frontera explicita de que no se
-reclama IFRS9 contractual.
+Paper 4 no absorbe claims prudenciales de Paper 2. Conserva sus artefactos como
+auditoria negativa: los endpoints del resultado binario no son limites de PD,
+el ancho no identifica SICR, el default terminal no equivale a Stage 2 y la
+aritmetica de escenarios no estima ECL. Los importes y umbrales historicos son
+procedencia no citable, no resultados del Paper 4.
 
 La arquitectura de una pagina queda registrada en
-`paper4_one_page_architecture_2026-05-18.csv`: `CRPTO core ->
-IFRS9-inspired proxy -> CVaR/OCE tail challenger -> source governance ->
+`paper4_one_page_architecture_2026-05-18.csv`: `external CRPTO identification contract ->
+negative IFRS9/SICR audit -> CVaR/OCE tail diagnostic -> source governance ->
 dynamic stress -> parked lanes`. Esa es la candidata natural a primera
 figura/tabla si Paper 4 se extrae como manuscrito completo.

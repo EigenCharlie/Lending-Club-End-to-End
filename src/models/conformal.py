@@ -1,9 +1,15 @@
 """Conformal prediction utilities using MAPIE >= 1.3.
 
 Includes:
-- Global split-conformal intervals for PD probabilities.
+- Global split-conformal intervals centered on PD scores for binary outcomes.
 - Group-conditional (Mondrian-style) split conformal by segment (e.g., grade).
 - Classification set wrappers (LAC/APS/RAPS via MAPIE).
+
+The legacy ``pd_low``/``pd_high`` vocabulary describes numeric endpoints around
+a PD score. When calibration labels are binary, coverage is for the future
+binary outcome ``Y`` under the conformal design. It is not confidence coverage
+for an individual's latent PD, ECL, SICR status, or a selected downstream
+policy. Those estimands require their own method and validation contract.
 """
 
 from __future__ import annotations
@@ -161,7 +167,15 @@ def create_pd_intervals(
     alpha: float = 0.1,
     calibrator: Any | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Generate global split-conformal PD intervals via MAPIE."""
+    """Generate binary-outcome intervals centered on calibrated PD scores.
+
+    ``create_pd_intervals`` is retained as a compatibility name. With binary
+    ``y_cal``, the coverage event concerns ``Y`` rather than latent individual
+    PD. A split-conformal guarantee additionally requires the classifier and
+    calibrator to be fixed without these conformalization labels; this helper
+    cannot verify that provenance. The historical pipeline reused the labels,
+    so its outputs support retrospective empirical coverage only.
+    """
     from mapie.regression import SplitConformalRegressor
 
     prob_reg = ProbabilityRegressor(classifier, calibrator=calibrator)
@@ -181,7 +195,7 @@ def create_pd_intervals(
 
     avg_width = float((y_intervals[:, 1] - y_intervals[:, 0]).mean())
     logger.info(
-        f"Conformal PD intervals (global, alpha={alpha}): "
+        f"Binary-outcome conformal endpoints (global, alpha={alpha}): "
         f"avg_width={avg_width:.4f}, target_coverage={1 - alpha:.0%}"
     )
     return y_pred, y_intervals
@@ -200,7 +214,7 @@ def create_pd_intervals_mondrian(
     scaled_scores: bool = False,
     score_scale_family: str = "none",
 ) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
-    """Create group-conditional split-conformal PD intervals.
+    """Create group-conditional binary-outcome conformal intervals.
 
     This follows a Mondrian-style approach:
     - compute nonconformity scores on calibration split
@@ -214,12 +228,17 @@ def create_pd_intervals_mondrian(
         group_cal, group_test: segmentation labels (e.g., grade).
         alpha: significance level.
         min_group_size: fallback to global quantile for small groups.
-        calibrator: optional probability calibrator.
+        calibrator: optional probability calibrator. For a split-conformal
+            theorem it must be fixed independently of ``y_cal``.
         scaled_scores: legacy shortcut for Bernoulli scaling.
         score_scale_family: explicit scaling family for residual scores.
 
     Returns:
-        y_pred_test, y_intervals, diagnostics
+        y_pred_test, y_intervals, diagnostics. The coverage event concerns
+        binary ``Y``, not latent individual PD. A group-conditional theorem
+        also requires within-group exchangeability and a classifier,
+        calibrator, grouping and score rule fixed without the conformalization
+        labels; the helper cannot enforce that provenance.
     """
     y_cal_pred_raw = classifier.predict_proba(X_cal)[:, 1]
     y_test_pred_raw = classifier.predict_proba(X_test)[:, 1]
@@ -275,7 +294,7 @@ def create_pd_intervals_mondrian(
         "median_width": float(np.median(high - low)),
     }
     logger.info(
-        "Conformal PD intervals (mondrian): "
+        "Binary-outcome conformal intervals (mondrian, PD-score centered): "
         f"groups={len(all_groups)}, avg_width={diagnostics['avg_width']:.4f}, "
         f"fallback_groups={len(fallback_groups)}"
     )
@@ -287,7 +306,7 @@ def conditional_coverage_by_group(
     y_intervals: np.ndarray,
     groups: pd.Series | np.ndarray,
 ) -> pd.DataFrame:
-    """Compute conditional coverage and width per segment."""
+    """Compute empirical binary-outcome coverage and width per segment."""
     g = pd.Series(groups).fillna("UNKNOWN").astype(str)
     y_true_arr = np.asarray(y_true, dtype=float)
     low = y_intervals[:, 0]
@@ -694,81 +713,38 @@ def create_pd_intervals_venn_abers(
     y_cal: pd.Series,
     X_test: pd.DataFrame,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generate Venn-Abers multi-probability PD intervals.
+    """Generate Venn--Abers point predictions and multiprobability outputs.
 
-    Venn-Abers predictors produce automatically well-calibrated probability
-    intervals [p0, p1] with theoretical guarantees (Vovk & Petej, 2014).
-
-    Uses MAPIE's native VennAbersCalibrator (mapie.calibration) when available,
-    falling back to the external venn_abers library otherwise.
+    The ``venn_abers`` implementation returns both the log-loss minimax point
+    probability and the associated pair ``[p0, p1]`` (Vovk & Petej, 2014).
+    MAPIE's public ``VennAbersCalibrator.predict_proba`` returns class
+    probabilities, not that pair, so it must not be interpreted as bounds.
 
     Args:
         classifier: Fitted classifier with predict_proba.
-        X_cal: Calibration features (required for MAPIE path).
+        X_cal: Calibration features used to obtain raw classifier scores.
         y_cal: Calibration labels.
-        X_test: Test features (required for MAPIE path).
+        X_test: Evaluation features used to obtain raw classifier scores.
 
     Returns:
         Tuple of (y_pred_point, p0_array, p1_array) where:
-        - y_pred_point: positive-class probability as point estimate.
-        - p0_array: lower probability bound per observation.
-        - p1_array: upper probability bound per observation.
+        - y_pred_point: positive-class log-loss minimax probability.
+        - p0_array: lower Venn--Abers multiprobability per observation.
+        - p1_array: upper Venn--Abers multiprobability per observation.
     """
     y_cal_arr = np.asarray(y_cal.values if hasattr(y_cal, "values") else y_cal, dtype=int).reshape(
         -1
     )
 
-    # ── MAPIE native path (preferred) ─────────────────────────────────────────
-    try:
-        from mapie.calibration import VennAbersCalibrator
-
-        va = VennAbersCalibrator(estimator=classifier, inductive=True, random_state=42)
-        va.fit(
-            X_cal,
-            y_cal_arr,
-            X_calib=X_cal,
-            y_calib=y_cal_arr,
-        )
-        probs = va.predict_proba(X_test)  # shape (n, 2): [p_neg, p_pos]
-        p_low_raw = np.clip(np.asarray(probs[:, 0], dtype=float), 0.0, 1.0)
-        p_high_raw = np.clip(np.asarray(probs[:, 1], dtype=float), 0.0, 1.0)
-        # VennAbersCalibrator returns [p0, p1] bounds for positive class
-        p_low = np.minimum(p_low_raw, p_high_raw)
-        p_high = np.maximum(p_low_raw, p_high_raw)
-        y_pred_point = np.clip((p_low + p_high) / 2.0, 0.0, 1.0)
-        avg_width = float((p_high - p_low).mean())
-        logger.info(
-            f"Venn-Abers PD intervals [MAPIE]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
-        )
-        return y_pred_point, p_low, p_high
-
-    except (ImportError, ValueError, TypeError, RuntimeError, AttributeError) as exc:
-        logger.warning(
-            f"MAPIE VennAbersCalibrator failed ({exc}) — falling back to venn_abers library."
-        )
-
-    # ── External venn_abers fallback ──────────────────────────────────────────
-    from venn_abers import VennAbers
+    from src.models.venn_abers import VennAbersScoreCalibrator
 
     p_cal_pos = np.asarray(classifier.predict_proba(X_cal)[:, 1], dtype=float).reshape(-1)
-    p_cal = np.column_stack([1.0 - p_cal_pos, p_cal_pos])
     p_test_pos = np.asarray(classifier.predict_proba(X_test)[:, 1], dtype=float).reshape(-1)
-    p_test = np.column_stack([1.0 - p_test_pos, p_test_pos])
-
-    wrapped = VennAbers()
-    wrapped.fit(p_cal, y_cal_arr)
-    y_pred_binary, p_result = wrapped.predict_proba(p_test)
-    p0 = np.clip(np.asarray(p_result[:, 0], dtype=float), 0.0, 1.0)
-    p1 = np.clip(np.asarray(p_result[:, 1], dtype=float), 0.0, 1.0)
-
-    p_low = np.minimum(p0, p1)
-    p_high = np.maximum(p0, p1)
-    y_pred_point = np.clip(np.asarray(y_pred_binary[:, 1], dtype=float), 0.0, 1.0)
+    calibrator = VennAbersScoreCalibrator().fit(p_cal_pos, y_cal_arr)
+    y_pred_point, p_low, p_high = calibrator.predict_with_bounds(p_test_pos)
 
     avg_width = float((p_high - p_low).mean())
-    logger.info(
-        f"Venn-Abers PD intervals [fallback]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
-    )
+    logger.info(f"Venn-Abers multiprobabilities: avg_width={avg_width:.4f}, n_test={len(X_test)}")
     return y_pred_point, p_low, p_high
 
 

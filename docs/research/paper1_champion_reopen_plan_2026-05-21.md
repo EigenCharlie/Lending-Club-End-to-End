@@ -1,5 +1,10 @@
 # Paper Estrella Champion Reopen Plan 2026-05-21
 
+> **RETIRED PLAN (2026-07-20).** No reopen or promotion described below was
+> imported into current CRPTO. The document is retained to audit the search
+> path; its candidates and gates do not override the external no-selection
+> contract.
+
 ## Objective
 
 Reopen the Paper Estrella champion search only where the new evidence can plausibly replace

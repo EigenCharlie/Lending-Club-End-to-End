@@ -139,12 +139,19 @@ May 2026 update: the Paper Estrella audit re-read the 17 local PDFs in `C:\Users
 
 ---
 
-## Key Gaps Identified in Literature (March 2026)
+## Comparadores no alineados en el catálogo local (corte de marzo de 2026)
 
-1. **ZERO papers** combine conformal prediction with IFRS9 ECL estimation
-2. **ZERO papers** use Mondrian CP for credit portfolio optimization
-3. **ZERO papers** use conformal interval width as SICR signal
-4. **ZERO papers** build CatBoost → Calibration → Mondrian CP → Pyomo RO pipeline
-5. **ZERO papers** apply SPO+ loss jointly with conformal prediction
-6. **ZERO papers** apply CP to MRM/SR 11-7 model risk management
-7. Credit grades are naturally disjoint → Mondrian (not Kandinsky) is the correct tool
+La búsqueda conservada aquí no fue una revisión sistemática y no sustenta
+claims de ausencia, prioridad o novedad global. En el catálogo local no se
+identificó un comparador directamente alineado para estas combinaciones:
+
+1. predicción conformal con un estimando válido de IFRS9 ECL;
+2. Mondrian CP dentro de optimización de portafolio crediticio;
+3. ancho conformal como señal SICR validada;
+4. CatBoost → calibración → Mondrian CP → Pyomo robusto bajo un contrato común;
+5. SPO+ junto con predicción conformal;
+6. CP aplicado a un marco MRM/SR 11-7.
+
+Los grades disjuntos hacen de Mondrian un candidato natural, no “la herramienta
+correcta” por definición. Elegirlo exige declarar target, partición, tamaño por
+grupo, intercambio y una evaluación independiente.

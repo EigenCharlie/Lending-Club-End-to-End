@@ -1,10 +1,15 @@
 ## WOE, IV y OptBinning {#sec-woe-iv}
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ### Motivación del Encoding WOE
 
-Las variables categóricas en credit scoring --- como el grado de riesgo, el propósito del préstamo o el tipo de vivienda --- no pueden usarse directamente en modelos lineales ni en algunos modelos de ensemble. El **Weight of Evidence** (WOE) es la transformación estándar en la industria bancaria porque produce una codificación numérica con propiedades deseables:
+Las variables categóricas requieren una representación adecuada para modelos
+lineales y algunos pipelines. **Weight of Evidence** (WOE) es una práctica común
+en credit scoring regulado porque facilita tablas y trazabilidad; no es por sí
+solo un estándar obligatorio ni una validación regulatoria.
 
-1. **Monotonicidad**: La relación entre la variable WOE y el log-odds de default es lineal por construcción, lo que facilita la interpretación y la validación regulatoria.
+1. **Representación en log-odds**: WOE codifica diferencias de odds por bin. La monotonicidad solo aparece si el binning la impone y no equivale a validación regulatoria.
 2. **Poder predictivo cuantificable**: El **Information Value** (IV) asociado mide directamente cuánta información aporta cada variable para discriminar defaults de no-defaults (ver @sec-ml-foundations para las fórmulas).
 3. **Tratamiento natural de categorías raras**: El binning agrupa categorías con pocos casos, evitando estimaciones inestables.
 
@@ -12,7 +17,7 @@ Las variables categóricas en credit scoring --- como el grado de riesgo, el pro
 ## WOE vs. One-Hot Encoding vs. Target Encoding
 - **One-Hot**: Crea $k-1$ columnas binarias para $k$ categorías. Explota la dimensionalidad para variables con muchas categorías (Lending Club tiene 35 sub-grados).
 - **Target Encoding**: Reemplaza categorías por la media del target. Sufre de **data leakage** si no se implementa con regularización cuidadosa.
-- **WOE**: Reemplaza categorías por el log-odds ratio, calculado sobre bins óptimos. Es el estándar regulatorio porque produce una transformación interpretable, monótona y sin leakage cuando se calcula solo sobre el set de entrenamiento.
+- **WOE**: Reemplaza categorías por un log-odds ratio por bin. Puede facilitar interpretación y auditabilidad. Monotonicidad requiere restricciones explícitas; evitar leakage exige fit, validación y transformación correctamente separados.
 
 CatBoost maneja categorías nativamente sin necesidad de WOE, pero las variables WOE se incluyen igualmente porque: (a) son necesarias para el baseline de regresión logística, (b) sirven como features adicionales para CatBoost, y (c) se usan como confusores en la estimación causal.
 :::
@@ -34,7 +39,11 @@ Esta lectura también separa dos tareas que a veces se mezclan. Rehacer los bins
 ::: {.callout-warning}
 ## Caveat de reemplazo WOE
 
-WOE es estable como transformación de producción cuando sus bins, convención de signo y población de estimación quedan congelados. El problema aparece cuando se intenta construir un modelo de reemplazo recalculando WOE sobre outcomes generados por el propio modelo anterior. En ese escenario, la transformación puede cambiar aunque la predicción del modelo original se replique muy bien, porque se está reestimando una razón de odds a partir de una población etiquetada por el modelo y no por la realidad observada.
+Congelar bins, signo y población preserva **reproducibilidad**, no garantiza
+estabilidad de producción, calibración o conformidad. El problema se agrava si
+un reemplazo recalcula WOE sobre outcomes generados por el modelo anterior: se
+reestima una razón de odds contra labels sintéticos y la transformación puede
+cambiar aunque el predictor original se replique.
 
 Para este proyecto, esa observación no reabre el champion ni invalida los WOE del contrato canónico. Su uso correcto es de gobernanza: WOE/IV deben guardarse con versión, población, bin edges, mínimos de eventos y criterios de monitoreo. Si algún día se prueba una lane de reemplazo WOE, su condición de parada será demostrar mejora local en estabilidad/calibración sin cambiar el claim CRPTO ni romper la trazabilidad del contrato de features.
 :::
@@ -51,7 +60,10 @@ La literatura de Naive Bayes y sus extensiones reforzadas es útil aquí como an
 
 El cálculo de WOE requiere primero agrupar los valores de la variable en **bins** (intervalos para numéricas, grupos para categóricas). La calidad de los bins determina la calidad del WOE resultante. Los enfoques tradicionales (equal-width, equal-frequency, chi-squared merging) son heurísticos y no garantizan optimalidad.
 
-**OptBinning** resuelve el problema de binning como un programa de optimización con restricciones (constraint programming, solver `cp`), garantizando bins que maximizan el IV sujeto a restricciones regulatorias:
+**OptBinning** formula el binning como un problema de optimización con
+restricciones. El solver busca una solución para el objetivo configurado; el
+artefacto local debe leerse junto con su status, tolerancias y configuración,
+no como garantía universal de máximo IV ni de conformidad regulatoria:
 
 - **Monotonía**: El WOE debe ser monótono creciente o decreciente a través de los bins.
 - **Número máximo de bins**: Típicamente 5--10 para interpretabilidad.
@@ -88,13 +100,13 @@ import pandas as pd
 woe_vars = [
     {"Variable original": "grade", "Variable WOE": "grade_woe",
      "Categorías": "A, B, C, D, E, F, G (7 grados)",
-     "Uso downstream": "Confusor causal, partición Mondrian, IFRS9 staging"},
+     "Uso downstream": "Covariable de ajuste asumida en el carril observacional, partición Mondrian y proxy de staging IFRS9-inspired histórico; no SICR"},
     {"Variable original": "purpose", "Variable WOE": "purpose_woe",
      "Categorías": "debt_consolidation, credit_card, home_improvement, etc. (14 categorías)",
-     "Uso downstream": "Confusor causal, feature PD"},
+     "Uso downstream": "Covariable de ajuste asumida en el carril observacional y feature del score legacy"},
     {"Variable original": "home_ownership", "Variable WOE": "home_ownership_woe",
      "Categorías": "MORTGAGE, RENT, OWN, OTHER (4 categorías)",
-     "Uso downstream": "Confusor causal, feature PD"},
+     "Uso downstream": "Covariable de ajuste asumida en el carril observacional y feature del score legacy"},
 ]
 
 pd.DataFrame(woe_vars)

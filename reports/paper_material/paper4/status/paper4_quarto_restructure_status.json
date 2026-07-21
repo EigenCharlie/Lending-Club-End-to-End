@@ -3,7 +3,7 @@
   "claim_boundary": "Quarto contains curated official evidence; implementation waves remain in the markdown living notebook.",
   "contractual_ifrs9_claim_allowed": false,
   "fair_lending_legal_claim": false,
-  "generated_at_utc": "2026-05-15T04:01:43.596870+00:00",
+  "generated_at_utc": "2026-07-21T00:00:00+00:00",
   "historical_archive_page_count": 70,
   "living_notebook_path": "reports/paper_material/paper4/notes/paper4_living_lab_notebook.md",
   "official_pages": [
@@ -16,9 +16,11 @@
     "19i-regret-auditability-frontier.qmd",
     "19n-online-mdcp-fairness.qmd",
     "19t-multi-period-solver.qmd",
-    "19ca-v38-final-synthesis.qmd"
+    "19ca-v38-final-synthesis.qmd",
+    "19cb-v38-appendix-registers.qmd",
+    "19cc-v39-pyepo-real-suite.qmd"
   ],
-  "official_quarto_page_count": 10,
+  "official_quarto_page_count": 12,
   "paper1_artifacts_modified": false,
   "paper4_final_promotion_created": false,
   "phase": "paper4_quarto_restructure_official_chapter_plus_living_notebook",

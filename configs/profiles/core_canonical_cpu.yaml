@@ -1,10 +1,10 @@
-schema_version: "2026-04-07.1"
+schema_version: "2026-07-20.1"
 profile_name: core_canonical_cpu
 pipeline_family: core_canonical
 description: >
-  Perfil canónico reproducible por CPU, sin notebooks ni RAPIDS.
-  Usa PD champion (HPO local trial 56), conformal rank1 (reopen),
-  portfolio economic champion (freeze, no re-search).
+  Replay canónico del freeze histórico por CPU, sin notebooks ni RAPIDS.
+  Conserva explícitamente modelo, regla puntual del calibrador, conformal
+  rank1 y portafolio legacy; no ejecuta una selección científica vigente.
 execution:
   writes_canonical_artifacts: true
   promotion_state: operationally_frozen
@@ -14,6 +14,9 @@ execution:
 defaults:
   sampling_profile: champion64safe
   expected_upstream_registry: configs/baselines/canonical_operational_baseline.json
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  pd_replay: true
+  conformal_replay: true
 search_space:
   conformal:
     partition_probability_sources: [calibrated]

@@ -1,5 +1,11 @@
 # Paper 4 Goal Loop Final Audit - 2026-05-18
 
+> **Historical closure snapshot — superseded for claims.** Paper 4 remains a
+> non-promoted living lab. The external CRPTO paper is autonomous and imported
+> none of the proposed F03/F04/F05/SDAM claims. References below to “official”,
+> “champion”, “absorbed” or “serves Paper Estrella” reproduce the May cutoff;
+> `SESSION_STATE.md` and current claim contracts govern now.
+
 ## Decision
 
 The Paper 4 goal loop is closed.
@@ -37,7 +43,7 @@ Current retained Paper 4 generated surface:
 | `reports/paper_material/paper4/status/*.json` | 74 | Status and schema records |
 | `reports/paper_material/paper4/notes/*.md` | 50 | Human-readable provenance |
 
-## What Serves Paper Estrella
+## Transfer proposed at the historical cutoff (now superseded)
 
 | Finding | Destination | Source |
 |---|---|---|
@@ -46,9 +52,9 @@ Current retained Paper 4 generated surface:
 | F05 online conformal passed a nominal gate but failed strict source-style holdout expectations. | Limitations and future work, not a deployment claim. | `paper4_v470_online_monitoring_proxy_summary.csv`; `14h-journal-appendix-robustness.qmd` |
 | Powell/SDAM gives the right language for decision analytics and controlled policy search. | Theory positioning in Paper Estrella. | `14b-theoretical-framework.qmd`; `19f-sequential-decision-framework.qmd`; `paper4_sequential_decision_schema.json` |
 
-Paper Estrella absorbed these pieces in `14b`, `14e`, and `14h`. It did not
-absorb Paper 4 as a new official champion, and it should not inherit Paper 4's
-long experimental tail.
+The May book snapshot incorporated these pieces in `14b`, `14e`, and `14h`.
+Those retired pages do not imply transfer into the current external CRPTO
+dossier, selection of a champion or inheritance of Paper 4 claims.
 
 ## What Serves Paper 4
 

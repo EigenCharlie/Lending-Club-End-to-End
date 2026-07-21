@@ -2,6 +2,13 @@
 
 Date: 2026-03-30
 
+> **Historical backlog — superseded for Paper 2.** This file records ideas at
+> the March cutoff. The current Paper 2 contract is `parked_ifrs9`: the
+> terminal-outcome archive cannot identify reporting-date PD, ECL or SICR, and
+> this backlog does not reopen those claims. See
+> `reports/paper_material/paper2/paper2_claim_contract.yml` and
+> `SESSION_STATE.md`.
+
 This document isolates the remaining `adsfcr`-inspired work that still looks worth implementing after the monotonic promotion, confirmatory rebuild, and the first three ADSFCR tranches already integrated into the repo.
 
 It is intentionally short and execution-oriented. For the full audit and rationale, see:

@@ -3,31 +3,30 @@ title: "Explicabilidad e Interpretabilidad"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ::: {.whole-game-intro}
-**Pregunta central**: ¿Puede el modelo PD defender sus decisiones ante un comité de riesgo, un regulador, y un prestatario?
+**Pregunta central**: ¿qué puede explicar el freeze PD histórico y qué evidencia
+faltaría para usar esa explicación en validación o decisiones reales?
 :::
 
-La interpretabilidad convierte un modelo de caja negra en una capacidad operativa defendible ante reguladores, auditores y comités de riesgo. En el contexto de SR 11-7 y IFRS9, un modelo de ML que no puede explicar *por qué* asignó determinada PD a un préstamo no es apto para producción, independientemente de su AUC.
+SHAP, permutation importance y ALE describen asociaciones y comportamiento del
+modelo. No prueban causalidad, corrección económica, fairness, cumplimiento
+regulatorio ni aptitud de producción. La explicabilidad es un insumo para
+challenge; no sustituye validación independiente.
 
-Este capítulo triangula tres lentes complementarias:
-
-| Lente | Pregunta que responde | Herramienta principal |
+| Lente | Pregunta diagnóstica | Límite |
 |---|---|---|
-| **Global** | ¿Qué señales usa el modelo *en promedio* para asignar riesgo? | SHAP summary, permutation importance, ALE |
-| **Local** | ¿Por qué *este* préstamo obtuvo esa PD específica? | SHAP waterfall, force plots, reason codes |
-| **Temporal** | ¿Las explicaciones son *estables* a lo largo del tiempo? | Rank overlap, PSI por feature, SHAP drift |
+| global | ¿qué señales mueven el score en el snapshot? | no identifica causas ni legitimidad |
+| local | ¿qué features explican la salida de una fila? | no reconstruye una decisión aprobada |
+| temporal | ¿cambiaron rankings y distribuciones SHAP? | no demuestra transporte o estabilidad futura |
 
-: Tres lentes de explicabilidad del modelo PD {#tbl-explainability-lenses}
-
-::: {.callout-note}
-## Explicabilidad ≠ Interpretabilidad
-En este libro usamos "explicabilidad" para referirnos a técnicas post-hoc (SHAP, ALE) que explican un modelo complejo, e "interpretabilidad" para modelos intrínsecamente transparentes (regresión logística). El baseline LR del @sec-lr-baseline es interpretable; el CatBoost champion requiere explicabilidad.
-:::
+: Tres lentes diagnósticas del freeze PD. {#tbl-explainability-lenses}
 
 ```{=html}
 <div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="11a-global-explanations.html">47. Globales</a></h4><p>Drivers globales, familias y sensibilidad.</p></div>
-  <div class="chapter-card"><h4><a href="11b-local-explanations.html">48. Locales</a></h4><p>Casos representativos, reason codes y decisiones.</p></div>
-  <div class="chapter-card"><h4><a href="11c-explanation-drift.html">49. Drift</a></h4><p>Estabilidad temporal de SHAP y explicaciones.</p></div>
+  <div class="chapter-card"><h4><a href="11a-global-explanations.html">47. Globales</a></h4><p>Drivers asociativos, sensibilidad y forma del predictor histórico.</p></div>
+  <div class="chapter-card"><h4><a href="11b-local-explanations.html">48. Locales</a></h4><p>Casos, reason codes y límites antes de cualquier decisión.</p></div>
+  <div class="chapter-card"><h4><a href="11c-explanation-drift.html">49. Drift</a></h4><p>Comparación retrospectiva de rankings y distribuciones SHAP.</p></div>
 </div>
 ```

@@ -5,7 +5,7 @@
   "baseline_snapshot_path": "reports/run_comparisons/baseline-clean-final-2026-03-26/baseline_snapshot.json",
   "notes": [
     "Frozen baseline manifest for deterministic replay.",
-    "PD replay uses fixed params, fixed feature order and fixed calibration method.",
+    "PD replay uses fixed params, feature order, calibration method and point rule.",
     "Conformal replay restores the blessed grade/no-shrink recovery artifacts.",
     "Portfolio confirmatory rebuild re-runs tradeoff + selector + AB with the champion policy search settings."
   ],
@@ -89,6 +89,7 @@
       "leaf_estimation_iterations": 3
     },
     "selected_calibration_method": "venn_abers",
+    "selected_calibration_point_rule": "midpoint_legacy",
     "decision_threshold_artifact": {
       "enabled": true,
       "selected_threshold": 0.05,

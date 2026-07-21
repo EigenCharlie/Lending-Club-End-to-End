@@ -1,12 +1,12 @@
 section,body_or_appendix,purpose,source_surface,rule
 Thesis and contribution,body,State Paper 4 as governed sequential credit decision analytics,19a-proposal-and-scope.qmd,Keep concise and claim-safe
-One-page architecture,body,Show how CRPTO core feeds prudential proxy tail source governance dynamic stress and parked lanes,19c-integrated-architecture.qmd,Use as future Figure/Table 1
+One-page architecture,body,Show the external CRPTO contract negative IFRS9/SICR audit tail diagnostics source governance dynamic stress and parked lanes,19c-integrated-architecture.qmd,Use as future Figure/Table 1
 Claim boundary table,body,Separate allowed claims from prohibited claims,19ca-v38-final-synthesis.qmd,Must stay artifact-backed
-Paper Estrella champion retention,body,Keep economic champion official while Paper 4 remains a lab,19ca-v38-final-synthesis.qmd,No champion replacement
-Dynamic stress F03,appendix,Robustness of monthly replay and common sample paths,19t-multi-period-solver.qmd,Export to Paper Estrella only as robustness
-CVaR/OCE F04,appendix,Explain why tail challenger does not replace champion,19i-regret-auditability-frontier.qmd,Reviewer-defense only
-Online/source F05,appendix,Document source holdout fragility and online caveat,19n-online-mdcp-fairness.qmd,Limitation/future work only
-Paper 2 absorption F13,appendix,Retain ECL SICR CIF stage-cost and TS-to-ECL anchors,19ca-v38-final-synthesis.qmd,Applied implication not Paper Estrella core
+External CRPTO boundary,body,State that the active CRPTO paper selects no learner comparator or policy,19ca-v38-final-synthesis.qmd,Context only; no local extension
+Dynamic stress F03,appendix,Describe monthly replay and common internal sample paths,19t-multi-period-solver.qmd,Paper 4 internal evidence only; no transfer to CRPTO
+CVaR/OCE F04,appendix,Document the conditional simulator tail and wealth tradeoff,19i-regret-auditability-frontier.qmd,Reviewer-defense only; no dominance or selection
+Online/source F05,appendix,Document post-selection slice fragility and online caveat,19n-online-mdcp-fairness.qmd,Limitation/future work only; not a holdout
+Paper 2 estimand audit F13,appendix,Retain only non-citable failure analysis for binary-outcome PD ECL SICR staging and threshold substitutions,19ca-v38-final-synthesis.qmd,Negative audit only; no prudential or monetary implication
 Metrics binder addendum,appendix,Calibration-gated Gini and FICO proxy experiment design,docs/research/metrics_credit_ml_models_triage_2026-05-18.md,No new experiment unless it changes a claim
 Loop cleanup provenance,appendix,Show that retired waves are not active evidence,19ca-v38-final-synthesis.qmd,Do not put procedural detail in paper body
 Lab 4 lane closure,appendix,Append park or delete decisions by lane,docs/research/paper4_lab4_all_lanes_synthesis_2026-05-18.md,No new versioned waves

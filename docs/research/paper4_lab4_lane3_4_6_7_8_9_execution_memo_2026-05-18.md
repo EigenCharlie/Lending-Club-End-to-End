@@ -1,5 +1,13 @@
 # Paper 4 Lab 4 Lanes 3, 4, 6, 7, 8 and 9 Execution Memo - 2026-05-18
 
+> **HISTORICAL / SUPERSEDED.** This memo preserves the May 2026 execution
+> record, but all `append`/export decisions and paper-facing interpretations in
+> it are withdrawn. Current authority is
+> `paper4_current_official_findings.csv`,
+> `paper4_current_claim_boundaries.csv` and the 12-page registry. In
+> particular, its “strict holdout” field denotes post-selection slices, and its
+> IFRS9/SICR quantities are non-citable mechanical proxies.
+
 ## Scope
 
 This memo executes the remaining literature-driven Lab 4 lanes over the retained
@@ -30,7 +38,8 @@ park, or future-prototype material. No Paper Estrella champion search is reopene
 
 - Decision: `park_with_appendix_limitation`.
 - Best bounded defended min coverage: `0.7788`.
-- Strict holdout pass rows: `2`.
+- Legacy field `strict_holdout_pass_rows=2`; the rows are post-selection slices,
+  not strict holdouts under the current contract.
 - The lane is useful as source governance, but not as live online validity.
 
 ### Lane 6 - SPO / DFL
@@ -45,7 +54,8 @@ park, or future-prototype material. No Paper Estrella champion search is reopene
 - Decision: `append`.
 - Combined raw SICR lift: `73.6416`.
 - Missing contractual requirements: `forbearance_hardship;cure_timing;recovery_timing;prepayment_timing;macro_scenarios`.
-- Keep IFRS9-inspired ECL/SICR proxy; contractual IFRS9 remains blocked.
+- Preserve the IFRS9-inspired ECL/SICR output as a non-citable mechanical
+  diagnostic; it is not appended to the active paper.
 
 ### Lane 8 - Governance / Fairness Proxy
 
@@ -66,4 +76,5 @@ park, or future-prototype material. No Paper Estrella champion search is reopene
 - Do not mutate the main environment for Lane 3 or Lane 6 prototypes.
 - Do not claim live online/source validity from historical replay.
 - Do not claim contractual IFRS9, legal fair-lending compliance, or causal policy value.
-- Export to Paper Estrella only as limitation, model-risk context, or reviewer defense.
+- Do not export these results to CRPTO/Paper Estrella; cite only this memo's
+  supersession when reconstructing provenance.

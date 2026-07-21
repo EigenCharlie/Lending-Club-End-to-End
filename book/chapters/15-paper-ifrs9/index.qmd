@@ -1,58 +1,91 @@
 ---
-title: "Paper 2: IFRS9 End-to-End con Incertidumbre Conformal"
+title: "Paper 2: Auditoría Diagnóstica IFRS9-inspired"
 page-layout: article
 ---
 
 {{< include ../../includes/_paper-autocontenido.qmd >}}
 
+::: {.callout-warning}
+
+## Estado científico: `parked_ifrs9`
+
+Esta superficie no presenta una implementación contable de IFRS 9 ni una
+política de staging. Es una nota metodológica que audita un prototipo
+retrospectivo y fija las condiciones que faltan para convertirlo en evidencia
+prudencial. El estado y los límites exigibles viven en el
+[contrato de claims de Paper 2](../../../reports/paper_material/paper2/paper2_claim_contract.yml).
+
+:::
+
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-¿Qué cambia en IFRS9 cuando dejamos de tratar la PD como un número exacto y empezamos a leerla como una banda con incertidumbre explícita? Esta landing introduce ese problema como paper autocontenido.
-
-Ejemplo concreto: un mismo préstamo puede permanecer estable en score puntual, pero cambiar de lectura prudencial cuando su intervalo conformal se ensancha, cuando el trigger SICR incorpora ancho y cuando un escenario severo empuja el ECL total hacia otra zona contable.
+¿Qué se rompe cuando un intervalo construido para predecir el resultado binario
+observado $Y\in\{0,1\}$ se interpreta como si fuera un intervalo para una PD
+individual y luego se propaga hacia staging y pérdida esperada?
 :::
 
-Este paper no se limita a “calcular ECL”. Su identidad está en mostrar que staging, sensibilidad macro y provisión agregada cambian de forma material cuando la incertidumbre entra a la lectura prudencial. Entre escenario `baseline` y `severe`, el ECL agregado sube cerca de `70%`, y el trigger SICR enriquecido con ancho conformal añade alrededor de `\$56.6M` de ECL prudencial.
+La respuesta corta es que los estimandos son distintos. La cobertura de
+$Y$ no implica cobertura de la probabilidad condicional
+$p(x)=\Pr(Y=1\mid X=x)$, de ECL ni de una decisión seleccionada con esos
+endpoints. El código existente conserva valor como banco de pruebas: permite
+identificar exactamente dónde ocurre ese salto semántico, qué sensibilidades son
+puramente algebraicas y qué datos faltan para un diseño longitudinal.
 
 ::: {.callout-note .mini-abstract}
+
 ## Mini-abstract
-**Problema**: IFRS9 suele descansar en PD puntuales y reglas SICR demasiado rígidas para capturar ambigüedad real.
-**Método**: pipeline end-to-end con PD calibrada, bandas conformales, staging y escenarios de provisión.
-**Hallazgo**: la banda de incertidumbre cambia de forma material la lectura de provisiones, staging y sensibilidad macro, incluso cuando el score puntual no cambia.
+
+**Objeto auditado**: pipeline retrospectivo que combina score de default
+terminal, intervalos residuales binarios y transformaciones IFRS9-inspired.
+
+**Hallazgo**: el intervalo tiene un estimando predictivo sobre $Y$; no es una
+cota para PD latente ni una banda de provisión. La derivación retrospectiva de
+DPD y staging tampoco identifica SICR a una fecha de reporte.
+
+**Salida defendible**: taxonomía de fallas, evidencia mecánica acotada y contrato
+de datos/validación para una futura reapertura.
+
 :::
 
-## Diagrama del paper
+## Mapa de la nota
 
-La figura siguiente resume el flujo metodológico del `Paper 2`, desde la construcción de cohortes y señales de riesgo hasta la propagación hacia staging, escenarios y provisión final bajo IFRS9.
+La secuencia conceptual reemplaza la antigua narrativa de propagación
+prudencial:
 
-![Diagrama maestro del Paper 2: pipeline IFRS9 end-to-end con incertidumbre conformal, staging, escenarios y provisión.](../../assets/figures/editorial/diagrama-paper-2.png){#fig-paper-2-overview fig-alt="Diagrama horizontal del Paper 2 con datos, modelado, incertidumbre conformal, staging IFRS9, escenarios y provisión final."}
+1. **Objeto estadístico**: distinguir score puntual, resultado binario e
+   intervalo para una observación futura.
+2. **Transformación downstream**: separar pérdida realizada de pérdida esperada
+   y de staging.
+3. **Auditoría retrospectiva**: localizar leakage, mezcla de horizontes,
+   selección sobre test y colisiones de linaje.
+4. **Contrato de reapertura**: declarar qué evidencia permitiría volver a hablar
+   de IFRS 9.
 
-Este diagrama cuenta la historia central del paper: la incertidumbre no se queda en el modelo de PD, sino que se propaga por todo el carril prudencial. La gracia del flujo es que conecta bandas conformales, trigger SICR, escenarios macro y cálculo de ECL dentro de un mismo objeto analítico, permitiendo mostrar cómo una misma cartera puede cambiar de lectura contable y de sensibilidad regulatoria aun sin un cambio drástico en el score puntual.
+El diagrama histórico queda fuera de la superficie activa porque sus flechas
+podrían confundirse con transporte de garantías estadísticas. Permanece en el
+repositorio únicamente como procedencia editorial del prototipo anterior.
 
-## Cómo se diferencia de la tesis completa y del CRPTO/Paper_CRPTO
+## Relación con la tesis, CRPTO y Paper 4
 
-La tesis completa documenta el sistema entero: modelado, conformal, optimización, IFRS9, gobernanza y arquitectura de implementación. El `Paper 2`, en cambio, recorta una pregunta prudencial muy específica: cómo cambia la lectura de provisión y deterioro cuando la incertidumbre entra explícitamente al pipeline IFRS9. Y frente al `CRPTO/Paper_CRPTO`, la diferencia también es clara: el `CRPTO/Paper_CRPTO` usa la incertidumbre para mover una decisión de optimización riesgo-retorno; el `Paper 2` usa esa incertidumbre para mover staging, provisión, sensibilidad macro y gobernanza contable.
+CRPTO ya distingue correctamente el intervalo del resultado binario de una
+confianza sobre PD individual y separa cobertura predictiva de validez
+decisional. Paper 2 adopta esa frontera como contrato rector. No transfiere a
+IFRS 9 los resultados de optimización de CRPTO, ni convierte una regla de
+portafolio en regla de provisión.
+
+Paper 4 permanece fuera de esta corrección. Cualquier integración futura entre
+IFRS9, CATE y optimización deberá satisfacer primero los requisitos de reapertura
+de Paper 2; una arquitectura común no sustituye identificación estadística ni
+validación contable.
 
 ## Cómo leer esta parte
 
-- **Introducción** presenta el gap regulatorio y el framing del problema.
-- **Metodología** arma el pipeline ECL, SICR y escenarios.
-- **Resultados** concentra sensibilidad, bandas de provisión y comparativas.
-- **Discusión** cierra con lectura prudencial, límites y agenda siguiente.
-
-La mega extensión IFRS9 + CATE + CRPTO ya no vive dentro de Paper 2. Queda como
-una sección propia, **Paper 4**, para que Paper 2 conserve su identidad
-prudencial y la propuesta integrada tenga su propio alcance, roadmap y
-guardrails.
-
-## Navegación curada
-
-```{=html}
-<div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="15a-introduction.html">Introducción</a></h4><p>Gap regulatorio y framing de incertidumbre en IFRS9.</p></div>
-  <div class="chapter-card"><h4><a href="15b-methodology.html">Metodología</a></h4><p>Pipeline ECL, SICR conformal y escenarios.</p></div>
-  <div class="chapter-card"><h4><a href="15c-results.html">Resultados</a></h4><p>ECL por rango, sensibilidad alpha y comparativas.</p></div>
-  <div class="chapter-card"><h4><a href="15d-discussion.html">Discusión</a></h4><p>Lectura prudencial, límites y agenda siguiente.</p></div>
-</div>
-```
+- [Introducción](15a-introduction.qmd) formula el problema de transporte de
+  estimandos.
+- [Metodología](15b-methodology.qmd) reconstruye el pipeline como objeto de
+  auditoría.
+- [Resultados](15c-results.qmd) separa hallazgos diagnósticos de claims
+  retirados.
+- [Discusión](15d-discussion.qmd) fija límites, stop rule y requisitos para
+  reabrir el paper.

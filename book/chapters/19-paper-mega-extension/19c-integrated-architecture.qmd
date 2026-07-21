@@ -3,6 +3,8 @@ title: "Integrated Architecture"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Arquitectura oficial
 
 Paper 4 se organiza como una arquitectura de evidencia, no como una sola corrida
@@ -11,33 +13,34 @@ monolitica.
 La version paper-facing de una pagina queda en
 `paper4_one_page_architecture_2026-05-18.csv`. Su lectura compacta es:
 
-| Capa paper-facing | Funcion | Evidencia principal | Claim permitido | Uso CRPTO/Paper_CRPTO |
+| Capa paper-facing | Funcion | Evidencia principal | Claim permitido | Relacion con CRPTO IJDS |
 |---|---|---|---|---|
-| CRPTO/Paper_CRPTO / CRPTO core | referencia economica y champion oficial | `models/final_project_promotion.json` | champion oficial retenido | cuerpo central |
-| IFRS9-inspired proxy | absorbe Paper 2 y propaga incertidumbre a ECL/SICR | `paper4_paper2_absorption_anchors_2026-05-18.csv` | ECL/SICR proxy prudencial | implicacion aplicada |
-| CVaR/OCE tail challenger | prueba si cola justifica reemplazo | `paper4_v31_champion_vs_cvar_stress_memo.csv` | serious tail-risk challenger | appendix/reviewer defense |
-| Source governance / online | mide cobertura por fuentes debiles | `paper4_v35_online_temporal_holdout.csv` | caveat de source governance | limitacion/future work |
+| CRPTO IJDS externo | contrato de identificacion y limites de inferencia | contrato externo fijado en `docs/research/crpto_external_contract_2026-07-20.yml` | no learner, comparator o policy seleccionada | contexto solamente |
+| Auditoria IFRS9/SICR negativa | registra por que Paper 2 no identifica PD, ECL, SICR o staging | `paper4_paper2_absorption_anchors_2026-05-18.csv` | failure analysis no citable como resultado prudencial | no transferir |
+| CVaR/OCE tail diagnostic | describe un tradeoff cola/wealth condicional | `paper4_v31_champion_vs_cvar_stress_memo.csv` | simulador interno solamente | no transferir |
+| Source governance / online | mide cobertura por fuentes debiles | `paper4_v35_online_postselection_slices.csv` | slices post-seleccion | no transferir |
 | Dynamic stress / SDAM | evalua policies como procesos mensuales | `paper4_v31_dynamic_policy_trace.parquet` | replay dinamico interno | robustez/framing |
-| Parked lanes | CATE e SPO/DFL integrados quedan fuera del claim | `paper4_lab4_all_lane_summary_2026-05-18.csv` | park con evidencia | no exportar salvo caveat |
+| Parked lanes | CATE y DFL aplicado quedan fuera del claim | `paper4_lab4_all_lane_summary_2026-05-18.csv` | park con evidencia | no transferir |
 
 : Arquitectura de una pagina para una futura extraccion de Paper 4 {#tbl-paper4-one-page-architecture}
 
 | Capa | Rol | Claim permitido |
 |---|---|---|
-| CRPTO/Paper_CRPTO / CRPTO | Referencia economica robusta | Champion oficial conservado salvo promocion futura con gates |
-| Conformal / online | Cobertura y ancho bajo replay | Prometedor, pero holdouts source-family son caveat |
-| CVaR / OCE | Control de cola y committee profile | Serious tail challenger |
-| IFRS9 proxy | ECL/SICR inspirado en IFRS9 y absorcion de Paper 2 | Prudential proxy, no contractual IFRS9 |
+| CRPTO IJDS externo | Contrato de identificacion | No selecciona modelo, comparador ni policy |
+| Conformal / online | Cobertura y ancho bajo replay | Diagnostico post-seleccion; no holdout |
+| CVaR / OCE | Control de cola y committee profile | Tradeoff condicional al simulador |
+| Auditoria IFRS9/SICR | Fallas de unidad de analisis, datos y estimando | Evidencia negativa; no PD, ECL, SICR, staging o monetizacion |
 | MDCP/source | Cobertura por familia/fuente | Governance de fuentes, no fairness legal |
-| DLA/ADP | Decision mensual y estado secuencial | Representative dynamic evaluation |
-| SPO/DFL | Oracle regret y decision loss | Surrogate/oracle-regret only |
+| DLA/ADP | Decisión mensual y estado secuencial | Replay dinámico interno; no evaluación representativa externa |
+| SPO/DFL | Teacher-regret sobre menus top-k muestreados | Benchmark descriptivo solamente |
 | CATE | Identificacion causal futura | Diagnostic gate only |
 | Powell/SDAM | Contrato de framing | Separacion de metricas, decisiones, incertidumbre y claims |
 
 ## Flujo
 
 1. Se toma una familia de policies o candidate books.
-2. Se evalua retorno, ECL proxy, cola, cobertura, source governance y auditabilidad.
+2. Se evalua retorno, cola, cobertura, source governance y auditabilidad; la
+   antigua capa IFRS9 se usa solo para auditar estimandos y datos faltantes.
 3. Se repite la comparacion como replay mensual con sample paths comunes cuando
    la policy lo permite.
 4. Se decide si el resultado es official evidence, serious challenger, lab-only,

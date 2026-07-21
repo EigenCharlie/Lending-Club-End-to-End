@@ -12,6 +12,31 @@ from scripts import run_fairness_audit as fairness_mod
 from scripts import search_monotonic_competitor as search_mod
 
 
+def test_fit_venn_abers_calibrator_honors_versioned_point_rule() -> None:
+    scores = np.linspace(0.02, 0.98, 200)
+    y_true = (scores > 0.55).astype(int)
+    evaluation_scores = np.linspace(0.05, 0.95, 31)
+
+    legacy = search_mod._fit_calibrator(
+        "venn_abers",
+        y_true,
+        scores,
+        point_rule=search_mod.VennAbersScoreCalibrator.LEGACY_POINT_RULE,
+    )
+    minimax = search_mod._fit_calibrator(
+        "venn_abers",
+        y_true,
+        scores,
+        point_rule=search_mod.VennAbersScoreCalibrator.LOG_LOSS_POINT_RULE,
+    )
+    legacy_point, p0, p1 = legacy.predict_with_bounds(evaluation_scores)
+    minimax_point, q0, q1 = minimax.predict_with_bounds(evaluation_scores)
+
+    np.testing.assert_allclose(legacy_point, (p0 + p1) / 2.0)
+    np.testing.assert_allclose(minimax_point, q1 / (1.0 - q0 + q1))
+    assert not np.allclose(legacy_point, minimax_point)
+
+
 def test_prepare_official_fairness_context_matches_audit_semantics(tmp_path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
     (tmp_path / "configs").mkdir()

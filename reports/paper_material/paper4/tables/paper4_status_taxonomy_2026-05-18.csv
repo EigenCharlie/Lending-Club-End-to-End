@@ -1,15 +1,19 @@
 status,meaning,promotion_rule
-official,Stable claim supported by retained artifacts and guardrails,Can appear in Paper 4 body or Paper Estrella if it supports the central claim
+official,Stable Paper 4 claim supported by retained artifacts and guardrails,Can appear in the Paper 4 body within its stated scope
+external_contract,Versioned description of an autonomous external research surface,Context only; cannot be extended by Paper 4 artifacts
+descriptive_artifact,Reproducibility or execution fact without inferential content,Report as provenance or implementation scale only
 official_with_caveat,Stable evidence with a stated limitation,Can appear as limitation or appendix
 official_with_boundary,Stable evidence whose boundary is part of the claim,Can appear only with the boundary sentence
 official_with_boundaries,Multi-lane synthesis with explicit append/park decisions,Use as appendix governance evidence
 bounded_experiment,Useful diagnostic under a constrained protocol,Appendix only unless a future gate changes the claim
+diagnostic_negative_audit,Evidence that a target data unit or protocol does not identify the proposed estimand,Failure analysis only; never promote as a positive prudential causal threshold or monetary result
 append,Useful supporting evidence,Appendix or supplemental material
 append_strong,Useful supporting evidence with clear quantitative impact,Appendix or short body mention if directly relevant
 proxy_only,Governance or source proxy evidence only,No legal or protected-attribute claim
-diagnostic_only,Observational or sensitivity evidence only,No causal or policy-value claim
+diagnostic_only,Observational simulation or sensitivity evidence only,No causal policy-value deployment or external-performance claim
 rollout_only,Representative dynamic replay or rollout evidence,No Bellman optimality or production simulator claim
 isolated_prototype,Prototype or dependency probe outside the main pipeline,Do not integrate into core paper claims
 park,Promising but not claim-safe,Keep in lab or future work
 context,Useful framing only,Cite or mention only if it improves reader understanding
 supersede_near_term,Absorbed by a broader paper route,Do not pursue as separate near-term paper
+parked_non_citable,Historical artifact retained only for provenance,Do not cite numerical outputs or reactivate claims without a new prespecified protocol

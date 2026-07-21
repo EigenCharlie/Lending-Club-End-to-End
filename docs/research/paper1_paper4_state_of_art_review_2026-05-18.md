@@ -1,5 +1,11 @@
 # Paper Estrella and Paper 4 State-of-the-Art Review - 2026-05-18
 
+> **SUPERSEDED FOR CLAIMS (2026-07-20).** This literature memo predates the
+> CRPTO identification pivot. References may still be useful, but its champion,
+> Paper 2 absorption, conformal-ECL and SICR recommendations are not current
+> evidence or editorial authorization. See the July cross-project audit and
+> surface-specific contracts.
+
 ## Purpose
 
 This memo consolidates a deeper literature pass for the official Paper Estrella

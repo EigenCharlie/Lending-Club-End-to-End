@@ -55,6 +55,8 @@ page,rendered_in_quarto,role,target_surface,archive_reason,path,path_exists
 19bz-v37-cate-fairness-protocol.qmd,False,historical_archive,living_lab_notebook_reference,"implementation wave, roadmap, blocker, or intermediate result moved out of main render",book/chapters/19-paper-mega-extension/19bz-v37-cate-fairness-protocol.qmd,True
 19c-integrated-architecture.qmd,True,official_curated,quarto_official_chapter,,book/chapters/19-paper-mega-extension/19c-integrated-architecture.qmd,True
 19ca-v38-final-synthesis.qmd,True,official_curated,quarto_official_chapter,,book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd,True
+19cb-v38-appendix-registers.qmd,True,official_appendix,quarto_official_chapter,,book/chapters/19-paper-mega-extension/19cb-v38-appendix-registers.qmd,True
+19cc-v39-pyepo-real-suite.qmd,True,official_appendix,quarto_official_chapter,,book/chapters/19-paper-mega-extension/19cc-v39-pyepo-real-suite.qmd,True
 19d-implementation-roadmap.qmd,False,historical_archive,living_lab_notebook_reference,"implementation wave, roadmap, blocker, or intermediate result moved out of main render",book/chapters/19-paper-mega-extension/19d-implementation-roadmap.qmd,True
 19e-insights-factory-integration.qmd,False,historical_archive,living_lab_notebook_reference,"implementation wave, roadmap, blocker, or intermediate result moved out of main render",book/chapters/19-paper-mega-extension/19e-insights-factory-integration.qmd,True
 19f-sequential-decision-framework.qmd,True,official_curated,quarto_official_chapter,,book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd,True

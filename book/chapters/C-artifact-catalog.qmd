@@ -6,12 +6,20 @@ listing:
   contents: ../listing-data/artifacts.yml
   type: table
   fields: [title, path, producer, consumer, role]
+  field-links: []
   sort: "title"
   sort-ui: false
   filter-ui: false
 ---
 
-Este catálogo no pretende listar cada archivo generado en el proyecto. Su función editorial es más precisa: **registrar los artefactos canónicos que sostienen claims del libro, del companion y de los papers**.
+{{< include ../includes/_scientific-scope-contract.qmd >}}
+
+Este catálogo no pretende listar cada archivo generado en el proyecto. Su
+función es registrar artefactos **históricos locales**, productores y
+consumidores. Un nombre runtime como `champion`, `canonical` o `selected` no
+promueve un claim científico ni gobierna el repositorio CRPTO externo.
+Las rutas son relativas a la raíz del repositorio y se muestran como
+identificadores de procedencia, no como enlaces de descarga del sitio.
 
 ## Catálogo mínimo de artefactos críticos
 
@@ -31,19 +39,19 @@ Cuando esa cadena se rompe, el proyecto pierde defendibilidad. Por eso este cat�
 
 ## Artefactos adicionales frecuentemente consultados
 
-| Artefacto | Path | Uso principal |
+| Artefacto | Referencia | Uso principal |
 |---|---|---|
-| Contrato del modelo PD | `models/pd_model_contract.json` | Features canónicas, tipos, thresholds |
-| Modelo champion | `models/pd_canonical.cbm` | CatBoost entrenado y congelado |
-| Calibrador seleccionado | `models/pd_canonical_calibrator.pkl` | Platt/Isotonic/Venn-Abers promovido |
-| Intervalos conformales | `data/processed/conformal_intervals_mondrian.parquet` | $[PD_{low}, PD_{high}]$ por préstamo |
+| Contrato del freeze PD | `models/pd_model_contract.json` | Features, tipos y thresholds históricos |
+| Modelo etiquetado `champion` | `models/pd_canonical.cbm` | CatBoost local entrenado y congelado |
+| Calibrador del freeze | `models/pd_canonical_calibrator.pkl` | Método elegido en el rerun local |
+| Endpoints conformales | `data/processed/conformal_intervals_mondrian.parquet` | Columnas legacy $[PD_{low}, PD_{high}]$ que forman intervalos predictivos de $Y$ |
 | Backtesting mensual | `data/processed/conformal_backtest_monthly.parquet` | Cobertura temporal y alertas |
-| Grid SICR conformal | `data/processed/sicr_conformal_grid.parquet` | Búsqueda de $t^*$ óptimo |
+| Grid proxy denominado SICR | `data/processed/sicr_conformal_grid.parquet` | Búsqueda retrospectiva de $t^*$; no staging validado |
 | Comparación BMA vs CP | `data/processed/bma_comparison.parquet` | Ancho, cobertura y min-grade |
-| Portafolio champion | `data/processed/portfolio_allocations.parquet` | Asignación robusta final |
-| Frontera de robustez | `data/processed/portfolio_robustness_frontier.parquet` | Pareto riesgo-retorno-robustez |
+| Portafolio etiquetado `champion` | `data/processed/portfolio_allocations.parquet` | Asignación histórica; no policy final |
+| Grid de robustez | `data/processed/portfolio_robustness_frontier.parquet` | Grid histórico score--endpoint--retorno; no se demostró no-dominancia |
 | Resumen del pipeline | `data/processed/pipeline_summary.json` | KPIs cross-módulo |
 | Training record PD | `models/pd_training_record.pkl` | Historial completo de entrenamiento |
-| Registro MRM | `reports/mrm/mrm_validation_report.json` | Reporte SR 11-7 consolidado |
+| Registro de checks MRM | `reports/mrm/mrm_validation_report.json` | Automatización local; no validación independiente SR 11-7 |
 
-: Artefactos canónicos adicionales del pipeline {#tbl-additional-artifacts}
+: Artefactos adicionales del freeze local {#tbl-additional-artifacts}

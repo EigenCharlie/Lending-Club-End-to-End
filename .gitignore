@@ -134,6 +134,7 @@ models/champion_portfolio_policy_candidate_*.json
 # Quarto rendered output (disposable; _freeze/ is committed for reproducibility)
 book/_output/
 book/_output-core/
+book/site_libs/
 
 # Large editorial diagram PNGs (>1MB, exceed pre-commit maxkb guard)
 book/assets/figures/editorial/diagrama-paper-*.png

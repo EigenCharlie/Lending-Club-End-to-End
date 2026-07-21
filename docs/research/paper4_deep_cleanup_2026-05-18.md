@@ -1,5 +1,10 @@
 # Paper 4 Deep Cleanup Memo - 2026-05-18
 
+> **Historical cleanup snapshot — superseded for claims.** This memo documents
+> file retention at the May cutoff. Paper 4 is not promoted, the external CRPTO
+> dossier is autonomous, and no retained export/provenance artifact defines its
+> claims or champion. See `SESSION_STATE.md` and the current contracts.
+
 ## Decision
 
 Claude's minimum cleanup recommendation was directionally right but too
@@ -47,10 +52,10 @@ It records 3,534 deleted paths:
 
 ## Current Boundary
 
-Paper 4 remains a living lab and evidence archive. Paper Estrella remains the
-official publication/champion surface. No Paper 4 artifact in this cleanup
-promotes a new champion, reopens the final promotion protocol, or creates
-`paper4_final_promotion.json`.
+Paper 4 remains a living lab and evidence archive. The May phrase “Paper
+Estrella official publication/champion” is retired; neither this cleanup nor
+any retained artifact governs the autonomous CRPTO dossier, promotes a
+champion or reopens `paper4_final_promotion.json`.
 
 ## Validation
 

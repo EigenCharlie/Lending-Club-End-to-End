@@ -1,5 +1,10 @@
 # Lab 4 Literature-Driven Experiment Plan - 2026-05-18
 
+> **HISTORICAL PLAN (2026-07-20 boundary).** The experiments below are Paper 4
+> living-lab provenance. They cannot promote CRPTO, resurrect Paper 2
+> ECL/SICR claims or establish a policy without a new estimand-specific
+> protocol and untouched evaluation.
+
 ## Purpose
 
 This plan converts the newly reviewed papers into bounded Lab 4 experiments for

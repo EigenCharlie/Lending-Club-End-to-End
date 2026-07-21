@@ -1,19 +1,23 @@
 ---
-title: "Paper 4 v39: Formal PyEPO DFL Suite"
+title: "Paper 4 v39: Exploratory PyEPO Teacher-Cost Benchmark"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Rol academico
 
-La v39 convierte la antigua lane de "oracle-regret only" en una suite real de
-decision-focused learning con PyEPO 1.3.7. La corrida final entrena modelos
-diferenciables contra la decision de portafolio para SPO+, RFYL, PFYL-Mul,
-pairwise LTR y CaVE. CRPTO se mantiene como comparador no entrenado, auditable
-y conservador.
+La v39 demuestra que PyEPO 1.3.7 puede ejecutar SPO+, RFYL, PFYL-Mul, pairwise
+LTR y CaVE sobre una decision top-k. El costo usado como target y evaluacion es
+`calibrated_pd * LGD - int_rate`, donde `calibrated_pd` es el nombre legacy de
+un score calibrado de clase 1, no una PD identificada. Por tanto, es un
+**teacher cost**, no una perdida economica realizada.
 
-La regla editorial se mantiene: CRPTO/Paper_CRPTO usa PyEPO solo para reproducir
-el anexo SPO+ y sostener la frase "SPO+ gana regret; CRPTO gana
-garantia/auditabilidad". Paper 4 absorbe el laboratorio completo.
+La suite es un benchmark exploratorio de Paper 4. Los menus son muestreados y
+se solapan, el baseline two-stage es Ridge mientras los learners DFL son MLP, y
+los probes se ejecutaron despues de observar la corrida principal. No se usa
+como evidencia inferencial, selected-set coverage o resultado del CRPTO IJDS
+activo.
 
 ```{python}
 #| label: p4-pyepo-setup
@@ -35,8 +39,10 @@ root = next(
 tables_dir = root / "reports/paper_material/paper4/tables"
 
 ledger = pd.read_csv(tables_dir / "pyepo_real_suite_execution_ledger_20260528.csv")
-full = pd.read_csv(tables_dir / "pyepo_real_suite_summary_full_20260528.csv")
-temporal = pd.read_csv(tables_dir / "pyepo_real_suite_summary_temporal_20260528.csv")
+full = pd.read_csv(tables_dir / "pyepo_real_suite_summary_descriptive_20260528.csv")
+temporal = pd.read_csv(
+    tables_dir / "pyepo_real_suite_summary_temporal_descriptive_20260528.csv"
+)
 period = pd.read_csv(tables_dir / "pyepo_real_suite_temporal_by_period_20260528.csv")
 coverage = pd.read_csv(tables_dir / "pyepo_real_suite_temporal_coverage_20260528.csv")
 coverage_grade = pd.read_csv(
@@ -54,16 +60,19 @@ display_cols = [
     "std_regret",
     "median_regret",
     "improvement_vs_two_stage_pct",
-    "n_observations",
+    "n_menu_seed_rows",
 ]
 
 def pretty_summary(df):
     out = df[display_cols].copy()
+    out["method_display"] = out["method_display"].replace(
+        {"CRPTO robust": "Legacy conformal upper-score comparator"}
+    )
     out["mean_regret"] = out["mean_regret"].map(lambda x: f"{x:.6f}")
     out["std_regret"] = out["std_regret"].map(lambda x: f"{x:.6f}")
     out["median_regret"] = out["median_regret"].map(lambda x: f"{x:.6f}")
     out["improvement_vs_two_stage_pct"] = out["improvement_vs_two_stage_pct"].map(lambda x: f"{x:.2f}%")
-    out["n_observations"] = out["n_observations"].map(lambda x: f"{int(x):,}")
+    out["n_menu_seed_rows"] = out["n_menu_seed_rows"].map(lambda x: f"{int(x):,}")
     return out.rename(
         columns={
             "method_display": "Metodo",
@@ -71,7 +80,7 @@ def pretty_summary(df):
             "std_regret": "Std",
             "median_regret": "Mediana",
             "improvement_vs_two_stage_pct": "Mejora vs two-stage",
-            "n_observations": "Obs.",
+            "n_menu_seed_rows": "Filas menu-semilla",
         }
     )
 
@@ -96,14 +105,14 @@ academico y `torch-num-threads=4`. La combinacion PyEPO/Gurobi quedo asi:
 PyEPO define las perdidas y el entrenamiento; Gurobi entrega la rama binaria de
 CaVE; y el resto de losses usa un oracle top-k exacto porque la restriccion del
 problema es seleccionar exactamente `budget` loans [@pyepo2026; @gurobi2026].
-La rama CaVE se reporta como metodo de Paper 4, no como comparador principal de
-CRPTO/Paper_CRPTO [@tang2024cave].
+La rama CaVE se reporta como metodo de este benchmark exploratorio
+[@tang2024cave].
 
 ```{python}
 #| label: tbl-p4-pyepo-execution-ledger
 #| tbl-cap: "Ledger de ejecucion PyEPO 1.3.7 con Gurobi WLS"
 
-ledger_display = ledger[
+ledger_display = ledger.loc[ledger["run"].ne("paper_estrella_paired"),
     [
         "run",
         "mode",
@@ -111,8 +120,6 @@ ledger_display = ledger[
         "best_method",
         "best_mean_regret",
         "spo_plus_improvement_vs_two_stage_pct",
-        "smoke_gate_passed",
-        "artifact_dir",
     ]
 ].copy()
 ledger_display["runtime_seconds"] = ledger_display["runtime_seconds"].map(lambda x: f"{x:.1f}")
@@ -120,7 +127,16 @@ ledger_display["best_mean_regret"] = ledger_display["best_mean_regret"].map(lamb
 ledger_display["spo_plus_improvement_vs_two_stage_pct"] = ledger_display[
     "spo_plus_improvement_vs_two_stage_pct"
 ].map(lambda x: f"{x:.2f}%")
-ledger_display
+ledger_display.rename(
+    columns={
+        "run": "Run",
+        "mode": "Modo",
+        "runtime_seconds": "Runtime (s)",
+        "best_method": "Mejor metodo",
+        "best_mean_regret": "Teacher-regret",
+        "spo_plus_improvement_vs_two_stage_pct": "Mejora vs TS",
+    }
+)
 ```
 
 ::: {.callout-note}
@@ -138,7 +154,10 @@ fallbacks y todos los checks de regret no negativo pasaron.
 
 La corrida completa usa 15 features numericas, `n_items=100`, `budget=30`,
 2,000 instancias de entrenamiento, 500 instancias de test, 75 epochs y 10
-semillas. Este es el resultado central de Paper 4 para comparar losses PyEPO.
+semillas. Compara teacher-regret de losses PyEPO bajo ese diseno fijo; no compara
+retorno o perdida observada. La vista activa elimina el Wilcoxon por
+pseudo-observacion y el score manual de auditabilidad; declara
+`inferential_valid=False` porque los menus y loans se solapan.
 
 ```{python}
 #| label: tbl-p4-pyepo-full-summary
@@ -147,22 +166,23 @@ semillas. Este es el resultado central de Paper 4 para comparar losses PyEPO.
 pretty_summary(full)
 ```
 
-![Regret medio por metodo en la suite Paper 4 full.](../../assets/figures/publication/pyepo_real_suite_full_regret.png){#fig-p4-pyepo-full-regret fig-alt="Grafico de barras con regret medio por metodo para la corrida Paper 4 full de PyEPO 1.3.7."}
+El PNG legacy se conserva fuera de la superficie activa porque dice “decision
+regret” y “CRPTO robust” sin declarar teacher-cost, solapamiento ni comparador
+legacy. La tabla anterior usa las etiquetas y unidades defendibles.
 
-La frontera baja de regret queda formada por SPO+, RFYL y CaVE. SPO+ obtiene el
-mejor regret medio (`0.122379`) y reduce el regret frente a two-stage en
-`57.66%`. RFYL (`0.125405`) y CaVE (`0.128109`) quedan muy cerca, lo que
-convierte a CaVE en una comparacion formal relevante ahora que Gurobi esta
-disponible. LTR queda como benchmark intermedio y PFYL-Mul es un resultado
-negativo bajo la formulacion positiva desplazada.
+Descriptivamente, SPO+ obtiene teacher-regret medio `0.122379`, frente a
+`0.289031` para Ridge two-stage; la diferencia relativa registrada es `57.66%`.
+RFYL (`0.125405`) y CaVE (`0.128109`) quedan cerca. La comparacion no atribuye
+la diferencia a la loss DFL porque baseline y learners no comparten clase de
+modelo, tuning ni protocolo de validacion.
 
 ## Follow-ups de cierre
 
-Despues de la suite principal se ejecutaron tres cierres metodologicos sin tocar
-DVC: una ablation PFYL-Mul con costo `risk_only = calibrated_pd * LGD`, una
-sensibilidad CaVE sobre `max_iter`, y dos probes medianos de SPO+. Estos runs no
-reemplazan el full canonico; cierran explicaciones alternativas y robustecen la
-narrativa de Paper 4.
+Despues de la suite principal se ejecutaron tres probes post-hoc sin tocar DVC:
+una ablation PFYL-Mul con costo
+`risk_only = calibrated_pd * LGD` ---score teacher legacy, no PD---, una
+sensibilidad CaVE sobre `max_iter`, y dos probes medianos de SPO+. Sirven como
+sensibilidad exploratoria, no como confirmacion independiente.
 
 ```{python}
 #| label: tbl-p4-pyepo-pfyl-ablation
@@ -196,7 +216,7 @@ pretty_followup(
 )
 ```
 
-El resultado es un negativo fuerte: quitar el termino de retorno mejora PFYL-Mul
+El resultado descriptivo es negativo: quitar el termino de retorno mejora PFYL-Mul
 de `0.729797` a `0.481047`, pero sigue muy lejos del two-stage risk-only y no
 queda cerca de SPO+/RFYL/CaVE. Por tanto, Paper 4 debe narrarlo como una loss no
 alineada para esta decision top-k, no como un metodo competitivo.
@@ -231,11 +251,11 @@ pretty_followup(
 )
 ```
 
-CaVE `max_iter=1` replica practicamente al canonico `max_iter=3` en escala full
+CaVE `max_iter=1` queda cerca del canonico `max_iter=3` en escala full
 (`0.127453` vs `0.128109`) y corre en bastante menos tiempo cuando se aisla como
 unico metodo. El probe `max_iter=5` no mejora la decision en escala mediana
-(`0.155371`), aunque la loss interna baje mucho; mas iteraciones no son una
-garantia de menor regret.
+(`0.155371`), aunque la loss interna baje mucho. La comparacion es post-hoc y no
+establece una relacion general entre iteraciones y teacher-regret.
 
 ```{python}
 #| label: tbl-p4-pyepo-spoplus-robustness
@@ -267,32 +287,36 @@ pretty_followup(
 )
 ```
 
-SPO+ conserva mejora alta en los probes medianos: `55.70%` con learning rate
-`5e-4` y `57.19%` en top-k50. Esto no prueba optimalidad universal, pero si
-reduce el riesgo de que el resultado central dependa de una unica escala o de un
-unico learning rate.
+SPO+ conserva diferencias descriptivas altas frente a Ridge en los probes
+medianos: `55.70%` con learning rate `5e-4` y `57.19%` en top-k50. Al ser probes
+post-hoc, no constituyen una prueba confirmatoria de estabilidad.
 
-## Temporal OOT
+## Slices temporales retrospectivos
 
 La corrida temporal usa `n_items=50`, `budget=15`, 1,600 instancias de
-entrenamiento, 80 instancias por periodo y 10 semillas. Su rol no es reemplazar
-el full, sino medir estabilidad fuera de tiempo y conectar regret con cobertura
-conformal.
+entrenamiento, 80 instancias muestreadas por periodo y 10 semillas. Los menus se
+construyen aleatoriamente dentro de cada bloque y pueden compartir loans entre
+instancias y semillas. Por ello son slices temporales retrospectivos, no
+unidades de decision independientes ni validacion OOT de una policy.
 
 ```{python}
 #| label: tbl-p4-pyepo-temporal-summary
-#| tbl-cap: "Temporal OOT: regret agregado por metodo"
+#| tbl-cap: "Slices temporales: teacher-regret agregado por metodo"
 
 pretty_summary(temporal)
 ```
 
 ```{python}
 #| label: tbl-p4-pyepo-temporal-period
-#| tbl-cap: "Temporal OOT: regret medio por periodo"
+#| tbl-cap: "Slices temporales: teacher-regret medio por periodo"
 
 period_order = ["2018H1", "2018H2", "2019H1", "2019H2", "2020"]
 period_display = (
-    period.pivot_table(index="period", columns="method_display", values="mean_regret")
+    period.assign(
+        method_display=period["method_display"].replace(
+            {"CRPTO robust": "Legacy conformal upper-score comparator"}
+        )
+    ).pivot_table(index="period", columns="method_display", values="mean_regret")
     .reindex(period_order)
     .reset_index()
 )
@@ -302,25 +326,28 @@ for col in period_display.columns:
 period_display
 ```
 
-![Estabilidad temporal OOT de la suite PyEPO.](../../assets/figures/publication/pyepo_real_suite_temporal_stability.png){#fig-p4-pyepo-temporal-stability fig-alt="Lineas de regret medio por periodo para SPO+, RFYL, PFYL-Mul, LTR, CaVE, two-stage y CRPTO robust."}
+El PNG legacy se conserva como procedencia y se omite porque su título “Temporal
+OOT Stability / Decision Regret” no declara que son slices retrospectivos y
+teacher-regret del simulador. La tabla ejecutada anterior contiene los valores.
 
-El stress OOT principal es 2020. Two-stage sube de un regret medio de
+En el slice 2020, Ridge two-stage sube de un teacher-regret medio de
 aproximadamente `0.138` en 2018H1 a `0.211` en 2020. SPO+ mantiene una banda
 muy estable (`0.060` a `0.064`) y por eso alcanza `61.07%` de mejora agregada
-frente a two-stage en la corrida temporal. RFYL y CaVE siguen siendo fuertes,
-pero degradan mas claramente en 2020.
+frente a Ridge en estos menus muestreados. Esto es descripcion del benchmark,
+no evidencia inferencial de estabilidad temporal o performance realizada.
 
-## Cobertura y auditabilidad
+## Diagnostico de cobertura legacy separado
 
-CRPTO no compite por menor regret puro. Su papel es mostrar la contraparte
-auditable: cobertura conformal y decisiones conservadoras. La misma corrida
-temporal registra cobertura 90% por periodo entre `92.41%` y `99.25%`, cobertura
-95% entre `95.67%` y `99.70%`, y minima cobertura por grade entre `81.25%` y
-`98.87%`.
+El runner tambien leyó intervalos conformales legacy del panel candidato local
+de `276,869` filas. Registra cobertura 90% por periodo entre `92.41%` y
+`99.25%`, cobertura 95% entre `95.67%` y `99.70%`, y minima cobertura agregada
+por grade entre `81.25%` y `98.87%`. Es cobertura candidata del artefacto legacy:
+no es cobertura de loans seleccionados por PyEPO, funded-set validity, certificado
+individual ni evidencia sobre el CRPTO IJDS activo.
 
 ```{python}
 #| label: tbl-p4-pyepo-coverage-periods
-#| tbl-cap: "Cobertura conformal registrada por la corrida temporal PyEPO"
+#| tbl-cap: "Cobertura candidata del artefacto conformal legacy por periodo"
 
 coverage_display = coverage.copy()
 coverage_display["default_rate"] = coverage_display["default_rate"].map(lambda x: f"{100 * x:.2f}%")
@@ -343,9 +370,9 @@ coverage_display.rename(
 )
 ```
 
-Esta lectura no contradice el ranking de regret. Dice algo distinto y util:
-SPO+ y los losses PyEPO son la evidencia de rendimiento decisional; CRPTO es la
-evidencia de control, cobertura y auditabilidad.
+Las tablas de cobertura y teacher-regret responden preguntas distintas y no se
+combinan en una frontera de performance/auditabilidad. El benchmark no calcula
+cobertura sobre sus portfolios seleccionados.
 
 ```{python}
 #| label: tbl-p4-pyepo-coverage-grade-tail
@@ -369,37 +396,40 @@ grade_tail.rename(
 )
 ```
 
-## Uso en los papers
+## Uso permitido
 
-Para **CRPTO/Paper_CRPTO**, usar solo el paired run:
-`crpto_external_pyepo137_wls_topk_paired_20260528`. El numero actualizado es
-`48.51%` de mejora de SPO+ frente a two-stage, con Wilcoxon pareado
-`p = 3.80e-163` sobre 1,000 observaciones.
+El paired run historicamente etiquetado `crpto_external` queda como procedencia
+local y no se transfiere al CRPTO IJDS activo. Su Wilcoxon por instancia no se
+reporta: los menus y loans se solapan, de modo que las observaciones no son
+unidades inferenciales independientes.
 
-Para **Paper 4**, usar el full y el temporal:
+Para **Paper 4**, se conservan el full y los slices temporales:
 
-- Full: `paper4_pyepo137_wls_topk_full_20260528`, 5,000 observaciones por
-  metodo.
-- Temporal: `paper4_pyepo137_wls_topk_temporal_20260528`, 4,000 observaciones
-  por metodo y cinco periodos OOT.
+- Full: `paper4_pyepo137_wls_topk_full_20260528`, 5,000 filas menu-semilla por
+  metodo; no son unidades inferenciales independientes.
+- Temporal: `paper4_pyepo137_wls_topk_temporal_20260528`, 4,000 filas de
+  benchmark por metodo y cinco slices retrospectivos.
 
-La frase metodologica recomendada es: "PyEPO 1.3.7 habilita una suite formal de
-DFL sobre la decision top-k de portafolio; Gurobi 13 habilita CaVE mediante
-restricciones binarias, y CRPTO permanece como comparador robusto auditable, no
-como learner de regret."
+La frase metodologica recomendada es: "PyEPO 1.3.7 habilita un benchmark
+exploratorio de teacher-regret sobre decisiones top-k; no evalua perdida
+realizada, no aisla el efecto de la loss frente a la clase de modelo y no
+constituye evidencia de una policy CRPTO."
 
 ## Reproducibilidad
 
 ```bash
 source scripts/setup_gurobi_env.sh
 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 \
-uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paired --torch-num-threads 4
+uv run --extra spo python scripts/run_pyepo_real_suite.py \
+  --mode paired --torch-num-threads 4
 
 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 \
-uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paper4_full --torch-num-threads 4
+uv run --extra spo python scripts/run_pyepo_real_suite.py \
+  --mode paper4_full --torch-num-threads 4
 
 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 \
-uv run --extra spo python scripts/run_pyepo_real_suite.py --mode temporal --torch-num-threads 4
+uv run --extra spo python scripts/run_pyepo_real_suite.py \
+  --mode temporal --torch-num-threads 4
 
 uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paper4_full \
   --cost-target risk_only --methods pfyl_mul --torch-num-threads 4
@@ -412,14 +442,19 @@ uv run python scripts/summarize_pyepo_followups.py
 
 Artefactos congelados:
 
-- `reports/paper_material/crpto_external/pyepo/crpto_external_pyepo137_wls_topk_paired_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_full_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_temporal_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_pfyl_risk_only_full_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter1_full_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter5_medium_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_lr5e4_medium_20260528/`
-- `reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_topk50_medium_20260528/`
-- `reports/paper_material/paper4/tables/pyepo_real_suite_execution_ledger_20260528.csv`
-- `reports/paper_material/paper4/tables/pyepo_real_suite_followup_summary_20260528.csv`
-- `reports/paper_material/paper4/tables/pyepo_real_suite_temporal_coverage_by_period_grade_20260528.csv`
+- [vista descriptiva activa](../../../reports/paper_material/paper4/tables/pyepo_real_suite_summary_descriptive_20260528.csv),
+  sin p-values ni score manual;
+- [vista temporal activa](../../../reports/paper_material/paper4/tables/pyepo_real_suite_summary_temporal_descriptive_20260528.csv),
+  con `inferential_valid=False`;
+- [paired run legacy](../../../reports/paper_material/paper_estrella/pyepo/paper_estrella_pyepo137_wls_topk_paired_20260528/),
+  sin uso en el CRPTO activo;
+- estados de ejecución: [full top-k](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_full_20260528/),
+  [temporal top-k](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_temporal_20260528/),
+  [PFYL risk-only](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_pfyl_risk_only_full_20260528/),
+  [CAVE iteración 1](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter1_full_20260528/),
+  [CAVE iteración 5](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter5_medium_20260528/),
+  [SPO+ lr5e4](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_lr5e4_medium_20260528/)
+  y [SPO+ top-k 50](../../../reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_topk50_medium_20260528/);
+- registros: [ledger de ejecución](../../../reports/paper_material/paper4/tables/pyepo_real_suite_execution_ledger_20260528.csv),
+  [resumen de follow-ups](../../../reports/paper_material/paper4/tables/pyepo_real_suite_followup_summary_20260528.csv)
+  y [cobertura temporal](../../../reports/paper_material/paper4/tables/pyepo_real_suite_temporal_coverage_by_period_grade_20260528.csv).

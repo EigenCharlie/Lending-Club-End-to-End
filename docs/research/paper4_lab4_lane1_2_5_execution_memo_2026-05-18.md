@@ -1,5 +1,7 @@
 # Paper 4 Lab 4 Lanes 1, 2 and 5 Execution Memo - 2026-05-18
 
+> **HISTORICAL / SUPERSEDED — NO TRANSFER TO ACTIVE CRPTO (2026-07-20).** This memo preserves a past project decision or proposal. It does not govern the autonomous external CRPTO dossier, select a learner/comparator/policy, or reactivate Paper 2/Paper 4 claims. Current authority: `SESSION_STATE.md`, `docs/research/crpto_external_contract_2026-07-20.yml` and `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`.
+
 ## Scope
 
 This execution treats Lab 4 as the full living-lab surface of Paper 4: all retained

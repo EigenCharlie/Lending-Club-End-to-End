@@ -2,6 +2,12 @@
 
 Date: 2026-04-02
 
+> **HISTORICAL RESEARCH DECISION.** Runtime words such as `champion` and
+> `operational` below record the April freeze only. This vintage-level exercise
+> is not a prospective portfolio forecast, and its TS-to-ECL transformations are
+> mechanical diagnostics without IFRS 9 authority. See `SESSION_STATE.md` and
+> the Paper 2 claim contract for the current boundary.
+
 ## Purpose
 
 This document closes the `time_series_vnext` redesign lane as an executed research program. It records what was implemented, what was tested, what should remain in the project, and what should not be promoted yet.

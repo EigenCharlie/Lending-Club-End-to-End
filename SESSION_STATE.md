@@ -1,309 +1,215 @@
-# SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-05-04
+# SESSION STATE — Lending Club Risk Project
 
----
+Last updated: 2026-07-20
 
-## 1) Executive Status
+## 1. Executive status
 
-Project is operational and artifact-consistent across the thesis pipeline.
-Current truth is **`models/final_project_promotion.json` + `models/champion_portfolio_policy.json`**.
+There is no single artifact that is the scientific source of truth for every
+surface. The current authority depends on the question:
 
-### Paper 4 living-lab state (post Quarto restructure, v41-v44)
+| Surface | Current status | Authority |
+|---|---|---|
+| External CRPTO/IJDS | retrospective identification audit; no selected learner or policy | `docs/research/crpto_external_contract_2026-07-20.yml` |
+| Root runtime | reproducible historical pipeline freeze | runtime artifacts and `configs/baselines/canonical_operational_baseline.json` |
+| Paper 2 | `parked_ifrs9` diagnostic note | `reports/paper_material/paper2/paper2_claim_contract.yml` |
+| Paper 4 | 12-page living lab, no final promotion | current findings, boundaries and page registry under `reports/paper_material/paper4/tables/` |
+| Quarto book | historical/diagnostic synthesis governed by explicit scope boundaries | `book/_quarto.yml` and `book/includes/_scientific-scope-contract.qmd` |
 
-Paper 4 now uses a two-layer documentation contract:
+The former rule that `models/final_project_promotion.json` plus
+`models/champion_portfolio_policy.json` represented the whole project's current
+truth is retired. Those files remain runtime compatibility/provenance for the
+local April freeze; they do not define current CRPTO, Paper 2 or Paper 4 claims.
 
-- Official Quarto surface: compact 10-page chapter under `book/chapters/19-paper-mega-extension`.
-- Living-lab notebook: `reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`.
-- Current official findings: `reports/paper_material/paper4/tables/paper4_current_official_findings.csv`.
-- Current claim boundaries: `reports/paper_material/paper4/tables/paper4_current_claim_boundaries.csv`.
-- v41-v44 lab outputs: `reports/paper_material/paper4/status/paper4_v41_status.json` through `reports/paper_material/paper4/status/paper4_v44_status.json`.
-- v44 working/lab champion state: `reports/paper_material/paper4/status/paper4_v44_working_champion.json`.
+## 2. External CRPTO/IJDS contract
 
-v41-v44 remains lab-only: no Paper 4 final promotion JSON, no contractual IFRS9
-claim, no CATE policy-value claim, no fair-lending legal claim, no formal
-differentiable SPO+ claim, no exact full-universe CVaR claim, and no
-Bellman-exact DLA claim. Paper Estrella remains the near-term INFORMS Journal
-on Data Science target; Paper 4 remains a future Management Science candidate
-only if later dynamic sequential-decision results become strong enough.
+The autonomous `Paper_CRPTO` repository was observed on `main` at
+`69095e05beae282701b4ea38aa69da26a209106f`. The portable contract pins 13
+active/editorial surfaces by SHA-256.
 
-### Current closure (Paper Estrella, 2026-05-04)
+Current scientific boundary:
 
-The Paper Estrella closure is now anchored on the **bound-aware 276K economic champion**:
+- target: observed binary outcome $Y$;
+- role: retrospective identification audit;
+- no selected learner, residual window, taxonomy, gamma, ruler, coordinate,
+  cap, comparator or policy;
+- candidate coverage of $Y$ is not an interval for latent individual PD;
+- coverage does not transport automatically to ECL, SICR, expected loss or
+  selected-set validity;
+- local artifacts named `champion`, `pool93`, `compact-v7` or selected-policy
+  are historical provenance, not external-paper evidence.
 
-- Run tag canonical paper: `paper-thesis-final-economic-2026-04-06`
-- Promotion basis: `economic_champion_within_exact_robust_region`
-- Champion policy: `risk_tolerance=0.175`, `gamma=0.45`, `policy_mode=blended_uncertainty`, `uncertainty_aversion=0.10`
-- `theorem_tight_comparator` (gamma=0.55) and `balanced_comparator` (rt=0.17) remain as documented internal comparators, NOT as official champions
-- Robust region: 45/45 policies pass `alpha=0.01` exactly on full 276K OOT
-- Conformal winner: `score_decile_mondrian` (rank1 reopen), coverage 92.97%, Winkler 1.111
-- PD upstream: HPO local trial 56 (val_AUC 0.722, OOT AUC 0.7124, Brier 0.1546, ECE 0.0064, Venn-Abers calibrator)
-- Paper-facing tables regenerated via `scripts/export_paper1_canonical_tables.py` from canonical sources
-- P1 journal evidence now materialized in `models/paper1_p1_evidence_status.json` and tables `paper1_tableA3`--`paper1_tableA6` (post-selection progression, segment-period sensitivity, decision-aware conformal screen, synthetic shift)
+See `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md` for the
+commit-level evolution and transfer matrix.
 
-### Pipeline freeze policy (2026-05-04)
+## 3. Local runtime freeze — historical, still executable
 
-Non-search pipelines (`paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild`) now use `freeze_if_available` execution mode:
+The local pipeline deliberately retains its April artifacts and interface
+names so that old runs can be reproduced. Two identifiers remain important:
 
-- `core_portfolio` runs in ~1 min (LP + AB on frozen champion) instead of ~3 hours (tradeoff + selector + AB rebuild)
-- AB simulation uses `--policy_selector explicit_champion_only` to read directly from `models/champion_portfolio_policy.json`
-- Search-only pipelines (`search_portfolio`, `search_pd`) still do full search when invoked explicitly
-- See `configs/profiles/{paper1_e2e_default, core_canonical_cpu, canonical_operational, canonical_confirmatory_full, paper2_e2e_default}.yaml`
+- operational PD baseline:
+  `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`;
+- historical Paper Estrella freeze:
+  `paper-thesis-final-economic-2026-04-06`.
 
-### Repository hygiene
+The latter includes the legacy label
+`bound_aware_276k_economic_champion`. “Champion” here means *selected by that
+historical local procedure*, not current scientific winner or deployment
+recommendation.
 
-- Pipeline-first orchestration is the active execution contract.
-- Active/historical/research docs separated under `docs/`, `docs/history/`, `docs/research/`.
-- 716 tests passing, 0 failures, 2 skips (as of 2026-05-04).
-- All metadata run_tags fixed; conformal policy test fixed with methodological justification logic.
-- This file is only for current state. Historical logs in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.
+Baseline resolution remains governed by
+`configs/baselines/canonical_operational_baseline.json`. Threshold semantics
+remain separated:
 
-### Canonical baselines
+- **threshold interno**: PD search/screening threshold used inside the legacy
+  experimentation workflow;
+- **threshold operativo**: distinct local application threshold recorded in
+  `models/threshold_semantics.json`.
 
-- Official operational PD baseline: `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`.
-- Paper Estrella final closure: `paper-thesis-final-economic-2026-04-06`.
-- Source of truth for baseline resolution: `configs/baselines/canonical_operational_baseline.json`.
-- Threshold semantics in `models/threshold_semantics.json`: internal PD screening (0.05) vs operational approval (0.35).
-- Serving: Quarto-first with reduced local Streamlit companion (5 pages).
-- PD: LR baseline + CatBoost (tuned monotónico + Venn-Abers calibrator); auto-selection from 4 calibrators.
-- Notebooks 10-12 executed with outputs preserved (`include_notebooks=True`).
+Neither threshold is a current CRPTO policy and neither is an IFRS9/SICR rule.
 
----
-
-## 2) Serving Architecture Decision (Quarto-First)
-
-Given fixed historical data and showcase objective:
-
-1. Quarto is the primary delivery layer and official source of truth.
-2. Streamlit local is an optional companion lab with 5 pages.
-3. The public Streamlit showcase is a historical frozen snapshot.
-4. DuckDB is used for local analytical queries.
-5. dbt provides governance/lineage/tests over analytical assets.
-6. Feast is kept as a feature-store consistency layer for train/serve narrative.
-7. FastAPI and MCP remain optional support services.
-
-Design implication:
-- Priority is narrative quality, reproducibility, and auditability over online serving complexity; Streamlit only keeps interaction that is stronger in app form than in Quarto.
-
----
-
-## 3) Pipeline Connection Map
+### Runtime pipeline map
 
 ```text
-1. src/data/make_dataset.py              -> interim cleaned dataset
-2. src/data/prepare_dataset.py           -> OOT train/calibration/test splits
-3. src/data/build_datasets.py            -> loan_master, time_series, ead_dataset
-4. scripts/train_pd_model.py             -> LR baseline + CatBoost default/tuned + calibration selection + contract
-5. scripts/generate_conformal_intervals.py -> Mondrian conformal intervals
-6. scripts/backtest_conformal_coverage.py -> temporal monitoring
-7. scripts/validate_conformal_policy.py   -> formal policy gate (Kupiec, Christoffersen, Winkler)
-8. scripts/estimate_causal_effects.py     -> CATE estimation
-9. scripts/simulate_causal_policy.py      -> policy simulation
-10. scripts/validate_causal_policy.py     -> rule selection + bootstrap
-11. scripts/backtest_causal_policy_oot.py -> OOT policy backtest
-12. scripts/run_ifrs9_sensitivity.py      -> scenario + sensitivity ECL
-13. scripts/optimize_portfolio.py         -> LP/MILP allocation
-14. scripts/optimize_portfolio_tradeoff.py -> robustness frontier
-15. scripts/run_survival_analysis.py      -> Cox PH + RSF lifetime PD
-16. scripts/benchmark_conformal_variants.py -> variant comparison
-17. scripts/run_fairness_audit.py         -> demographic parity, EO gap, DIR
-18. scripts/optimize_cate_portfolio.py    -> CATE-adjusted portfolio comparison
-19. scripts/simulate_ab_test.py           -> robust vs non-robust A/B simulation
-20. scripts/generate_governance_status.py -> per-feature drift diagnostics
-21. scripts/generate_mrm_report.py        -> SR 11-7 consolidated report
-22. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
-23. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
-24. scripts/export_storytelling_snapshot.py -> storytelling JSON
-25. scripts/end_to_end_pipeline.py        -> orchestration (legacy, see run_smoke_pipeline.py)
-26. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
-27. scripts/run_insights_factory.py       -> complementary insight generation (canonical/research profiles)
-28. scripts/run_spo_comparison.py          -> SPO+ decision regret comparison (Paper Estrella)
-29. scripts/run_spo_real.py               -> SPO+ v2: point-wise MLP, calibrated PD, multi-seed (Paper Estrella)
-30. scripts/run_sicr_conformal.py         -> SICR width trigger + ECL alpha sensitivity (Paper 2)
+raw data
+  -> temporal splits and feature artifacts
+  -> local score/calibrator freeze
+  -> binary-outcome conformal endpoints
+  -> local stress/optimization utilities
+  -> diagnostic survival, causal, IFRS9 and governance modules
+  -> Quarto and optional Streamlit views
 ```
 
----
+This is an execution graph, not a chain of transported guarantees. Every arrow
+that changes target or decision requires its own estimand and validation.
 
-## 4) Current Runtime Snapshot
+### July calibration/conformal implementation audit
 
-Source artifacts:
-- `data/processed/model_comparison.json`
-- `models/conformal_policy_status.json`
-- `models/causal_policy_rule.json`
-- `data/processed/ifrs9_scenario_summary.parquet`
-- `data/processed/portfolio_robustness_summary.parquet`
-- `data/processed/pipeline_summary.json`
-- `models/fairness_audit_status.json`
-- `models/ab_simulation_status.json`
-- `models/cate_portfolio_status.json`
-- `models/governance_status.json`
-- `reports/mrm/mrm_validation_report.json`
+The frozen Venn--Abers pickle has no `point_rule` marker and therefore retains
+the historical midpoint summary. Replay manifests now freeze
+`selected_calibration_point_rule`; an older Venn--Abers manifest without that
+field resolves to `midpoint_legacy`. New search fits record
+`log_loss_minimax` and use $p_1/(1-p_0+p_1)$. The helper that once interpreted
+ordinary MAPIE class probabilities as Venn--Abers endpoints was removed. No
+frozen model, pickle, metric table or historical decision was rewritten.
 
-### 4.1 PD Model (OOT, calibrated final)
+This does not restore an active conformal theorem. The same calibration labels
+were used to fit the probability calibrator and to conformalize, and the OOT
+outcomes were later reused during comparisons and selection. Local coverage is
+therefore retrospective empirical coverage of binary $Y$, not an independent
+holdout result or a guarantee for latent PD. Exact impact and compatibility
+rules are recorded in the cross-project audit.
 
-- Best model: `CatBoost (tuned + calibrated)` with monotonic constraints `installment:1, annual_inc:-1, dti:1, loan_to_income:1`
-- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates)
-- Calibration selected: `Venn-Abers` (runtime auto-selection via temporal multi-metric policy)
-- AUC: `0.7124` (latest: `paper1-e2e-all-champions-2026-04-07` run)
-- Brier: `0.1546`
-- ECE: `0.0064`
-- KS: `0.3115`
-- Best historical PD-only: `pd-hpo-local-2026-04-03-1325` (AUC 0.7139, Brier 0.1544 — documented but not promoted as paper champion to avoid family-mixing)
-- Confirmatory run tag (operational/regulatory): `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`
-- Source of truth: `data/processed/pipeline_summary.json`, `reports/dvc/metrics_summary.json`
+### Runtime authorities
 
-### 4.2 Conformal (Mondrian — Reopen Rank1 Winner)
+Use these to reproduce local software behavior, not to override paper claim
+contracts:
 
-- Variant: `score_decile_mondrian` (winner from `conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612`)
-- Config: `partition=grade, prob_source=calibrated, n_bins=10, fallback=global_only, score_scale=bernoulli_sqrt, min_group_size=100, calibration_fraction=0.5`
-- Coverage 90%: `0.9293` (target 0.90)
-- Coverage 95%: `0.9663` (target 0.95)
-- Avg width 90%: `0.7642`
-- Min group coverage 90%: `0.9004`
-- Winkler 90: `1.1937` (raw pass, policy pass)
-- Policy checks: Kupiec/Christoffersen are diagnostic only (expected to fail on 276K OOT — statistical power artifact)
-- Methodological justification pass: `true` (paper-grade closure authoritative)
-- Source of truth: `models/conformal_policy_status.json`
+- `data/processed/model_comparison.json`;
+- `models/conformal_policy_status.json`;
+- `models/champion_registry.json`;
+- `models/champion_portfolio_policy.json`;
+- `models/threshold_semantics.json`;
+- `models/causal_effect_status.json` and `models/causal_policy_rule.json`;
+- `models/ifrs9_diagnostics_status.json`;
+- `models/fairness_audit_status.json`;
+- `reports/mrm/mrm_validation_report.json`;
+- `data/processed/pipeline_summary.json`.
 
-### 4.3 Causal Policy
-- Selected rule: `high_plus_medium_positive`
-- Selected action rate: `26.31%`
-- Selected total net value: `5.86M`
-- Selected bootstrap p05 net value: `5.82M`
+The automated MRM/fairness reports are internal diagnostics. They are not an
+independent model validation, accounting opinion, fair-lending determination or
+regulatory approval.
 
-### 4.4 IFRS9 Sensitivity
-- Baseline total ECL: `0.999B`
-- Conservative total ECL: `1.802B`
-- ECL range: `0.803B`
+## 4. Paper 2 — parked IFRS9-inspired audit
 
-### 4.5 Optimization Robustness — Bound-Aware 276K Closure
+Paper 2 no longer promotes its historical ECL, alpha-sweep, BMA or SICR
+numbers. The current contribution is diagnostic: it shows why a binary terminal
+outcome pipeline does not identify reporting-date PD, lifetime ECL or SICR.
 
-- **Champion run tag**: `paper-thesis-final-economic-2026-04-06`
-- **Champion label**: `bound_aware_276k_economic_champion`
-- **Realized total return**: `$170,464.54`
-- **Price of robustness**: `-$14,465.69` (-10.56%)
-- **Robust region cardinality**: 45 unique policies, 100% pass `alpha=0.01` exactly
-- **Region span**: `risk_tolerance ∈ [0.155, 0.175]`, `gamma ∈ [0.45, 0.55]`, `uncertainty_aversion ∈ [0.0, 0.1]`
-- **Bound-aware metrics** at champion: `V=0.03645`, `gamma_cp=0.18591`, `violation=0.0`
+The blockers are structural:
 
-### 4.5.1 Champion Portfolio Policy (Promoted 2026-04-06, restored 2026-05-04)
+- no loan–reporting-date panel;
+- no point-in-time DPD/cure/forbearance state;
+- no origination/current PD pair with the same horizon;
+- threshold design and evaluation used the same OOT evidence;
+- resolved-loan maturity selection;
+- inconsistent central ECL transformations;
+- no final untouched temporal test for the prudential rule.
 
-- Artifact: `models/champion_portfolio_policy.json` (mirror of `models/final_project_promotion.json::final_champion`)
-- `risk_tolerance`: `0.175`
-- `policy_mode`: `blended_uncertainty`
-- `gamma`: `0.45`
-- `uncertainty_aversion`: `0.10`
-- Selected by: bound-aware 276K full-OOT mini-grid + economic ranking inside the exact robust region
-- Comparators (documented, not champions):
-  - `theorem_tight_comparator`: `rt=0.175, gamma=0.55` — best `V`/`gamma_cp` tightness, return $166,270
-  - `balanced_comparator`: `rt=0.17, gamma=0.45` — middle of region, return $169,390
+Do not reestimate or promote those numbers with the present archive. Reopen
+only after satisfying every requirement in the Paper 2 claim contract.
 
-### 4.6 Fairness Audit
-- Overall pass: `true` (`6/6` attributes pass)
-- Threshold operativo oficial: `0.35`
-- Threshold interno PD search/screening: ver `models/threshold_semantics.json`
-- Fairness y decisión operativa deben leerse con el threshold oficial, no con el threshold interno PD.
+## 5. Paper 4 — bounded living lab
 
-### 4.7 A/B Simulation
-- Strategy A (non-robust): mean return `1.4753`
-- Strategy B (robust): mean return `1.5175`
-- Diff B-A: `0.0422` with CI `[-0.5790, 0.6600]`
-- No-regression gate: PASS
+The active Quarto surface has 12 pages. Its allowed interpretation is:
 
-### 4.8 SPO+ v2 (Paper Estrella)
-- Architecture: point-wise permutation-equivariant MLP (n_features=10 input, not flat 500-dim)
-- Costs: calibrated PD via Venn-Abers (continuous [-0.24, +0.17]), not binary default_flag
-- Multi-seed: 5 seeds × 200 test instances = 1,000 paired observations
-- Two-stage mean regret: `0.4259 ± 0.1173`
-- SPO+ mean regret: `0.2168 ± 0.0721` (**49.1% improvement**)
-- Conformal robust mean regret: `0.9474 ± 0.2007` (worst-case ≠ expected-cost opt)
-- Wilcoxon p-value: `0.0000` (H1: two-stage > SPO+)
-- Artifact: `models/spo_real_training_status.json` (SCHEMA_VERSION 2026-03-17.2)
+- F03: execution/provenance fact under one internal simulator;
+- F04: descriptive result conditional on 512 internally generated paths;
+- F05: post-selection slices, not strict holdouts;
+- F06/PyEPO: descriptive teacher-cost benchmark over overlapping menu/seed
+  rows; the active view removes the invalid row-level Wilcoxon and manual
+  auditability score;
+- F08/F13: negative estimand/readiness audits only; Paper 4 does not absorb
+  Paper 2's ECL, SICR, staging, threshold or monetary claims;
+- F14: legacy-root versus origin-time FICO proxy diagnostic only.
 
-### 4.9 SICR Conformal (Paper 2)
-- Optimal width threshold: `t* = 0.30` (F1=0.2515, precision=15.1%, recall of missed=75.8%)
-- ECL additional at t*: `$56.6M` (incremental Stage 2 provisioning)
-- Alpha sensitivity: ECL goes from `$54.6M` (alpha=0.20) to `$66.4M` (alpha=0.01) — +22% regulatory cost for 99% vs 90% confidence
-- Grid: 5 PD thresholds × 20 width thresholds = 100 rows
-- Alpha sweep: 8 Mondrian alpha levels from pareto
-- Artifacts: `models/sicr_conformal_status.json`, `data/processed/sicr_conformal_grid.parquet`, `data/processed/ecl_alpha_sensitivity.parquet`
+Paper 4 has no `paper4_final_promotion.json`. It does not establish independent
+instance-level inference, external forecast validity, selected-set conformal
+coverage, causal policy value, legal fairness, Bellman/DLA optimality or a
+current CRPTO result.
 
----
+Authorities:
 
-## 5) Delivery Layer Status (Current)
+- `reports/paper_material/paper4/tables/paper4_current_official_findings.csv`;
+- `reports/paper_material/paper4/tables/paper4_current_claim_boundaries.csv`;
+- `reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv`;
+- `reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`.
 
-### Streamlit
-- Historical note: page counts in this file are snapshots and may drift; use runtime exports and Streamlit utilities for live inventory.
-- Professional light theme with audience toggle (General/Negocio/Técnico).
-- Model laboratory and thesis pages consume runtime artifacts for metrics.
-- Includes A/B testing simulation, fairness audit, CATE portfolio, 3 paper draft pages, and Paper Estrella page.
+## 6. Delivery architecture
 
-### Insights Factory
-- Entrypoint: `scripts/run_insights_factory.py`
-- Two profiles: `canonical` (lightweight) and `research` (GPU + notebooks + SPO+).
-- Consumes canonical artifacts without modifying or promoting.
-- Canonical profile: conformal method registry, set prediction benchmark, rare-event calibration, paper notebooks, image extraction, storytelling snapshot.
-- Research profile adds: all notebooks, PD RAPIDS benchmark, RAPIDS insight factory (cuDF/cuML/cuGraph), SPO+ comparison.
+1. Quarto is the primary editorial surface for this repository's historical
+   pipeline and bounded research notes.
+2. The public Streamlit app is a historical showcase; the local app is an
+   optional companion lab.
+3. DuckDB/dbt/Feast, FastAPI and MCP are engineering layers, not evidence that
+   a model is production-validated.
+4. The external CRPTO paper remains autonomous and must not depend on this
+   repository.
 
-### FastAPI
-- Endpoints implemented in `api/`:
-  - `/health`, `/ready`
-  - `/api/v1/predict`, `/api/v1/conformal`, `/api/v1/ecl`
-  - `/api/v1/query`, `/api/v1/tables`, `/api/v1/summary/*`
+The obsolete secondary book entrypoints `_quarto-core.yml`, `index-core.qmd`
+and `scripts/serve_book_core.py` are retired. The sole book navigation authority
+is `book/_quarto.yml`. The tracked 322-page `book/_output_pdf` snapshot was also
+removed as a stale binary authority; current HTML/PDF outputs are disposable
+renders produced from the governed sources and freezes.
 
-### Docker
-- `docker-compose.yml` includes `api` and `streamlit`.
-- Streamlit can run standalone in thesis mode.
+## 7. Verification snapshot
 
-### dbt + Feast
-- dbt project configured in `dbt_project/`.
-- Feast repo configured in `feature_repo/`.
+The 2026-07-20 reconciliation closes with:
 
----
+- 826/826 pytest checks passing and 13 expected third-party warnings;
+- Ruff and formatting checks passing for all 16 changed Python files;
+- one 90-input Quarto book rendered jointly to HTML and a 402-page letter PDF;
+- 11,304 local HTML references checked with zero broken targets;
+- 62/62 dependency-summary rows reproduced exactly;
+- the required DVC cache synchronized remotely, while the four scientific
+  stages listed in the cross-project audit remain intentionally dirty rather
+  than silently refrozen;
+- final PDF visual verdict `APPROVE_RENDER` for SHA-256
+  `065d863e6aaa70290bf6a6fae9724edc2ce84383ce8ee07e72f0a070eaf9107a` after
+  rasterizing all 402 pages; no clipping, overflow, collisions or retired
+  legacy visuals were found.
 
-## 6) Environment Notes
+This snapshot verifies the bounded contracts and software surfaces. It is not
+new evidence for PD, ECL, SICR, causal policy value or deployment readiness.
 
-- Python: `3.12.12` (miniforge3)
-- Environment manager: `uv`
-- Local virtual environment: `.venv/` (uv-managed, backed by miniforge3 Python)
-- Optional platform tooling: `dbt` under `pyproject.toml` extra `platform`; `econml` in `.venv-causal`
+## 7. Update rules
 
----
-
-## 7) Test Suite
-
-Current state (2026-03-23): **690 tests passing, 0 failures, 0 skips**.
-
-Key changes since last snapshot:
-- CRPTO test skip removed (test now runs normally)
-- Conformal policy test fixed (methodological justification pass logic)
-- Beta calibration tests added
-- Classification set benchmark tests added
-- Quarto book guardrail tests (3/3 passing)
-
-Operational note:
-- `data/processed/runtime_status.json` is a generated snapshot and may lag until `scripts/export_streamlit_artifacts.py` is re-run.
-- For live inventory: `uv run pytest --collect-only -q`
-
-## 8) Current Priorities
-
-1. Keep docs and Streamlit narratives strictly artifact-driven (no stale hardcoded claims).
-2. Config files are templates — runtime calibration selection is artifact-driven.
-3. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
-4. DVC stage counts in this file are historical snapshots; `dvc.lock` is authoritative for artifact hashes.
-
----
-
-## 9) Source of Truth
-
-| Reference | Purpose |
-|-----------|---------|
-| `SESSION_STATE.md` | Current official state |
-| `docs/PROJECT_JUSTIFICATION.md` | Current official design rationale |
-| `docs/DECISION_CHANGES_AND_LEARNINGS.md` | Historical decisions, errors, learnings, and session history |
-| `models/threshold_semantics.json` | Canonical split between internal PD threshold and operational fairness/approval threshold |
-| `data/processed/model_comparison.json` | PD model comparison and final metrics |
-| `models/conformal_policy_status.json` | Conformal policy gate snapshot |
-| `models/causal_policy_rule.json` | Causal policy rule and selected metrics |
-| `data/processed/pipeline_summary.json` | Cross-module pipeline KPI snapshot |
-| `models/champion_portfolio_policy.json` | Promoted portfolio champion policy (`risk_tolerance=0.175`, `policy_mode=blended_uncertainty`, `gamma=0.45`, `uncertainty_aversion=0.10`) |
-| `models/champion_registry.json` | Full champion registry across all modules |
+- Never infer scientific status from an artifact filename.
+- Keep outcome-free construction separate from evaluation outcomes.
+- Keep candidate performance separate from post-selection validity.
+- Do not relabel endpoints for $Y$ as PD, ECL or SICR intervals.
+- A new external CRPTO commit requires an explicit refresh of commit and hashes
+  in the portable contract.
+- A Paper 2 unpark or Paper 4 promotion requires its own data/protocol gate and
+  a final evaluation not used for selection.
+- Record detailed historical decisions in
+  `docs/DECISION_CHANGES_AND_LEARNINGS.md`; keep this file compact and current.

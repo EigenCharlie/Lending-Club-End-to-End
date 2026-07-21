@@ -793,13 +793,6 @@
       "status": "utility"
     },
     {
-      "script": "scripts/serve_book_core.py",
-      "role": "quarto book local server",
-      "category": "infrastructure",
-      "pipeline_owner": "infra",
-      "status": "utility"
-    },
-    {
       "script": "scripts/recover_champion_search_run.sh",
       "role": "champion search recovery",
       "category": "infrastructure",

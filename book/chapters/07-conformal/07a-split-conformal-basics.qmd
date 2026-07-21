@@ -1,3 +1,5 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Fundamentos de Split Conformal {#sec-split-conformal}
 
 ```{python}
@@ -13,7 +15,11 @@ from book._helpers.load_artifacts import load_json
 
 ### Garantía Teórica
 
-La predicción conformal se basa en un resultado elegante: si los datos de calibración y test son **exchangeable** (intercambiables), entonces los intervalos construidos a partir de los residuos de calibración cubren el valor verdadero con probabilidad exacta.
+La predicción conformal se basa en un resultado preciso: condicional al
+entrenamiento, si el predictor y la regla de score quedan fijados sin usar los
+labels de conformización, y los scores de conformización y del nuevo punto son
+**intercambiables**, el conjunto construido obtiene una cota marginal para el
+futuro $Y$.
 
 ::: {.equation-card}
 <span class="equation-card__label">Ecuación interpretada</span>
@@ -25,7 +31,12 @@ $$
 :::
 
 ::: {.equation-card__body}
-**Lectura operativa:** si pedimos 90% de cobertura, la banda conformal debería contener el resultado real al menos 9 de cada 10 veces. En Lending Club eso significa que una PD puntual deja de viajar sola: llega acompañada de una tolerancia explícita de error, que luego usamos en portafolio e IFRS9.
+**Lectura del teorema:** bajo esas condiciones, la probabilidad marginal de
+cubrir un nuevo $Y$, tomada sobre la repetición del muestreo, es al menos 90%.
+No es una promesa condicional para cada préstamo ni obliga a que toda muestra
+de test observada alcance el nivel nominal. Aquí $Y$ es default/no default; la
+ecuación no produce incertidumbre sobre una PD latente ni autoriza un uso
+económico.
 :::
 :::
 
@@ -38,24 +49,41 @@ P\left(Y_{n+1} \in [\hat{f}(X_{n+1}) - \hat{q}, \hat{f}(X_{n+1}) + \hat{q}]\righ
 $$ {#eq-coverage-guarantee}
 :::
 
-Esta garantía es **distribution-free** (no requiere normalidad, homocedasticidad, ni ningún supuesto paramétrico) y **finite-sample** (válida para cualquier $n$, no solo asintóticamente).
+Esta garantía es **distribution-free** respecto de una familia paramétrica y
+**finite-sample**, pero sí requiere intercambiabilidad y un procedimiento no
+alterado por selección posterior.
 
-Para traducir esta garantía a la escala de Lending Club: con 276,869 préstamos en el test OOT y un nivel de confianza del 90%, esperamos que aproximadamente 27,687 intervalos no contengan la PD verdadera. Cada intervalo fallido representa un préstamo cuyo riesgo fue subestimado o sobreestimado más allá de la banda de tolerancia. En términos económicos, si el ECL promedio por préstamo es de ~\$3,100 y la subestimación promedio en los intervalos fallidos fuera del 10%, estamos hablando de ~\$8.6M de provisiones potencialmente incorrectas. Esta cifra es manejable para un portafolio de esta escala, pero justifica por qué el 90% de cobertura es un mínimo aceptable, no un objetivo ambicioso.
+::: {.callout-warning title="Por qué el freeze local no hereda automáticamente el teorema"}
+Los labels de la partición denominada calibración también ajustaron el
+calibrador probabilístico antes de conformalizar, y el archivo OOT fue después
+inspeccionado y reutilizado para comparar especificaciones. Por eso las tasas
+locales son diagnósticos retrospectivos del $Y$ observado: no constituyen una
+garantía conformal activa ni una evaluación holdout independiente.
+:::
+
+En un test temporal, el número de misses se cuenta observando si $Y_i$ cae en
+$[L_i,U_i]$. Ese recuento es cobertura binaria empírica. No cuenta préstamos
+cuya “PD verdadera” quedó fuera ni se puede convertir en dólares de ECL sin un
+modelo adicional del estimando económico.
 
 ### Split Conformal vs Full Conformal
 
-El método **full conformal** [@vovk2005] re-entrena el modelo para cada candidato de test, lo cual es computacionalmente prohibitivo para CatBoost con 1.3M observaciones. El **split conformal** [@papadopoulos2002] resuelve esto dividiendo los datos:
+El método **full conformal** [@vovk2005] puede exigir refits o cálculos
+transductivos costosos, según el algoritmo. El **split conformal**
+[@papadopoulos2002] reduce ese costo reservando una muestra de conformización:
 
 | Aspecto | Full Conformal | Split Conformal |
 |---------|---------------|----------------|
-| **Reentrenamiento** | $O(n)$ veces por predicción | Una vez |
-| **Cobertura** | Exacta: $P = 1-\alpha$ | Conservative: $P \geq 1-\alpha$ |
+| **Ajuste computacional** | Puede requerir refits o cálculos transductivos costosos | Ajusta una vez el predictor y conformiza en muestra separada |
+| **Cobertura** | Cota marginal finita bajo protocolo válido; igualdad requiere aleatorización o tratamiento específico de empates | Cota marginal finita $P \geq 1-\alpha$ bajo protocolo válido; puede sobrecubrir por discretización |
 | **Eficiencia estadística** | Usa todos los datos | Pierde datos de calibración |
-| **Viabilidad** | Inviable para modelos complejos | Viable siempre |
+| **Viabilidad** | Costoso para el tamaño y estimador locales | Menor costo, condicionado por memoria, cómputo y tamaño de calibración |
 
 : Comparación Full vs Split Conformal {#tbl-full-vs-split}
 
-Para nuestro pipeline, split conformal es la única opción viable y es exactamente lo que MAPIE 1.3.0 implementa.
+El freeze local eligió split conformal por costo y por la disponibilidad de una
+partición de calibración. No es la única opción metodológica posible; es la que
+implementa este carril mediante `SplitConformalRegressor` de MAPIE 1.3.0.
 
 ### El Wrapper ProbabilityRegressor {#sec-probability-regressor}
 
@@ -75,11 +103,15 @@ class ProbabilityRegressor(BaseEstimator, RegressorMixin):
         return self.classifier.predict_proba(X)[:, 1]
 ```
 
-Este patrón permite que MAPIE trate las probabilidades calibradas como valores continuos y construya intervalos $[\text{PD}_\text{low}, \text{PD}_\text{high}]$ alrededor de cada predicción.
+Este patrón hace que MAPIE centre endpoints continuos en el score. Los nombres
+legacy $[\text{PD}_\text{low},\text{PD}_\text{high}]$ no cambian el target de
+cobertura: sigue siendo $Y$ binario.
 
 ::: {.callout-note}
 ## ¿Por qué no usar SplitConformalClassifier?
-`SplitConformalClassifier` produce **prediction sets** (conjuntos de clases posibles), no intervalos de probabilidad. Para riesgo crediticio necesitamos $[\text{PD}_\text{low}, \text{PD}_\text{high}]$ como entradas numéricas a la optimización robusta — lo que requiere el framework de regresión.
+`SplitConformalClassifier` produce conjuntos de clases. El repositorio usó un
+wrapper de regresión para obtener endpoints numéricos destinados a stress; esa
+decisión de interfaz no convierte los endpoints en intervalos de probabilidad.
 :::
 
 ### Implementación con MAPIE 1.3.0 {#sec-mapie-implementation}
@@ -91,7 +123,7 @@ La API de MAPIE 1.3.0 difiere significativamente de versiones anteriores:
 | **Clase** | `MapieRegressor` | `SplitConformalRegressor` |
 | **Modelo prefit** | `cv="prefit"` | `prefit=True` |
 | **Nivel** | `alpha` en `predict()` | `confidence_level` en `__init__()` |
-| **Calibración** | `fit()` hace todo | `fit()` + `conformalize()` separados |
+| **Calibración** | `fit()` hace todo | con estimador preajustado, `conformalize()` sobre calibración |
 | **Predicción** | `predict(alpha=0.1)` | `predict_interval()` |
 
 : Migración de API MAPIE {#tbl-mapie-api}
@@ -111,16 +143,15 @@ scr = SplitConformalRegressor(
     prefit=True
 )
 
-# 3. Calibrar con el set de calibración
-scr.fit(X_cal, y_cal)
+# 3. Conformalizar con el set de calibración; no llamar fit con prefit=True
 scr.conformalize(X_cal, y_cal)
 
 # 4. Predecir intervalos en test
 y_pred, intervals = scr.predict_interval(X_test)
-# intervals[:, 0] = pd_low, intervals[:, 1] = pd_high
+# legacy schema names: low/high; coverage target remains binary Y
 ```
 
-### Nonconformity Scores para PD {#sec-nonconformity-scores}
+### Scores de nonconformidad para el outcome binario {#sec-nonconformity-scores}
 
 El nonconformity score mide qué tan "conforme" es una observación con el modelo. Para regresión, el score estándar es el residuo absoluto:
 
@@ -128,7 +159,8 @@ $$
 s_i = |y_i - \hat{f}(x_i)|
 $$ {#eq-nonconformity}
 
-donde $y_i \in \{0, 1\}$ (default o no) y $\hat{f}(x_i) = \text{PD}_\text{calibrada} \in [0, 1]$.
+donde $y_i \in \{0, 1\}$ y $\hat{f}(x_i)$ es el score calibrado de clase 1,
+denominado `PD` sólo en el esquema legacy.
 
 El cuantil $\hat{q}$ de estos scores determina el **ancho del intervalo**: a mayor $\hat{q}$ (más confianza), intervalos más anchos. El cuantil se calcula como:
 
@@ -162,13 +194,19 @@ pd.DataFrame(global_metrics)
 
 ::: {.callout-warning}
 ## Limitación del Split Conformal Global
-La cobertura **marginal** de 89.6% es cercana al target, pero la cobertura **por grupo** revela un problema severo: Grade A tiene solo ~59.5% de cobertura. Esto ocurre porque los residuos de Grade A son mucho menores que los de Grade G, y un cuantil global no captura esta heterogeneidad. La solución es **Mondrian conformal** (@sec-mondrian).
+La cobertura marginal histórica es cercana al target y la cobertura por grupo
+es heterogénea. Mondrian permite recalibrar por grupos, pero solo ofrece su
+garantía bajo intercambiabilidad dentro del grupo; no es una reparación
+automática del shift temporal.
 :::
 
 ### Conexión con el Pipeline
 
-Los intervalos conformal $[\text{PD}_\text{low}, \text{PD}_\text{high}]$ son el input directo para:
+Los endpoints alimentaron históricamente tres consumidores:
 
-1. **Conjuntos de incertidumbre box** en la optimización robusta (@sec-robust-portfolio): $\Gamma_i = [\text{PD}_{\text{low},i}, \text{PD}_{\text{high},i}]$
-2. **Señal SICR conformal** en IFRS9 (@sec-sicr-signal): el ancho $\text{PD}_\text{high} - \text{PD}_\text{point}$ como trigger de deterioro
-3. **Backtesting de cobertura** (@sec-backtest-monitoring): monitoreo mensual de que la garantía se mantiene
+1. cajas numéricas de stress en optimización (@sec-robust-portfolio);
+2. un prototipo SICR hoy parqueado (@sec-sicr-signal);
+3. backtesting descriptivo de cobertura (@sec-backtest-monitoring).
+
+Solo el tercer uso evalúa el target cubierto. Los dos primeros no heredan la
+garantía conformal y requieren un método específico antes de promoverse.

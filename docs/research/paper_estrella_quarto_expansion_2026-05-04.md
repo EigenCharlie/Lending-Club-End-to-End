@@ -1,5 +1,7 @@
 # Paper Estrella Quarto Expansion - 2026-05-04
 
+> **HISTORICAL / SUPERSEDED — NO TRANSFER TO ACTIVE CRPTO (2026-07-20).** This memo preserves a past project decision or proposal. It does not govern the autonomous external CRPTO dossier, select a learner/comparator/policy, or reactivate Paper 2/Paper 4 claims. Current authority: `SESSION_STATE.md`, `docs/research/crpto_external_contract_2026-07-20.yml` and `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`.
+
 This note records the book-side expansion added after the P1 hardening work. The
 purpose is to keep the Quarto book richer than the eventual paper manuscript:
 more explanation, more reviewer-facing context, and a local numeric reference

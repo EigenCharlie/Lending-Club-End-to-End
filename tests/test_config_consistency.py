@@ -19,6 +19,7 @@ CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.yaml"
 CONTRACT_PATH = PROJECT_ROOT / "models" / "pd_model_contract.json"
 DVC_YAML_PATH = PROJECT_ROOT / "dvc.yaml"
 DVC_LOCK_PATH = PROJECT_ROOT / "dvc.lock"
+CORE_CANONICAL_PROFILE_PATH = PROJECT_ROOT / "configs" / "profiles" / "core_canonical_cpu.yaml"
 
 
 @pytest.fixture
@@ -63,6 +64,21 @@ class TestConformalConfig:
         conf = pd_config.get("conformal", {})
         level = conf.get("confidence_level", 0.9)
         assert 0.5 < level < 1.0, f"confidence_level={level} outside valid range (0.5, 1.0)"
+
+
+class TestCanonicalReplayConfig:
+    def test_default_canonical_rebuild_freezes_legacy_venn_abers_point_rule(self) -> None:
+        profile = yaml.safe_load(CORE_CANONICAL_PROFILE_PATH.read_text(encoding="utf-8"))
+        defaults = profile["defaults"]
+
+        assert defaults["pd_replay"] is True
+        assert defaults["conformal_replay"] is True
+
+        manifest_path = PROJECT_ROOT / defaults["replay_manifest"]
+        assert manifest_path.exists()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["pd"]["selected_calibration_method"] == "venn_abers"
+        assert manifest["pd"]["selected_calibration_point_rule"] == "midpoint_legacy"
 
 
 class TestPDValidationConfig:

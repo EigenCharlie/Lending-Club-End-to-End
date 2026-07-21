@@ -3,24 +3,31 @@ title: "Multi Period Solver And Dynamic Stress"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Dynamic stress engine
 
-La contribucion tangible mas importante del laboratorio es que las policies
-dejaron de compararse solo como funded books estaticos. El stress engine v31
-evalua candidates como procesos mensuales bajo common random numbers, con cash,
-outstanding, defaults, prepayments, recoveries, ECL, coverage state y wealth.
+El stress engine v31 materializa `512` rutas internas y `494,592` filas
+policy-month-path bajo common random numbers, con cash, outstanding, defaults,
+prepayments, recoveries, un campo legacy de costo etiquetado como ECL, coverage
+state y wealth. Ese campo es aritmetica mecanica del simulador: no identifica
+ECL, allowance o staging. El artefacto demuestra ejecucion pareada reproducible
+bajo un simulador declarado; no demuestra forecast o robustez externa.
 
 ## DLA/ADP
 
-DLA/ADP ya tiene lenguaje SDAM: estado, decision, post-decision state,
-transicion y reward. Pero la evidencia actual sigue siendo representativa. No se
-reclama Bellman optimality.
+DLA/ADP usa lenguaje SDAM para describir estado, decision, post-decision state,
+transicion y reward. Las reglas implementadas son scores manualmente ponderados
+y rollouts heuristicos; no se estima una funcion de valor ni se reclama Bellman
+optimality.
 
 ## SPO/DFL
 
-SPO/DFL queda como oracle-regret/surrogate. Es util para comparar decision loss
-contra oracles restringidos, pero no debe llamarse differentiable SPO+ hasta que
-el stack de dependencias se resuelva y exista validacion.
+PyEPO ejecuta losses diferenciables, pero el benchmark usa como teacher cost el
+score calibrado de clase 1 de un modelo congelado ---campo legacy
+`calibrated_pd`---, menus top-k muestreados y un baseline Ridge frente a learners
+MLP. Puede describir teacher-regret; no identifica PD, superioridad DFL ni
+perdida economica realizada.
 
 ## Sample paths
 
@@ -35,9 +42,9 @@ El raw aporta `last_pymnt_d`, `last_credit_pull_d`, `out_prncp`,
 
 1. DLA/ADP puede tener un simulador de rollout con features de cashflow y
    hardship, pero sigue sin trayectoria mensual completa ni logs de decisiones.
-2. SPO/DFL puede correr como prototipo aislado con PyEPO o cvxpylayers, pero no
-   debe integrarse al pipeline CRPTO principal hasta que dependencias,
-   escalabilidad y validacion esten resueltas.
+2. PyEPO puede permanecer como diagnostico aislado, pero no se transfiere al
+   CRPTO IJDS activo. Una prueba futura necesita outcomes realizados, baseline
+   de igual clase, menus cronologicos disjuntos y protocolo de validacion.
 
-Por tanto, Paper 4 conserva `rollout_only` para DLA/ADP e
-`isolated_prototype` para SPO/DFL.
+Por tanto, Paper 4 conserva `rollout_only` para DLA/ADP y `diagnostic_only` para
+PyEPO/DFL.

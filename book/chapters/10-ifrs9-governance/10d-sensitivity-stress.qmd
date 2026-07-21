@@ -1,128 +1,36 @@
-## Sensibilidad y Estrés {#sec-sensitivity-stress}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-### Grilla de Sensibilidad PD $\times$ LGD
+## Sensibilidad Mecánica y Stress {#sec-sensitivity-stress}
 
-Más allá de los cuatro escenarios discretos (@sec-scenario-analysis), el pipeline ejecuta una grilla completa de sensibilidad que varía los multiplicadores de PD y LGD de forma independiente, permitiendo identificar las regiones del espacio de parámetros donde el ECL es más sensible.
+La grilla PD×LGD y el Monte Carlo local son herramientas de diagnóstico de una
+fórmula estilizada. Permiten verificar monotonicidad, localizar drivers y
+detectar errores de implementación; no generan una distribución de provisión
+IFRS9 sin un modelo probabilístico de los inputs.
 
-La grilla evalúa 5 multiplicadores de PD $\times$ 4 multiplicadores de LGD $\times$ 3 tasas de descuento = 60 combinaciones:
+| Parámetro | Tratamiento histórico | Interpretación vigente |
+|---|---|---|
+| multiplicador PD | grid determinístico | elasticidad del score |
+| multiplicador LGD | grid determinístico | elasticidad de severidad proxy |
+| correlación | supuesto de simulación | sensibilidad, no estimación |
+| número de draws | precisión Monte Carlo | no tamaño muestral económico |
 
-```{python}
-#| label: tbl-sensitivity-grid
-#| tbl-cap: "Grilla de sensibilidad PD x LGD: ECL total por combinación (tasa 5%)."
-#| echo: false
+: Contrato del stress local. {#tbl-mc-params}
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-
-from book._helpers.load_artifacts import try_load_parquet, format_money
-import pandas as pd
-
-sensitivity = try_load_parquet("ifrs9_sensitivity_grid")
-
-if not sensitivity.empty:
-    # Filter to discount_rate=0.05 for the main display
-    s05 = sensitivity[sensitivity["discount_rate"] == 0.05].copy()
-    pivot = s05.pivot_table(
-        index="pd_mult", columns="lgd_mult", values="total_ecl", aggfunc="first"
-    )
-    pivot = pivot.applymap(lambda x: format_money(x))
-    pivot.index = [f"PD x{m:.2f}" for m in pivot.index]
-    pivot.columns = [f"LGD x{m:.2f}" for m in pivot.columns]
-    from IPython.display import Markdown
-    Markdown(pivot.to_markdown())
-else:
-    from IPython.display import Markdown
-Markdown("*Artefacto `ifrs9_sensitivity_grid.parquet` no disponible.*")
-```
-
-### Patrones de Sensibilidad
-
-La grilla sigue siendo útil, pero la lectura vigente ya no es la misma que en los snapshots anteriores. El artefacto `models/ifrs9_diagnostics_status.json` añade una interpretación nueva: el driver dominante en la superficie actual es `lgd_mult`, no `pd_mult`.
-
-La combinación de la grilla determinista y la capa diagnóstica más reciente revela tres patrones importantes. En términos metodológicos, esta capa nueva mezcla dos familias clásicas de validación macro:
-
-- estabilidad de relaciones mediante regresiones recursivas [@brown1975recursive];
-- evaluación de raíz unitaria y potencia ADF [@dickey1979unitroot].
-
-1. **Sensibilidad dominante a LGD en la superficie actual**: el slope medio de `lgd_mult` sobre el ECL es hoy más fuerte que el de `pd_mult`. Eso no niega el rol del staging, pero sí cambia la prioridad de trabajo: el siguiente cuello de botella IFRS9 parece vivir más en la lane LGD/incertidumbre de escenarios que en un rediseño simple del multiplicador PD.
-
-2. **No linealidad por staging**: aun cuando LGD domina la pendiente media, la PD sigue importando porque puede mover staging y, con ello, convertir PD a 12 meses en PD lifetime.
-
-3. **Anchura de incertidumbre macro muy alta**: la nueva capa diagnóstica reporta `mean_relative_width_90 ≈ 6.99x`. La historia ya no es solo “qué escenario mueve más el ECL”, sino “cuánta incertidumbre temporal y macro acompaña ese ECL”.
-
-::: {.callout-note}
-## Rango de la Grilla
-El rango extremo de la grilla va desde PD$\times 0.90$ + LGD$\times 0.90$ (escenario optimista) hasta PD$\times 1.30$ + LGD$\times 1.20$ (estrés severo). El ratio entre el mínimo y máximo ECL de la grilla cuantifica la **elasticidad total** de las provisiones a los parámetros de riesgo.
-:::
-
-### Simulación Monte Carlo con GPU
-
-El pipeline extiende el análisis determinista con una capa de **Monte Carlo masivo** utilizando RAPIDS/CuPy en GPU. La simulación genera 16,000 escenarios con shocks aleatorios correlacionados sobre PD, LGD y EAD:
-
-| Parámetro | Valor |
-|-----------|------:|
-| Escenarios MC | 16,000 |
-| Préstamos por escenario | 276,869 |
-| Aceleración GPU vs CPU | ~30x |
-| Shocks correlacionados | Sí (Cholesky) |
-| Variantes antitéticas | Sí |
-
-: Parámetros de simulación Monte Carlo IFRS9 {#tbl-mc-params}
-
-La distribución completa de ECL generada por Monte Carlo permite calcular:
-
-- **Media y desviación estándar** del ECL total
-- **Percentiles de cola** (P95, P99): reserva necesaria para cubrir escenarios extremos
-- **Expected Shortfall** (CVaR): pérdida promedio en la cola más allá de un percentil dado
-- **Intervalos de confianza** sobre el ECL baseline
-
-### Sweep de Alpha sobre ECL
-
-La sensibilidad del ECL al nivel de confianza conformal $\alpha$ se cuantifica mediante el alpha sweep del pipeline (@sec-sicr-signal). El resultado clave:
+El cambio al variar `alpha` se escribió históricamente como:
 
 $$
-\frac{\text{ECL}_{\alpha=0.01} - \text{ECL}_{\alpha=0.10}}{\text{ECL}_{\alpha=0.10}} \approx 22\%
+\Delta_{\alpha}=
+\frac{\operatorname{Proxy}_{\alpha=0.01}-
+\operatorname{Proxy}_{\alpha=0.10}}
+{\operatorname{Proxy}_{\alpha=0.10}}.
 $$ {#eq-alpha-sensitivity}
 
-Esto establece una **regla de conversión** práctica: cada punto porcentual adicional de confianza conformal cuesta aproximadamente 2.4% de ECL adicional (en el rango 90--99%), una relación que el regulador puede usar para calibrar sus exigencias de provisión.
+No es una regla que convierta puntos de confianza conformal en porcentaje de
+ECL. `alpha` controla cobertura de $Y$ bajo el diseño, y los endpoints no son
+PD. Por ello se retiran recomendaciones regulatorias y límites de capital
+derivados de ese ratio.
 
-### Conexión con Optimización de Portafolio
-
-Los resultados de sensibilidad alimentan directamente la optimización robusta del portafolio (@sec-robust-portfolio):
-
-- Los **escenarios de estrés** definen los conjuntos de incertidumbre para la optimización robusta
-- El **rango conformal** del ECL delimita las restricciones de capital en el modelo de Pyomo
-- La **grilla PD $\times$ LGD** permite verificar que el portafolio óptimo es estable bajo perturbaciones de los parámetros
-
-::: {.callout-tip}
-## Lectura para Estrés Testing
-La grilla de sensibilidad no pretende reemplazar los ejercicios formales de estrés testing (DFAST/CCAR en EE.UU., EBA en Europa). Su valor está en proporcionar una visión **continua** de cómo cambian las provisiones ante variaciones de parámetros, complementando los escenarios discretos que requiere la normativa.
-:::
-
-### IFRS9 diagnostics: qué está abierto hoy
-
-```{python}
-#| label: tbl-ifrs9-diagnostics
-#| tbl-cap: "Diagnósticos IFRS9 que hoy condicionan la lectura prudencial del proyecto"
-
-from book._helpers.load_artifacts import try_load_json
-
-diag = try_load_json("ifrs9_diagnostics_status", directory="models", default={})
-summary = diag.get("summary", {})
-
-rows = [
-    {"Diagnóstico": "overall_pass", "Valor": diag.get("overall_pass"), "Lectura": "Sigue siendo una capa diagnóstica, no un gate de reversión del champion."},
-    {"Diagnóstico": "driver dominante", "Valor": summary.get("dominant_ifrs9_driver", "N/D"), "Lectura": "El surface actual responde más a LGD que a PD."},
-    {"Diagnóstico": "recursive_min_sign_match_share", "Valor": f"{summary.get('recursive_min_sign_match_share', 0):.3f}", "Lectura": "Las relaciones macro no son suficientemente estables a lo largo del tiempo."},
-    {"Diagnóstico": "recursive_max_sign_flips", "Valor": summary.get("recursive_max_sign_flips"), "Lectura": "Hay inversión de signos en regresiones recursivas."},
-    {"Diagnóstico": "ADF p-value nivel", "Valor": f"{summary.get('adf_pvalue_level', 0):.4f}", "Lectura": "No hay evidencia fuerte de estacionariedad en nivel."},
-    {"Diagnóstico": "near_unit_root_power", "Valor": f"{summary.get('near_unit_root_power', 0):.3f}", "Lectura": "La potencia cerca de raíz unitaria sigue siendo débil."},
-    {"Diagnóstico": "mean_relative_width_90", "Valor": f"{summary.get('mean_relative_width_90', 0):.2f}x", "Lectura": "La incertidumbre de escenarios es muy ancha respecto al punto."},
-    {"Diagnóstico": "sign_coherence", "Valor": summary.get("scenario_sign_coherence_pass"), "Lectura": "La escalera baseline → severe sí mantiene coherencia direccional."},
-]
-
-pd.DataFrame(rows)
-```
-
-La conclusión práctica es importante para el resto del libro: el problema IFRS9 actual no es ausencia de framework, ni falta de escenarios, ni incoherencia de la escalera de estrés. El problema abierto es **defendibilidad temporal** y **anchura de incertidumbre**. Eso orienta mejor el backlog futuro que una narrativa genérica de “falta más modelado macro”.
+El status `diagnostic_only`/`overall_pass=false` tiene precedencia sobre la
+narrativa antigua. Una futura promoción exige el contrato de reapertura de
+Paper 2 y una simulación cuyos inputs, dependencia y estimando central estén
+validados.

@@ -1,5 +1,7 @@
 # Paper Estrella Journal Package - 2026-05-04
 
+> **HISTORICAL / SUPERSEDED — NO TRANSFER TO ACTIVE CRPTO (2026-07-20).** This memo preserves a past project decision or proposal. It does not govern the autonomous external CRPTO dossier, select a learner/comparator/policy, or reactivate Paper 2/Paper 4 claims. Current authority: `SESSION_STATE.md`, `docs/research/crpto_external_contract_2026-07-20.yml` and `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`.
+
 This dossier records the journal-oriented tables and figures generated from
 frozen Paper Estrella artifacts. It does not reopen the champion search.
 

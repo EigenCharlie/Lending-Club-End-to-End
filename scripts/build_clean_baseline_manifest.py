@@ -109,6 +109,17 @@ def build_manifest(
         or snapshot_model_comparison.get("calibration_selection_report")
         or {}
     )
+    selected_calibration_method = str(calibration_report.get("selected_method", "venn_abers"))
+    contract_calibrator = dict(pd_contract.get("calibrator") or {})
+    selected_calibration_point_rule = (
+        pd_record.get("calibration_point_rule")
+        or calibration_report.get("selected_point_rule")
+        or contract_calibrator.get("point_rule")
+    )
+    if selected_calibration_method == "venn_abers" and not selected_calibration_point_rule:
+        # Manifests built from pre-audit artifacts must preserve their midpoint
+        # behavior instead of silently adopting the new-fit minimax default.
+        selected_calibration_point_rule = "midpoint_legacy"
     final_metrics = dict(
         pd_record.get("final_test_metrics")
         or snapshot_model_comparison.get("final_test_metrics")
@@ -133,7 +144,7 @@ def build_manifest(
         "baseline_snapshot_path": _coerce_rel(snapshot_path),
         "notes": [
             "Frozen baseline manifest for deterministic replay.",
-            "PD replay uses fixed params, fixed feature order and fixed calibration method.",
+            "PD replay uses fixed params, feature order, calibration method and point rule.",
             "Conformal replay restores the blessed grade/no-shrink recovery artifacts.",
             "Portfolio confirmatory rebuild re-runs tradeoff + selector + AB with the champion policy search settings.",
         ],
@@ -143,9 +154,8 @@ def build_manifest(
             "feature_names": list(pd_contract.get("feature_names", [])),
             "categorical_features": list(pd_contract.get("categorical_features", [])),
             "selected_params": selected_params,
-            "selected_calibration_method": str(
-                calibration_report.get("selected_method", "venn_abers")
-            ),
+            "selected_calibration_method": selected_calibration_method,
+            "selected_calibration_point_rule": selected_calibration_point_rule,
             "decision_threshold_artifact": decision_threshold,
             "threshold_semantics": threshold_semantics,
             "expectations": {

@@ -4,10 +4,10 @@
 
 The literature-driven Lab 4 pass is closed as a Paper 4 living-lab synthesis.
 The work uses retained Paper 4 artifacts and source-review evidence, but it does
-not reopen the Paper Estrella champion and does not create a Paper 4 final
-promotion artifact.
+not select a policy and does not create a Paper 4 final promotion artifact. It
+does not extend the active external CRPTO IJDS identification contract.
 
-- Append/governance lanes: `7`.
+- Append/governance lanes: `6`; negative-audit lanes: `1`.
 - Parked lanes: `2`.
 - Paper Estrella export: limited to possible reviewer-defense, caveat or
   model-risk context; no new champion claim.
@@ -22,7 +22,7 @@ promotion artifact.
 | lane3_e2e_conformal_calibration | park | parked_with_boundary | no_export_now | No promotable E2E conformal training artifact exists in the current Lab 4 surface. |
 | lane4_online_multisource_conformal | park_with_appendix_limitation | paper4_appendix_or_governance | no_export_now | Best bounded defended min coverage is 0.7788. |
 | lane6_spo_dfl_comparator | park_integrated_dfl_append_oracle_regret | paper4_appendix_or_governance | no_export_now | Toy oracle gap remains 4329509.73. |
-| lane7_ifrs9_proxy | append | paper4_appendix_or_governance | no_export_now | Combined raw SICR lift is 73.6416. |
+| lane7_ifrs9_proxy | diagnostic_negative_audit | paper4_negative_audit_only | no_export_now | Available terminal and snapshot fields do not identify report-date PD, ECL, SICR or staging. |
 | lane8_governance_fairness_proxy | append | paper4_appendix_or_governance | possible_limited_context_only | Legal fair-lending claim allowed = False. |
 | lane9_causal_cate_boundary | park | parked_with_boundary | no_export_now | Overlap share 10-90 is 0.2838. |
 
@@ -49,8 +49,9 @@ material: tradeoff evidence, not a promotion protocol.
   choice matters and why no selector automatically promotes a new champion.
 - Lane 5 enters as a strong tail-risk appendix: CVaR/OCE improves tail views
   but does not beat paired wealth robustly.
-- Lane 7 enters as an IFRS9-inspired SICR/ECL proxy appendix, explicitly not
-  contractual IFRS9.
+- Lane 7 enters only as a negative estimand/readiness audit. Historical lifts,
+  thresholds and monetary values are non-citable and support no PD, ECL, SICR
+  or staging claim.
 - Lane 8 enters as source/proxy governance, explicitly not legal fair-lending
   evidence.
 
@@ -59,7 +60,8 @@ material: tradeoff evidence, not a promotion protocol.
 - Lane 3 is parked because there is no end-to-end learned conformal calibration
   artifact and the main environment is not the isolated differentiable stack.
 - Lane 4 is parked as a live/online claim because defended coverage is close
-  but below gate and strict holdouts do not survive universally.
+  but below gate and the available views are post-selection slices, not strict
+  holdouts.
 - Lane 6 is parked for integrated DFL/SPO+ because current evidence is
   oracle-regret/surrogate only.
 - Lane 9 is parked because CATE/policy value remains blocked by accepted-loan

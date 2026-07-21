@@ -4,6 +4,8 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{float}
+\usepackage{etoolbox}
+\usepackage{xurl}
 
 % Quarto already loads babel via `lang: es`; only customize captions here.
 \AtBeginDocument{%
@@ -13,3 +15,14 @@
 
 % Better table formatting
 \renewcommand{\arraystretch}{1.2}
+\AtBeginEnvironment{longtable}{%
+  \small
+  \setlength{\tabcolsep}{3pt}%
+  \sloppy
+}
+\Urlmuskip=0mu plus 1mu\relax
+
+% Avoid isolated first/last lines when long callouts or paragraphs reflow.
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000

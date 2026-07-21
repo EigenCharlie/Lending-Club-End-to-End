@@ -1,8 +1,14 @@
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Backtest y Monitoreo de Cobertura {#sec-backtest-monitoring}
 
 ### ¿Por Qué Backtesting Temporal?
 
-La garantía de cobertura conformal es **marginal** sobre el conjunto de test. Pero si la cobertura fuera 95% en 2018, 85% en 2019 y 90% en 2020, el promedio sería ~90% aunque existieran períodos de sub-cobertura. El **backtesting mensual** verifica que la cobertura se mantiene estable mes a mes a lo largo de los 33 meses del período OOT (enero 2018 – septiembre 2020).
+Bajo sus supuestos, la cobertura conformal se refiere al objeto predictivo
+declarado y no garantiza transporte temporal. Un promedio puede ocultar meses
+de subcobertura; el **backtesting mensual** histórico describe esa variación a
+lo largo de 33 meses OOT (enero 2018--septiembre 2020), sin verificar desempeño
+futuro.
 
 ### Metodología de Backtest
 
@@ -41,7 +47,11 @@ pd.DataFrame(backtest_summary)
 
 ### Tests Estadísticos de Cobertura
 
-Antes de leer los resultados de los tests, conviene establecer el marco correcto. El sistema **sobre-cubre**, pero ya no de la forma excesivamente conservadora que tenía el snapshot anterior. La tasa de violación observada es ~8.0%, por debajo del 10% nominal. Eso implica una capa prudente de conservadurismo, con intervalos todavía útiles en anchura. Los tests estadísticos pueden rechazar este resultado porque, con $n = 276{,}869$, tienen potencia suficiente para detectar diferencias de 1 a 2 puntos porcentuales. Lo relevante no es solo si rechazan, sino *en qué dirección* rechazan y qué pasa con los checks operativos de anchura, cobertura por grupo y alertas.
+En el snapshot histórico, la tasa de violación fue aproximadamente 8.0%, por
+debajo del 10% nominal. Esto describe sobrecobertura del resultado binario $Y$
+en esa muestra; no es “prudencia” sobre PD, SICR, ECL o una policy. Con
+$n=276{,}869$, los tests detectan diferencias pequeñas, por lo que deben
+reportarse signo, magnitud y dependencia junto con el rechazo.
 
 El framework de backtesting implementa dos tests formales de la literatura de Value-at-Risk:
 
@@ -102,64 +112,74 @@ pd.DataFrame(test_results)
 ```
 
 ::: {.callout-warning}
-## Tests Estadísticos Rechazados — ¿Problema Real?
-Los tests de Kupiec rechazan en ambos niveles, lo cual parece alarmante. Pero el contexto importa:
+## Rechazo estadístico en el snapshot histórico
+Los tests de Kupiec rechazan en ambos niveles; el contexto descriptivo es:
 
-1. **Sobre-cobertura, no sub-cobertura**: la tasa de violación es ~8.0% (target 10%) — el modelo **cubre de más**, no de menos. Kupiec rechaza porque la cobertura es *demasiado buena*, no demasiado mala.
-2. **N = 276,869**: con muestras tan grandes, Kupiec rechaza incluso desviaciones operativamente tolerables si la cobertura sigue dentro de la banda de materialidad.
-3. **Independencia aceptable**: Christoffersen no rechaza independencia al 90% y la política trata la capa estadística como diagnóstica, no como bloqueo automático.
+1. **Dirección**: la tasa de violación es ~8.0% frente al target de 10%; el rechazo ocurre del lado de sobrecobertura de $Y$, no de subcobertura.
+2. **Tamaño muestral**: con $N=276{,}869$, diferencias pequeñas pueden producir rechazo estadístico; eso no las vuelve irrelevantes ni materialmente aceptables por definición.
+3. **Dependencia**: no rechazar independencia al 90% no prueba independencia ni transporte.
 
-La política del pipeline clasifica estos como **warning diagnóstico**, no como bloqueo de promoción. La desviación de cobertura actual (≈2.0pp al 90%, ≈1.5pp al 95%) queda dentro del margen de materialidad (3.0%), y los checks no estadísticos pasan completos.
+El software histórico clasificó el resultado como `warning` usando un margen
+local de 3.0 puntos porcentuales. Ese semáforo preserva procedencia; no autoriza
+promoción científica o productiva.
 :::
 
-### Policy Gate
+### Gate histórico de software
 
-El pipeline implementa un **policy gate** que decide si los intervalos conformal pueden ser promovidos a producción analítica. Después de la recuperación conformal V3, el resultado oficial ya no es “falla por ancho”; el sistema cierra por la vía correcta: todos los checks no estadísticos pasan, y los tests estadísticos quedan documentados como diagnósticos informativos por sobre-cobertura en muestra grande.
+El pipeline local implementó un gate que combinaba cobertura, anchura y alertas.
+La tabla conserva sus reglas y resultados como diagnóstico histórico; un PASS
+no valida el estimando, no convierte ancho en incertidumbre de PD y no promueve
+intervalos a producción.
 
 | Check | Criterio | Resultado |
 |-------|----------|-----------|
 | Cobertura @ 90% ≥ 87% | Materialidad | PASS |
 | Cobertura @ 95% ≥ 92% | Materialidad | PASS |
-| Min group coverage ≥ 85% | Equidad | PASS |
+| Min group coverage ≥ 85% | Diagnóstico por grupo | PASS |
 | Avg width @ 90% ≤ 0.80 | Eficiencia | PASS |
 | Winkler @ 90% ≤ 1.22 | Eficiencia | PASS (banda compensada) |
 | Alertas críticas = 0 | Estabilidad | PASS |
 | Kupiec / Christoffersen | Diagnóstico informativo | FAIL diagnóstico |
 
-: Policy gate de cobertura conformal {#tbl-policy-gate}
+: Gate histórico de software para cobertura conformal {#tbl-policy-gate}
 
-La lectura correcta es esta: la cobertura sigue siendo prudente, el ancho promedio ya volvió a una zona defendible (`avg_width_90 ≈ 0.756`) y el gate operativo cierra. Lo que permanece abierto no es un problema de implementación, sino una tensión conocida entre cobertura exacta y potencia estadística cuando el tamaño muestral es enorme. Por eso la historia actual de conformal ya no es “falta una segunda vuelta para cerrarlo”, sino “cerró operativamente, y la siguiente mejora sería refinar todavía más la sobre-cobertura sin romper los guardrails”.
+La capa base `models/conformal_policy_status.json` reporta
+`avg_width_90 = 0.7642` y PASS en los checks locales. Ancho y
+sobre-cobertura son métricas del intervalo para $Y$; no establecen prudencia,
+eficiencia decisional, validez regulatoria o cierre vigente.
 
-### Base canónica vs reapertura final
+### Base y reapertura históricas
 
-El repositorio contiene dos capas conformales que deben leerse con una jerarquía clara:
+El repositorio conserva dos capas históricas:
 
-- **capa canónica base**: vive en `models/conformal_policy_status.json` y resume el estado operativo del stack monotónico confirmado;
-- **capa final paper/thesis**: vive en la lane derivada de reapertura `conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612`, donde el winner `rank-1` pasa por rerun OOT completo, sidecars y validación final.
+- **capa base local**: vive en `models/conformal_policy_status.json`;
+- **reapertura histórica**: vive en la lane `conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612`, donde `rank-1` fue una etiqueta del rerun OOT local.
 
-La reapertura no creó dos winners conformales. Dejó un único winner final:
+La reapertura etiquetó localmente:
 
-- `score_decile_mondrian` como variante promovida;
-- `grade Mondrian` como baseline natural, regulatorio e interpretable.
+- `score_decile_mondrian` como variante retenida;
+- `grade Mondrian` como baseline histórico interpretable.
 
-La reapertura no cambió el champion PD ni el posture regulatorio upstream. Cambió la calidad de la incertidumbre downstream:
+La comparación histórica reportó:
 
-- sustituyó una capa demasiado conservadora por un winner con mejor anchura útil;
-- mantuvo pass operativo por `methodological_justification`;
-- y dejó explícito que `grade` sigue siendo necesario para la lectura económica y de gobernanza, aunque ya no sea el campeón final.
+- menor anchura bajo el criterio local;
+- PASS de software por `methodological_justification`;
+- conservación de `grade` como comparador de procedencia.
 
 ::: {.callout-note}
-## Cómo leer los artefactos conformales finales
-- `models/conformal_policy_status.json`: snapshot prudencial/canónico del stack base.
-- `models/conformal_gap/.../conformal_reopen_status.json`: cierre oficial de la reapertura.
-- `models/conformal_gap/...__rank-1/conformal_policy_status.json`: evidencia OOT del winner final `score_decile_mondrian`.
+## Cómo leer los artefactos conformales históricos
+- `models/conformal_policy_status.json`: snapshot local del stack base.
+- `models/conformal_gap/.../conformal_reopen_status.json`: cierre de software de la reapertura.
+- `models/conformal_gap/...__rank-1/conformal_policy_status.json`: evidencia OOT histórica de `score_decile_mondrian`.
 
-La tesis correcta ya no es “hay dos winners conformales”. La tesis correcta es: hay un **baseline canónico** que preserva la legibilidad regulatoria y un **winner final único** (`score_decile_mondrian`) con trazabilidad explícita.
+La conclusión permitida es de procedencia: existieron una base y una variante
+retenida con trazabilidad. El CRPTO vigente no selecciona taxonomía, ventana o
+winner conformal.
 :::
 
 ### Qué aprendió el proyecto al endurecer el backtesting PD
 
-La evolución reciente del stack añadió otra capa de lectura que conviene mencionar aquí porque cambia cómo interpretamos los “fails” estadísticos en general. El artefacto `models/pd_validation_interpretation_status.json` no reemplaza el backtesting conformal; lo complementa conceptualmente con una pregunta más útil para comité y MRM: ¿el fallo estadístico es solo efecto de tamaño muestral, o hay una desviación material persistente por cohortes?
+Una evolución histórica del stack añadió otra capa de lectura para interpretar los “fails” estadísticos. El artefacto `models/pd_validation_interpretation_status.json` no reemplaza el backtesting conformal; conserva una pregunta diagnóstica: ¿el fallo estadístico puede explicarse por tamaño muestral, o aparece una desviación persistente por cohortes bajo el protocolo local?
 
 ```{python}
 #| label: tbl-pd-validation-interpretation
@@ -174,24 +194,28 @@ pv_summary = pd_validation.get("summary", {})
 boot_summary = bootstrap_validation.get("summary", {})
 
 rows = [
-    {"Indicador": "severity", "Valor": pd_validation.get("severity", "N/D"), "Lectura": "La señal actual es warning, no fail operativo."},
+    {"Indicador": "severity", "Valor": pd_validation.get("severity", "N/D"), "Lectura": "Etiqueta del snapshot histórico; no gate vigente."},
     {"Indicador": "signal_type", "Valor": pd_validation.get("signal_type", "N/D"), "Lectura": "La desviación viene de slices persistentes, no de un gap global grande."},
-    {"Indicador": "gap global (bp)", "Valor": f"{pv_summary.get('gap_bp', 0):.1f}", "Lectura": "El promedio agregado sigue relativamente controlado."},
+    {"Indicador": "gap global (bp)", "Valor": f"{pv_summary.get('gap_bp', 0):.1f}", "Lectura": "Magnitud agregada registrada en el snapshot."},
     {"Indicador": "persistent_quarter_gaps", "Valor": pv_summary.get("persistent_quarter_gaps"), "Lectura": "Hay persistencia temporal en cohortes específicas."},
-    {"Indicador": "peor gap por grade (bp)", "Valor": f"{pv_summary.get('max_grade_gap_bp', 0):.1f}", "Lectura": "El problema importante no se ve mirando solo el score agregado."},
+    {"Indicador": "peor gap por grade (bp)", "Valor": f"{pv_summary.get('max_grade_gap_bp', 0):.1f}", "Lectura": "Máximo por grade, adicional al resumen agregado."},
     {"Indicador": "predicted_pd_inside_jeffreys", "Valor": pv_summary.get("predicted_pd_inside_jeffreys"), "Lectura": "Resume si la prevalencia observada cae dentro de una banda Jeffreys razonable."},
 ]
 
 pd.DataFrame(rows)
 ```
 
-La razón para traer esta lectura aquí es metodológica: el proyecto ya no interpreta todos los `p ≈ 0` como el mismo tipo de problema. En conformal, la historia dominante sigue siendo **sobre-cobertura prudente**. En PD, la historia actual es más sutil: el promedio global luce sano, pero algunas cohortes muestran desvíos persistentes que sí merecen atención. Ese lenguaje más fino de `PASS / WARNING / DIAGNOSTIC FAIL` es parte del valor nuevo del stack de gobernanza.
+La lectura metodológica separa magnitud, dirección y dependencia. En el
+snapshot conformal hubo sobrecobertura binaria; en los artefactos PD hubo
+desvíos por cohortes. `PASS / WARNING / DIAGNOSTIC FAIL` son etiquetas locales
+de software, no conclusiones prudenciales vigentes.
 
 Una segunda advertencia viene de la validación multi-periodo de PD. En default rates anuales o trimestrales, la independencia entre periodos rara vez es una premisa inocente: factores macro comunes y persistencia cíclica inducen autocorrelación, reducen el tamaño efectivo de muestra y pueden hacer que un test rechace por violación de supuestos antes que por verdadera mala calibración. Por eso este libro evita narrar los tests multi-periodo como semáforos mecánicos. La pregunta prudente es doble: si el gap es material y si la dependencia temporal fue considerada al interpretar el p-value.
 
 ### Bootstrap y calibration mapping: qué agregan a la lectura de monitoreo
 
-El endurecimiento más reciente añade dos capas nuevas para no quedarnos solo con tests asintóticos o con la pregunta binaria de si el calibrador actual “pasa o falla”.
+El snapshot añadió dos capas para no depender solo de tests asintóticos o de un
+semáforo binario sobre el calibrador histórico.
 
 ```{python}
 #| label: tbl-bootstrap-calibration-sidecars
@@ -201,26 +225,32 @@ rows = [
     {"Capa": "Bootstrap validation", "Estado": str(bootstrap_validation.get("severity", "N/D")).upper(), "Lectura": "Pregunta si el gap observado sigue siendo material cuando se remuestrea explícitamente el error `observado - predicho`."},
     {"Capa": "Bootstrap abs gap (bp)", "Estado": f"{boot_summary.get('abs_gap_bp', 0):.1f}", "Lectura": "El gap global sigue siendo pequeño, pero el bootstrap puede detectar slices persistentemente alejados de cero."},
     {"Capa": "Bootstrap slice CI exclusions", "Estado": boot_summary.get("slice_ci_exclusions"), "Lectura": "Cuenta slices donde el cero deja de ser una explicación plausible del gap."},
-    {"Capa": "Calibration mapping", "Estado": str(calibration_mapping.get("severity", "N/D")).upper(), "Lectura": "Compara el calibrador vigente contra sidecars de intercept-shift y remapeo monótono temporal."},
-    {"Capa": "Best mapping candidate", "Estado": calibration_mapping.get("best_candidate", {}).get("candidate_id", "N/D"), "Lectura": "Si gana `current_identity`, la evidencia no justifica reemplazar el calibrador canónico."},
+    {"Capa": "Calibration mapping", "Estado": str(calibration_mapping.get("severity", "N/D")).upper(), "Lectura": "Compara el calibrador histórico contra sidecars de intercept-shift y remapeo monótono temporal."},
+    {"Capa": "Best mapping candidate", "Estado": calibration_mapping.get("best_candidate", {}).get("candidate_id", "N/D"), "Lectura": "`current_identity` es un identificador del carril histórico, no una selección vigente."},
     {"Capa": "Recommendation", "Estado": calibration_mapping.get("recommendation", "N/D"), "Lectura": "Esta lane es diagnóstica: sirve para descubrir si hay espacio de mejora sin reentrenar."},
 ]
 
 pd.DataFrame(rows)
 ```
 
-Estas dos capas cumplen funciones distintas y complementarias. El **bootstrap** refina la lectura de materialidad en muestras muy grandes, donde un `p≈0` puede detectar efectos pequeños pero persistentes [@efron1994]. El **calibration mapping sidecar** pregunta algo más operativo: si el problema real es persistencia por cohortes, ¿basta con un ajuste liviano del mapeo probabilístico o la dificultad está más adentro del pipeline de PD/calibración? En el snapshot vigente, la respuesta es todavía más fuerte que antes: la validación shadow completa cerró con `keep_current_calibrator`, porque los sidecars ligeros empeoraron gap absoluto, quarter breaches y ECE. Por eso, la siguiente mejora ya no parece ser un remapeo fácil, sino una lectura analítica más fina de cohortes y slices.
+Estas dos capas cumplen funciones distintas. El **bootstrap** refina la lectura
+de materialidad en muestras grandes [@efron1994]. En el snapshot histórico, la
+lane *shadow* cerró con `keep_current_calibrator` porque los sidecars empeoraron
+los criterios locales. Eso descarta esos remapeos en aquella comparación, no
+selecciona un calibrador vigente.
 
 Esto también ordena una posible agenda de tesis. Si se quiere endurecer PD validation, el siguiente paso no es sumar otro p-value, sino comparar tests con supuestos de dependencia distintos, bootstrap por cohortes/tiempo y criterios de materialidad económica. La condición de parada es clara: solo entra al paper o a la tesis si cambia una decisión de monitoreo, una tabla de appendix o una respuesta esperada de reviewer.
 
 ### Alertas y Monitoreo Continuo
 
-El sistema de alertas clasifica anomalías en dos niveles:
+El sistema histórico de alertas clasificaba anomalías en dos niveles:
 
-- **Warning** (amarillo): cobertura mensual entre 85% y 88%, o Winkler elevado. Requiere investigación pero no bloquea.
-- **Crítica** (rojo): cobertura mensual < 85%, o > 3 warnings consecutivos. Bloquea promoción y requiere recalibración.
+- **Warning** (amarillo): cobertura mensual entre 85% y 88%, o Winkler elevado.
+- **Crítica** (rojo): cobertura mensual < 85%, o > 3 warnings consecutivos.
 
-El resultado del backtest actual sigue siendo prudente: **0 alertas críticas** y **2 warnings**, concentrados en el grado `E` durante dos meses, no en una falla de sub-cobertura sistémica del portafolio.
+El backtest histórico registró **0 alertas críticas** y **2 warnings** según esos
+umbrales, concentrados en grado `E`. No prueba prudencia ni ausencia de una
+falla sistémica fuera del archivo evaluado.
 
 ### Diagnóstico de Calidad Interna (MAPIE)
 
@@ -242,16 +272,16 @@ if diag.get("mapie_diagnostics_available", False):
     rows = [
         {"Métrica": "HSIC (Hilbert-Schmidt)",
          "Valor": _fmt(diag.get("hsic_90")),
-         "Interpretación": "≈0 = intervalos independientes de la dificultad del caso"},
+         "Interpretación": "Diagnóstico de dependencia bajo kernel y muestra declarados"},
         {"Métrica": "SSC (Size-Stratified Coverage)",
          "Valor": _fmt(diag.get("ssc_90")),
-         "Interpretación": "Uniforme = equidad entre intervalos anchos y angostos"},
+         "Interpretación": "Cobertura descriptiva por estratos de tamaño"},
         {"Métrica": "MWI (Mean Winkler)",
          "Valor": _fmt(diag.get("mwi_90")),
          "Interpretación": "Menor = mejor trade-off cobertura/anchura"},
         {"Métrica": "CWC (Coverage-Width Criterion)",
          "Valor": _fmt(diag.get("cwc_90")),
-         "Interpretación": "Mayor = cubre exactamente y con intervalos estrechos"},
+         "Interpretación": "Criterio compuesto de cobertura y anchura"},
     ]
 else:
     rows = [{"Métrica": "Estado", "Valor": "N/D", "Interpretación": "MAPIE no disponible"}]
@@ -261,11 +291,17 @@ pd.DataFrame(rows)
 ```
 
 ::: {.callout-note}
-## HSIC y SSC: diagnóstico de equidad interna
+## HSIC y SSC: diagnósticos internos
 
-El **HSIC** (Criterio de independencia de Hilbert-Schmidt) verifica si el sistema asigna intervalos más anchos *sistemáticamente* a los casos más difíciles. Si HSIC ≈ 0, el sistema no tiene sesgo: los casos difíciles reciben intervalos más anchos solo por su propia heterogeneidad, no por un artefacto del método.
+El **HSIC** (Criterio de independencia de Hilbert-Schmidt) diagnostica
+dependencia bajo el kernel y la muestra declarados. Un valor cercano a cero no
+demuestra ausencia de sesgo, fairness o mecanismo de heterogeneidad.
 
-El **SSC** (Cobertura estratificada por tamaño) verifica que la cobertura empírica sea uniforme entre préstamos con intervalos angostos y préstamos con intervalos anchos. Si el SSC es uniforme, el sistema no "sacrifica" la cobertura de los casos difíciles para mantener el promedio.
+El **SSC** describe cobertura empírica por estratos de tamaño. Uniformidad en
+esos estratos no garantiza cobertura condicional ni equidad de los casos
+difíciles.
 
-El **CWC** de ~0.243 indica que el sistema logra cobertura prudente con intervalos razonablemente informativos. No es el punto ideal teórico de eficiencia, pero sí una solución operativamente defendible para la tesis y el pipeline de decisión bajo incertidumbre.
+El **CWC** histórico de ~0.243 combina cobertura y anchura bajo una definición
+local. No certifica eficiencia, prudencia ni una solución operativamente
+defendible downstream.
 :::

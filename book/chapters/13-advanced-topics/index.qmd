@@ -1,32 +1,43 @@
 ---
-title: "Temas Avanzados"
+title: "Temas Avanzados: Archivo Diagnóstico"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ::: {.whole-game-intro}
-**Pregunta central**: ¿Qué sucede cuando se cuestionan los supuestos del pipeline principal o se exploran caminos no tomados?
+**Pregunta central**: ¿qué supuestos, comparadores y transformaciones del
+pipeline histórico siguen siendo informativos como diagnóstico, aunque no
+soporten un claim promovido?
 :::
 
-Los capítulos anteriores documentan el pipeline canónico: el camino que se eligió y se congeló para producción. Esta sección explora las **preguntas que surgen alrededor** de ese camino: ¿qué pasaría si se usara otro método de incertidumbre? ¿Cuánto cuesta un punto porcentual más de confianza conformal? ¿Qué sesgo introduce ignorar riesgos competitivos? ¿Cómo se propaga la incertidumbre temporal hasta las provisiones?
+Esta sección conserva análisis exploratorios que ayudan a localizar fallas de
+estimando, sensibilidad y gobernanza. No es un leaderboard de métodos ni una
+extensión automática de los papers. Los nombres `winner`, `optimal`, `ECL` o
+`PASS` que aparezcan dentro de artefactos históricos describen el código que los
+produjo; el contrato científico vigente determina qué puede afirmarse hoy.
 
-Cada sub-capítulo es un análisis autocontenido que complementa la narrativa principal sin alterar los artefactos canónicos. Los resultados de estos temas alimentan directamente Paper 2, Paper 4 y la agenda futura (@sec-future-directions). Las líneas GPU y Quantum ya no son superficie editorial del libro.
-
-| Tema | Pregunta clave | Hallazgo principal |
+| Tema | Pregunta de auditoría | Estado actual |
 |---|---|---|
-| Baselines de incertidumbre | ¿CP es mejor que BMA/bootstrap? | CP 19.3% más estrecho con mejor cobertura mínima |
-| Alpha sweep | ¿Cuánto cuesta más confianza? | De 90% a 99%: +\$6M en provisiones |
-| Competing risks | ¿KM sesga el ECL? | Sobreestima 26.7%, exceso \$125.8M |
-| Stage cost | ¿Cuál es el threshold óptimo? | pd_thr=0.15, costo total \$97.3M |
-| TS→ECL | ¿Los intervalos TS cambian provisiones? | Banda ECL 267% del punto |
+| Baselines de incertidumbre | ¿Los comparadores comparten objeto, calibración y muestra de evaluación? | Diagnóstico; sin dominancia promovida |
+| Alpha sweep | ¿Qué cambia mecánicamente al variar el nivel nominal? | Sensibilidad histórica; no palanca prudencial |
+| Competing risks | ¿Cómo cambia el estimando al tratar prepago como evento competitivo? | Comparación metodológica; magnitudes monetarias retiradas |
+| Stage cost | ¿La etiqueta y el costo representan SICR? | Parked; default terminal no es Stage 2 verdadero |
+| TS→salida monetaria | ¿La serie y sus intervalos representan defaults calendario? | Diagnóstico no promovible |
 
-: Resumen de temas avanzados y hallazgos principales {#tbl-advanced-summary}
+: Mapa de temas avanzados y decisión editorial vigente. {#tbl-advanced-summary}
+
+Los resultados de esta parte pueden alimentar una nota metodológica o una agenda
+futura solo si conservan esa clasificación. Paper 2 permanece
+`parked_ifrs9`, Paper 4 continúa como living lab y ninguna página de esta sección
+autoriza despliegue, política contable ni recomendación regulatoria.
 
 ```{=html}
 <div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="13a-uncertainty-baselines.html">55. Baselines</a></h4><p>CP vs bootstrap, BMA y alternativas clásicas.</p></div>
-  <div class="chapter-card"><h4><a href="13b-alpha-sweep-pareto.html">56. Alpha Sweep</a></h4><p>Pareto entre cobertura, ancho y retorno.</p></div>
-  <div class="chapter-card"><h4><a href="13c-competing-risks-ecl.html">57. Competing Risks</a></h4><p>CIF vs KM y sesgo en reservas IFRS9.</p></div>
-  <div class="chapter-card"><h4><a href="13d-stage-misclassification-cost.html">58. Stage Cost</a></h4><p>Costo asimétrico de Stage 1/2 bajo thresholds.</p></div>
-  <div class="chapter-card"><h4><a href="13e-ts-ecl-intervals.html">59. TS→ECL</a></h4><p>Propagación de intervalos temporales a provisión.</p></div>
+  <div class="chapter-card"><h4><a href="13a-uncertainty-baselines.html">55. Baselines</a></h4><p>Auditoría de comparabilidad entre objetos de incertidumbre.</p></div>
+  <div class="chapter-card"><h4><a href="13b-alpha-sweep-pareto.html">56. Alpha Sweep</a></h4><p>Sensibilidad mecánica y límites de transporte.</p></div>
+  <div class="chapter-card"><h4><a href="13c-competing-risks-ecl.html">57. Competing Risks</a></h4><p>Definiciones KM/CIF y requisitos antes de monetizar.</p></div>
+  <div class="chapter-card"><h4><a href="13d-stage-misclassification-cost.html">58. Stage Cost</a></h4><p>Auditoría de etiqueta, costo y selección de umbral.</p></div>
+  <div class="chapter-card"><h4><a href="13e-ts-ecl-intervals.html">59. TS→salida</a></h4><p>Diagnóstico de series por vintage y transformaciones monetarias.</p></div>
 </div>
 ```

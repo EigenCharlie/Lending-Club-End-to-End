@@ -1,14 +1,24 @@
 ## Estrategia de Splitting Temporal {#sec-temporal-splitting}
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ### ¿Por qué Out-of-Time y no Random Split?
 
 En la práctica bancaria, un modelo de PD se entrena con datos históricos y se aplica a solicitantes futuros. La evaluación relevante es: **¿qué tan bien predice el modelo sobre datos de un período que no vio durante el entrenamiento?** Un split aleatorio mezcla préstamos de todos los períodos en train y test, permitiendo que el modelo "vea" el futuro --- por ejemplo, patrones de 2019 que informan predicciones sobre préstamos de 2018.
 
-El **split Out-of-Time (OOT)** replica el escenario de producción: el modelo se entrena con el pasado y se evalúa exclusivamente con el futuro.
+El **split Out-of-Time (OOT)** respeta el orden calendario dentro del snapshot:
+el modelo se entrena con períodos anteriores y se evalúa en períodos
+posteriores ya observados. Es más exigente que un split aleatorio, pero no
+replica por sí solo un despliegue prospectivo ni crea un holdout independiente
+si sus outcomes se reutilizan para selección downstream.
 
 ::: {.callout-warning}
 ## Random split infla el AUC
-Experimentos internos muestran que un random split produce AUC ~0.04 puntos más alto que el split OOT equivalente para el mismo modelo CatBoost. Esta inflación no se traduce en rendimiento real y da una falsa sensación de seguridad. El split OOT es la única evaluación metodológicamente válida para un modelo de credit scoring que será desplegado en producción.
+Un experimento interno registró un AUC aproximadamente 0.04 mayor con split
+aleatorio que con el corte temporal para el mismo modelo CatBoost. La diferencia
+documenta sensibilidad al diseño de evaluación; no basta para cuantificar
+desempeño de producción. Un modelo desplegable requeriría además validación
+prospectiva, drift, representatividad, calibración y gobernanza independientes.
 :::
 
 ### Diseño del Split Temporal
@@ -27,7 +37,7 @@ splits = [
     {"Split": "Calibración", "Período": "Mar 2017 — Dic 2017", "Préstamos": "237,584",
      "Default Rate": "22.20%", "Rol": "Scores conformales (MAPIE), calibración de probabilidades"},
     {"Split": "Test (OOT)", "Período": "Ene 2018 — Sep 2020", "Préstamos": "276,869",
-     "Default Rate": "21.98%", "Rol": "Evaluación final, backtesting, portafolio, IFRS9"},
+     "Default Rate": "21.98%", "Rol": "Evaluación retrospectiva reutilizada en backtesting, portafolio e IFRS9-inspired"},
 ]
 
 pd.DataFrame(splits)
@@ -37,20 +47,28 @@ pd.DataFrame(splits)
 
 La elección de enero 2018 como fecha de corte no es arbitraria --- responde a tres criterios:
 
-**1. Representatividad del período de test**: El período 2018--2020 incluye condiciones económicas diversas: expansión económica (2018--2019) y el inicio de la crisis COVID-19 (2020Q1--Q3). Esto evalúa la robustez del modelo bajo cambio de régimen (*concept drift*).
+**1. Diversidad del período de test**: El período 2018--2020 incluye expansión
+económica y el inicio de la crisis COVID-19. Esto permite observar sensibilidad
+retrospectiva a cambios de régimen; no demuestra robustez futura.
 
-**2. Tamaño suficiente para calibración conformal**: El set de calibración (237,584 préstamos) es grande comparado con el requisito mínimo para predicción conformal. El error de muestra finita es $\frac{1}{n+1} \approx 4.2 \times 10^{-6}$, haciendo la garantía de cobertura prácticamente exacta (ver @sec-coverage-guarantee).
+**2. Tamaño de calibración**: El set contiene 237,584 préstamos. El término de
+granularidad $1/(n+1)$ es pequeño, pero el tamaño no repara violaciones de
+intercambiabilidad, reutilización adaptativa del set o cambio temporal. Por
+tanto, no hace que la cobertura sea “prácticamente exacta”.
 
-**3. Consistencia con la práctica bancaria**: Los modelos de PD se recalibran típicamente cada 12--24 meses. Tener un test set de ~33 meses simula un ciclo de vida realista del modelo antes de su revisión.
+**3. Lectura temporal**: Un test de aproximadamente 33 meses permite describir
+estabilidad dentro del snapshot. No simula todos los controles ni decisiones de
+un ciclo de vida bancario real.
 
 ### El Rol Dual del Set de Calibración {#sec-calibration-role}
 
-El set de calibración cumple **dos funciones** independientes en el pipeline:
+El set de calibración cumple **dos funciones distintas pero no independientes**
+en el pipeline:
 
 | Función | Método | Input | Output |
 |---------|--------|-------|--------|
 | **Calibración de probabilidades** | Venn-Abers / Platt / Isotonic | Scores CatBoost + labels | Calibrador persistido (`.pkl`) |
-| **Conformización** | MAPIE SplitConformalRegressor | PDs calibradas + labels | Cuantiles conformales por grupo |
+| **Conformización** | MAPIE SplitConformalRegressor | Scores calibrados + los mismos labels | Cuantiles residuales por grupo |
 
 : Funciones del set de calibración {#tbl-calibration-functions}
 
@@ -58,7 +76,12 @@ Estas dos funciones se ejecutan secuencialmente --- primero se ajusta el calibra
 
 ::: {.callout-note}
 ## ¿Reutilizar el set de calibración para ambas funciones?
-Usar el mismo set para calibración de probabilidades y para conformización introduce una dependencia que, en teoría, podría afectar la garantía de cobertura conformal. En la práctica, con $n = 237{,}584$ observaciones, el efecto es negligible y la cobertura empírica (92.57% al nivel 90%) confirma que la garantía se mantiene holgadamente. La alternativa --- dividir el set de calibración en dos --- reduciría el tamaño de ambos subsets sin beneficio práctico medible.
+Usar el mismo set para ajustar el calibrador probabilístico y cuantificar scores
+conformales introduce dependencia adaptativa. Un $n$ grande y una cobertura
+empírica de 92.93% en un corte ya observado no prueban que la garantía teórica
+se conserve. El artefacto es útil como diagnóstico histórico; una reapertura
+confirmatoria debe separar funciones o justificar formalmente la composición y
+reservar evaluación independiente.
 :::
 
 ### Extracción Temporal del Set de Calibración
@@ -81,7 +104,7 @@ A diferencia de una extracción aleatoria, el set de calibración se extrae del 
     <div class="book-band__segment book-band__segment--test">
       <strong>Test OOT</strong>
       <span>Ene 2018 — Sep 2020</span>
-      <span>Evalúa rendimiento real sobre el futuro, incluyendo cambio de régimen.</span>
+      <span>Evalúa retrospectivamente períodos posteriores, incluyendo cambio de régimen.</span>
     </div>
   </div>
   <p class="book-band__note">La calibración se toma del tramo final del entrenamiento para parecerse más al mundo que luego verá el test OOT.</p>
@@ -90,7 +113,10 @@ A diferencia de una extracción aleatoria, el set de calibración se extrae del 
 
 Esta estrategia temporal tiene dos ventajas:
 
-1. **Distribución más cercana al test**: Los préstamos de calibración (2017) son más recientes que los de train (2007--2017), por lo que su distribución de features está más cercana a la del test (2018--2020). Esto mejora la relevancia de los cuantiles conformales.
+1. **Proximidad temporal buscada**: Los préstamos de calibración (2017) son más
+   recientes que gran parte de train. Se buscó así acercar su distribución a
+   2018--2020, pero la proximidad de fechas no demuestra intercambiabilidad ni
+   validez del cuantil.
 2. **Preserva el orden temporal en train**: El set de train retiene los préstamos más antiguos íntegramente, evitando "huecos" temporales que podrían afectar modelos de supervivencia o series de tiempo.
 
 ### Distribución del Default Rate por Período
@@ -106,11 +132,14 @@ Un aspecto notable del dataset es el **incremento de la tasa de default** en los
 
 : Default rate por período temporal {#tbl-default-rates}
 
-El incremento de ~18.5% a ~22% entre train y test representa un **concept drift moderado** --- suficiente para estresar el modelo pero no para invalidarlo. La cobertura conformal de 92.57% (superior al target del 90%) confirma que el pipeline es robusto a este nivel de drift.
+El incremento de ~18.5% a ~22% entre train y test documenta **drift de la tasa
+base**. Llamarlo moderado o suficiente para no invalidar el modelo requeriría un
+protocolo predeclarado. La cobertura observada de 92.93% describe el resultado
+binario en este corte; no confirma robustez de PD, ECL o policy ante drift.
 
-### Validación de la Estrategia
+### Auditoría Básica del Split
 
-Para validar que el split temporal no introduce sesgos sistemáticos, verificamos:
+Para documentar propiedades mecánicas y diferencias observables del split, verificamos:
 
 1. **No overlap temporal**: Ningún préstamo del set de test tiene `issue_d` anterior a enero 2018. Esta garantía se implementa en `prepare_dataset.py` con un filtro estricto por fecha.
 2. **Consistencia de features**: Las distribuciones de features clave (DTI, FICO, loan_amount) entre train y test son similares, con PSI (Population Stability Index) < 0.10 para la mayoría de variables. El monitoreo continuo de PSI por feature a lo largo del período OOT, y su rol en la gobernanza del modelo, se profundiza en @sec-mrm.
@@ -118,5 +147,9 @@ Para validar que el split temporal no introduce sesgos sistemáticos, verificamo
 
 ::: {.callout-tip}
 ## Implicación para el lector
-Todas las métricas reportadas en este libro --- AUC, Brier, cobertura conformal, ECL, retorno de portafolio --- se calculan **exclusivamente** sobre el set de test OOT (2018--2020). Ninguna métrica se reporta sobre datos de entrenamiento o validación. Esto garantiza que los números reflejan rendimiento genuino en un escenario prospectivo, no sobreajuste al pasado.
+Las métricas principales se calcularon sobre la partición denominada `test
+OOT` (2018--2020), pero varias decisiones y comparaciones downstream también
+reutilizaron sus outcomes. El orden temporal reduce una fuente de leakage; no
+garantiza evaluación prospectiva, ausencia de selección adaptativa ni
+transportabilidad fuera del snapshot.
 :::

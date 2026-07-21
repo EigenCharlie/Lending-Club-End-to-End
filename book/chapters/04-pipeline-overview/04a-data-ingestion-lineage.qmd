@@ -1,8 +1,13 @@
 ## Ingesta de Datos y Linaje {#sec-data-ingestion}
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ### El Dataset de Lending Club
 
-El proyecto utiliza el dataset **Lending Club Loan Data 2007--2020Q3**, disponible públicamente en Kaggle. Lending Club fue la plataforma de préstamos peer-to-peer más grande de Estados Unidos hasta su transición a banca comercial en 2020. El dataset contiene información de todos los préstamos originados en la plataforma durante 13 años, incluyendo características del solicitante, condiciones del préstamo y resultado final (pagado vs. default).
+El proyecto utiliza un snapshot público **Lending Club Loan Data
+2007--2020Q3** distribuido en Kaggle. Contiene registros de préstamos aceptados,
+features, condiciones y estados observados; no debe describirse como un censo
+completo de solicitantes ni como panel contractual a reporting date.
 
 ```{python}
 #| label: tbl-dataset-overview
@@ -26,13 +31,17 @@ pd.DataFrame(dataset_info)
 
 ::: {.callout-tip}
 ## ¿Por qué Lending Club?
-El dataset de Lending Club es el estándar de facto en la investigación de credit scoring con ML. Más de 200 papers publicados lo utilizan como benchmark, lo que permite comparar directamente nuestras métricas contra la literatura. Además, su tamaño (millones de préstamos) y riqueza de variables (142 columnas) lo hacen ideal para técnicas avanzadas como predicción conformal Mondrian, que requiere subgrupos suficientemente grandes para calibración por grado.
+Su tamaño, horizonte y uso frecuente en el corpus local lo hacen útil como
+laboratorio reproducible. No garantizan comparabilidad directa con otros papers:
+target, madurez, filtros, leakage, features y splits pueden diferir. Miles de
+filas por grupo reducen granularidad muestral, pero no prueban
+intercambiabilidad ni seleccionan una partición Mondrian.
 :::
 
 | Capa | Qué representa | Por qué sí importa para el libro |
 |---|---|---|
 | Dataset público Kaggle | La materia prima original, descargable y ampliamente usada en papers | Permite comparar el proyecto contra la literatura y explicar de dónde sale la señal |
-| Dataset limpio interno | La versión sin leakage y con outcome resuelto | Ahí empieza realmente el pipeline defendible |
+| Dataset limpio interno | La versión con filtros de leakage y outcome resuelto | Ahí empieza el pipeline histórico; persiste sesgo de madurez |
 | Datasets analíticos derivados | Versiones especializadas para PD, forecasting y EAD | Evitan forzar un único archivo a resolver todos los problemas del libro |
 
 : Del dataset público a los datasets analíticos del proyecto {#tbl-public-to-analytic}
@@ -48,35 +57,46 @@ La ingesta de datos sigue un proceso de tres pasos implementado en `src/data/mak
 - **Fully Paid**: El prestatario pagó la totalidad del principal e intereses.
 - **Charged Off** / **Default**: El prestatario dejó de pagar y Lending Club declaró la pérdida.
 
-Se excluyen préstamos en estados intermedios (*Current*, *Late*, *In Grace Period*) porque no tienen un outcome binario definido. Esto reduce el dataset de ~2.93M a ~1.86M filas.
+Se excluyen préstamos en estados intermedios (*Current*, *Late*, *In Grace
+Period*) porque no tienen un outcome terminal binario. Esto reduce el dataset de
+~2.93M a ~1.86M filas y crea un universo **resolved-only**: cohortes recientes y
+préstamos largos tienen menos probabilidad de estar resueltos, por lo que la
+evaluación está expuesta a sesgo de madurez y selección.
 
-**Paso 3 --- Creación de la variable objetivo**: Se crea `default_flag` como variable binaria sencilla. Si el préstamo terminó en `Charged Off` o `Default`, el registro se marca como `1`; si terminó en `Fully Paid`, se marca como `0`. Esta es la etiqueta que luego aprenden los modelos PD.
+**Paso 3 --- Creación de la variable objetivo**: `default_flag` marca el estado
+terminal resuelto. Es la etiqueta aprendida por el clasificador histórico; no
+define por sí sola una PD a 12 meses, lifetime o a reporting date.
 
 ### Remoción de Data Leakage {#sec-anti-leakage}
 
-El data leakage es el error metodológico más grave en credit scoring: usar información del futuro para predecir el pasado. En Lending Club, múltiples variables contienen información que **solo está disponible después de que el préstamo se ha resuelto** --- usarlas como features produciría un modelo aparentemente excelente (AUC > 0.95) pero completamente inútil en producción.
+El data leakage es un error metodológico grave en credit scoring: usar
+información del futuro para predecir el pasado. En Lending Club, variables
+post-outcome como `total_pymnt` pueden inflar espuriamente la validación y
+violan el contrato *point-in-time*: no están disponibles al originar el
+préstamo. Este es un ejemplo didáctico del riesgo, no un resultado cuantitativo
+reproducible del repositorio.
 
-Para dimensionar el impacto: durante el desarrollo temprano del pipeline, un modelo que incluía `total_pymnt` (total de pagos recibidos) alcanzó AUC > 0.95 en validación --- un rendimiento aparentemente espectacular. Sin embargo, `total_pymnt` es una variable que solo existe después de que el préstamo se ha resuelto: si un prestatario pagó poco, el modelo "aprende" que eso predice default, pero esa información no está disponible al momento de originación. En producción, esa feature valdría cero o sería desconocida para todos los préstamos, destruyendo completamente la capacidad predictiva del modelo. Este ejemplo ilustra por qué la remoción de leakage debe ser implacable, no quirúrgica.
-
-El pipeline remueve **35 columnas** con leakage confirmado, organizadas en cinco categorías:
+El pipeline excluye un conjunto de columnas por leakage, disponibilidad
+temporal, sparsity o ambigüedad del momento de decisión. La razón no es idéntica
+para todas y debe verificarse contra el vintage y el diccionario de origen:
 
 ```{python}
 #| label: tbl-leakage-columns
-#| tbl-cap: "Variables removidas por data leakage (35 columnas)"
+#| tbl-cap: "Variables excluidas por leakage o disponibilidad temporal/contractual"
 
 leakage = [
     {"Categoría": "Pagos recibidos", "Variables": "total_pymnt, total_pymnt_inv, total_rec_prncp, total_rec_int, total_rec_late_fee",
      "Razón": "Solo se conocen después de recibir pagos"},
     {"Categoría": "Recuperaciones", "Variables": "recoveries, collection_recovery_fee",
      "Razón": "Solo existen post-default"},
-    {"Categoría": "Saldo pendiente", "Variables": "out_prncp, out_prncp_inv, funded_amnt, funded_amnt_inv",
-     "Razón": "Reflejan estado del préstamo en el futuro"},
+    {"Categoría": "Saldo y fondeo", "Variables": "out_prncp, out_prncp_inv, funded_amnt, funded_amnt_inv",
+     "Razón": "out_prncp es post-originación; funded_amnt exige fijar el momento de decisión y disponibilidad"},
     {"Categoría": "Último pago", "Variables": "last_pymnt_d, last_pymnt_amnt, last_credit_pull_d",
      "Razón": "Información temporal futura"},
     {"Categoría": "Hardship/Settlement", "Variables": "hardship_flag/type/reason/status/amount/dates (12 cols), settlement_status/date/amount/pct/term (6 cols), debt_settlement_flag, payment_plan_start_date",
      "Razón": "Programas post-originación aplicados a préstamos en dificultad"},
     {"Categoría": "Crédito agregado", "Variables": "total_bal_il, il_util, max_bal_bc, all_util, total_rev_hi_lim",
-     "Razón": "Snapshots de buró post-originación que reflejan comportamiento futuro"},
+     "Razón": "Disponibilidad y timestamp dependen del vintage; se excluyen ante linaje insuficiente, no por leakage universal"},
 ]
 
 pd.DataFrame(leakage)
@@ -84,12 +104,19 @@ pd.DataFrame(leakage)
 
 ::: {.callout-warning}
 ## La trampa del leakage sutil
-Algunas variables parecen disponibles al momento de originación pero en realidad son snapshots actualizados periódicamente. Por ejemplo, `revol_util` (utilización revolving) se actualiza mensualmente por el buró de crédito. La versión en el dataset podría ser la del momento de descarga (2020), no la del momento de originación. En este proyecto usamos `revol_util` como feature porque refleja el estado crediticio cercano a la originación en la mayoría de los registros, pero esta limitación debe tenerse en cuenta al interpretar los resultados.
+Algunas variables parecen disponibles al momento de originación pero pueden ser
+snapshots actualizados. El freeze usa `revol_util`, pero el repositorio no
+demuestra fila a fila que su timestamp corresponda a originación. Debe tratarse
+como riesgo de linaje, no como feature conocida con certeza al decidir.
 :::
 
 ### Construcción de LGD
 
-Antes de eliminar las columnas de leakage, el pipeline calcula la **Loss Given Default** (LGD) observada para los préstamos que sí incumplieron. La idea es simple: medir qué proporción de la exposición original realmente se perdió después de descontar capital recuperado y procesos de recuperación. El valor final se recorta entre 0 y 1 para mantener una interpretación financiera clara, y se asigna LGD = 0 a los préstamos que nunca cayeron en default.
+Antes de eliminar columnas post-outcome, el pipeline construye un **proxy
+retrospectivo de severidad** para préstamos resueltos usando pagos y recoveries.
+El valor se recorta a $[0,1]$ y se asigna cero a no-defaults por convención de
+código. No es una LGD contractual a reporting date ni valida exposición,
+discounting o timing de recuperaciones.
 
 En términos de negocio, esto evita tratar todos los defaults como si fueran iguales. En Lending Club no es lo mismo un préstamo que entra en default y luego recupera una parte relevante del saldo, que uno que termina casi totalmente perdido. Esa diferencia es la que luego alimenta el modelado de severidad.
 
@@ -103,13 +130,13 @@ A partir del dataset limpio, `src/data/build_datasets.py` construye tres dataset
 
 datasets = [
     {"Dataset": "loan_master.parquet", "Granularidad": "Un registro por préstamo",
-     "Uso": "Modelos PD, LGD, supervivencia, conformal, portafolio",
+     "Uso": "Score binario, proxies de severidad/supervivencia, conformal y stress de portafolio",
      "Columnas clave": "42 features + default_flag + lgd + issue_d + grade"},
     {"Dataset": "time_series.parquet", "Granularidad": "Un registro por mes (118 meses)",
-     "Uso": "Forecasting con StatsForecast/MLForecast, intervalos TS→ECL",
+     "Uso": "Forecasting agregado y transformaciones TS→ECL históricas",
      "Columnas clave": "unique_id, ds, y (default_rate), loan_count, volume"},
     {"Dataset": "ead_dataset.parquet", "Granularidad": "Solo préstamos en default",
-     "Uso": "Modelado de EAD (Exposure at Default)",
+     "Uso": "Proxy retrospectivo denominado EAD",
      "Columnas clave": "Features de originación + saldo al momento del default"},
 ]
 
@@ -121,10 +148,10 @@ El dataset `loan_master` es el input principal del pipeline. El `time_series` al
 | Dataset / artefacto | Consumidores principales | Qué evita |
 |---|---|---|
 | `lending_club_cleaned.parquet` | preparación temporal, QA, EDA | repetir limpieza en notebooks y scripts |
-| `Train`, `Calibration`, `Test OOT` | PD, conformal, monitoreo | mezclar ajuste, calibración y evaluación final |
+| `Train`, `Calibration`, `Test OOT` | score, conformal y monitoreo | mezclar orden temporal básico; no preserva un final intacto |
 | `loan_master.parquet` | PD, survival, causal, explainability, portafolio | mantener varias copias divergentes de features base |
-| `time_series.parquet` | forecasting, escenarios IFRS9, stress temporal | derivar series cada vez desde cero |
-| `ead_dataset.parquet` | severidad / exposición al default | contaminar EAD con préstamos irrelevantes para ese objetivo |
+| `time_series.parquet` | forecasting y escenarios simulados | derivar series cada vez desde cero |
+| `ead_dataset.parquet` | proxy de exposición/severidad | mezclar unidades, sin volverlo EAD contable |
 
 : Por qué existen varios datasets y quién los consume {#tbl-dataset-consumers}
 
@@ -150,7 +177,7 @@ Cada transición deja inputs y outputs explícitos. Eso ayuda a auditar qué pro
 | Stage DVC / contrato | Script o capa | Output visible | Pregunta que responde |
 |---|---|---|---|
 | `make_dataset` | `src/data/make_dataset.py` | `lending_club_cleaned.parquet` | ¿Ya tenemos una versión limpia y defendible del dataset crudo? |
-| `prepare_dataset` | `src/data/prepare_dataset.py` | `train/calibration/test` | ¿La evaluación respeta el tiempo y separa calibración del test? |
+| `prepare_dataset` | `src/data/prepare_dataset.py` | `train/calibration/test` | ¿Se preserva el orden temporal básico y dónde se reutilizan outcomes? |
 | `build_datasets` | `src/data/build_datasets.py` | `loan_master`, `time_series`, `ead_dataset` | ¿Cada módulo downstream recibe el insumo correcto? |
 | `dbt + Feast` | staging semántico y catálogo de features | vistas y features declaradas | ¿Dónde vive la definición estable de una feature? |
 | `DVC lock + artifacts` | repositorio y storage remoto | huellas de versión | ¿Qué run produjo exactamente el artefacto citado en el libro? |

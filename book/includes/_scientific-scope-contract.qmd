@@ -1,0 +1,14 @@
+::: {.callout-important title="Contrato científico vigente"}
+Este libro conserva un pipeline y artefactos históricos del repositorio padre,
+pero no convierte sus nombres de ejecución en claims actuales. Con etiquetas
+binarias, los endpoints conformales cubren el resultado observado $Y$ bajo el
+diseño y los supuestos declarados; **no** son intervalos de confianza para la PD
+individual latente y su cobertura no se transporta automáticamente a ECL,
+SICR, pérdidas esperadas, cajas de PD ni políticas seleccionadas.
+
+El CRPTO/IJDS externo vigente es una auditoría retrospectiva de identificación
+que no selecciona modelo ni policy. Paper 2 queda `parked_ifrs9` como prototipo
+diagnóstico y Paper 4 sigue como living lab sin promoción. Las etiquetas
+locales `winner` o `champion` solo describen una congelación histórica y deben
+leerse como procedencia, no como recomendación de despliegue.
+:::

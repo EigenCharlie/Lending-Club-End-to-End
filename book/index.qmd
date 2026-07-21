@@ -3,24 +3,35 @@ title: "Gestión de Riesgo Crediticio con Predicción Conformal y Optimización 
 page-layout: article
 ---
 
+{{< include includes/_scientific-scope-contract.qmd >}}
+
 # Bienvenida {.unnumbered}
 
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-Este libro existe para responder una pregunta aplicada: **cómo pasar de un score PD puntual a decisiones de portafolio, provisión y gobernanza que reconozcan incertidumbre real**. La tesis que recorre toda la obra es que la predicción conformal solo revela su valor completo cuando deja de ser una nota metodológica y entra en la cadena `PD calibrada → banda de incertidumbre → optimización robusta → IFRS9`.
+Este libro existe para responder una pregunta aplicada: **¿qué afirmaciones
+sobre incertidumbre sobreviven cuando un score PD, un resultado binario y una
+decisión de portafolio se conectan?** La obra conserva el pipeline histórico,
+pero ahora audita cada flecha de la cadena en vez de asumir que la cobertura se
+transporta entre estimandos.
 
-Piensa en un préstamo de Lending Club con `PD = 12%`. Con una lectura clásica solo sabemos “12%”. En este libro lo tratamos distinto: preguntamos si ese 12% debería leerse como `[8%, 16%]`, qué cambia en la elegibilidad del portafolio, cómo se mueve el stage IFRS9, y qué controles adicionales exige esa ambigüedad. Esa es la historia que organiza los capítulos.
+Piensa en un préstamo con `PD = 12%`. Un intervalo residual construido con
+labels de default puede cubrir el próximo $Y$ binario; eso no convierte sus
+extremos en “8% y 16%” de PD verdadera. Para usar incertidumbre en provisión o
+asignación hay que declarar un objeto específico, datos adecuados y una
+validación independiente. Esa distinción organiza la edición actual.
 :::
 
 ::: {.callout-note}
-## Dos superficies, una misma fuente de verdad
+## Dos superficies locales, contratos separados
 Quarto funciona como **{{< var editorial.book-role >}}**. Streamlit funciona como **{{< var editorial.streamlit-role >}}**. {{< var editorial.reading-rule >}}
 :::
 
 ## La idea central
 
-La innovación principal es un pipeline **predict-then-optimize** con predicción conformal:
+La arquitectura histórica que organiza el proyecto es un pipeline
+**predict-then-optimize** con predicción conformal:
 
 ```{=html}
 <div class="pipeline-inline" aria-label="Flujo principal del pipeline editorial">
@@ -30,30 +41,34 @@ La innovación principal es un pipeline **predict-then-optimize** con predicció
   <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
   <span class="pipeline-inline__step"><span class="pipeline-inline__label">MAPIE Mondrian</span><span class="pipeline-inline__meta">Intervalos</span></span>
   <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
-  <span class="pipeline-inline__step"><span class="pipeline-inline__label">[PD_low, PD_high]</span><span class="pipeline-inline__meta">Garantía 1−α</span></span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">[L(X), U(X)] para Y</span><span class="pipeline-inline__meta">Cobertura bajo supuestos</span></span>
   <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
-  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Uncertainty Box</span><span class="pipeline-inline__meta">Robustez</span></span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Stress heurístico</span><span class="pipeline-inline__meta">Sin transporte automático</span></span>
   <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
   <span class="pipeline-inline__step"><span class="pipeline-inline__label">Pyomo/HiGHS</span><span class="pipeline-inline__meta">Optimización</span></span>
   <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
-  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Portafolio + IFRS9</span><span class="pipeline-inline__meta">Decisión</span></span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Portafolio / IFRS9</span><span class="pipeline-inline__meta">Lanes diagnósticos</span></span>
 </div>
 ```
 
-Las estimaciones puntuales de probabilidad de default (PD) producen decisiones frágiles porque esconden incertidumbre útil. Este libro muestra cómo convertir ese problema en una ventaja operativa: usar bandas conformales para decidir mejor, provisionar con más prudencia y defender metodológicamente lo que el pipeline hace.
+Las estimaciones puntuales de PD no agotan la incertidumbre, pero un método de
+cobertura para $Y$ tampoco la resuelve automáticamente. El valor de este libro
+está en hacer visible la frontera: qué calculó cada script, qué objeto puede
+interpretarse, qué resultados son solo históricos y qué datos faltan antes de
+formular un claim económico o prudencial.
 
 ## Qué encontrarás en este libro
 
 - **Parte I --- Fundamentos**: conceptos mínimos para leer el resto del proyecto sin convertir la entrada al libro en un curso teórico separado.
-- **Parte II --- Pipeline End-to-End**: desde el dataset crudo hasta la policy de portafolio, IFRS9 y gobernanza.
+- **Parte II --- Pipeline End-to-End**: desde el dataset crudo hasta prototipos históricos de policy de portafolio, IFRS9 y gobernanza.
 - **Parte III --- Insights Factory**: explicabilidad, dataset 360 y análisis secundarios que profundizan la lectura del mismo Lending Club.
-- **Parte IV --- Papers de Investigación**: Paper 2 y Paper 4 como superficie local activa. CRPTO/Paper IJDS vive autocontenido en `C:/Users/carlos/Documents/Paper_CRPTO`.
+- **Parte IV --- Papers de Investigación**: Paper 2 y Paper 4 como superficies locales activas, cada una con su estado explícito. CRPTO/Paper IJDS vive autocontenido en su repositorio independiente, fijado por `docs/research/crpto_external_contract_2026-07-20.yml`.
 - **Parte V --- Puente Académico**: conexión con tesis, contribuciones y agenda de investigación.
 - **Apéndices**: evidencia visual, catálogo de artefactos, configuración y mapa del companion.
 
 ## Sobre el dataset
 
-**Fuente**: [Lending Club Loan Data (Kaggle, 2007--2020Q3)](https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data), un dataset estático de aproximadamente 1.86 millones de préstamos resueltos.
+**Fuente histórica local**: [Lending Club Loan Data (Kaggle, 2007--2020Q3)](https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data). Los splits congelados de este repositorio contienen aproximadamente 1.86 millones de préstamos resueltos; no son el universo analítico ni el contrato de selección vigente de CRPTO.
 
 | Split | Préstamos | Tasa de Default | Período |
 |-------|-----------|-----------------|---------|
@@ -61,16 +76,16 @@ Las estimaciones puntuales de probabilidad de default (PD) producen decisiones f
 | Calibración | 237,584 | 22.20% | 2017-03 a 2017-12 |
 | Test (OOT) | 276,869 | 21.98% | 2018-01 a 2020-09 |
 
-: Splits temporales out-of-time para evaluación estricta {#tbl-splits}
+: Splits históricos por orden temporal; el OOT fue reutilizado y no es un holdout final intacto {#tbl-splits}
 
 ## Rutas de lectura
 
 | Si tu pregunta principal es… | Empieza aquí | Luego sigue con… |
 |---|---|---|
 | ¿qué hace distinto a este proyecto? | `01 Mapa Ejecutivo` | `04 Pipeline`, `09 Portafolio`, `10 IFRS9` |
-| ¿cómo se construyó el modelo y la incertidumbre? | `06 Modelado PD`, `07 Conformal` | `09 Portafolio`, `16 Paper Mondrian` |
+| ¿cómo se construyó el modelo y qué cubren los intervalos? | `06 Modelado PD`, `07 Conformal` | `09 Portafolio` como stress histórico |
 | ¿qué significa esto para provisión y regulación? | `10 IFRS9 y Gobernanza` | `15 Paper IFRS9`, `17 Puente Académico` |
-| ¿qué piezas son publicables? | `14 Paper CRPTO`, `15`, `16`, `19` | `18 Agenda de Investigación` |
+| ¿qué piezas son publicables? | `15 Paper 2` (parked), `19 Paper 4` (living lab) | `18 Agenda`; CRPTO vive en su repo externo |
 
 : Rutas sugeridas para no leer el libro como si todo tuviera el mismo peso {#tbl-reading-routes}
 
@@ -88,7 +103,7 @@ Las estimaciones puntuales de probabilidad de default (PD) producen decisiones f
   </div>
   <div class="chapter-card">
     <h3>Parte II</h3>
-    <p>El pipeline operativo completo: datos, PD, conformal, portafolio, IFRS9 y gobernanza.</p>
+    <p>El pipeline histórico local: datos, PD, conformal y prototipos diagnósticos de portafolio, IFRS9 y gobernanza.</p>
   </div>
   <div class="chapter-card">
     <h3>Parte III</h3>

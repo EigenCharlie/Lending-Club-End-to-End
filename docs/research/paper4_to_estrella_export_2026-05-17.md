@@ -1,6 +1,29 @@
-# Paper 4 to Paper Estrella Export Memo - 2026-05-17
+# Paper 4 to Paper Estrella Export Memo - 2026-05-17 (SUPERSEDED)
 
-## Decision
+**Status: `superseded` as of 2026-07-20.**
+
+This file is retained only as historical provenance. The proposed export below
+was not transferred into the active standalone CRPTO IJDS paper. That paper is
+now a retrospective identification audit: it does not select a learner,
+residual window, taxonomy, gamma, ruler, coordinate, cap, comparator, or policy.
+Paper 4 therefore treats CRPTO as an autonomous external claim surface and does
+not use F03, F04, F05, SDAM, CVaR, or PyEPO to extend its active claims.
+The observed external authority is pinned in
+`docs/research/crpto_external_contract_2026-07-20.yml` at
+`Paper_CRPTO@69095e05beae282701b4ea38aa69da26a209106f`; this historical memo is
+not evidence for finding F02.
+
+The active Paper 4 interpretation is:
+
+- F03 is an execution/provenance fact under one internal simulator;
+- F04 is conditional descriptive simulation evidence;
+- F05 consists of post-selection slices, not strict holdouts;
+- SDAM is a design and governance checklist, not an optimizer;
+- PyEPO is a teacher-cost benchmark, not realized-loss or CRPTO policy evidence.
+
+Everything below this notice records the May 2026 decision and is not active.
+
+## Historical decision (not active)
 
 Close the Paper 4 procedural loop and export only the pieces that strengthen the
 official Paper Estrella. Paper Estrella remains the official publication and
@@ -11,7 +34,7 @@ The 14 pending Paper 4 review outcomes are accepted in
 for a bounded four-chapter patch. This is an owner closure decision, not external
 peer review and not a Paper 4 final promotion.
 
-## What Moves Into Paper Estrella
+## Historical proposed export (not executed in the active CRPTO IJDS paper)
 
 | ID | Paper 4 finding | Paper Estrella use | Boundary |
 |---|---|---|---|

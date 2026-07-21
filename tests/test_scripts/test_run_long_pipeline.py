@@ -73,6 +73,34 @@ def test_build_steps_diagnostics_governance_runs_governance_before_mrm() -> None
     assert "build_pipeline_results.py" not in diagnostics_cmd
 
 
+def test_build_steps_default_core_profile_replays_frozen_point_rule() -> None:
+    profile = lp.load_profile_config("core_canonical_cpu")
+    contract = lp._derive_pipeline_contract(
+        pipeline_family="core_canonical",
+        pipeline_profile_arg=None,
+        sampling_profile="champion64safe",
+        writes_canonical_artifacts_arg=None,
+        upstream_canonical_run_tag="baseline-run",
+    )
+    steps = lp.build_steps(
+        "run-replay",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+        pipeline_family="core_canonical",
+        pipeline_contract=contract,
+        profile_cfg=profile,
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+
+    expected_manifest = str(
+        (lp.REPO_ROOT / "configs/baselines/clean_baseline_manifest.json").resolve()
+    )
+    replay_args = f"--mode replay --replay_manifest {expected_manifest}"
+    assert replay_args in by_name["core_data_pd"]
+    assert replay_args in by_name["core_conformal"]
+
+
 def test_build_steps_search_pd_excludes_unrelated_lanes() -> None:
     contract = lp._derive_pipeline_contract(
         pipeline_family="search_pd",
@@ -436,7 +464,9 @@ def test_preflight_validates_pd_config_before_long_run() -> None:
     assert "--validate-only" in preflight_cmd
 
 
-def test_build_steps_profile_can_route_or_phases_to_rapids(tmp_path, monkeypatch) -> None:
+def test_build_steps_profile_routes_only_contract_allowed_phases_to_rapids(
+    tmp_path, monkeypatch
+) -> None:
     repo = tmp_path
     (repo / "configs").mkdir(parents=True, exist_ok=True)
     (repo / "configs" / "optimization.yaml").write_text(
@@ -491,10 +521,9 @@ portfolio_selection:
     assert (
         "rapids-python -u -m scripts.optimize_cate_portfolio" in by_name["research_cate_portfolio"]
     )
-    assert (
-        "run_ifrs9_monte_carlo_gpu.py --n-scenarios 8192 --chunk-size 256"
-        in by_name["research_rapids"]
-    )
+    # research_labs retired the standalone RAPIDS/IFRS9 lane from its contract;
+    # include_rapids can route an allowed phase to cuOpt but cannot resurrect it.
+    assert "research_rapids" not in by_name
 
 
 def test_main_rejects_core_run_without_explicit_baseline(tmp_path, monkeypatch) -> None:

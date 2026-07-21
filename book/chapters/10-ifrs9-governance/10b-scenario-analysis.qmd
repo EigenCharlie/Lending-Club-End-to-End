@@ -1,98 +1,30 @@
-## Análisis de Escenarios {#sec-scenario-analysis}
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
 
-### Escenarios Macroeconómicos
+## Escenarios Estilizados, no Escenarios IFRS9 Gobernados {#sec-scenario-analysis}
 
-IFRS9 requiere que las provisiones reflejen **información prospectiva** (*forward-looking*), incorporando múltiples escenarios macroeconómicos ponderados por su probabilidad [@iasb2014]. Nuestro pipeline implementa cuatro escenarios con multiplicadores progresivos sobre los parámetros de riesgo:
+El prototipo multiplica scores PD y LGD con cuatro factores determinísticos.
+Esto produce una elasticidad reproducible de la fórmula local, pero no un ECL
+IFRS9 identificado: faltan panel reporting-date, cash flows contractuales,
+EIR, EAD/LGD as-of, prepayment, recoveries y pesos macro gobernados.
 
-| Escenario | PD Mult. | LGD Mult. | EAD Mult. | Tasa Descuento |
-|:---------:|:--------:|:---------:|:---------:|:--------------:|
-| Baseline | 1.017 | 1.00 | 1.00 | 5% |
-| Mild Stress | 1.170 | 1.05 | 1.02 | 6% |
-| Adverse | 1.322 | 1.12 | 1.05 | 7% |
-| Severe | 1.577 | 1.20 | 1.10 | 8% |
+| Escenario legacy | Multiplicador PD | Multiplicador LGD | Uso vigente |
+|---|---:|---:|---|
+| baseline | 1.00 | 1.00 | referencia mecánica |
+| mild | >1 | >1 | sensibilidad |
+| adverse | > mild | > mild | sensibilidad |
+| severe | máximo del grid | máximo del grid | stress estilizado |
 
-: Multiplicadores por escenario macroeconómico {#tbl-scenario-multipliers}
+: Semántica de los multiplicadores históricos. {#tbl-scenario-multipliers}
 
-::: {.callout-note}
-## Calibración Temporal del Baseline
-El multiplicador baseline de PD (1.017) no es 1.0 sino que se calibra dinámicamente usando el contexto de series temporales: es el ratio entre la media de los pronósticos puntuales y la media reciente de tasas de default observadas. Esto ancla el escenario base en la tendencia macroeconómica más actual.
-:::
+El incremento baseline→severe puede citarse solo como respuesta mecánica del
+grid congelado. No es forecast, provisión recomendada ni evidencia de staging.
+Las columnas `total_ecl_low/high` tampoco son bandas: reutilizan endpoints de
+$Y$ como si fueran PD y no comparten un estimador central coherente.
 
-### Resultados por Escenario
+El fan chart legacy se conserva como procedencia, pero se omite de esta
+superficie: su título interno presenta escenarios IFRS9 e intervalos que el
+prototipo no valida.
 
-```{python}
-#| label: tbl-scenario-results
-#| tbl-cap: "ECL total y composición por escenario IFRS9."
-#| echo: false
-
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
-
-from book._helpers.load_artifacts import try_load_parquet, format_money
-import pandas as pd
-
-scenarios = try_load_parquet("ifrs9_scenario_summary")
-
-if not scenarios.empty:
-    display_df = pd.DataFrame({
-        "Escenario": scenarios["scenario"].str.replace("_", " ").str.title(),
-        "ECL Total": scenarios["total_ecl"].apply(lambda x: format_money(x)),
-        "Stage 1 (%)": (scenarios["stage1_share"] * 100).round(1).astype(str) + "%",
-        "Stage 2 (%)": (scenarios["stage2_share"] * 100).round(1).astype(str) + "%",
-        "Stage 3 (%)": (scenarios["stage3_share"] * 100).round(1).astype(str) + "%",
-        "ECL Low": scenarios["total_ecl_low"].apply(lambda x: format_money(x)),
-        "ECL High": scenarios["total_ecl_high"].apply(lambda x: format_money(x)),
-    })
-    from IPython.display import Markdown
-    Markdown(display_df.to_markdown(index=False))
-else:
-    from IPython.display import Markdown
-    Markdown("*Artefacto `ifrs9_scenario_summary.parquet` no disponible.*")
-```
-
-```{python}
-#| echo: false
-
-if not scenarios.empty:
-    base_ecl = scenarios[scenarios["scenario"] == "baseline"]["total_ecl"].values[0]
-    severe_ecl = scenarios[scenarios["scenario"] == "severe"]["total_ecl"].values[0]
-    _uplift_pct = (severe_ecl - base_ecl) / abs(base_ecl) * 100
-    _ecl_delta = severe_ecl - base_ecl
-else:
-    base_ecl = severe_ecl = _ecl_delta = 0.0
-    _uplift_pct = 0.0
-```
-
-Los resultados muestran una progresión de ECL desde el escenario baseline (con corrección CIF, ver @sec-cif-correction) hasta el severe con un **uplift de aproximadamente 70%**. Este uplift captura el efecto combinado de:
-
-- **Mayor PD**: más préstamos migran a Stage 2 y 3
-- **Mayor LGD**: las pérdidas dado default se amplifican
-- **Mayor EAD**: la exposición efectiva crece
-- **Menor descuento**: la tasa más alta reduce el factor de descuento menos que el aumento en PD/LGD
-
-### Migración de Stages entre Escenarios
-
-A medida que los multiplicadores de estrés aumentan, los préstamos migran progresivamente de Stage 1 a Stage 2 y de Stage 2 a Stage 3. Este efecto de **cascada de deterioro** tiene implicaciones no lineales:
-
-- Un préstamo que migra de Stage 1 a Stage 2 pasa de provisionar PD a 12 meses a PD lifetime --- un salto que puede multiplicar su ECL individual por 3--5x
-- Un préstamo que llega a Stage 3 provisiona 100% de LGD $\times$ EAD, el máximo posible
-
-::: {.callout-tip}
-## Lectura para Gestión
-El uplift severe (~\$609M adicionales, +69.9%) representa el **buffer de capital** necesario para absorber un escenario adverso. Comparar este monto con las reservas disponibles y los ratios de solvencia permite evaluar si la entidad puede operar bajo estrés sin intervención regulatoria.
-:::
-
-### Desagregación por Grade
-
-El impacto de los escenarios no es uniforme. Los grades de mayor riesgo (E, F, G) concentran una proporción desproporcionada del ECL incremental, ya que:
-
-1. Sus PD base son más altas, acercándolas al umbral de migración Stage 1 → 2
-2. Sus LGD históricas son mayores
-3. Los multiplicadores de estrés tienen un efecto amplificado sobre préstamos cerca del umbral de default
-
-Esta heterogeneidad justifica el uso de intervalos conformales **Mondrian** (condicionados por grade) en lugar de intervalos globales, ya que la incertidumbre de PD varía significativamente entre segmentos (ver @sec-mondrian).
-
-La @fig-ifrs9-scenario-fan muestra el fan chart de ECL por escenario, donde la dispersión entre baseline y severe se amplifica en los grades de mayor riesgo. Esta visualización permite a un gestor de riesgo identificar inmediatamente dónde se concentra la exposición incremental bajo estrés.
-
-![Fan chart de ECL por escenario mostrando la dispersión entre baseline y severe, desagregado por componentes del portafolio.](../../assets/figures/notebooks/ifrs9_scenario_fan_chart.png){#fig-ifrs9-scenario-fan fig-alt="Fan chart mostrando ECL bajo cuatro escenarios macroeconómicos con dispersión creciente."}
+Lo reutilizable es la arquitectura de escenarios, el alineamiento de filas y
+la persistencia de resultados. La interpretación prudencial permanece
+`parked_ifrs9` según el contrato de Paper 2.

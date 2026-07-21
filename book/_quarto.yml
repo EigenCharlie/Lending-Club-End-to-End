@@ -9,10 +9,8 @@ metadata-files:
 
 book:
   title: "Gestión de Riesgo Crediticio con Predicción Conformal y Optimización Robusta"
-  subtitle: "Un Pipeline Completo de ML, Incertidumbre, Optimización e IFRS9 sobre Lending Club"
+  subtitle: "Companion histórico, auditoría de estimandos y living labs sobre Lending Club"
   author: "Carlos Alfredo Vergara Rojas"
-  date: today
-  date-format: "MMMM YYYY"
   search:
     location: sidebar
     type: textbox
@@ -25,8 +23,8 @@ book:
   repo-url: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
   repo-actions: [edit, issue]
   page-footer:
-    left: "Quarto es la edición oficial del Lending Club Risk Project."
-    right: "Edición digital del proyecto"
+    left: "Edición oficial del companion local; cada paper conserva su propio contrato de claims."
+    right: "Auditoría científica 2026-07-20"
   sidebar:
     collapse-level: 2
     style: docked
@@ -111,8 +109,10 @@ book:
         - chapters/13-advanced-topics/13e-ts-ecl-intervals.qmd
     - part: "Parte IV: Papers de Investigación"
       chapters:
-        # Superficie local activa: Paper 2 y Paper 4.
-        # CRPTO/Paper IJDS vive autocontenido en C:/Users/carlos/Documents/Paper_CRPTO.
+        # Superficies locales activas: Paper 2 (diagnóstico parqueado) y
+        # Paper 4 (living lab sin promoción).
+        # CRPTO/Paper IJDS vive en un repo autocontenido; el commit y sus hashes
+        # se fijan en docs/research/crpto_external_contract_2026-07-20.yml.
         # Paper 3, Paper GPU y Paper Quantum fueron retirados el 2026-06-06;
         # sus aportes útiles quedan absorbidos en la capa Mondrian del libro
         # y en Paper 4, sin rutas editoriales propias.
@@ -162,6 +162,8 @@ language:
 
 format:
   html:
+    filters:
+      - filters/repo-artifact-links.lua
     theme:
       light: [cosmo, brand, styles.scss]
       dark: [slate, brand, styles.scss]
@@ -198,6 +200,9 @@ format:
     documentclass: scrbook
     papersize: letter
     fontsize: 11pt
+    filters:
+      - filters/repo-artifact-links.lua
+      - filters/latex-table-widths.lua
     geometry:
       - margin=1in
     toc: true
@@ -206,6 +211,7 @@ format:
     lot: true
     number-sections: true
     code-fold: false
+    code-overflow: wrap
     keep-tex: true
     include-in-header:
       - latex/preamble.tex

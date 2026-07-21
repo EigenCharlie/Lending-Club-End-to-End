@@ -1,5 +1,10 @@
 # Paper Estrella Audit - CRPTO
 
+> **HISTORICAL AUDIT — SUPERSEDED 2026-07-20.** This document reconstructs the
+> pre-identification champion narrative. It is not evidence for the autonomous
+> CRPTO/IJDS paper, which currently selects no learner, comparator or policy.
+> Use `docs/research/crpto_evolution_cross_project_audit_2026-07-20.md`.
+
 Fecha: 2026-05-04
 Objetivo editorial: paper publicable tipo Management Science / Operations Research / EJOR sobre Conformal Robust Predict-then-Optimize (CRPTO).
 

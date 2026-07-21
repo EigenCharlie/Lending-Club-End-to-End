@@ -3,6 +3,8 @@ title: "Sequential Decision Framework"
 page-layout: article
 ---
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 ## Por que Powell/SDAM si el dataset es estatico
 
 Powell/SDAM no se usa aqui para fingir produccion. Se usa como contrato de
@@ -14,12 +16,12 @@ post-decision state, transicion y politica.
 
 | Elemento | Interpretacion en Paper 4 |
 |---|---|
-| `S_t` | cash, outstanding, ECL proxy, stage mix, coverage state, source exposure |
+| `S_t` | cash, outstanding, legacy loss/accounting-labelled fields, coverage state, source exposure; no ECL o staging identificado |
 | `x_t` | financiar, no financiar, seleccionar policy, ajustar caps o thresholds |
 | `S_t^x` | exposicion financiada, capital usado, budget restante, composicion |
 | `W_{t+1}` | defaults, prepayments, recoveries, macro/internal shocks, drift |
-| `S_{t+1}` | estado actualizado despues de pagos, perdidas, recuperaciones y ECL |
-| `X^pi` | clase de politica: CRPTO, CVaR, DLA, SPO surrogate, static reference |
+| `S_{t+1}` | estado simulado despues de pagos, perdidas y recuperaciones; cualquier campo historically labelled ECL es aritmetica mecanica, no un estimando contable |
+| `X^pi` | clase exploratoria: referencia legacy, CVaR, DLA heuristico, DFL teacher-cost |
 
 ## Contribucion del framework
 
@@ -34,15 +36,16 @@ La pieza que sobrevive al cierre del loop no es otro builder ni otra cola de
 aprobacion: es el contrato conceptual. SDAM/Powell queda como lenguaje para
 ordenar el problema:
 
-- CRPTO/Paper_CRPTO se lee como una politica CFA parametrica: resuelve un LP
-  simplificado cuyo parametro conformal tiene semantica estadistica.
-- Paper 4 usa el mismo lenguaje para separar `S_t`, `x_t`, `W_{t+1}` y
-  transiciones, pero no afirma Bellman optimality ni DLA productiva.
+- El CRPTO IJDS activo se mantiene como contrato externo de identificacion; su
+  LP mensual no se reetiqueta aqui como politica secuencial.
+- Paper 4 usa el lenguaje SDAM para separar `S_t`, `x_t`, `W_{t+1}` y
+  transiciones, pero no afirma que haya estimado un optimizer, una funcion de
+  valor, Bellman optimality ni DLA productiva.
 - Los replays dinamicos son comparaciones internas de politicas sobre sample
   paths historicos; no son forecast externo.
 - Todo claim que no pueda mapearse a estado, decision, informacion, transicion,
   costo o clase de politica queda como future work.
 
-Esta frontera es lo suficientemente fuerte para entrar al CRPTO/Paper_CRPTO como
-framing teorico y lo suficientemente humilde para no vender Paper 4 como sistema
+Esta frontera funciona como checklist de diseño y gobernanza dentro de Paper 4.
+No constituye un resultado para transferir al CRPTO IJDS ni un sistema
 secuencial completo.

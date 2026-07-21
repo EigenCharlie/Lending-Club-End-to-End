@@ -1,6 +1,6 @@
 validation_item,source_month_defended_min,policy_month_defended_min,avg_width_loan,pass_gate,claim_boundary_v35
 v10_best_nominal,0.8,0.9,0.9342434494753106,True,"selection-replay robustness, not live deployment"
-leave_last_six_months_temporal_holdout,,,0.9055164133961281,False,strict temporal holdout diagnostic
+last_six_months_postselection_slice,,,0.9055164133961281,False,"deprecated historical filename; post-selection temporal slice, strict_holdout=false"
 leave_source_family_view::dti_band,0.5,,0.9409266601638892,False,"source-family diagnostic, not new calibration"
 leave_source_family_view::income_band,0.7,,0.9442702541836404,False,"source-family diagnostic, not new calibration"
 leave_source_family_view::original_grade,0.6666666666666666,,0.9551529566210606,False,"source-family diagnostic, not new calibration"

@@ -1276,8 +1276,8 @@ stages:
     deps:
     - path: pyproject.toml
       hash: md5
-      md5: b0ced58ee40aecd2a0348ac40ce9a43d
-      size: 2994
+      md5: 42953a0349dde3c4f612138ca4a5ee00
+      size: 3031
       isexec: true
     - path: requirements/causal-causalpy.txt
       hash: md5
@@ -1297,13 +1297,13 @@ stages:
       size: 10455
     - path: uv.lock
       hash: md5
-      md5: 293cde55540f32ee7a53200053089bb8
-      size: 682987
+      md5: 6dfa65387f258f51886e1c0144949032
+      size: 685027
       isexec: true
     outs:
     - path: models/dependency_audit_runtime_status.json
       hash: md5
-      md5: 75926a9c30094b1136823a52c3bf39bf
+      md5: fb7042d5a9cc85c15780877098a2c4c2
       size: 273
   core.data.materialize_feature_artifacts:
     cmd: uv run python scripts/materialize_feature_artifacts.py

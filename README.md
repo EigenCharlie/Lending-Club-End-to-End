@@ -11,7 +11,14 @@ Credit risk thesis platform organized around pipeline-first execution families:
 
 ## Official Surfaces
 
-- Quarto book is the official, citable, up-to-date source of truth for the project.
+- Quarto is the editorial source of truth for this repository's historical
+  pipeline, diagnostics, Paper 2 and Paper 4 claim boundaries.
+- The current CRPTO/IJDS paper is maintained independently in
+  `Paper_CRPTO`; it is a retrospective identification audit and selects no
+  learner or portfolio policy. Local artifacts named `champion` are provenance
+  from an earlier root-repository freeze, not current CRPTO claims. The observed
+  external commit and content hashes are pinned in
+  `docs/research/crpto_external_contract_2026-07-20.yml`.
 - The local Streamlit app is an optional companion lab for interaction that is not worth duplicating in Quarto.
 - The public Streamlit showcase is a historical snapshot and is no longer the primary product surface.
 
@@ -21,26 +28,41 @@ Historical public showcase:
 
 ## Project Scope
 
-This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with Quarto as the official editorial layer and Streamlit as a reduced local companion for interactive analysis.
+This repository is built as a reproducible historical research workflow over
+Lending Club loans, with Quarto as the official editorial layer and Streamlit
+as a reduced local companion for interactive analysis. Executable services and
+runtime labels do not establish production readiness.
 
 Core methodological chain:
 
 ```text
-Monotonic CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Fairness on Approval Decisions
--> Mondrian Conformal Intervals -> Governance / MRM Diagnostics
--> IFRS9 Scenario Sensitivity -> Robust Portfolio Optimization
+Monotonic CatBoost score -> Local Calibration Selection -> Historical approval-proxy fairness checks
+-> Binary-outcome conformal intervals -> Governance / MRM diagnostics
+-> Historical IFRS9-inspired and portfolio stress experiments
 ```
+
+When calibration labels are binary, the conformal endpoints cover the future
+binary outcome under the stated assumptions. They are not confidence bounds
+for latent individual PD, and their use as ECL inputs or PD uncertainty boxes
+is a historical stress heuristic without a transported coverage guarantee.
 
 ## Why It Matters
 
 1. Point estimates alone are insufficient for risk-sensitive decisions.
-2. Conformal prediction introduces finite-sample uncertainty quantification.
-3. Robust optimization converts uncertainty into actionable portfolio constraints.
-4. IFRS9 sensitivity links predictive risk to accounting impact.
-5. Governance layers like fairness, C2ST, monotonicity audits, and PD validation interpretation make the stack defendable rather than merely predictive.
-6. Causal policy analysis remains a research-grade intervention lane beyond correlation.
+2. Conformal prediction supplies finite-sample coverage for a declared target
+   under exchangeability; the target and transport assumptions must remain explicit.
+3. Historical portfolio experiments show how endpoint geometry can affect
+   decisions, but do not establish a selected policy or latent-PD uncertainty set.
+4. The IFRS9-inspired lane is diagnostic and parked pending reporting-date data
+   and an estimand-specific uncertainty method.
+5. Governance layers like fairness, C2ST, monotonicity audits, and score-validation interpretation make internal limitations and provenance auditable; they are not independent validation.
+6. The causal-methods lane remains an observational diagnostic and does not identify policy value.
 
-## Current Champion (Paper Estrella, 2026-04-06)
+## Historical Local Freeze (pre-identification CRPTO, 2026-04-06)
+
+The following table records the root repository's frozen historical local state. It
+must not be cited as the current Paper_CRPTO result or as a validated deployment
+policy.
 
 | Component | Status |
 |---|---|
@@ -49,16 +71,18 @@ Monotonic CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Fairnes
 | Portfolio | `bound_aware_276k_economic_champion` — `rt=0.175, gamma=0.45, blended_uncertainty`, return $170,464.54 |
 | Robust region | 45/45 policies pass `alpha=0.01` exactly on full 276K OOT |
 | Run tag | `paper-thesis-final-economic-2026-04-06` |
-| Source of truth | `models/final_project_promotion.json`, `models/champion_portfolio_policy.json` |
+| Runtime provenance | `models/final_project_promotion.json`, `models/champion_portfolio_policy.json` |
 | Audit dossier | `docs/research/paper_estrella_audit_2026-05-04.md` |
 
-The `theorem-tight` (gamma=0.55) and `balanced` (rt=0.17) policies inside the same robust region are documented internal comparators, not official champions.
+The `theorem-tight` (gamma=0.55) and `balanced` (rt=0.17) policies are historical
+internal comparators. The active external CRPTO audit does not promote any of
+these policies.
 
 ## Architecture (Quarto-First)
 
 | Layer | Role |
 |---|---|
-| Quarto | Official narrative, figures, tables, and defendable results |
+| Quarto | Official local narrative, figures, tables, and bounded claim status |
 | Streamlit | Local companion lab for interaction, simulation, and exploratory slicing |
 | DuckDB | Local analytical engine for queries and derived marts |
 | dbt | Data lineage/tests/docs over analytical models |
@@ -104,7 +128,9 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 # 4) Run the canonical full pipeline (incremental, DVC-managed)
 uv run dvc repro
 
-# 5) Run the frozen operational rebuild
+# 5) Reproduce the frozen historical local rebuild
+# The default core profile loads clean_baseline_manifest.json and preserves
+# its explicit Venn--Abers midpoint_legacy point rule.
 uv run python scripts/run_canonical_rebuild.py --run-tag canonical-local-smoke
 
 # 6) Run the focused PD search lane when needed
@@ -118,7 +144,12 @@ uv run streamlit run streamlit_app/app.py
 ```
 
 Notes:
-- `uv run dvc repro` is the canonical thesis-grade rebuild path.
+- `uv run dvc repro` is the fresh thesis-grade rebuild path. It refits current
+  code and therefore uses the new Venn--Abers `log_loss_minimax` rule; it is not
+  byte-for-byte replay of the April artifacts.
+- `scripts/run_canonical_rebuild.py` is the historical replay path. Its default
+  profile freezes `clean_baseline_manifest.json`, including
+  `midpoint_legacy`, so old predictions do not change silently.
 - `uv run python scripts/run_smoke_pipeline.py` is the lightweight smoke pipeline.
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` remain as compatibility entrypoints only.
 - The preferred public entrypoints live under `scripts/`, `scripts/search`, `scripts/papers`, `scripts/diagnostics`, and `scripts/labs`.
@@ -175,11 +206,13 @@ Detailed guide:
 
 ## Time Series Status
 
-The canonical time-series lane remains operational for point forecasting and IFRS9 overlay, but its interval layer is still not promoted.
+The executable time-series lane is retained as a historical vintage diagnostic.
+Its point and interval outputs are not validated as calendar-time forecasts or
+as an IFRS9 overlay.
 
 - Canonical lane: `scripts/forecast_default_rates.py` -> `models/time_series_status.json`
 - Research redesign lane: `scripts/run_time_series_vnext.py` -> `models/time_series_vnext_status.json`
-- Current decision: keep canonical point forecast, keep TS->IFRS9 overlay, keep vNext sample paths and ECL translation as research, and do not promote the interval layer yet
+- Current scientific decision: keep all TS->IFRS9/ECL transformations as diagnostic research; Paper 2 remains `parked_ifrs9`, and neither the point nor interval layer is promoted
 
 The latest decision package for this redesign lives in:
 
@@ -202,7 +235,7 @@ CI workflow:
 ## Key Documents
 
 1. `SESSION_STATE.md` - canonical status, snapshots, recovery logs
-2. `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md` - canonical editorial ledger for live techniques, claims, and Quarto mapping
+2. `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md` - superseded March--April runtime ledger retained for historical traceability, not current scientific claims
 3. `docs/RUNBOOK.md` - end-to-end reproducibility runbook
 4. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
 5. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale

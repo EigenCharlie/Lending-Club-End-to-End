@@ -1,5 +1,7 @@
 ## Análisis Geográfico y Temporal {#sec-geographic-temporal}
 
+{{< include ../../includes/_scientific-scope-contract.qmd >}}
+
 La heterogeneidad geográfica y temporal es una de las razones por las que este problema no puede tratarse como una tabla tabular estática. El mismo score puede significar cosas distintas cuando cambia el estado, el ciclo crediticio o el régimen macroeconómico.
 
 ### Cobertura geográfica
@@ -16,7 +18,10 @@ El artefacto `state_aggregates.parquet` resume 51 jurisdicciones. La dispersión
 
 : Muestra del agregado geográfico {#tbl-state-sample}
 
-La presencia de estados con mucho menor soporte muestral también es una advertencia metodológica: no toda heterogeneidad observable amerita una partición operacional. En varios capítulos posteriores se privilegia `grade` como grupo Mondrian precisamente porque tiene mejor estabilidad y sentido regulatorio.
+La presencia de estados con menor soporte muestral es una advertencia: no toda
+heterogeneidad observable amerita una partición operacional. El freeze local
+usó `grade` como especificación Mondrian por soporte y semántica interna; no se
+demostró que fuera estable, regulatoria u óptima frente a todas las taxonomías.
 
 | Lo que muestra la geografía | Lo que no conviene sobrerreaccionar | Lectura útil para el libro |
 |---|---|---|
@@ -25,7 +30,13 @@ La presencia de estados con mucho menor soporte muestral también es una adverte
 
 : Cómo leer la geografía sin sobreprometer segmentación {#tbl-geography-reading}
 
-La tentación de segmentar por estado es comprensible: la diferencia entre Alabama (22.72% default rate) y Alaska (18.97%) parece material y accionable. Pero esa tentación esconde un riesgo conocido en la industria bancaria: la sobre-segmentación geográfica produce modelos que capturan idiosincrasias locales (regulación estatal de intereses, composición sectorial) a costa de estabilidad temporal. Un modelo calibrado para California no se comportará igual cuando el mercado inmobiliario de California se mueva — y si la partición conformal también se hace por estado, los grupos con bajo soporte muestral (Alaska con 4,343 préstamos, Arkansas con 14,087) producirán intervalos inestables que oscilarán entre excesiva estrechez y excesiva amplitud según la composición del set de calibración. Los reguladores (OCC, BCE) generalmente aceptan segmentaciones geográficas solo cuando el banco puede demostrar que la señal geográfica es estable en el tiempo y que el soporte muestral por grupo es suficiente para sostener las garantías estadísticas del modelo. En este proyecto, `grade` cumple ambas condiciones mejor que `state`: tiene 7 niveles (no 51), cada nivel tiene soporte muestral robusto, y su semántica de riesgo es directamente interpretable por un comité. La geografía, en cambio, aporta su máximo valor como variable de contexto — útil para entender *por qué* un segmento se comporta de cierta manera, no como eje principal de partición.
+La diferencia entre Alabama (22.72%) y Alaska (18.97%) es descriptiva: mezcla
+composición, tiempo, selección y tamaño muestral. No identifica un efecto del
+estado ni prueba que una policy geográfica sea accionable. Particionar por 51
+jurisdicciones también reduce soporte por celda. `grade` tiene siete niveles y
+mayor soporte observado, por lo que fue un control práctico; decidir entre
+`grade`, estado u otra taxonomía requiere protocolo outcome-free y evaluación
+de transporte. La geografía queda como contexto, no como eje seleccionado.
 
 ### No estacionariedad temporal
 
@@ -39,31 +50,35 @@ El proyecto usa una división temporal explícita, no un *shuffle split*. La nar
 
 : Esquema temporal del pipeline {#tbl-temporal-split}
 
-Esta estructura cumple dos objetivos. Primero, evita contaminación entre desarrollo y evaluación. Segundo, reproduce la forma en que un banco realmente desplegaría el modelo: entrenando en historia conocida y enfrentándolo luego a un periodo futuro.
+Esta estructura respeta orden calendario entre train y test. Reduce mezcla
+temporal, pero no evita toda contaminación porque outcomes del OOT se
+reutilizaron en comparaciones downstream; tampoco reproduce por sí sola un
+despliegue bancario prospectivo.
 
-::: {.column-page}
-![Vista agregada de series temporales del portafolio Lending Club: default, volumen, tasa y DTI a lo largo del tiempo.](../../assets/figures/notebooks/portfolio_time_series_overview.png){#fig-portfolio-time-overview fig-alt="Vista agregada de series temporales del portafolio Lending Club."}
-:::
-
-La figura @fig-portfolio-time-overview ayuda a leer el capítulo con ojos de negocio: el portafolio cambia en volumen, precio promedio y fragilidad financiera. Por eso el test más creíble del libro nunca es aleatorio; siempre es temporal.
+La vista legacy de series se retira porque mezcla outcomes terminales por
+vintage con lenguaje mensual y muestra una escala de tasa incorrecta. El corte
+temporal sigue siendo útil para describir drift, aunque es un replay
+retrospectivo.
 
 ### La geografía no es solo un mapa
 
 En crédito, el estado resume mezcla de regulación local, composición sectorial, mercado laboral y comportamiento del prestatario. Sin embargo, este libro evita sobredimensionar esa dimensión. La lectura correcta es:
 
 - la geografía aporta contexto;
-- el tiempo aporta el verdadero test de robustez;
+- el tiempo aporta un diagnóstico de transporte dentro del snapshot;
 - la combinación de ambos obliga a monitoreo continuo.
 
 ### Por qué la validación temporal manda
 
-La evidencia de drift en variables como `fico_score` e `int_rate` confirma que el portafolio cambia en el tiempo. Si a eso se suma la heterogeneidad por estado, el costo de ignorar la dimensión temporal sería alto:
+Los cambios observados en `fico_score` e `int_rate` documentan variación del
+snapshot. Ignorar tiempo puede producir una evaluación optimista:
 
 $$
-\text{validación aleatoria} \;\Rightarrow\; \text{optimismo artificial en desempeño y cobertura}
+\text{validación aleatoria} \;\text{puede ocultar drift y sesgar la evaluación}
 $$
 
-Por eso los resultados fuertes del libro se reportan siempre en ventanas OOT o con trazabilidad temporal explícita.
+Por eso los resultados locales deben indicar su ventana y si fue reutilizada
+para selección. `OOT` no significa automáticamente holdout final intacto.
 
 ### Implicación para capítulos posteriores
 
@@ -71,6 +86,8 @@ Este capítulo habilita tres decisiones de diseño:
 
 1. monitoreo de drift con PSI, KS y CvM;
 2. cobertura conformal evaluada por cohorte temporal y por grupo;
-3. escenarios IFRS9 y proyecciones ECL como extensiones naturales del análisis temporal.
+3. requisitos de datos y validación antes de cualquier escenario IFRS9 o ECL.
 
-La conclusión de fondo es sencilla: el dataset no es solo grande; es dinámico y heterogéneo. El pipeline completo fue construido para respetar esa realidad.
+La conclusión defendible es que el snapshot es grande, dinámico y heterogéneo;
+la infraestructura permite auditarlo, pero no cierra transporte, policy ni
+validación prudencial.
